@@ -41,6 +41,24 @@ class That {
       this.assert.detail += "false: " + this.actual + "\n";
     }
   }
+
+  isGreaterThan(expected) {
+    if (this.actual > expected) {
+      this.assert.passed++;
+      this.assert.detail += this.actual + " > " + expected + "\n";
+    } else {
+      this.assert.detail += "FAILED: " + this.actual + " <= " + expected + "\n";
+    }
+  }
+
+  isLessThan(expected) {
+    if (this.actual < expected) {
+      this.assert.passed++;
+      this.assert.detail += this.actual + " < " + expected + "\n";
+    } else {
+      this.assert.detail += "FAILED: " + this.actual + " >= " + expected + "\n";
+    }
+  }
 }
 
 class Assert {

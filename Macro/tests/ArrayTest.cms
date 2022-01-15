@@ -120,6 +120,16 @@ class ArrayTest {
     assert.that(array.slice(-11, -10).join(":")).isEqualTo("");
   }
 
+  splice(assert) {
+    array = split("a,b,c,c", ",");
+    assert.that(array.splice(1, 1).join(":")).isEqualTo("b");
+    assert.that(array.join(":")).isEqualTo("a:c:c");
+    assert.that(array.splice(1, 100, "d", "e", "f").join(":")).isEqualTo("c:c");
+    assert.that(array.join(":")).isEqualTo("a:d:e:f");
+    assert.that(array.splice(-3, 2, "g").join(":")).isEqualTo("d:e");
+    assert.that(array.join(":")).isEqualTo("a:g:f");
+  }
+
   unshift(assert) {
     array = new Array();
     assert.that(array.unshift("a")).isEqualTo(1);
@@ -154,6 +164,7 @@ class ArrayTest {
     this.reverse(assert);
     this.shift(assert);
     this.slice(assert);
+    this.splice(assert);
     this.unshift(assert);
     this.arrayFrom(assert);
     this.arrayOf(assert);
@@ -163,4 +174,3 @@ class ArrayTest {
 assert = new Assert();
 new ArrayTest().test(assert);
 assert.showResult();
-MessageBox(new Array());

@@ -9,10 +9,21 @@
 #include "TypeList.h"
 #include "Undo.h"
 //---------------------------------------------------------------------------
-#define CASSAVA_TITLE TEXT("Cassava Editor")
+#define CASSAVA_TITLE L"Cassava Editor"
 //---------------------------------------------------------------------------
 typedef void __fastcall (__closure *TDropCsvFiles)
     (System::TObject *Sender, int iFiles, System::String *DropFileNames);
+//---------------------------------------------------------------------------
+enum TReturnCode {
+  CRLF, LF, CR
+};
+inline String ReturnCodeString(TReturnCode AReturnCode) {
+  switch (AReturnCode) {
+    case CRLF: return L"\r\n";
+    case LF: return L"\n";
+    case CR: return L"\r";
+  }
+}
 //---------------------------------------------------------------------------
 class TMainGrid : public TStringGrid
 {
@@ -184,8 +195,8 @@ public:
     int DefaultCharCode;
     int KanjiCode;
     bool AddBom;
-#define LFCR TEXT('\0')
-    wchar_t ReturnCode;
+    TReturnCode ReturnCode;
+    TReturnCode InCellReturnCode;
     bool LeftArrowInCell;
 #define cssv_taLeft 0
 #define cssv_taNumRight 1
@@ -299,15 +310,15 @@ public:
           ACol >= Selection.Left && ACol <= Selection.Right;
     }
 
-    bool Find(String FindText, int Range, bool Case, bool Regex, bool Word,
-              bool Back);
-    bool Replace(String FindText , String ReplaceText, int Range, bool Case,
-                 bool Regex, bool Word, bool Back);
+    bool Find(String FindText, TGridRect Range, bool Case, bool Regex,
+              bool Word, bool Back);
+    bool Replace(String FindText , String ReplaceText, TGridRect Range,
+                 bool Case, bool Regex, bool Word, bool Back);
     int ReplaceAll(String FindText, String ReplaceText, int SLeft, int STop,
                    int SRight, int SBottom, bool Case, bool Regex, bool Word);
     String ReplaceAll(String OriginalText, String FindText, String ReplaceText,
                       bool Case, bool Regex, bool Word);
-    bool NumFind(double *Min, double *Max, int Range, bool Back);
+    bool NumFind(double *Min, double *Max, TGridRect Range, bool Back);
 
     __property bool DragMove = {read=FDragMove, write=SetDragMove};
     __property bool ShowRowCounter
@@ -340,15 +351,17 @@ public:
     TThread *FileOpenThread;
     void __fastcall FileOpenThreadTerminate(System::TObject* Sender);
 
-    TColor UrlColor;
-    TColor FixFgColor;
-    TColor CurrentRowBgColor;
-    TColor CurrentColBgColor;
-    TColor DummyBgColor;
     TColor CalcFgColor;
     TColor CalcBgColor;
     TColor CalcErrorFgColor;
     TColor CalcErrorBgColor;
+    TColor CurrentRowBgColor;
+    TColor CurrentColBgColor;
+    TColor DummyBgColor;
+    TColor EvenRowBgColor;
+    TColor FixFgColor;
+    TColor FoundBgColor;
+    TColor UrlColor;
 };
 //---------------------------------------------------------------------------
 #endif

@@ -203,6 +203,7 @@ void TfmMain::ReadIni()
 
   IniFile *Ini = Pref->GetInifile();
 
+  Style = Ini->ReadString("Mode", "Style", "Windows");
   Width = Ini->ReadInteger("Position", "Width", Width);
   Height = Ini->ReadInteger("Position", "Height", Height);
   int iniLeft = Ini->ReadInteger("Position", "Left", -1);
@@ -227,43 +228,62 @@ void TfmMain::ReadIni()
   Show();
   SearchMacro();
 
-    WindowState =
-        (TWindowState) Ini->ReadInteger("Position", "Mode", (int) wsNormal);
-    MainGrid->Font->Name = Ini->ReadString("Font","Name", "ＭＳ Ｐゴシック");
-    MainGrid->Font->Size = Ini->ReadInteger("Font","Size", 12);
-    if (Ini->ReadBool("Font","Bold", false)) {
-      MainGrid->Font->Style = MainGrid->Font->Style << fsBold;
-    }
-    if (Ini->ReadBool("Font","Italic", false)) {
-      MainGrid->Font->Style = MainGrid->Font->Style << fsItalic;
-    }
-    if (Ini->ReadBool("Font","Underline", false)) {
-      MainGrid->Font->Style = MainGrid->Font->Style << fsUnderline;
-    }
-    if (Ini->ReadBool("Font","StrikeOut", false)) {
-      MainGrid->Font->Style = MainGrid->Font->Style << fsStrikeOut;
-    }
-    MainGrid->TBMargin = Ini->ReadInteger("Font","TBMargin", 2);
-    MainGrid->LRMargin = Ini->ReadInteger("Font","LRMargin", 2);
-    MainGrid->CellLineMargin = Ini->ReadInteger("Font","CellLineMargin", 0);
-    MainGrid->Font->Color = (TColor)Ini->ReadInteger("Font","FgColor",MainGrid->Font->Color);
-    MainGrid->Canvas->Font = MainGrid->Font;
-    MainGrid->Color       = (TColor)Ini->ReadInteger("Font","BgColor",MainGrid->Color);
-    MainGrid->UrlColor    = (TColor)Ini->ReadInteger("Font","UrlColor",clBlue);
-    MainGrid->FixFgColor  = (TColor)Ini->ReadInteger("Font","FixFgColor",MainGrid->Font->Color);
-    MainGrid->FixedColor  = (TColor)Ini->ReadInteger("Font","FixedColor",MainGrid->FixedColor);
-    MainGrid->CurrentRowBgColor = (TColor)Ini->ReadInteger("Font","CurrentRowBgColor",MainGrid->Color);
-    MainGrid->CurrentColBgColor  = (TColor)Ini->ReadInteger("Font","CurrentColBgColor",MainGrid->Color);
-    MainGrid->DummyBgColor  = (TColor)Ini->ReadInteger("Font","DummyBgColor",clCream);
-    MainGrid->CalcFgColor  = (TColor)Ini->ReadInteger("Font","CalcFgColor",MainGrid->Font->Color);
-    MainGrid->CalcBgColor  = (TColor)Ini->ReadInteger("Font","CalcBgColor",clAqua);
-    MainGrid->CalcErrorFgColor  = (TColor)Ini->ReadInteger("Font","CalcErrorFgColor",MainGrid->Font->Color);
-    MainGrid->CalcErrorBgColor  = (TColor)Ini->ReadInteger("Font","CalcErrorBgColor",clRed);
-    MainGrid->WordWrap = Ini->ReadBool("Font","WordWrap", false);
-    MainGrid->TextAlignment = Ini->ReadInteger("Font","TextAlign", MainGrid->TextAlignment);
-    MainGrid->NumberComma = Ini->ReadInteger("Font","NumberComma", 0);
-    MainGrid->DecimalDigits = Ini->ReadInteger("Font","DecimalDigits", -1);
-    MainGrid->MinColWidth = Ini->ReadInteger("Font","MinColWidth", MainGrid->MinColWidth);
+  WindowState =
+      (TWindowState) Ini->ReadInteger("Position", "Mode", (int) wsNormal);
+  MainGrid->Font->Name = Ini->ReadString("Font", "Name",
+      Screen->Fonts->IndexOf("Yu Gothic UI") >= 0 ? "Yu Gothic UI"
+                                                  : "ＭＳ Ｐゴシック");
+  MainGrid->Font->Size = Ini->ReadInteger("Font", "Size", 12);
+  if (Ini->ReadBool("Font", "Bold", false)) {
+    MainGrid->Font->Style = MainGrid->Font->Style << fsBold;
+  }
+  if (Ini->ReadBool("Font", "Italic", false)) {
+    MainGrid->Font->Style = MainGrid->Font->Style << fsItalic;
+  }
+  if (Ini->ReadBool("Font", "Underline", false)) {
+    MainGrid->Font->Style = MainGrid->Font->Style << fsUnderline;
+  }
+  if (Ini->ReadBool("Font", "StrikeOut", false)) {
+    MainGrid->Font->Style = MainGrid->Font->Style << fsStrikeOut;
+  }
+  MainGrid->TBMargin = Ini->ReadInteger("Font", "TBMargin", 2);
+  MainGrid->LRMargin = Ini->ReadInteger("Font", "LRMargin", 4);
+  MainGrid->CellLineMargin = Ini->ReadInteger("Font", "CellLineMargin", 0);
+  MainGrid->Color =
+      (TColor) Ini->ReadInteger("Font", "BgColor", MainGrid->Color);
+  MainGrid->Font->Color =
+      (TColor) Ini->ReadInteger("Font", "FgColor", MainGrid->Font->Color);
+  MainGrid->Canvas->Font = MainGrid->Font;
+  MainGrid->CalcBgColor =
+      (TColor) Ini->ReadInteger("Font", "CalcBgColor", clAqua);
+  MainGrid->CalcErrorBgColor =
+      (TColor) Ini->ReadInteger("Font", "CalcErrorBgColor", clRed);
+  MainGrid->CalcErrorFgColor = (TColor) Ini->ReadInteger(
+      "Font", "CalcErrorFgColor", MainGrid->Font->Color);
+  MainGrid->CalcFgColor =
+      (TColor) Ini->ReadInteger("Font", "CalcFgColor", MainGrid->Font->Color);
+  MainGrid->CurrentRowBgColor =
+      (TColor) Ini->ReadInteger("Font", "CurrentRowBgColor", MainGrid->Color);
+  MainGrid->CurrentColBgColor =
+      (TColor) Ini->ReadInteger("Font", "CurrentColBgColor", MainGrid->Color);
+  MainGrid->DummyBgColor =
+      (TColor) Ini->ReadInteger("Font", "DummyBgColor", clCream);
+  MainGrid->EvenRowBgColor =
+      (TColor) Ini->ReadInteger("Font", "EvenRowBgColor", MainGrid->Color);
+  MainGrid->FixFgColor =
+      (TColor) Ini->ReadInteger("Font", "FixFgColor", MainGrid->Font->Color);
+  MainGrid->FixedColor =
+      (TColor) Ini->ReadInteger("Font", "FixedColor", MainGrid->FixedColor);
+  MainGrid->FoundBgColor =
+      (TColor) Ini->ReadInteger("Font", "FoundBgColor", clYellow);
+  MainGrid->UrlColor = (TColor) Ini->ReadInteger("Font", "UrlColor", clBlue);
+  MainGrid->WordWrap = Ini->ReadBool("Font", "WordWrap", false);
+  MainGrid->TextAlignment =
+      Ini->ReadInteger("Font", "TextAlign", MainGrid->TextAlignment);
+  MainGrid->NumberComma = Ini->ReadInteger("Font", "NumberComma", 0);
+  MainGrid->DecimalDigits = Ini->ReadInteger("Font", "DecimalDigits", -1);
+  MainGrid->MinColWidth =
+      Ini->ReadInteger("Font", "MinColWidth", MainGrid->MinColWidth);
 
     PrintFontName = Ini->ReadString("Print","FontName",MainGrid->Font->Name);
     PrintFontSize = Ini->ReadInteger("Print","FontSize",MainGrid->Font->Size);
@@ -383,6 +403,7 @@ void TfmMain::ReadIni()
     FindCase = Ini->ReadBool("Search", "Case", true);
     FindWordSearch = Ini->ReadBool("Search", "Word", false);
     FindRegex = Ini->ReadBool("Search", "Regex", false);
+    FindRange = Ini->ReadInteger("Search", "Range", 3);
 
     String LaunchName[3];
     mnAppli0->Hint = Ini->ReadString("Application", "E0", "");
@@ -399,12 +420,16 @@ void TfmMain::ReadIni()
     LaunchName[2]  = Ini->ReadString("Application", "N2", "未設定");
     MainGrid->BrowserFileName = Ini->ReadString("Application", "Browser", "");
 
-    History->Clear();
-      for(int i=0; i<10; i++){
-        String S = Ini->ReadString("History", (String)i, "");
-        if(S != "") History->Add(S);
-        else break;
-      }
+  History->Clear();
+  for (int i = 0; i < 10; i++) {
+    String historyFile = Ini->ReadString("History", (String)i, "");
+    if (historyFile != "") {
+      History->Add(historyFile);
+    } else {
+      break;
+    }
+  }
+  dlgOpenMacro->InitialDir = Ini->ReadString("History", "Macro", "");
 
   delete Ini;
 
@@ -428,6 +453,7 @@ void TfmMain::WriteIni(bool PosSlide)
 {
   try {
     IniFile *Ini = Pref->GetInifile();
+    Ini->WriteString("Mode", "Style", Style);
     Ini->WriteInteger("Position", "Mode", (int) WindowState);
     if(WindowState == wsNormal){
       int Slide = PosSlide ? 32 : 0;
@@ -445,18 +471,20 @@ void TfmMain::WriteIni(bool PosSlide)
     Ini->WriteInteger("Font","TBMargin",MainGrid->TBMargin);
     Ini->WriteInteger("Font","LRMargin",MainGrid->LRMargin);
     Ini->WriteInteger("Font","CellLineMargin",MainGrid->CellLineMargin);
-    Ini->WriteInteger("Font","FgColor",MainGrid->Font->Color);
-    Ini->WriteInteger("Font","UrlColor",MainGrid->UrlColor);
-    Ini->WriteInteger("Font","BgColor",MainGrid->Color);
-    Ini->WriteInteger("Font","FixFgColor",MainGrid->FixFgColor);
-    Ini->WriteInteger("Font","FixedColor",MainGrid->FixedColor);
-    Ini->WriteInteger("Font","CurrentRowBgColor",MainGrid->CurrentRowBgColor);
-    Ini->WriteInteger("Font","CurrentColBgColor",MainGrid->CurrentColBgColor);
-    Ini->WriteInteger("Font","DummyBgColor",MainGrid->DummyBgColor);
-    Ini->WriteInteger("Font","CalcFgColor",MainGrid->CalcFgColor);
-    Ini->WriteInteger("Font","CalcBgColor",MainGrid->CalcBgColor);
-    Ini->WriteInteger("Font","CalcErrorFgColor",MainGrid->CalcErrorFgColor);
-    Ini->WriteInteger("Font","CalcErrorBgColor",MainGrid->CalcErrorBgColor);
+    Ini->WriteInteger("Font", "BgColor", MainGrid->Color);
+    Ini->WriteInteger("Font", "CalcBgColor", MainGrid->CalcBgColor);
+    Ini->WriteInteger("Font", "CalcErrorBgColor", MainGrid->CalcErrorBgColor);
+    Ini->WriteInteger("Font", "CalcErrorFgColor", MainGrid->CalcErrorFgColor);
+    Ini->WriteInteger("Font", "CalcFgColor", MainGrid->CalcFgColor);
+    Ini->WriteInteger("Font", "CurrentColBgColor", MainGrid->CurrentColBgColor);
+    Ini->WriteInteger("Font", "CurrentRowBgColor", MainGrid->CurrentRowBgColor);
+    Ini->WriteInteger("Font", "DummyBgColor", MainGrid->DummyBgColor);
+    Ini->WriteInteger("Font", "EvenRowBgColor", MainGrid->EvenRowBgColor);
+    Ini->WriteInteger("Font", "FgColor", MainGrid->Font->Color);
+    Ini->WriteInteger("Font", "FixFgColor", MainGrid->FixFgColor);
+    Ini->WriteInteger("Font", "FixedColor", MainGrid->FixedColor);
+    Ini->WriteInteger("Font", "FoundBgColor", MainGrid->FoundBgColor);
+    Ini->WriteInteger("Font", "UrlColor", MainGrid->UrlColor);
     Ini->WriteBool("Font","WordWrap",MainGrid->WordWrap);
     Ini->WriteInteger("Font","TextAlign", MainGrid->TextAlignment);
     Ini->WriteInteger("Font","NumberComma", MainGrid->NumberComma);
@@ -538,6 +566,7 @@ void TfmMain::WriteIni(bool PosSlide)
     Ini->WriteBool("Search", "Case", fmFind->cbCase->Checked);
     Ini->WriteBool("Search", "Word", fmFind->cbWordSearch->Checked);
     Ini->WriteBool("Search", "Regex", fmFind->cbRegex->Checked);
+    Ini->WriteInteger("Search", "Range", fmFind->rgRange->ItemIndex);
 
     Ini->WriteString("Application", "E0", mnAppli0->Hint);
     Ini->WriteString("Application", "N0", mnAppli0->Caption.c_str() + 4);
@@ -550,10 +579,18 @@ void TfmMain::WriteIni(bool PosSlide)
     Ini->WriteBool("Application", "Q2", mnAppli2->Tag);
     Ini->WriteString("Application", "Browser", MainGrid->BrowserFileName);
 
-    for(int i=0; i<History->Count; i++)
-      Ini->WriteString("History", (String)i,History->Strings[i]);
-    for(int i=History->Count; i<10; i++)
+    for (int i = 0; i < History->Count; i++) {
+      Ini->WriteString("History", (String)i, History->Strings[i]);
+    }
+    for (int i = History->Count; i < 10; i++) {
       Ini->DeleteKey("History", (String)i);
+    }
+    if (dlgOpenMacro->InitialDir != "" &&
+        dlgOpenMacro->InitialDir != Pref->UserPath + "Macro") {
+      Ini->WriteString("History", "Macro", dlgOpenMacro->InitialDir);
+    } else {
+      Ini->DeleteKey("History", "Macro");
+    }
 
     delete Ini;
   }catch(...){}
@@ -623,10 +660,19 @@ void TfmMain::ReadToolBar()
         toolBar->Left = tbarLeft;
         String toolbarbmp = Pref->Path + name;
         if(name == "#1"){
-          toolBar->Images = imlNormal;
-          toolBar->DisabledImages = imlNormalDisabled;
+          if (Style == "Windows10 Dark") {
+            toolBar->Images = imlNormalDark;
+            toolBar->DisabledImages = imlNormalDarkDisabled;
+          } else {
+            toolBar->Images = imlNormal;
+            toolBar->DisabledImages = imlNormalDisabled;
+          }
         }else if(name == "#2"){
-          toolBar->Images = imlAdditional;
+          if (Style == "Windows10 Dark") {
+            toolBar->Images = imlAdditionalDark;
+          } else {
+            toolBar->Images = imlAdditional;
+          }
         }else if(name != "" && FileExists(toolbarbmp)){
           TCustomImageList *images = new TCustomImageList(16, 16);
           images->FileLoad(rtBitmap, toolbarbmp, clSilver);
@@ -824,6 +870,25 @@ void TfmMain::SetPasteMenu(TMenuItem *Item)
   }
 }
 //---------------------------------------------------------------------------
+void TfmMain::SetStyle(String Value)
+{
+  if (Value == FStyle) {
+    return;
+  }
+
+  FStyle = Value;
+  TStyleManager::TrySetStyle(FStyle);
+  if (Style == "Windows10 Dark") {
+    tbarNormal->Images = imlNormalDark;
+    tbarNormal->DisabledImages = imlNormalDarkDisabled;
+    tbarAdditional->Images = imlAdditionalDark;
+  } else {
+    tbarNormal->Images = imlNormal;
+    tbarNormal->DisabledImages = imlNormalDisabled;
+    tbarAdditional->Images = imlAdditional;
+  }
+}
+//---------------------------------------------------------------------------
 void __fastcall TfmMain::MainGridChangeModified(TObject *Sender)
 {
   bool m = MainGrid->Modified;
@@ -878,7 +943,8 @@ void __fastcall TfmMain::ApplicationActivate(System::TObject* Sender)
   if(FileAge(FileName, age)){
     if(age > TimeStamp){
       if(Application->MessageBox(
-        TEXT("他のアプリケーションによってファイルが更新されました。\n再読み込みしますか？"),
+        L"他のアプリケーションによってファイルが更新されました。\n"
+        L"再読み込みしますか？",
         FileName.c_str(), MB_YESNO + MB_ICONQUESTION) == IDYES){
         mnReloadClick(Sender);
       }
@@ -1051,7 +1117,7 @@ bool TfmMain::IfModifiedThenSave()
     if (a == IDYES) {
       if (MainGrid->FileOpenThread) {
         Application->MessageBox(
-            TEXT("ファイルの読み込みが完了していないため保存できません。"),
+            L"ファイルの読み込みが完了していないため保存できません。",
             CASSAVA_TITLE, MB_ICONERROR);
         return false;
       }
@@ -1081,7 +1147,7 @@ void TfmMain::SaveFile(TTypeOption *Format)
 {
   if(MainGrid->FileOpenThread){
     Application->MessageBox(
-        TEXT("ファイルの読み込みが完了していないため保存できません。"),
+        L"ファイルの読み込みが完了していないため保存できません。",
         CASSAVA_TITLE, MB_ICONERROR);
     return;
   }
@@ -1263,7 +1329,7 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
 {
   if(MainGrid->FileOpenThread){
     Application->MessageBox(
-      TEXT("ファイルの読み込みが完了していないためエクスポートできません。"),
+      L"ファイルの読み込みが完了していないためエクスポートできません。",
       CASSAVA_TITLE, MB_ICONERROR);
     return;
   }
@@ -1293,12 +1359,14 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
     FindClose(sr);
   }
   if(strFilter == ""){
-	Application->MessageBox(TEXT("エクスポート可能な形式はありません。"),
-							TEXT("Cassava Export"), 0);
+    Application->MessageBox(
+        L"エクスポート可能な形式はありません。", L"Cassava Export", 0);
     delete types;
     return;
   }
   dlgSave->Filter = strFilter;
+  dlgSave->InitialDir = ExtractFilePath(dlgSave->FileName);
+  dlgSave->FileName = ChangeFileExt(ExtractFileName(dlgSave->FileName), "");
   if(dlgSave->Execute()){
     dlgSave->Filter = strOrgFilter;
     String type = types->Strings[dlgSave->FilterIndex - 1];
@@ -1322,7 +1390,7 @@ void TfmMain::Export(String filename, String type)
     if(!FileExists(CmsFile)){
       Application->MessageBox(
           (type + " 形式ではエクスポートできません。").c_str(),
-          TEXT("Cassava Export"), 0);
+          L"Cassava Export", 0);
       return;
     }
 
@@ -1332,7 +1400,8 @@ void TfmMain::Export(String filename, String type)
     try{
       out = new TFileStream(filename, fmCreate | fmShareDenyWrite);
       int kanjiCode = MainGrid->KanjiCode;
-      wchar_t returnCode = MainGrid->ReturnCode;
+      TReturnCode returnCode = MainGrid->ReturnCode;
+      TReturnCode inCellReturnCode = MainGrid->InCellReturnCode;
       bool addBom = MainGrid->AddBom;
       ew = new EncodedWriter(out, kanjiCode, addBom);
       checkedMenus = new TStringList();
@@ -1343,10 +1412,11 @@ void TfmMain::Export(String filename, String type)
       RestoreCheckedMenus(checkedMenus);
       MainGrid->KanjiCode = kanjiCode;
       MainGrid->ReturnCode = returnCode;
+      MainGrid->InCellReturnCode = inCellReturnCode;
       MainGrid->AddBom = addBom;
     }catch(Exception *e){
-	  Application->MessageBox(e->Message.c_str(),
-                              TEXT("Cassava Macro Interpreter"), 0);
+      Application->MessageBox(e->Message.c_str(),
+                              L"Cassava Macro Interpreter", 0);
     }
     if(checkedMenus) { delete checkedMenus; }
     if(ew) { delete ew; }
@@ -1929,7 +1999,7 @@ void __fastcall TfmMain::mnFixFirstRowClick(TObject *Sender)
     mnFixFirstRow->Checked = !MainGrid->ShowColCounter;
     tsbFixFirstRow->Down   = !MainGrid->ShowColCounter;
     Application->MessageBox(
-        TEXT("ファイルの読み込み中は固定セルを変更できません。"),
+        L"ファイルの読み込み中は固定セルを変更できません。",
         CASSAVA_TITLE, MB_ICONERROR);
     return;
   }
@@ -1953,7 +2023,7 @@ void __fastcall TfmMain::mnFixFirstColClick(TObject *Sender)
     mnFixFirstCol->Checked = !MainGrid->ShowRowCounter;
     tsbFixFirstCol->Down   = !MainGrid->ShowRowCounter;
     Application->MessageBox(
-        TEXT("ファイルの読み込み中は固定セルを変更できません。"),
+        L"ファイルの読み込み中は固定セルを変更できません。",
         CASSAVA_TITLE, MB_ICONERROR);
     return;
   }
@@ -1979,7 +2049,7 @@ void __fastcall TfmMain::mnFixUpLeftClick(TObject *Sender)
     mnFixFirstCol->Checked = !MainGrid->ShowRowCounter;
     tsbFixFirstCol->Down   = !MainGrid->ShowRowCounter;
     Application->MessageBox(
-        TEXT("ファイルの読み込み中は固定セルを変更できません。"),
+        L"ファイルの読み込み中は固定セルを変更できません。",
         CASSAVA_TITLE, MB_ICONERROR);
     return;
   }
@@ -2033,7 +2103,7 @@ void __fastcall TfmMain::mnUnFixClick(TObject *Sender)
     mnFixFirstCol->Checked = !MainGrid->ShowRowCounter;
     tsbFixFirstCol->Down   = !MainGrid->ShowRowCounter;
     Application->MessageBox(
-        TEXT("ファイルの読み込み中は固定セルを変更できません。"),
+        L"ファイルの読み込み中は固定セルを変更できません。",
         CASSAVA_TITLE, MB_ICONERROR);
     return;
   }
@@ -2057,8 +2127,10 @@ void __fastcall TfmMain::mnUnFixClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnOptionDlgClick(TObject *Sender)
 {
+  fmOption = new TfmOption(Application);
   fmOption->ShowModal();
   UpdateTitle();
+  delete fmOption;
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnAppliClick(TObject *Sender)
@@ -2145,13 +2217,17 @@ void __fastcall TfmMain::mnMacroOpenFolderClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnMacroExecuteClick(TObject *Sender)
 {
-  String path = Pref->UserPath + "Macro";
-  if(!DirectoryExists(path)){
-    path = Pref->SharedPath + "Macro";
+  if (dlgOpenMacro->InitialDir == "") {
+    String path = Pref->UserPath + "Macro";
+    if (!DirectoryExists(path)) {
+      path = Pref->SharedPath + "Macro";
+    }
+    dlgOpenMacro->InitialDir = path;
   }
-  dlgOpenMacro->InitialDir = path;
-  if(dlgOpenMacro->Execute()){
+  if (dlgOpenMacro->Execute()) {
     String CmsFile = dlgOpenMacro->FileName;
+    dlgOpenMacro->InitialDir = ExtractFilePath(CmsFile);
+    dlgOpenMacro->FileName = ExtractFileName(CmsFile);
     MacroExec(CmsFile, NULL);
   }
 }
@@ -2327,6 +2403,7 @@ void __fastcall TfmMain::edFindTextKeyDown(TObject *Sender, WORD &Key,
   }else if(Key == VK_ESCAPE){
     btnSearchCancelClick(Sender);
   }
+  MainGrid->Invalidate();
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::btnNextClick(TObject *Sender)
@@ -2438,10 +2515,19 @@ void __fastcall TfmMain::mnCharCodeClick(TObject *Sender)
       break;
   }
 
-  switch (MainGrid->ReturnCode) {
-    case '\x0A': mnLf->Checked=true;   break;
-    case '\x0D': mnCr->Checked=true;   break;
-    default:     mnLfcr->Checked=true; break;
+  if (MainGrid->ReturnCode == MainGrid->InCellReturnCode) {
+    switch (MainGrid->ReturnCode) {
+      case LF: mnLf->Checked = true;   break;
+      case CR: mnCr->Checked = true;   break;
+      default: mnLfcr->Checked = true; break;
+    }
+  } else if (MainGrid->ReturnCode == CRLF && MainGrid->InCellReturnCode == LF) {
+    mnLfInCell->Checked = true;
+  } else {
+    mnLfcr->Checked = false;
+    mnLf->Checked = false;
+    mnCr->Checked = false;
+    mnLfInCell->Checked = false;
   }
 
   mnBom->Checked = MainGrid->AddBom;
@@ -2459,9 +2545,28 @@ void __fastcall TfmMain::mnKCodeClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnReturnCodeClick(TObject *Sender)
 {
-  TMenuItem *Menu = static_cast<TMenuItem *>(Sender);
-  if (MainGrid->ReturnCode != Menu->Tag) {
-    MainGrid->ReturnCode = Menu->Tag;
+  TMenuItem *menu = static_cast<TMenuItem *>(Sender);
+
+  TReturnCode returnCode;
+  TReturnCode inCellReturnCode;
+  if (menu == mnLf) {
+    returnCode = LF;
+    inCellReturnCode = LF;
+  } else if (menu == mnLfInCell) {
+    returnCode = CRLF;
+    inCellReturnCode = LF;
+  } else if (menu == mnCr) {
+    returnCode = CR;
+    inCellReturnCode = CR;
+  } else {
+    returnCode = CRLF;
+    inCellReturnCode = CRLF;
+  }
+
+  if (MainGrid->ReturnCode != returnCode
+      || MainGrid->InCellReturnCode != inCellReturnCode) {
+    MainGrid->ReturnCode = returnCode;
+    MainGrid->InCellReturnCode = inCellReturnCode;
     MainGrid->Modified = true;
   }
 }
@@ -2494,8 +2599,8 @@ void __fastcall TfmMain::mnCheckUpdateClick(TObject *Sender)
 void __fastcall TfmMain::mnAboutClick(TObject *Sender)
 {
   String message = "Cassava Editor\n   Ver. " + Version::CurrentText()
-    + "\n   by あすかぜ\n\t" + Version::CurrentDate();
-  Application->MessageBox(message.c_str(), TEXT("バージョン情報"), 0);
+    + "\n   by あすかぜ\n                " + Version::CurrentDate();
+  Application->MessageBox(message.c_str(), L"バージョン情報", 0);
 }
 //---------------------------------------------------------------------------
 

@@ -2,7 +2,8 @@
 #ifndef MacroOpeCodeH
 #define MacroOpeCodeH
 //---------------------------------------------------------------------------
-#define CMO_Goto     'g' /* if,while */
+#define CMO_Goto     'g' /* Clears stack. Used in if, while */
+#define CMO_Jump     'j' /* Keeps stack. Used in ?: */
 #define CMO_Minus    'm' /* "-"  */
 #define CMO_Inc      'i' /* "++" */
 #define CMO_Dec      'd' /* "--" */
@@ -15,6 +16,7 @@
 #define CMO_LEq      'L' /* "<=" */
 #define CMO_GEq      'G' /* ">=" */
 #define CMO_In       'n' /* "in" */
+#define CMO_ObjKey   'k' /* ":" */
 //---------------------------------------------------------------------------
 static char CMOCode(String str){
   if(str == "++") return CMO_Inc;

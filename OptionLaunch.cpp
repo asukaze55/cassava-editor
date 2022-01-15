@@ -88,46 +88,4 @@ void __fastcall TfrOptionLaunch::sbReferClick(TObject *Sender)
   }
 }
 //---------------------------------------------------------------------------
-void TfrOptionLaunch::SetKanrenLaunch(TRegistry *Reg,
-        String CassavaType)
-{
-  if(Reg->OpenKey("\\Software\\Classes\\" + CassavaType, false)){
-    if(Application->MessageBox(TEXT("ŠÖ˜A•t‚¯‚ðÝ’è‚µ‚Ü‚·"),
-        CassavaType.c_str(), MB_OKCANCEL)==IDOK){
-      Reg->DeleteKey("\\Software\\Classes\\" + CassavaType + "\\shell");
-      Reg->OpenKey("\\Software\\Classes\\" + CassavaType + "\\shell", true);
-      Reg->OpenKey("open", true);
-      Reg->WriteString("", "Cassava Editor ‚ÅŠJ‚­");
-      Reg->OpenKey("command",true);
-      Reg->WriteString("", (String)'\"'+ParamStr(0)+"\" \"%1\"");
-      Reg->CloseKey();
-
-      for(int i=0; i<3; i++){
-        String Nm, Lc;
-        switch(i){
-          case 0: Nm = edLaunchName0->Text; Lc = edLaunch0->Text; break;
-          case 1: Nm = edLaunchName1->Text; Lc = edLaunch1->Text; break;
-          case 2: Nm = edLaunchName2->Text; Lc = edLaunch2->Text; break;
-        }
-        if(Lc != ""){
-          Reg->OpenKey("\\Software\\Classes\\" + CassavaType + "\\shell", true);
-          Reg->OpenKey(Nm, true);
-          Reg->OpenKey("command", true);
-          Reg->WriteString("", (String)'\"'+Lc+"\" \"%1\"");
-        }
-      }
-      Reg->CloseKey();
-    }
-  }
-}
-//---------------------------------------------------------------------------
-void __fastcall TfrOptionLaunch::btnKanrenRClick(TObject *Sender)
-{
-  TRegistry *Reg = new TRegistry;
-  Reg->RootKey = HKEY_CURRENT_USER;
-  SetKanrenLaunch(Reg, "Cassava.CSV");
-  SetKanrenLaunch(Reg, "Cassava.TSV");
-  delete Reg;
-}
-//---------------------------------------------------------------------------
 

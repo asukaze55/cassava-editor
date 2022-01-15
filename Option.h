@@ -30,13 +30,14 @@ __published:  // IDE 管理のコンポーネント
   void __fastcall tvCategoryChange(TObject *Sender, TTreeNode *Node);
   void __fastcall FormShow(TObject *Sender);
   void __fastcall btnOKClick(TObject *Sender);
-  void __fastcall tvCategoryMouseUp(TObject *Sender, TMouseButton Button, TShiftState Shift,
-          int X, int Y);
+  void __fastcall tvCategoryMouseUp(TObject *Sender, TMouseButton Button,
+      TShiftState Shift, int X, int Y);
   void __fastcall mnApplyToCurrentFileClick(TObject *Sender);
   void __fastcall mnDeleteClick(TObject *Sender);
 private:  // ユーザー宣言
 public:   // ユーザー宣言
   __fastcall TfmOption(TComponent* Owner);
+  __fastcall ~TfmOption();
   TTreeNode *tnDataFormat;
   TTreeNode *tnFile;
   TTreeNode *tnBackUp;

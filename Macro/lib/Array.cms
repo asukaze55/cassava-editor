@@ -11,7 +11,7 @@
 // }
 //
 // Array オブジェクトに対しては concat, filter, findIndex, includes, indexOf, join, lastIndexOf,
-// map, pop, push, reverse, shift, slice, unshift のメソッドを使用できます。
+// map, pop, push, reverse, shift, slice, splice, unshift のメソッドを使用できます。
 // 各メソッドの仕様は実装から推測してください。
 
 class Array {
@@ -139,6 +139,31 @@ class Array {
       result.push(this[i]);
     }
     return result;
+  }
+
+  splice(start, deleteCount, ...items) {
+    if (start < 0) {
+      start += this.length;
+    }
+    if (start + deleteCount > this.length) {
+      deleteCount = this.length - start;
+    }
+    deletedItems = this.slice(start, start + deleteCount);
+    lengthChange = items.length - deleteCount;
+    if (lengthChange > 0) {
+      for (i = this.length - 1; i >= start + deleteCount; i--) {
+        this[i + lengthChange] = this[i];
+      }
+    } else if (lengthChange < 0) {
+      for (i = start + deleteCount; i < this.length; i++) {
+        this[i + lengthChange] = this[i];
+      }
+    }
+    for (i = 0; i < items.length; i++) {
+      this[i + start] = items[i];
+    }
+    this.length += lengthChange;
+    return deletedItems;
   }
 
   unshift(element) {

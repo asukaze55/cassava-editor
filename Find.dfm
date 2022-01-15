@@ -93,6 +93,7 @@ object fmFind: TfmFind
         Width = 217
         Height = 21
         TabOrder = 0
+        OnKeyDown = edFindTextKeyDown
       end
       object edReplaceText: TEdit
         Left = 120
@@ -131,10 +132,6 @@ object fmFind: TfmFind
     object tsNumSearch: TTabSheet
       Caption = #25968#20516#26908#32034'(&V)'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 0
       object Label3: TLabel
         Left = 152
         Top = 52
@@ -156,6 +153,7 @@ object fmFind: TfmFind
         Width = 121
         Height = 21
         TabOrder = 0
+        OnKeyDown = edFindTextKeyDown
       end
       object edMax: TEdit
         Left = 192
@@ -163,26 +161,28 @@ object fmFind: TfmFind
         Width = 121
         Height = 21
         TabOrder = 1
+        OnKeyDown = edFindTextKeyDown
       end
     end
   end
   object rgRange: TRadioGroup
-    Left = 96
+    Left = 0
     Top = 161
-    Width = 257
+    Width = 353
     Height = 41
     Caption = #26908#32034#23550#35937'(&G)'
-    Columns = 3
-    ItemIndex = 2
+    Columns = 4
+    ItemIndex = 3
     Items.Strings = (
       #29694#22312#12398#34892
       #29694#22312#12398#21015
+      #36984#25246#31684#22258
       #20840#20307)
     TabOrder = 1
   end
   object rgDirection: TRadioGroup
-    Left = 96
-    Top = 209
+    Left = 0
+    Top = 208
     Width = 177
     Height = 41
     Caption = #26908#32034#26041#21521'(&D)'

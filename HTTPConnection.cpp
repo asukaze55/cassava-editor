@@ -26,7 +26,7 @@ String HttpsGet(String host, int port, String path)
   BOOL bret;
 
   hInet = ::InternetOpen(agent.c_str(),
-    INTERNET_OPEN_TYPE_PRECONFIG, TEXT(""), TEXT(""), 0);
+    INTERNET_OPEN_TYPE_PRECONFIG, L"", L"", 0);
   if(hInet == NULL) {
     return "";
   }
@@ -44,7 +44,7 @@ String HttpsGet(String host, int port, String path)
                 | INTERNET_FLAG_SECURE
                 | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID
                 | INTERNET_FLAG_IGNORE_CERT_CN_INVALID;
-  hReq = ::HttpOpenRequest(hConn, TEXT("GET"), path.c_str(), NULL, NULL, NULL,
+  hReq = ::HttpOpenRequest(hConn, L"GET", path.c_str(), NULL, NULL, NULL,
                            dwFlags, NULL);
   if(hReq == NULL) {
     ::InternetCloseHandle(hConn);

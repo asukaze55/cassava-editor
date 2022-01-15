@@ -86,6 +86,12 @@ class OperatorsTest {
     assert.that(obj[9]).isEqualTo(4);
     assert.that(obj[1]).isEqualTo(5);
     assert.that(obj["}"]).isEqualTo(6);
+
+    assert.that(true ? 1 : 2).isEqualTo(1);
+    assert.that(false ? 1 : 2).isEqualTo(2);
+    assert.that(1 ? 2 ? 3 : 4 : 5 ? 6: 7).isEqualTo(3);
+    assert.that(max(0 ? 4 : 3, 0 ? 2 : 1)).isEqualTo(3);
+    assert.that(true ? false : true || true).isFalse();
   }
 }
 

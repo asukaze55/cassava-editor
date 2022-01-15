@@ -1,6 +1,7 @@
 object fmSort: TfmSort
   Left = 0
   Top = 0
+  BorderStyle = bsDialog
   Caption = #12477#12540#12488
   ClientHeight = 225
   ClientWidth = 352

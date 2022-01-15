@@ -42,46 +42,6 @@ object frOptionFile: TfrOptionFile
         #38283#12356#12390#12356#12427#12501#12449#12452#12523#12434#12525#12483#12463)
     end
   end
-  object gbKanren: TGroupBox
-    Left = 3
-    Top = 263
-    Width = 354
-    Height = 121
-    Caption = #38306#36899#20184#12369
-    TabOrder = 3
-    object cbKanrenCSV: TCheckBox
-      Left = 12
-      Top = 25
-      Width = 338
-      Height = 17
-      Caption = 'CSV'#12501#12449#12452#12523#12434'Cassava'#12395#38306#36899#20184#12369
-      TabOrder = 0
-    end
-    object cbKanrenCSVNew: TCheckBox
-      Left = 12
-      Top = 48
-      Width = 338
-      Height = 17
-      Caption = 'CSV'#12434#12456#12463#12473#12503#12525#12540#12521#12398#12300#26032#35215#20316#25104#12301#12395#36861#21152
-      TabOrder = 1
-    end
-    object cbKanrenTSVNew: TCheckBox
-      Left = 12
-      Top = 94
-      Width = 338
-      Height = 17
-      Caption = 'TSV'#12434#12456#12463#12473#12503#12525#12540#12521#12398#12300#26032#35215#20316#25104#12301#12395#36861#21152
-      TabOrder = 3
-    end
-    object cbKanrenTSV: TCheckBox
-      Left = 12
-      Top = 71
-      Width = 338
-      Height = 17
-      Caption = 'TSV'#12501#12449#12452#12523#12434'Cassava'#12395#38306#36899#20184#12369
-      TabOrder = 2
-    end
-  end
   object gbCharCode: TGroupBox
     Left = 3
     Top = 174

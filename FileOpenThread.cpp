@@ -59,14 +59,14 @@ __fastcall FileOpenThread::FileOpenThread(bool CreateSuspended,
 String __fastcall FileOpenThread::NormalizeCRLF(String Val)
 {
   int len = Val.Length();
-  for(int i=len; i > 0; i--){
-    if(Val[i] == TEXT('\n')){
-      if(i == 1 || Val[i-1] != TEXT('\r')){
-        Val.Insert(TEXT("\r"), i);
+  for (int i = len; i > 0; i--) {
+    if (Val[i] == L'\n') {
+      if (i == 1 || Val[i - 1] != L'\r') {
+        Val.Insert(L"\r", i);
       }
-    }else if(Val[i] == TEXT('\r')){
-      if(i == len || Val[i+1] != TEXT('\n')){
-        Val.Insert(TEXT("\n"), i+1);
+    } else if (Val[i] == L'\r') {
+      if (i == len || Val[i + 1] != L'\n') {
+        Val.Insert(L"\n", i + 1);
       }
     }
   }
@@ -96,7 +96,7 @@ void __fastcall FileOpenThread::Execute()
   TTypeOption *typeOption = Grid->TypeOption;
   int dl = Grid->DataLeft;
   if (Data.Length() > 0) {
-    bool bom = (Data[1] == TEXT('\xFEFF') || Data[1] == TEXT('\xFFFE'));
+    bool bom = (Data[1] == L'\xFEFF' || Data[1] == L'\xFFFE');
     if (bom) {
       Data.Delete(1, 1);
     }

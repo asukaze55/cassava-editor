@@ -16,11 +16,6 @@ class TfrOptionFile : public TFrame
 __published:  // IDE 管理のコンポーネント
   TGroupBox *gbLock;
   TCheckBox *cbCheckTimeStamp;
-  TGroupBox *gbKanren;
-  TCheckBox *cbKanrenCSV;
-  TCheckBox *cbKanrenCSVNew;
-  TCheckBox *cbKanrenTSVNew;
-  TCheckBox *cbKanrenTSV;
   TGroupBox *gbCharCode;
   TCheckBox *cbCheckKanji;
   TComboBox *cbLockFile;
@@ -32,15 +27,6 @@ __published:  // IDE 管理のコンポーネント
 private:  // ユーザー宣言
 public:   // ユーザー宣言
   __fastcall TfrOptionFile(TComponent* Owner);
-  void SetKanren(String CassavaType, String CassavaTypeName, String Ext,
-                 String OldFileType, bool OldKanren, bool OldKanrenNew,
-                 bool NewKanren, bool NewKanrenNew);
-  bool KanrenCSV;
-  bool KanrenCSVNew;
-  String CSVFileType;
-  bool KanrenTSV;
-  bool KanrenTSVNew;
-  String TSVFileType;
   void RestoreFromMainForm();
   void StoreToMainForm();
 };

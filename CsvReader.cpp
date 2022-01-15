@@ -12,9 +12,9 @@
 TTypeOption::TTypeOption()
 {
   init();
-  Name = "Default";
-  Exts.push_back("csv");
-  Exts.push_back("txt");
+  Name = L"Default";
+  Exts.push_back(L"csv");
+  Exts.push_back(L"txt");
 }
 //---------------------------------------------------------------------------
 TTypeOption::TTypeOption(String str)
@@ -22,12 +22,12 @@ TTypeOption::TTypeOption(String str)
   init();
   Name = str;
   Exts.push_back(str.LowerCase());
-  if (str == "CSV") {
-    SepChars = ",\t";
-    WeakSepChars = "";
-  } else if (str == "TSV") {
-    SepChars = "\t";
-    WeakSepChars = "";
+  if (str == L"CSV") {
+    SepChars = L",\t";
+    WeakSepChars = L"";
+  } else if (str == L"TSV") {
+    SepChars = L"\t";
+    WeakSepChars = L"";
     QuoteOption  = 0;
   }
 }
@@ -35,9 +35,9 @@ TTypeOption::TTypeOption(String str)
 void TTypeOption::init()
 {
   ForceExt = false;
-  SepChars = TEXT(",\t");
-  WeakSepChars = TEXT(" ");
-  QuoteChars = TEXT("\"");
+  SepChars = L",\t";
+  WeakSepChars = L" ";
+  QuoteChars = L"\"";
   QuoteOption = 1;
   OmitComma = false;
   DummyEof = true;
@@ -50,7 +50,7 @@ String TTypeOption::DefExt()
 //---------------------------------------------------------------------------
 wchar_t TTypeOption::DefSepChar()
 {
-  return ((SepChars.Length() > 0 ) ? SepChars[1] : TEXT('\0'));
+  return ((SepChars.Length() > 0 ) ? SepChars[1] : L'\0');
 }
 //---------------------------------------------------------------------------
 bool TTypeOption::UseQuote()
@@ -63,7 +63,7 @@ void TTypeOption::SetExts(String ExtString)
   ExtString = ExtString.LowerCase();
   Exts.clear();
   int pos;
-  while ((pos = ExtString.Pos(TEXT(";"))) > 0) {
+  while ((pos = ExtString.Pos(L";")) > 0) {
     String ext = ExtString.SubString(1, pos - 1);
     if (ext != "") {
       Exts.push_back(ext);
@@ -108,7 +108,7 @@ CsvReaderState CsvReader::GetNextType()
   }
   if (pos >= last) {
     return NEXT_TYPE_END_OF_FILE;
-  } else if (*pos == TEXT('\r') || *pos == TEXT('\n')) {
+  } else if (*pos == L'\r' || *pos == L'\n') {
     return NEXT_TYPE_HAS_MORE_ROW;
   } else {
     return NEXT_TYPE_HAS_MORE_CELL;
@@ -120,8 +120,8 @@ String CsvReader::Next()
   if (delimiterType == DELIMITER_TYPE_WEAK_PRE
       || delimiterType == DELIMITER_TYPE_WEAK_POST) {
     // 改行の次へ進める。改行の情報は GetNextType で取る。
-    if (*pos == TEXT('\r')) { pos++; delimiterType = DELIMITER_TYPE_STRONG; }
-    if (*pos == TEXT('\n')) { pos++; delimiterType = DELIMITER_TYPE_STRONG; }
+    if (*pos == L'\r') { pos++; delimiterType = DELIMITER_TYPE_STRONG; }
+    if (*pos == L'\n') { pos++; delimiterType = DELIMITER_TYPE_STRONG; }
   }
 
   bool quoted = false;
@@ -131,7 +131,7 @@ String CsvReader::Next()
   for (;pos < last; pos++, cellend++) {
     wchar_t ch = *pos;
     if (!quoted) {
-      if (ch == TEXT('\r') || ch == TEXT('\n')) {
+      if (ch == L'\r' || ch == L'\n') {
         // 改行
         delimiterType = DELIMITER_TYPE_WEAK_POST;
         return String(cellstart, cellend - cellstart);
@@ -190,7 +190,7 @@ String CsvReader::Next()
   if (cellstart < cellend) {
     return String(cellstart, cellend - cellstart);
   }
-  return TEXT("");
+  return L"";
 }
 //---------------------------------------------------------------------------
 bool CsvReader::ReadLine(TStringList *List)

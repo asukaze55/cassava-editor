@@ -138,7 +138,7 @@ int TfmLetter::Name2Indent(String Name1)
   int pos = 1;
   bool flag = false;
   for (int i = 1; i <= Name1.Length(); i++) {
-    TCHAR c = Name1[i];
+    wchar_t c = Name1[i];
     if (c == L'@' || c == ' ' || c == '_') {
       flag = true;
     } else if (flag) {
@@ -345,7 +345,7 @@ String TfmLetter::Tate(String Str)
 {
   bool verticalFont = (cbxFont->Text[1] == '@');
   for (int i = 1; i <= Str.Length(); i++) {
-    TCHAR c = Str[i];
+    wchar_t c = Str[i];
     if (c == '_') {
       Str[i] = ' ';
     } else if (!verticalFont && (c == '-' || c == L'[' || c == L'|')) {
@@ -372,8 +372,7 @@ String TfmLetter::Tate(String Str)
 void __fastcall TfmLetter::btnPrintClick(TObject *Sender)
 {
   if (cbxFont->Text == "") {
-    Application->MessageBox(
-        TEXT("ƒtƒHƒ“ƒg‚ðŽw’è‚µ‚Ä‚­‚¾‚³‚¢B"), CASSAVA_TITLE, 0);
+    Application->MessageBox(L"ƒtƒHƒ“ƒg‚ðŽw’è‚µ‚Ä‚­‚¾‚³‚¢B", CASSAVA_TITLE, 0);
     return;
   }
 
@@ -537,14 +536,20 @@ void TfmLetter::DataSetDefault()
   NameSize[0] = 10;         NameSize[1] = 6;
 
   if (cbxFont->ItemIndex < 0) {
+    int hg = cbxFont->Items->IndexOf(L"@HG³ž²‘‘Ì-PRO");
+    if (hg >= 0) {
+      cbxFont->ItemIndex = hg;
+      return;
+    }
     int bizUd = cbxFont->Items->IndexOf(L"@BIZ UDP–¾’© Medium");
     if (bizUd >= 0) {
       cbxFont->ItemIndex = bizUd;
-    } else {
-      int msp = cbxFont->Items->IndexOf(L"‚l‚r ‚o–¾’©");
-      if (msp >= 0) {
-        cbxFont->ItemIndex = msp;
-      }
+      return;
+    }
+    int msp = cbxFont->Items->IndexOf(L"‚l‚r ‚o–¾’©");
+    if (msp >= 0) {
+      cbxFont->ItemIndex = msp;
+      return;
     }
   }
 }

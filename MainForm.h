@@ -120,6 +120,7 @@ __published:	// IDE 管理のコンポーネント
   TMenuItem *mnLfcr;
   TMenuItem *mnLf;
   TMenuItem *mnCr;
+  TMenuItem *mnLfInCell;
   TMenuItem *mnN17;
   TMenuItem *mnBom;
   TMenuItem *mnOpenHistory;
@@ -247,6 +248,11 @@ __published:	// IDE 管理のコンポーネント
   TVirtualImageList *imlNormalDisabled;
   TImageCollection *imcAdditional;
   TVirtualImageList *imlAdditional;
+  TImageCollection *imcNormalDark;
+  TVirtualImageList *imlNormalDark;
+  TVirtualImageList *imlNormalDarkDisabled;
+  TImageCollection *imcAdditionalDark;
+  TVirtualImageList *imlAdditionalDark;
   void __fastcall FormAfterMonitorDpiChanged(TObject *Sender, int OldDPI, int NewDPI);
   void __fastcall FormCloseQuery(TObject *Sender, bool &CanClose);
   void __fastcall mnNewClick(TObject *Sender);
@@ -361,6 +367,8 @@ private:    // ユーザー宣言
   void SearchMacro();
   String GetUiFileName();
   void UpdateTitle();
+  String FStyle;
+  void SetStyle(String Value);
 
 public:     // ユーザー宣言
   TMainGrid *MainGrid;
@@ -409,6 +417,8 @@ public:     // ユーザー宣言
   bool MakeNewWindow;
   bool TitleFullPath;
 
+  __property String Style = {read=FStyle, write=SetStyle};
+
   bool BackupOnSave;
   bool BackupOnTime;
   bool BackupOnOpen;
@@ -434,6 +444,7 @@ public:     // ユーザー宣言
   bool FindCase;
   bool FindWordSearch;
   bool FindRegex;
+  int FindRange;
 
   String PrintFontName;
   int PrintFontSize;

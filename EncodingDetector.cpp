@@ -20,7 +20,6 @@ void SJIS_Next(byte b, int i, int &error, int &hit, int &flag)
       error++;
       flag = true;
     }else{ // Hankaku Kana
-      error++;
       flag = false;
     }
   }

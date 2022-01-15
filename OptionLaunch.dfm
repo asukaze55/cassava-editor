@@ -9,7 +9,7 @@ object frOptionLaunch: TfrOptionLaunch
     Left = 0
     Top = 0
     Width = 353
-    Height = 169
+    Height = 137
     Caption = #22806#37096#12450#12503#12522#12465#12540#12471#12519#12531
     TabOrder = 0
     object sbRefer0: TSpeedButton
@@ -87,6 +87,15 @@ object frOptionLaunch: TfrOptionLaunch
       ParentShowHint = False
       ShowHint = True
     end
+    object edLaunchName0: TEdit
+      Left = 8
+      Top = 31
+      Width = 105
+      Height = 21
+      Enabled = False
+      TabOrder = 0
+      Text = #26410#35373#23450
+    end
     object edLaunchName1: TEdit
       Tag = 1
       Left = 8
@@ -97,13 +106,14 @@ object frOptionLaunch: TfrOptionLaunch
       TabOrder = 3
       Text = #26410#35373#23450
     end
-    object edLaunchName0: TEdit
+    object edLaunchName2: TEdit
+      Tag = 2
       Left = 8
-      Top = 31
+      Top = 85
       Width = 105
       Height = 21
       Enabled = False
-      TabOrder = 0
+      TabOrder = 6
       Text = #26410#35373#23450
     end
     object edLaunch0: TEdit
@@ -131,34 +141,6 @@ object frOptionLaunch: TfrOptionLaunch
       Height = 21
       TabOrder = 7
       OnChange = edLaunchChange
-    end
-    object edLaunchName2: TEdit
-      Tag = 2
-      Left = 8
-      Top = 85
-      Width = 105
-      Height = 21
-      Enabled = False
-      TabOrder = 6
-      Text = #26410#35373#23450
-    end
-    object btnKanrenR: TBitBtn
-      Left = 72
-      Top = 128
-      Width = 193
-      Height = 21
-      Caption = #12501#12449#12452#12523#12398#21491#12463#12522#12483#12463#12395#38306#36899#20184#12369#12427
-      DoubleBuffered = True
-      Enabled = False
-      Font.Charset = SHIFTJIS_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -13
-      Font.Name = #65325#65331' '#65328#12468#12471#12483#12463
-      Font.Style = []
-      ParentDoubleBuffered = False
-      ParentFont = False
-      TabOrder = 9
-      OnClick = btnKanrenRClick
     end
     object cbClose0: TCheckBox
       Left = 333
@@ -193,7 +175,7 @@ object frOptionLaunch: TfrOptionLaunch
   end
   object gbBrowser: TGroupBox
     Left = 0
-    Top = 176
+    Top = 144
     Width = 353
     Height = 153
     Caption = #12502#12521#12454#12470

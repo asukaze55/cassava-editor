@@ -75,6 +75,8 @@ CMCElement::CMCElement(String s){
     pri = 13; type = tpOpe;
   } else if (s == "||" || s == "|") {
     pri = 12; type = tpOpe;
+  } else if (s == "?") {
+    pri = 11; type = tpOpe;
   } else if (s == "=" || s == ":" || (s.Length() == 2 && s[2] == '=')) {
     pri = 10; type = tpOpe;
   } else if (s.Length() > 0 && s[1] == '.') {
@@ -160,6 +162,8 @@ String TTokenizer::GetString(wchar_t EOS)
       Read(&c);
       if (c == 'n') {
         c = '\n';
+      } else if (c == 'r') {
+        c = '\r';
       } else if (c == 't') {
         c = '\t';
       } else if (c == 'u') {
@@ -356,6 +360,7 @@ private:
   String InName;
   std::map<String, String> ImportedFunctions;
   TStringList *Modules;
+  TStringList *MacroDirs;
   TStringList *Variables;
   TStringList *Constants;
   TStringList *CapturableVariables;
@@ -366,6 +371,7 @@ private:
 
   void Output(CMCElement e);
   int OutputPositionPlaceholder();
+  void FillPositionPlaceholder(int placeholder);
   void Push(CMCElement e, std::deque<CMCElement> *L);
   void PushAll(std::deque<CMCElement> *L);
   void GetIf();
@@ -383,6 +389,7 @@ private:
   bool GetValues(char EOS, char *nHikisu = NULL);
   bool GetSentence(char EOS, bool allowBlock = true, char *nHikisu = NULL);
   void GetBlock();
+  String MaybeAddLibToLibName(String libName);
 
   bool IsKnownVariable(const CMCElement& e) const {
     return e.type == tpVar
@@ -394,8 +401,10 @@ public:
   TStringList *import;
 
   bool Compile(String source, String filePath, String libName,
-               TStringList *modules, bool showMessage);
-  TCompiler() : Breaks(NULL), Continues(NULL), DummyFunctionName(0) {
+               bool showMessage);
+  TCompiler(TStringList *modules, TStringList *macroDirs)
+      : Modules(modules), MacroDirs(macroDirs), Breaks(NULL), Continues(NULL),
+        DummyFunctionName(0) {
     import = newTStringList();
   }
   ~TCompiler() { delete import; }
@@ -413,23 +422,11 @@ void TCompiler::GetIf()
     lex->Get(); // else
     int bp2fr = OutputPositionPlaceholder();
     fout->Write("-g",2);
-
-    int bp1to = fout->Position;
-    fout->Position = bp1fr;
-    fout->Write(&bp1to, INT_SIZE);
-    fout->Position = bp1to;
-
+    FillPositionPlaceholder(bp1fr);
     GetSentence(';');
-
-    int bp2to = fout->Position;
-    fout->Position = bp2fr;
-    fout->Write(&bp2to, INT_SIZE);
-    fout->Position = bp2to;
+    FillPositionPlaceholder(bp2fr);
   }else{
-    int bp1to = fout->Position;
-    fout->Position = bp1fr;
-    fout->Write(&bp1to, INT_SIZE);
-    fout->Position = bp1to;
+    FillPositionPlaceholder(bp1fr);
   }
 }
 //---------------------------------------------------------------------------
@@ -549,10 +546,7 @@ void TCompiler::GetBasicFor()
   fout->Write("-ii",3);  // "-i" は "++"
   fout->Write(&bp1to, INT_SIZE);
   fout->Write("-g",2);
-  int bp2to = fout->Position;
-  fout->Position = bp2fr;
-  fout->Write(&bp2to, INT_SIZE);
-  fout->Position = bp2to;
+  FillPositionPlaceholder(bp2fr);
 }
 //---------------------------------------------------------------------------
 #define LAMBDA_EOS 'L'
@@ -702,7 +696,7 @@ void TCompiler::GetLambda(String paramName)
     Output(CMCElement((String)'\0' + "{}", prElement, tpFunc));
     Output(CMCElement("", prElement, tpString));
     Output(CMCElement(functionName, prElement, tpString));
-    fout->Write("-:", 2);
+    Output(CMCElement((String)CMO_ObjKey, prElement, tpOpe));
 
     for (int i = 0; i < CapturedVariables->Count; i++) {
       String name = CapturedVariables->Strings[i];
@@ -717,7 +711,7 @@ void TCompiler::GetLambda(String paramName)
       } else {
         Output(CMCElement(name, prElement, tpVar));
       }
-      fout->Write("-:", 2);
+      Output(CMCElement((String)CMO_ObjKey, prElement, tpOpe));
     }
   }
 
@@ -801,6 +795,14 @@ int TCompiler::OutputPositionPlaceholder()
   return position;
 }
 //---------------------------------------------------------------------------
+void TCompiler::FillPositionPlaceholder(int placeholder)
+{
+  int position = fout->Position;
+  fout->Position = placeholder;
+  fout->Write(&position, INT_SIZE);
+  fout->Position = position;
+}
+//---------------------------------------------------------------------------
 void TCompiler::Push(CMCElement e, std::deque<CMCElement> *L)
 {
   if(e.iseof()) return;
@@ -839,7 +841,7 @@ String TCompiler::GetObject()
       }
       Output(key);
       bool inBlock = GetValues(',');
-      fout->Write("-:", 2);
+      Output(CMCElement((String)CMO_ObjKey, prElement, tpOpe));
       if (!inBlock) {
         return constructor;
       }
@@ -847,7 +849,7 @@ String TCompiler::GetObject()
       Output(CMCElement(key.str, prElement, tpVar));
       String functionName = GetFunction(METHOD);
       Output(CMCElement(functionName, prElement, tpString));
-      fout->Write("-:", 2);
+      Output(CMCElement((String)CMO_ObjKey, prElement, tpOpe));
       if (lex->GetNext().str == ",") { lex->Get(); }
       if (key.str == "constructor") { constructor = functionName; }
     } else if (key.str == "}") {
@@ -1005,7 +1007,11 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
       switch(c){
       case ';': case ')': case ']':
         if(c != EOS){
-          throw CMCException("括弧の対応が正しくありません。");
+          if (EOS == ':') {
+            throw CMCException(": が見つかりません。");
+          } else {
+            throw CMCException("括弧の対応が正しくありません。");
+          }
         }
         PushAll(&ls);
         if(firstloop) hikisu = 0;
@@ -1044,6 +1050,8 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
           if(firstloop) hikisu = 0;
           if(nHikisu) *nHikisu = hikisu;
           return true;
+        } else if (EOS == ':') {
+          throw CMCException(": が見つかりません。");
         }
         hikisu++;
         Push(e, &ls);
@@ -1136,7 +1144,7 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         lex->Get(); // "("
         char H;
         GetValues(')', &H);
-        String libName = e.str + ".cms";
+        String libName = MaybeAddLibToLibName(e.str + ".cms");
         if (import->IndexOf(libName) < 0) {
           import->Add(libName);
         }
@@ -1227,6 +1235,21 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         int jump = OutputPositionPlaceholder();
         Output(e);
         Push(CMCElement("", e.pri, tpStructure, jump), &ls);
+      } else if (e.str == "?") {
+        Push(CMCElement("", e.pri, tpStructure), &ls);
+        int jumpFalse = OutputPositionPlaceholder();
+        Output(e);
+        GetValues(':');
+        int jumpTrue = OutputPositionPlaceholder();
+        Output(CMCElement((String)CMO_Jump, prElement, tpOpe));
+        FillPositionPlaceholder(jumpFalse);
+        Push(CMCElement("", e.pri, tpStructure, jumpTrue), &ls);
+      } else if (e.str == ":") {
+        PushAll(&ls);
+        if (EOS != ':') {
+          throw CMCException(": の位置が正しくありません。");
+        }
+        return true;
       } else {
         Push(e, &ls);
       }
@@ -1242,14 +1265,28 @@ void TCompiler::GetBlock()
   while(GetSentence(';'));
 }
 //---------------------------------------------------------------------------
+String TCompiler::MaybeAddLibToLibName(String libName)
+{
+  for (int i = 0; i < MacroDirs->Count; i++) {
+    if (FileExists(MacroDirs->Strings[i] + libName)) {
+      return libName;
+    }
+  }
+  for (int i = 0; i < MacroDirs->Count; i++) {
+    if (FileExists(MacroDirs->Strings[i] + "lib/" + libName)) {
+      return "lib/" + libName;
+    }
+  }
+  throw CMCException(libName + "\nファイルが見つかりません。");
+}
+//---------------------------------------------------------------------------
 bool TCompiler::Compile(String string, String filePath, String libName,
-                        TStringList *modules, bool showMessage)
+                        bool showMessage)
 {
   InName = libName;
   Fail = false;
   lex = new TTokenizer(string);
   fout = new TMemoryStream();
-  Modules = modules;
   Modules->AddObject(libName, fout);
   Variables = newTStringList();
   Constants = newTStringList();
@@ -1268,7 +1305,7 @@ bool TCompiler::Compile(String string, String filePath, String libName,
       Application->MessageBox(
           (filePath + "\n" + lex->y + "行目\t" + lex->x + "文字目\n"
               + e.Message).c_str(),
-          TEXT("Cassava Macro Compiler"), 0);
+          L"Cassava Macro Compiler", 0);
     }
     Fail = true;
   } catch (Exception *e) {
@@ -1276,7 +1313,7 @@ bool TCompiler::Compile(String string, String filePath, String libName,
       Application->MessageBox(
           (filePath + "\n" + lex->y + "行目\t" + lex->x + "文字目\n"
               + e->Message).c_str(),
-          TEXT("Cassava Macro Compiler"), 0);
+          L"Cassava Macro Compiler", 0);
     }
     Fail = true;
   }
@@ -1294,19 +1331,19 @@ bool MacroCompile(String *source, String name, TStringList *macroDirs,
 {
   if (macroDirs == NULL || modules == NULL) { return false; }
 
-  TCompiler compiler;
+  TCompiler compiler(modules, macroDirs);
   compiler.import->Add(name);
   int processed = 0;
 
   if (source != NULL) {
     try {
-      bool ok = compiler.Compile(*source, name, name, modules, showMessage);
+      bool ok = compiler.Compile(*source, name, name, showMessage);
       if (!ok) { return false; }
       processed = 1;
     } catch (Exception *e) {
       if(showMessage) {
         Application->MessageBox((name + "\n" + e->Message).c_str(),
-                                TEXT("Cassava Macro Compiler"), 0);
+                                L"Cassava Macro Compiler", 0);
       }
       return false;
     }
@@ -1332,7 +1369,7 @@ bool MacroCompile(String *source, String name, TStringList *macroDirs,
         if (showMessage) {
           Application->MessageBox(
               (libName + "\nファイルが見つかりません。").c_str(),
-              TEXT("Cassava Macro Compiler"), 0);
+              L"Cassava Macro Compiler", 0);
         }
         return false;
       }
@@ -1350,14 +1387,13 @@ bool MacroCompile(String *source, String name, TStringList *macroDirs,
       } catch (...) {
         string = TEncoding::GetEncoding(932)->GetString(buf);
       }
-      bool ok = compiler.Compile(
-          string, libFileName, libName, modules, showMessage);
+      bool ok = compiler.Compile(string, libFileName, libName, showMessage);
       if (!ok) { return false; }
     } catch (Exception *e) {
       if (libReader != NULL) { delete libReader; }
       if(showMessage) {
         Application->MessageBox((libFileName + "\n" + e->Message).c_str(),
-                                TEXT("Cassava Macro Compiler"), 0);
+                                L"Cassava Macro Compiler", 0);
       }
       return false;
     }

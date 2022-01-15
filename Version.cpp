@@ -8,12 +8,12 @@
 //---------------------------------------------------------------------------
 String Version::Current()
 {
-  return "2.3.4";
+  return "2.4.0";
 }
 //---------------------------------------------------------------------------
 String Version::CurrentDate()
 {
-  return "2021/12/18";
+  return "2022/01/15";
 }
 //---------------------------------------------------------------------------
 bool Version::CurrentIsBeta()
@@ -58,12 +58,12 @@ public:
 //---------------------------------------------------------------------------
 void __fastcall UpdateCheckThread::Execute()
 {
-  TCHAR title[] = TEXT("更新の確認");
+  wchar_t title[] = L"更新の確認";
   TStringList *list = new TStringList();
   list->Text = HttpsGet("www.asukaze.net", 443,
                         "/soft/cassava/update.cgi?ver=" + Version::Current());
   if(list->Count < 6){
-    Application->MessageBox(TEXT("情報の取得に失敗しました。"), title,0);
+    Application->MessageBox(L"情報の取得に失敗しました。", title,0);
     delete list;
     return;
   }
@@ -89,7 +89,7 @@ void __fastcall UpdateCheckThread::Execute()
       AutoOpen(newUrl, "");
     }
   }else{
-    Application->MessageBox(TEXT("更新は見つかりませんでした。"), title, 0);
+    Application->MessageBox(L"更新は見つかりませんでした。", title, 0);
   }
 }
 //---------------------------------------------------------------------------

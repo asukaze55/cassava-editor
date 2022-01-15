@@ -27,12 +27,216 @@ using namespace std;
 #define ME_SECURITY 2
 #define ME_CANCELED 3
 //---------------------------------------------------------------------------
-#define MGCol (fmMain->MainGrid->Col - fmMain->MainGrid->DataLeft + 1)
-#define MGRow (fmMain->MainGrid->Row - fmMain->MainGrid->DataTop  + 1)
-#define RXtoAX(x)               ((x) - fmMain->MainGrid->DataLeft + 1)
-#define RYtoAY(y)               ((y) - fmMain->MainGrid->DataTop  + 1)
-#define AXtoRX(x)               ((x) + fmMain->MainGrid->DataLeft - 1)
-#define AYtoRY(y)               ((y) + fmMain->MainGrid->DataTop  - 1)
+class MacroException{
+public:
+  String Message;
+  int Type;
+  MacroException(String Mes, int t = 0) : Message(Mes), Type(t) {}
+};
+//---------------------------------------------------------------------------
+class GridProxy {
+private:
+  int deletingTop;
+  int deletingRows;
+  TMainGrid *grid;
+  bool isCellMacro;
+
+  int RXtoAX(int x) const { return x - grid->DataLeft + 1; }
+  int RYtoAY(int y) const { return y - grid->DataTop + 1; }
+  int AXtoRX(int x) const { return x + grid->DataLeft - 1; }
+  int AYtoRY(int y) const { return y + grid->DataTop - 1; }
+  int ax(int x) const { return x; }
+  int rx(int x) const { return AXtoRX(ax(x)); }
+  int ay(int y) const { return y >= deletingTop ? y + deletingRows : y; }
+  int ry(int y) const { return AYtoRY(ay(y)); }
+
+public:
+  GridProxy(TMainGrid *Grid, bool cm)
+      : deletingTop(0), deletingRows(0), grid(Grid), isCellMacro(cm) {}
+
+  ~GridProxy() {
+    ApplyPendingChanges();
+  }
+
+  void ApplyPendingChanges() {
+    if (deletingRows > 0) {
+      grid->DeleteRow(AYtoRY(deletingTop),
+                      AYtoRY(deletingTop + deletingRows - 1));
+      deletingTop = 0;
+      deletingRows = 0;
+    }
+  }
+
+  TMainGrid *Raw() {
+    ApplyPendingChanges();
+    return grid;
+  }
+
+  String GetCell(int x, int y) {
+    return grid->ACells[ax(x)][ay(y)];
+  }
+
+  void SetCell(int x, int y, String value) {
+    if (isCellMacro) {
+      throw MacroException("Cell Macro Can't Update Cells.", ME_SECURITY);
+    }
+    if (x < 1 || y < 1) {
+      return;
+    }
+    grid->ACells[ax(x)][ay(y)] = value;
+    grid->Modified = true;
+  }
+
+  bool IsNumberAtACell(int x, int y) {
+    return grid->IsNumberAtACell(ax(x), ay(y));
+  }
+
+  void MoveTo(int x, int y) {
+    x = rx(x);
+    y = ry(y);
+    if (x < grid->FixedCols) {
+      x = grid->FixedCols;
+    } else if (x >= grid->ColCount) {
+      grid->ChangeColCount(x + 1);
+    }
+    if (y < grid->FixedRows) {
+      y = grid->FixedRows;
+    } else if (y >= grid->RowCount) {
+      grid->ChangeRowCount(y + 1);
+    }
+    grid->SetSelection(x, x, y, y);
+  }
+
+  bool RowCounterShown() {
+    return grid->ShowRowCounter;
+  }
+
+  bool ColCounterShown() {
+    return grid->ShowColCounter;
+  }
+
+  int GetCol() {
+    return RXtoAX(grid->Col);
+  }
+
+  int GetRow() {
+    int row = RYtoAY(grid->Row);
+    if (row > deletingTop + deletingRows) {
+      return row - deletingRows;
+    } else if (row > deletingTop) {
+      return deletingTop;
+    } else {
+      return row;
+    }
+  }
+
+  int GetLeft() {
+    return grid->ShowRowCounter ? 1 : grid->FixedCols + 1;
+  }
+
+  int GetTop() {
+    return grid->ShowColCounter ? 1 : grid->FixedRows + 1;
+  }
+
+  int GetRight() {
+    return RXtoAX(grid->DataRight);
+  }
+
+  int GetBottom() {
+    return RYtoAY(grid->DataBottom) - deletingRows;
+  }
+
+  int GetSelLeft() {
+    ApplyPendingChanges();
+    return RXtoAX(grid->SelLeft);
+  }
+
+  int GetSelTop() {
+    ApplyPendingChanges();
+    return RYtoAY(grid->SelTop);
+  }
+
+  int GetSelRight() {
+    ApplyPendingChanges();
+    return RXtoAX(grid->Selection.Right);
+  }
+
+  int GetSelBottom() {
+    ApplyPendingChanges();
+    return RYtoAY(grid->Selection.Bottom);
+  }
+
+  void DeleteRow(int top, int bottom) {
+    if (top == deletingTop) {
+      deletingRows += bottom - top + 1;
+    } else if (bottom == deletingTop - 1) {
+      deletingTop = top;
+      deletingRows += bottom - top + 1;
+    } else {
+      ApplyPendingChanges();
+      deletingTop = top;
+      deletingRows = bottom - top + 1;
+    }
+    if (deletingRows >= 10000) {
+      ApplyPendingChanges();
+    }
+  }
+
+  void InsertRow(int top, int bottom) {
+    ApplyPendingChanges();
+    grid->InsertRow(ry(top), ry(bottom));
+  }
+
+  void MoveRow(int from, int to) {
+    ApplyPendingChanges();
+    grid->MoveRow(ry(from), ry(to));
+  }
+
+  void ChangeRowCount(int count) {
+    ApplyPendingChanges();
+    grid->ChangeRowCount(count);
+  }
+
+  void DeleteCol(int left, int right) {
+    ApplyPendingChanges();
+    grid->DeleteColumn(rx(left), rx(right));
+  }
+
+  void InsertCol(int left, int right) {
+    ApplyPendingChanges();
+    grid->InsertColumn(rx(left), rx(right));
+  }
+
+  void MoveCol(int from, int to) {
+    ApplyPendingChanges();
+    grid->MoveColumn(rx(from), rx(to));
+  }
+
+  void ChangeColCount(int count) {
+    ApplyPendingChanges();
+    grid->ChangeColCount(count);
+  }
+
+  void Sort(int left, int top, int right, int bottom, int col,
+            bool direction, bool numSort, bool ignoreCase, bool ignoreZenhan) {
+    ApplyPendingChanges();
+    grid->Sort(rx(left), ry(top), rx(right), ry(bottom), rx(col),
+               !direction, numSort, ignoreCase, ignoreZenhan);
+  }
+
+  int ReplaceAll(String find, String replace, int left, int top, int right,
+                 int bottom, bool ignoreCase, bool regex, bool word) {
+    ApplyPendingChanges();
+    return grid->ReplaceAll(find, replace, rx(left), ry(top), rx(right),
+                            ry(bottom), !ignoreCase, regex, word);
+  }
+
+  void Select(int left, int top, int right, int bottom) {
+    ApplyPendingChanges();
+    grid->SetSelection(rx(min(left, right)), rx(max(left, right)),
+                       ry(min(top, bottom)), ry(max(top, bottom)));
+  }
+};
 //---------------------------------------------------------------------------
 class TEnvironment;
 //---------------------------------------------------------------------------
@@ -58,9 +262,7 @@ public:
       Type(t), Num(false), st(s), env(e) {};
   Element(String s, int t, bool nm, TEnvironment *e) :
       Type(t), Num(nm), st(s), env(e) {};
-  Element(int cl, int rw, TEnvironment *e) :
-      Type(etCell), X(cl), Y(rw), env(e),
-      Num(fmMain->MainGrid->IsNumberAtACell(cl, rw)) {};
+  Element(int cl, int rw, TEnvironment *e);
   Element(int cl, int rw, bool nm, TEnvironment *e) :
       Type(etCell), Num(nm), X(cl), Y(rw), env(e) {};
   Element(const Element &e) :
@@ -80,9 +282,10 @@ private:
 public:
   std::map<String, Element> Vars;
   bool IsCellMacro;
+  GridProxy *Grid;
 
-  TEnvironment(bool cm, TEnvironment *gl) :
-      Vars(), IsCellMacro(cm), global(gl), objects(NULL) {}
+  TEnvironment(bool cm, GridProxy *grid,  TEnvironment *gl) :
+      Vars(), IsCellMacro(cm), Grid(grid), global(gl), objects(NULL) {}
   ~TEnvironment() {
     if (objects) {
       for (size_t i = 0; i < objects->size(); i++) {
@@ -93,7 +296,10 @@ public:
   }
   TEnvironment *GetGlobal() { return global ? global : this; }
   TEnvironment CreateSubEnvironment() {
-    return TEnvironment(IsCellMacro, GetGlobal());
+    return TEnvironment(IsCellMacro, Grid, GetGlobal());
+  }
+  TEnvironment *NewObject() {
+    return new TEnvironment(IsCellMacro, Grid, GetGlobal());
   }
   std::vector<TEnvironment*> *GetObjects() {
     TEnvironment *gl = GetGlobal();
@@ -133,42 +339,8 @@ public:
       fs_io(io), canWriteFile(io), MaxLoop(ml), modules(md), env(e) {}
 };
 //---------------------------------------------------------------------------
-class MacroException{
-public:
-  String Message;
-  int Type;
-  MacroException(String Mes, int t = 0) : Message(Mes), Type(t) {}
-};
-//---------------------------------------------------------------------------
 static int RunningCount = 0;
 static bool RunningOk = true;
-//---------------------------------------------------------------------------
-void CsvGridGoTo(TMainGrid *g, int x, int y){
-  x += g->DataLeft - 1;
-  y += g->DataTop  - 1;
-  if(x < g->FixedCols){
-    x = g->FixedCols;
-  }else if(x >= g->ColCount){
-    g->ChangeColCount(x+1);
-  }
-  if(y < g->FixedRows){
-    y = g->FixedRows;
-  }else if(y >= g->RowCount){
-    g->ChangeRowCount(y+1);
-  }
-  g->SetSelection(x, x, y, y);
-}
-//---------------------------------------------------------------------------
-void Write(int x, int y, String str, bool IsCellMacro)
-{
-  if(IsCellMacro){
-	throw MacroException("Cell Macro Can't Update Cells.", ME_SECURITY);
-  }
-  if(x < 1 || y < 1) return;
-  TMainGrid *g = fmMain->MainGrid;
-  g->ACells[x][y] = str;
-  g->Modified = true;
-}
 //---------------------------------------------------------------------------
 double ToDouble(String str, double def)
 {
@@ -185,6 +357,12 @@ double ToDouble(String str, double def)
   }
 }
 //---------------------------------------------------------------------------
+Element::Element(int cl, int rw, TEnvironment *e)
+    : Type(etCell), X(cl), Y(rw), env(e)
+{
+  Num = env->Grid->IsNumberAtACell(cl, rw);
+}
+//---------------------------------------------------------------------------
 Element &Element::GetVar() const
 {
   return env->Vars[st];
@@ -195,7 +373,7 @@ double Element::Val() const
   if (Type == etErr && st != "") {
     throw MacroException(st);
   } else if (Type == etCell) {
-    return ToDouble(fmMain->MainGrid->ACells[X][Y], 0);
+    return ToDouble(env->Grid->GetCell(X, Y), 0);
   } else if(Type == etVar) {
     Element &e = GetVar();
     if (e.Type == etErr) {
@@ -204,14 +382,14 @@ double Element::Val() const
     }
     return e.Val();
   } else if (Type == etSystem) {
-    if     (st == "Col")       { return MGCol; }
-    else if(st == "Row")       { return MGRow; }
-    else if(st == "Right")     { return RXtoAX(fmMain->MainGrid->DataRight); }
-    else if(st == "Bottom")    { return RYtoAY(fmMain->MainGrid->DataBottom); }
-    else if(st == "SelLeft")   { return RXtoAX(fmMain->MainGrid->SelLeft); }
-    else if(st == "SelTop")    { return RYtoAY(fmMain->MainGrid->SelTop); }
-    else if(st == "SelRight")  { return RXtoAX(fmMain->MainGrid->Selection.Right); }
-    else if(st == "SelBottom") { return RYtoAY(fmMain->MainGrid->Selection.Bottom); }
+    if     (st == "Col")       { return env->Grid->GetCol(); }
+    else if(st == "Row")       { return env->Grid->GetRow(); }
+    else if(st == "Right")     { return env->Grid->GetRight(); }
+    else if(st == "Bottom")    { return env->Grid->GetBottom(); }
+    else if(st == "SelLeft")   { return env->Grid->GetSelLeft(); }
+    else if(st == "SelTop")    { return env->Grid->GetSelTop(); }
+    else if(st == "SelRight")  { return env->Grid->GetSelRight(); }
+    else if(st == "SelBottom") { return env->Grid->GetSelBottom(); }
   } else if (Num) {
     return vl;
   }
@@ -223,7 +401,7 @@ String Element::Str() const
   if (Type == etErr && st != "") {
     throw MacroException(st);
   } else if (Type == etCell){
-    return fmMain->MainGrid->ACells[X][Y];
+    return env->Grid->GetCell(X, Y);
   } else if (Type == etVar) {
     Element &e = GetVar();
     if (e.Type == etErr) {
@@ -289,7 +467,7 @@ bool Element::isNum() const
   if(Type == etVar){
     return GetVar().isNum();
   }else if(Type == etCell){
-    return fmMain->MainGrid->IsNumberAtACell(X,Y);
+    return env->Grid->IsNumberAtACell(X,Y);
   }
   return Num;
 }
@@ -300,50 +478,54 @@ void Element::Sbst(const Element &e)
     GetVar() = e.Value();
   } else if (Type == etSystem) {
     int v = e.Value().Val();
-    TMainGrid *g = fmMain->MainGrid;
+    GridProxy *g = env->Grid;
     if (st == "Col") {
-      CsvGridGoTo(g, v, MGRow);
+      g->MoveTo(v, g->GetRow());
     } else if(st == "Row") {
-      CsvGridGoTo(g, MGCol, v);
+      g->MoveTo(g->GetCol(), v);
     } else if(st == "Right") {
-      int newRight = AXtoRX(v);
-      int currentRight = g->DataRight;
+      int newRight = v;
+      int currentRight = g->GetRight();
       if (newRight < currentRight) {
-        g->DeleteColumn(newRight + 1, currentRight);
+        g->DeleteCol(newRight + 1, currentRight);
       } else if (newRight > currentRight) {
-        g->InsertColumn(currentRight + 1, newRight);
+        g->InsertCol(currentRight + 1, newRight);
       }
-      if (MGCol > v) { CsvGridGoTo(g, v, MGRow); }
-      g->ChangeColCount(newRight + 2);
+      if (g->GetCol() > v) { g->MoveTo(v, g->GetRow()); }
+      g->ChangeColCount(newRight + (g->RowCounterShown() ? 2 : 1));
     } else if(st == "Bottom") {
-      int newBottom = AYtoRY(v);
-      int currentBottom = g->DataBottom;
+      int newBottom = v;
+      int currentBottom = g->GetBottom();
       if (newBottom < currentBottom) {
         g->DeleteRow(newBottom + 1, currentBottom);
       } else if (newBottom > currentBottom) {
         g->InsertRow(currentBottom + 1, newBottom);
       }
-      if (MGRow > v) { CsvGridGoTo(g, MGCol, v); }
-      g->ChangeRowCount(newBottom + 2);
+      if (g->GetRow() > v) { env->Grid->MoveTo(g->GetCol(), v); }
+      g->ChangeRowCount(newBottom + (g->ColCounterShown() ? 2 : 1));
     } else {
-      TGridRect Sel = g->Selection;
+      TGridRect Sel;
+      Sel.Left = g->GetSelLeft();
+      Sel.Top = g->GetSelTop();
+      Sel.Right = g->GetSelRight();
+      Sel.Bottom = g->GetSelBottom();
       if(st == "SelLeft") {
-        Sel.Left = v - 1 + g->DataLeft;
+        Sel.Left = v;
         if(Sel.Right < Sel.Left) { Sel.Right = Sel.Left; }
       }else if(st == "SelTop") {
-        Sel.Top = v - 1 + g->DataTop;
+        Sel.Top = v;
         if(Sel.Bottom < Sel.Top) { Sel.Bottom = Sel.Top; }
       }else if(st == "SelRight") {
-        Sel.Right = v - 1 + g->DataLeft;
+        Sel.Right = v;
         if(Sel.Left > Sel.Right) { Sel.Left = Sel.Right; }
       }else if(st == "SelBottom") {
-        Sel.Bottom = v - 1 + g->DataTop;
+        Sel.Bottom = v;
         if(Sel.Top > Sel.Bottom) { Sel.Top = Sel.Bottom; }
       }
-      g->SetSelection(Sel.Left, Sel.Right, Sel.Top, Sel.Bottom);
+      g->Select(Sel.Left, Sel.Top, Sel.Right, Sel.Bottom);
     }
   } else if (Type == etCell) {
-    Write(X, Y, e.Value().Str(), env->IsCellMacro);
+    env->Grid->SetCell(X, Y, e.Value().Str());
   } else {
     throw MacroException("代入先が左辺値ではありません：" + Str());
   }
@@ -443,7 +625,7 @@ void TMacro::ExecMethod(String name, int H, const std::vector<Element>& ope,
     argStack.push_back(Element(ope[i].Value()));
   }
   if (isVarArg) {
-    TEnvironment *varArg = new TEnvironment(env.IsCellMacro, env.GetGlobal());
+    TEnvironment *varArg = env.NewObject();
     for (int i = funcArity + 1; i < H; i++) {
       varArg->Vars[(String)(i - funcArity - 1)] = Element(ope[i].Value());
     }
@@ -664,7 +846,7 @@ void TMacro::ExecFnc(String s)
       for (int i = 0; i < normalArgs; i++) {
         argStack.push_back(Element(ope[i].Value()));
       }
-      TEnvironment *varArg = new TEnvironment(env.IsCellMacro, env.GetGlobal());
+      TEnvironment *varArg = env.NewObject();
       for (int i = normalArgs; i < H; i++) {
         varArg->Vars[(String)(i - normalArgs)] = Element(ope[i].Value());
       }
@@ -684,7 +866,7 @@ void TMacro::ExecFnc(String s)
   }else if(s == "{}") {
       std::vector<TEnvironment*> *objects = env.GetObjects();
       Stack.push_back(Element(objects->size(), "", etObject, env.GetGlobal()));
-      objects->push_back(new TEnvironment(env.IsCellMacro, env.GetGlobal()));
+      objects->push_back(env.NewObject());
     }else if(s == "(constructor)") {
       Element obj = Stack.back();
       Element funcPtr("constructor", etVar, env.GetObject(obj.Val()));
@@ -707,16 +889,18 @@ void TMacro::ExecFnc(String s)
       if (env.IsCellMacro) {
         throw MacroException("Cell Macro can't show dialogs.", ME_SECURITY);
       }
+      env.Grid->ApplyPendingChanges();
       const wchar_t *text =
-          H >= 1 ? STR0.c_str() : TEXT("ブレークポイントです");
+          H >= 1 ? STR0.c_str() : L"ブレークポイントです";
       int flag = (H >= 2 ? ope[H - 1].Val() : MB_OK);
-      const wchar_t *caption = (H >= 3 ? STR1.c_str() : TEXT("Cassava Macro"));
+      const wchar_t *caption = (H >= 3 ? STR1.c_str() : L"Cassava Macro");
       Stack.push_back(
           Element(MessageBoxW(Application->Handle, text, caption, flag)));
     }else if(s == "InputBox"){
       if (env.IsCellMacro) {
         throw MacroException("Cell Macro can't show dialogs.", ME_SECURITY);
       }
+      env.Grid->ApplyPendingChanges();
       String Text = (H >= 1) ? STR0 : (String)"";
       String Value = (H >= 2) ? (ope[H-1].Str()) : (String)"";
       String Caption = (H >= 3) ? STR1 : (String)"Cassava Macro";
@@ -730,6 +914,7 @@ void TMacro::ExecFnc(String s)
       if (env.IsCellMacro) {
         throw MacroException("Cell Macro can't show dialogs.", ME_SECURITY);
       }
+      env.Grid->ApplyPendingChanges();
       String Text = (H >= 1) ? STR0 : (String)"";
       String Value = (H >= 2) ? (ope[H-1].Str()) : (String)"";
       String Caption = (H >= 3) ? STR1 : (String)"Cassava Macro";
@@ -740,25 +925,25 @@ void TMacro::ExecFnc(String s)
         throw MacroException("キャンセルされました。", ME_CANCELED);
       }
     }else if(s == "GetRowHeight" && H == 0){
-      Stack.push_back(Element(fmMain->MainGrid->DefaultRowHeight));
+      Stack.push_back(Element(env.Grid->Raw()->DefaultRowHeight));
     }else if(s == "GetRowHeight" && H == 1){
-      Stack.push_back(Element(fmMain->MainGrid->RowHeights[VAL0]));
+      Stack.push_back(Element(env.Grid->Raw()->RowHeights[VAL0]));
     }else if(s == "SetRowHeight" && H == 1){
-      fmMain->MainGrid->DefaultRowHeight = VAL0;
+      env.Grid->Raw()->DefaultRowHeight = VAL0;
     }else if(s == "SetRowHeight" && H == 2){
-      fmMain->MainGrid->RowHeights[VAL0] = VAL1;
+      env.Grid->Raw()->RowHeights[VAL0] = VAL1;
     }else if(s == "AdjustRowHeight" && H == 1){
-      fmMain->MainGrid->SetHeight(VAL0, false);
+      env.Grid->Raw()->SetHeight(VAL0, false);
     }else if(s == "GetColWidth" && H == 0){
-      Stack.push_back(Element(fmMain->MainGrid->DefaultColWidth));
+      Stack.push_back(Element(env.Grid->Raw()->DefaultColWidth));
     }else if(s == "GetColWidth" && H == 1){
-      Stack.push_back(Element(fmMain->MainGrid->ColWidths[VAL0]));
+      Stack.push_back(Element(env.Grid->Raw()->ColWidths[VAL0]));
     }else if(s == "SetColWidth" && H == 1){
-      fmMain->MainGrid->DefaultColWidth = VAL0;
+      env.Grid->Raw()->DefaultColWidth = VAL0;
     }else if(s == "SetColWidth" && H == 2){
-      fmMain->MainGrid->ColWidths[VAL0] = VAL1;
+      env.Grid->Raw()->ColWidths[VAL0] = VAL1;
     }else if(s == "AdjustColWidth" && H == 1){
-      fmMain->MainGrid->SetWidth(VAL0);
+      env.Grid->Raw()->SetWidth(VAL0);
     }else if(s == "GetYear" && H == 0){
       unsigned short year, month, day;
       Date().DecodeDate(&year, &month, &day);
@@ -840,46 +1025,45 @@ void TMacro::ExecFnc(String s)
       Ini->WriteString(STR0, STR1, STR2);
       delete Ini;
     }else if(s == "GetFontName" && H == 0){
-      Stack.push_back(Element(fmMain->MainGrid->Font->Name));
+      Stack.push_back(Element(env.Grid->Raw()->Font->Name));
     }else if(s == "SetFontName" && H == 1){
-      fmMain->MainGrid->Font->Name = STR0;
-      fmMain->SetGridFont(fmMain->MainGrid->Font);
+      env.Grid->Raw()->Font->Name = STR0;
+      fmMain->SetGridFont(env.Grid->Raw()->Font);
     }else if(s == "GetFontSize" && H == 0){
-      Stack.push_back(Element(fmMain->MainGrid->Font->Size));
+      Stack.push_back(Element(env.Grid->Raw()->Font->Size));
     }else if(s == "SetFontSize" && H == 1){
-      fmMain->MainGrid->Font->Size = VAL0;
-      fmMain->SetGridFont(fmMain->MainGrid->Font);
+      env.Grid->Raw()->Font->Size = VAL0;
+      fmMain->SetGridFont(env.Grid->Raw()->Font);
     }else if(s == "write" || s == "writeln"){
       if (canWriteFile) {
-        fs_io->SetEncode(fmMain->MainGrid->KanjiCode);
+        fs_io->SetEncode(env.Grid->Raw()->KanjiCode);
         for (int i = 0; i < H; i++) {
           fs_io->Write(ope[i].Str());
         }
         if (s == "writeln") {
-          if (fmMain->MainGrid->ReturnCode == '\x0A') {
-            fs_io->Write(TEXT("\x0A"));
-          } else if(fmMain->MainGrid->ReturnCode == '\x0D'){
-            fs_io->Write(TEXT("\x0D"));
-          } else {
-            fs_io->Write(TEXT("\x0D\x0A"));
-          }
+          fs_io->Write(ReturnCodeString(env.Grid->Raw()->ReturnCode));
         }
       }else{
-        int wx = MGCol, wy = MGRow;
+        int wx = env.Grid->GetCol();
+        int wy = env.Grid->GetRow();
         for(int i=0; i<H; i++){
-          Write(wx, wy, ope[i].Str(), env.IsCellMacro);
+          env.Grid->SetCell(wx, wy, ope[i].Str());
           wx++;
         }
-        if(s == "writeln"){ CsvGridGoTo(fmMain->MainGrid, 1, wy+1); }
-        else{ CsvGridGoTo(fmMain->MainGrid, wx, wy); }
+        if (s == "writeln") {
+          env.Grid->MoveTo(1, wy + 1);
+        } else {
+          env.Grid->MoveTo(wx, wy);
+        }
       }
     }else if(s == "StartMacroRecording" && H == 0) {
-      fmMain->MainGrid->UndoList->StartMacroRecording();
+      env.Grid->Raw()->UndoList->StartMacroRecording();
     }else if(s == "StopMacroRecording" && H == 0) {
-      fmMain->MainGrid->UndoList->StopMacroRecording();
+      env.Grid->Raw()->UndoList->StopMacroRecording();
     }else if(s == "GetRecordedMacro" && H == 0) {
-      Stack.push_back(Element(fmMain->MainGrid->UndoList->GetRecordedMacro()));
+      Stack.push_back(Element(env.Grid->Raw()->UndoList->GetRecordedMacro()));
     }else if(H == 0){
+      env.Grid->ApplyPendingChanges();
       TMenuItem *menu = NULL;
       if (!env.IsCellMacro) {
         menu = MenuSearch(fmMain->Menu->Items, s);
@@ -890,7 +1074,7 @@ void TMacro::ExecFnc(String s)
           do {
             Sleep(100);
             Application->ProcessMessages();
-          } while (fmMain->MainGrid->FileOpenThread);
+          } while (env.Grid->Raw()->FileOpenThread);
         }
       } else {
         throw MacroException(notFoundMessage);
@@ -948,25 +1132,25 @@ void TMacro::ExecFnc(String s)
     }else if(s == "InsertRow" && (H == 1 || H == 2)){
       int top = VAL0;
       int bottom = (H > 1 ? VAL1 : top);
-      fmMain->MainGrid->InsertRow(AYtoRY(top), AYtoRY(bottom));
+      env.Grid->InsertRow(top, bottom);
     }else if(s == "DeleteRow" && (H == 1 || H == 2)){
       int top = VAL0;
       int bottom = (H > 1 ? VAL1 : top);
-      fmMain->MainGrid->DeleteRow(AYtoRY(top), AYtoRY(bottom));
+      env.Grid->DeleteRow(top, bottom);
     }else if(s == "InsertCol" && (H == 1 || H == 2)){
       int left = VAL0;
       int right = (H > 1 ? VAL1 : left);
-      fmMain->MainGrid->InsertColumn(AXtoRX(left), AXtoRX(right));
+      env.Grid->InsertCol(left, right);
     }else if(s == "DeleteCol" && (H == 1 || H == 2)){
       int left = VAL0;
       int right = (H > 1 ? VAL1 : left);
-      fmMain->MainGrid->DeleteColumn(AXtoRX(left), AXtoRX(right));
+      env.Grid->DeleteCol(left, right);
     }else if(s == "MoveRow" && H == 2) {
-      fmMain->MainGrid->MoveRow(AYtoRY(VAL0), AYtoRY(VAL1));
+      env.Grid->MoveRow(VAL0, VAL1);
     }else if(s == "MoveCol" && H == 2) {
-      fmMain->MainGrid->MoveColumn(AXtoRX(VAL0), AXtoRX(VAL1));
+      env.Grid->MoveCol(VAL0, VAL1);
     }else if(s == "Paste" && H == 1) {
-      fmMain->MainGrid->PasteFromClipboard(VAL0);
+      env.Grid->Raw()->PasteFromClipboard(VAL0);
     }else if(s == "random" && H == 1){
       Stack.push_back(Element(random(VAL0)));
     }else if(s == "cell" && H == 2){
@@ -1018,8 +1202,11 @@ void TMacro::ExecFnc(String s)
     }else if((s == "move" || s == "moveto") && H == 2){
       int c = VAL0;
       int r = VAL1;
-      if(s == "move"){ c += MGCol; r += MGRow; }
-      CsvGridGoTo(fmMain->MainGrid, c, r);
+      if (s == "move") {
+        c += env.Grid->GetCol();
+        r += env.Grid->GetRow();
+      }
+      env.Grid->MoveTo(c, r);
     }else if(s == "mid" && H == 2){
       String st = STR0;
       Stack.push_back(Element(st.SubString(VAL1, st.Length()-VAL1+1)));
@@ -1040,19 +1227,19 @@ void TMacro::ExecFnc(String s)
       int t = VAL1;
       int r = VAL2;
       int b = VAL3;
-      double result = fmMain->MainGrid->GetSum(l,t,r,b);
+      double result = env.Grid->Raw()->GetSum(l,t,r,b);
       Stack.push_back(Element(result));
     }else if(s == "avr" && H == 4){
       int l = VAL0;
       int t = VAL1;
       int r = VAL2;
       int b = VAL3;
-      double result = fmMain->MainGrid->GetAvr(l,t,r,b);
+      double result = env.Grid->Raw()->GetAvr(l,t,r,b);
       Stack.push_back(Element(result));
     }else if(s == "ShellOpen" && H == 1){
       String FileName = STR0;
       if(isUrl(FileName)){
-        fmMain->MainGrid->OpenURL(FileName);
+        env.Grid->Raw()->OpenURL(FileName);
       }else{
         AutoOpen(FileName, ExtractFilePath(fmMain->FileName));
       }
@@ -1076,9 +1263,10 @@ void TMacro::ExecFnc(String s)
       if (env.IsCellMacro) {
         throw MacroException("Cell Macro can't open files.", ME_SECURITY);
       }
+      env.Grid->ApplyPendingChanges();
       String filename = STR0;
       fmMain->MainGridDropFiles(NULL, 1, &filename);
-      while (fmMain->MainGrid->FileOpenThread) {
+      while (env.Grid->Raw()->FileOpenThread) {
         Sleep(100);
         Application->ProcessMessages();
       }
@@ -1086,13 +1274,14 @@ void TMacro::ExecFnc(String s)
       if (env.IsCellMacro) {
         throw MacroException("Cell Macro can't write to files.", ME_SECURITY);
       }
+      env.Grid->ApplyPendingChanges();
       int typeIndex = -1;
       if (H == 1) {
-        typeIndex = fmMain->MainGrid->TypeIndex;
+        typeIndex = env.Grid->Raw()->TypeIndex;
       } else {
-        int count = fmMain->MainGrid->TypeList.Count;
+        int count = env.Grid->Raw()->TypeList.Count;
         for (int i = 0; i < count; i++) {
-          if (fmMain->MainGrid->TypeList.Items(i)->Name == STR1) {
+          if (env.Grid->Raw()->TypeList.Items(i)->Name == STR1) {
             typeIndex = i;
             break;
           }
@@ -1106,6 +1295,7 @@ void TMacro::ExecFnc(String s)
       if (env.IsCellMacro) {
         throw MacroException("Cell Macro can't write to files.", ME_SECURITY);
       }
+      env.Grid->ApplyPendingChanges();
       fmMain->Export(STR0, STR1);
     }else if(s == "FileExists" && H == 1) {
       Stack.push_back(Element(FileExists(STR0) ? 1 : 0));
@@ -1123,16 +1313,16 @@ void TMacro::ExecFnc(String s)
       fs->Write(&(array[0]), array.Length);
       delete fs;
     }else if(s == "Sort" && H >= 1 && H <= 9) {
-      int left = AXtoRX(VAL0);
-      int top = AYtoRY(H > 1 ? VAL1 : 1);
-      int right = (H > 2 ? AXtoRX(VAL2) : fmMain->MainGrid->DataRight);
-      int bottom = (H > 3 ? AYtoRY(VAL3) : fmMain->MainGrid->DataBottom);
-      int col = (H > 4 ? AXtoRX(VAL4) : left);
+      int left = VAL0;
+      int top = (H > 1 ? VAL1 : 1);
+      int right = (H > 2 ? VAL2 : env.Grid->GetRight());
+      int bottom = (H > 3 ? VAL3 : env.Grid->GetBottom());
+      int col = (H > 4 ? VAL4 : left);
       bool direction = (H > 5 ? VAL5 : false);
       bool numSort = (H > 6 ? VAL6 : false);
       bool ignoreCase = (H > 7 ? VAL7 : false);
       bool ignoreZenhan = (H > 8 ? VAL8 : false);
-      fmMain->MainGrid->Sort(left, top, right, bottom, col, !direction, numSort,
+      env.Grid->Sort(left, top, right, bottom, col, direction, numSort,
           ignoreCase, ignoreZenhan);
     }else if(s == "ReplaceAll" && (H == 2 || H == 5 || H == 9)) {
       String find = STR0;
@@ -1140,33 +1330,27 @@ void TMacro::ExecFnc(String s)
       bool ignoreCase = (H > 2 ? VAL2 : false);
       bool word = (H > 3 ? VAL3 : false);
       bool regex = (H > 4 ? VAL4 : false);
-      int left = (H > 5 ? AXtoRX(VAL5) : fmMain->MainGrid->FixedCols);
-      int top = (H > 6 ? AYtoRY(VAL6) : fmMain->MainGrid->FixedRows);
-      int right = (H > 7 ? AXtoRX(VAL7) : fmMain->MainGrid->DataRight);
-      int bottom = (H > 8 ? AYtoRY(VAL8) : fmMain->MainGrid->DataBottom);
-      int count = fmMain->MainGrid->ReplaceAll(
-          find, replace, left, top, right, bottom, !ignoreCase, regex, word);
+      int left = (H > 5 ? VAL5 : env.Grid->GetLeft());
+      int top = (H > 6 ? VAL6 : env.Grid->GetTop());
+      int right = (H > 7 ? VAL7 : env.Grid->GetRight());
+      int bottom = (H > 8 ? VAL8 : env.Grid->GetBottom());
+      int count = env.Grid->ReplaceAll(
+          find, replace, left, top, right, bottom, ignoreCase, regex, word);
       Stack.push_back(Element(count));
     }else if(s == "Select" && H == 4) {
-      int left = VAL0;
-      int top = VAL1;
-      int right = VAL2;
-      int bottom = VAL3;
-      fmMain->MainGrid->SetSelection(
-          AXtoRX(min(left, right)), AXtoRX(max(left, right)),
-          AYtoRY(min(top, bottom)), AYtoRY(max(top, bottom)));
+      env.Grid->Select(VAL0, VAL1, VAL2, VAL3);
     }else{
       throw MacroException(notFoundMessage);
     }
 }
 //---------------------------------------------------------------------------
 void TMacro::ExecOpe(char c){
-  if (c == 'P' || c == 'm' || c == 'g' ||
-      c == CMO_Inc || c == CMO_Dec || c == '!') {
+  if (c == CMO_Goto || c == CMO_Jump || c == CMO_Minus || c == CMO_Inc ||
+      c == CMO_Dec || c == '!') {
     if (Stack.size() < 1) { throw MacroException(c, ME_HIKISU); }
     Element ope = Stack.back();
     Stack.pop_back();
-    if (c == 'g') {
+    if (c == CMO_Goto) {
       fs->Position = ope.Val();
       Stack.clear();
       LoopCount++;
@@ -1177,11 +1361,12 @@ void TMacro::ExecOpe(char c){
       }
       if (!RunningOk) { throw MacroException("中断しました"); }
     }
-    else if (c == 'm') Stack.push_back(Element(-(ope.Val())));
+    else if (c == CMO_Jump) { fs->Position = ope.Val(); }
+    else if (c == CMO_Minus) { Stack.push_back(Element(-(ope.Val()))); }
     else if (c == CMO_Inc) { ope.Sbst(Element(ope.Val() + 1)); }
     else if (c == CMO_Dec) { ope.Sbst(Element(ope.Val() - 1)); }
-    else if (c == '!') Stack.push_back(Element(((ope.Val() == 0) ? 1 : 0)));
-  } else if (c == ':') {
+    else if (c == '!') { Stack.push_back(Element(((ope.Val() == 0) ? 1 : 0))); }
+  } else if (c == CMO_ObjKey) {
     if (Stack.size() < 3) { throw MacroException(c, ME_HIKISU); }
     Element val = Stack.back(); Stack.pop_back();
     Element key = Stack.back(); Stack.pop_back();
@@ -1278,7 +1463,6 @@ void TMacro::ExecOpe(char c){
       if (ope1.Val() == 0) {
         fs->Position = ope2.Val();
       }
-      Stack.clear();
     } else if (c == ']') {
       Stack.push_back(Element(ope1.Val(), ope2.Val(), &env));
     }
@@ -1313,12 +1497,10 @@ Element TMacro::Do(String FileName, const std::vector<Element> &AStack,
     fs->Position = 0;
 
     env.Vars.clear();
-    env.Vars["x"] = Element(((x >= 0) ? x : MGCol));
-    env.Vars["y"] = Element(((y >= 0) ? y : MGRow));
-    env.Vars["Left"] = Element(fmMain->MainGrid->ShowRowCounter ?
-        1 : fmMain->MainGrid->FixedCols + 1);
-    env.Vars["Top"] = Element(fmMain->MainGrid->ShowColCounter ?
-        1 : fmMain->MainGrid->FixedRows + 1);
+    env.Vars["x"] = Element(((x >= 0) ? x : env.Grid->GetCol()));
+    env.Vars["y"] = Element(((y >= 0) ? y : env.Grid->GetRow()));
+    env.Vars["Left"] = Element(env.Grid->GetLeft());
+    env.Vars["Top"] = Element(env.Grid->GetTop());
     if (thisPtr) {
       env.Vars["this"] = *thisPtr;
     }
@@ -1378,7 +1560,8 @@ String ExecMacro(String FileName, int MaxLoop, TStringList *Modules,
   if(!RunningOk){ return ""; }
   if(!IsCellMacro){ RunningCount++; }
   randomize();
-  TMacro mcr(IO, MaxLoop, Modules, TEnvironment(IsCellMacro, NULL));
+  GridProxy grid(fmMain->MainGrid, IsCellMacro);
+  TMacro mcr(IO, MaxLoop, Modules, TEnvironment(IsCellMacro, &grid, NULL));
   Element r;
   try {
     std::vector<Element> stack;
@@ -1392,7 +1575,7 @@ String ExecMacro(String FileName, int MaxLoop, TStringList *Modules,
         e.Message = "引数の数が足りません:" + e.Message;
       }
       Application->MessageBox((FileName + "\n" + e.Message).c_str(),
-                              TEXT("Cassava Macro Interpreter"), 0);
+                              L"Cassava Macro Interpreter", 0);
     }
   } catch (Exception *e) {
     if (IsCellMacro) {
@@ -1400,7 +1583,7 @@ String ExecMacro(String FileName, int MaxLoop, TStringList *Modules,
       throw e;
     } else {
       Application->MessageBox((FileName + "\n" + e->Message).c_str(),
-                              TEXT("Cassava Macro Interpreter"), 0);
+                              L"Cassava Macro Interpreter", 0);
     }
   }
   if(!IsCellMacro){

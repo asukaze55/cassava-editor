@@ -1,5 +1,4 @@
 //---------------------------------------------------------------------------
-
 #include <vcl.h>
 #pragma hdrstop
 
@@ -15,10 +14,29 @@
 #pragma package(smart_init)
 #pragma resource "*.dfm"
 TfmOption *fmOption;
+static int activeNodeIndex = 0;
 //---------------------------------------------------------------------------
 __fastcall TfmOption::TfmOption(TComponent* Owner)
 	: TForm(Owner)
 {
+  frOptionDataFormat = new TfrOptionDataFormat(Owner);
+  frOptionFile = new TfrOptionFile(Owner);
+  frOptionBackUp = new TfrOptionBackUp(Owner);
+  frOptionLaunch = new TfrOptionLaunch(Owner);
+  frOptionBehavior = new TfrOptionBehavior(Owner);
+  frOptionView = new TfrOptionView(Owner);
+  frOptionColor = new TfrOptionColor(Owner);
+}
+//---------------------------------------------------------------------------
+TfmOption::~TfmOption()
+{
+  delete frOptionDataFormat;
+  delete frOptionFile;
+  delete frOptionBackUp;
+  delete frOptionLaunch;
+  delete frOptionBehavior;
+  delete frOptionView;
+  delete frOptionColor;
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmOption::FormShow(TObject *Sender)
@@ -40,13 +58,13 @@ void __fastcall TfmOption::FormShow(TObject *Sender)
     frOptionView->Parent = pnlOption;
     frOptionColor->Visible = false;
     frOptionColor->Parent = pnlOption;
-    tnDataFormat = items->Add(NULL, "データ形式");
-    tnFile = items->Add(NULL, "ファイル");
-    tnBehavior = items->Add(NULL, "動作");
-    tnBackUp = items->Add(NULL, "バックアップ");
-    tnLaunch = items->Add(NULL, "外部アプリ連携");
-    tnView = items->Add(NULL, "表示");
-    tnColor = items->Add(NULL, "色");
+    tnDataFormat = items->Add(NULL, L"データ形式");
+    tnFile = items->Add(NULL, L"ファイル");
+    tnBehavior = items->Add(NULL, L"動作");
+    tnBackUp = items->Add(NULL, L"バックアップ");
+    tnLaunch = items->Add(NULL, L"外部アプリ連携");
+    tnView = items->Add(NULL, L"表示");
+    tnColor = items->Add(NULL, L"色");
   }
 
   frOptionDataFormat->RestoreFromMainForm();
@@ -56,10 +74,14 @@ void __fastcall TfmOption::FormShow(TObject *Sender)
   frOptionView->RestoreFromMainForm();
   frOptionColor->RestoreFromMainForm();
   frOptionFile->RestoreFromMainForm();
+
+  tvCategory->Selected = tvCategory->Items->Item[activeNodeIndex];
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmOption::tvCategoryChange(TObject *Sender, TTreeNode *Node)
 {
+  activeNodeIndex = Node->AbsoluteIndex;
+
   TFrame *Show = NULL;
   if(Node->Parent == tnDataFormat){
     frOptionDataFormat->Select(Node->Index);
@@ -127,22 +149,22 @@ void __fastcall TfmOption::btnOKClick(TObject *Sender)
     TTypeOption *p = frOptionDataFormat->TypeList.Items(i);
     if (p->Name == "") {
       Application->MessageBox(
-          TEXT("データ形式名の設定されていないデータ形式があります。"),
-          TEXT("Cassava Option"), MB_ICONWARNING);
+          L"データ形式名の設定されていないデータ形式があります。",
+          L"Cassava Option", MB_ICONWARNING);
       ModalResult = mrNone;
       return;
     }
     if (p->Exts.size() == 0) {
       Application->MessageBox(
           (p->Name + " に標準拡張子が設定されていません。").c_str(),
-          TEXT("Cassava Option"), MB_ICONWARNING);
+          L"Cassava Option", MB_ICONWARNING);
       ModalResult = mrNone;
       return;
     }
     if (p->SepChars.Length() == 0) {
       Application->MessageBox(
           (p->Name + " に標準区切り文字が設定されていません。").c_str(),
-          TEXT("Cassava Option"), MB_ICONWARNING);
+          L"Cassava Option", MB_ICONWARNING);
       ModalResult = mrNone;
       return;
     }

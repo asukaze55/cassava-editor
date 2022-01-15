@@ -493,6 +493,8 @@ object fmLetter: TfmLetter
     Width = 21
     Height = 17
     Anchors = [akTop, akRight]
+    Checked = True
+    State = cbChecked
     TabOrder = 7
     OnClick = UpdatePreviewImage
   end

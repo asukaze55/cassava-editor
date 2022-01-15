@@ -242,9 +242,9 @@ void __fastcall TfmKey::btnSaveClick(TObject *Sender)
     }
 
     if (SaveKey(KeyFileName)) {
-      Application->MessageBox(TEXT("保存しました"), CASSAVA_TITLE, 0);
+      Application->MessageBox(L"保存しました", CASSAVA_TITLE, 0);
     } else {
-      Application->MessageBox(TEXT("保存に失敗しました"), CASSAVA_TITLE, 0);
+      Application->MessageBox(L"保存に失敗しました", CASSAVA_TITLE, 0);
     }
   }
 }
@@ -258,9 +258,9 @@ void __fastcall TfmKey::btnOpenClick(TObject *Sender)
     }
     if (LoadKey(KeyFileName)) {
       Application->MessageBox(
-          TEXT("ファイルを読み込みました"), CASSAVA_TITLE, 0);
+          L"ファイルを読み込みました", CASSAVA_TITLE, 0);
     } else {
-      Application->MessageBox(TEXT("読み込みに失敗しました"), CASSAVA_TITLE, 0);
+      Application->MessageBox(L"読み込みに失敗しました", CASSAVA_TITLE, 0);
     }
   }
 }
