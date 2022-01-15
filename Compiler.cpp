@@ -314,7 +314,7 @@ CMCElement TTokenizer::Get(){
   }else if(last.str == "IDYES"){
     last = CMCElement(IDYES, prElement, tpInteger);
 
-  }else if(last.type != tpFunc && last.str.Length()>0 && last.str[1] == ':'){
+  }else if(last.type == tpVar && last.str.Length()>0 && last.str[1] == ':'){
     throw CMCException("•Ï”–¼‚ª•s³‚Å‚·F" + last.str);
   }
 

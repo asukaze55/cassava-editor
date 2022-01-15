@@ -1652,7 +1652,7 @@ void TCsvGrid::DeleteRow(int Top, int Bottom)
 {
   SetUndoCsv();
   UndoSetLock++;
-  if(RangeSelect){ Col = 1; }
+  if(RangeSelect){ Col = FixedCols; }
   if(RowCount <= FixedRows+1){
     return;
   }else if(Row >= Top && Row <= Bottom){
@@ -1673,7 +1673,7 @@ void TCsvGrid::DeleteColumn(int Left, int Right)
 {
   SetUndoCsv();
   UndoSetLock++;
-  if(RangeSelect){ Row = 1; }
+  if(RangeSelect){ Row = FixedRows; }
   if(ColCount <= FixedCols+1){
     return;
   }else if(Col >= Left && Col <= Right){

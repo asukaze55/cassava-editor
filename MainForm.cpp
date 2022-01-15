@@ -1913,7 +1913,7 @@ void __fastcall TfmMain::mnHelpContentsClick(TObject *Sender)
 void __fastcall TfmMain::mnAboutClick(TObject *Sender)
 {
   Application->MessageBox
-    ("Cassava Editor\n   Ver.1.5.11\n   by ‚ ‚·‚©‚º\n\t2008/11/29",
+    ("Cassava Editor\n   Ver.1.5.12\n   by ‚ ‚·‚©‚º\n\t2009/03/20",
      "ƒo[ƒWƒ‡ƒ“î•ñ",0);
 }
 //---------------------------------------------------------------------------

@@ -222,8 +222,8 @@
           <VersionInfo Name="AutoIncBuild">True</VersionInfo>
           <VersionInfo Name="MajorVer">1</VersionInfo>
           <VersionInfo Name="MinorVer">5</VersionInfo>
-          <VersionInfo Name="Release">11</VersionInfo>
-          <VersionInfo Name="Build">105</VersionInfo>
+          <VersionInfo Name="Release">12</VersionInfo>
+          <VersionInfo Name="Build">106</VersionInfo>
           <VersionInfo Name="Debug">False</VersionInfo>
           <VersionInfo Name="PreRelease">False</VersionInfo>
           <VersionInfo Name="Special">False</VersionInfo>
@@ -235,13 +235,13 @@
         <VersionInfoKeys>
           <VersionInfoKeys Name="CompanyName"></VersionInfoKeys>
           <VersionInfoKeys Name="FileDescription">Cassava Editor</VersionInfoKeys>
-          <VersionInfoKeys Name="FileVersion">1.5.11.105</VersionInfoKeys>
+          <VersionInfoKeys Name="FileVersion">1.5.12.106</VersionInfoKeys>
           <VersionInfoKeys Name="InternalName"></VersionInfoKeys>
           <VersionInfoKeys Name="LegalCopyright">あすかぜ</VersionInfoKeys>
           <VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys>
           <VersionInfoKeys Name="OriginalFilename"></VersionInfoKeys>
           <VersionInfoKeys Name="ProductName">Cassava Editor</VersionInfoKeys>
-          <VersionInfoKeys Name="ProductVersion">1.5.11.0</VersionInfoKeys>
+          <VersionInfoKeys Name="ProductVersion">1.5.12.0</VersionInfoKeys>
           <VersionInfoKeys Name="Comments"></VersionInfoKeys>
         </VersionInfoKeys>
         <HistoryLists_hlIncludePath>
