@@ -1,17 +1,17 @@
-// g—p–@F
-// ‚±‚Ìƒtƒ@ƒCƒ‹‚ğ TestSuite.cms ‚Æ‚¢‚¤–¼‘O‚Å Cassava Editor ‚Ì Macro/lib ƒtƒHƒ‹ƒ_‚É’u‚¢‚Ä‚­‚¾‚³‚¢B
-// ŠeƒeƒXƒgƒNƒ‰ƒX‚ÍAname() ‚Æ test(assert) ƒƒ\ƒbƒh‚ğÀ‘•‚µ‚Ä‚­‚¾‚³‚¢B
-// name() ‚ÍƒeƒXƒg“à—e‚ğ•\‚·•¶š—ñ‚ğ•Ô‚µ‚Ü‚·B
-// test(assert) ‚Í assert.that() ‚ğg—p‚µ‚½ƒeƒXƒg‚ğÀs‚µ‚Ü‚·B
-// •¡”‚ÌƒeƒXƒg‚ğ‚Ü‚Æ‚ß‚½ƒeƒXƒgƒXƒC[ƒg‚ÍŸ‚Ì‚æ‚¤‚ÉÀs‚µ‚Ü‚·B
+ï»¿// ä½¿ç”¨æ³•ï¼š
+// ã“ã®ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ TestSuite.cms ã¨ã„ã†åå‰ã§ Cassava Editor ã® Macro/lib ãƒ•ã‚©ãƒ«ãƒ€ã«ç½®ã„ã¦ãã ã•ã„ã€‚
+// å„ãƒ†ã‚¹ãƒˆã‚¯ãƒ©ã‚¹ã¯ã€name() ã¨ test(assert) ãƒ¡ã‚½ãƒƒãƒ‰ã‚’å®Ÿè£…ã—ã¦ãã ã•ã„ã€‚
+// name() ã¯ãƒ†ã‚¹ãƒˆå†…å®¹ã‚’è¡¨ã™æ–‡å­—åˆ—ã‚’è¿”ã—ã¾ã™ã€‚
+// test(assert) ã¯ assert.that() ã‚’ä½¿ç”¨ã—ãŸãƒ†ã‚¹ãƒˆã‚’å®Ÿè¡Œã—ã¾ã™ã€‚
+// è¤‡æ•°ã®ãƒ†ã‚¹ãƒˆã‚’ã¾ã¨ã‚ãŸãƒ†ã‚¹ãƒˆã‚¹ã‚¤ãƒ¼ãƒˆã¯æ¬¡ã®ã‚ˆã†ã«å®Ÿè¡Œã—ã¾ã™ã€‚
 //
 // import { TestSuite } from "lib/TestSuite.cms";
 //
 // testSuite = new TestSuite();
 //
-// testSuite.run(new ƒeƒXƒgƒNƒ‰ƒX1());
-// testSuite.run(new ƒeƒXƒgƒNƒ‰ƒX2());
-// testSuite.run(new ƒeƒXƒgƒNƒ‰ƒX3());
+// testSuite.run(new ãƒ†ã‚¹ãƒˆã‚¯ãƒ©ã‚¹1());
+// testSuite.run(new ãƒ†ã‚¹ãƒˆã‚¯ãƒ©ã‚¹2());
+// testSuite.run(new ãƒ†ã‚¹ãƒˆã‚¯ãƒ©ã‚¹3());
 //
 // testSuite.showResult();
 

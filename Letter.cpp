@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
-#include <vcl\vcl.h>
-#include <vcl\printers.hpp>
+#include <vcl.h>
+#include <Vcl.printers.hpp>
 #include <tchar.h>
 #pragma hdrstop
 

@@ -1,28 +1,28 @@
-B = Bottom;
+ï»¿B = Bottom;
 
-x = InputBox("•ÏŠ·‚·‚é—ñ‚ðŽw’è‚µ‚Ä‚­‚¾‚³‚¢B", x);
+x = InputBox("å¤‰æ›ã™ã‚‹åˆ—ã‚’æŒ‡å®šã—ã¦ãã ã•ã„ã€‚", x);
 
 for(y=1; y<=B; y++){
   str = [x,y];
-  str = replace(str, "1", "ˆê");
-  str = replace(str, "‚P", "ˆê");
-  str = replace(str, "2", "“ñ");
-  str = replace(str, "‚Q", "“ñ");
-  str = replace(str, "3", "ŽO");
-  str = replace(str, "‚R", "ŽO");
-  str = replace(str, "4", "Žl");
-  str = replace(str, "‚S", "Žl");
-  str = replace(str, "5", "ŒÜ");
-  str = replace(str, "‚T", "ŒÜ");
-  str = replace(str, "6", "˜Z");
-  str = replace(str, "‚U", "˜Z");
-  str = replace(str, "7", "Žµ");
-  str = replace(str, "‚V", "Žµ");
-  str = replace(str, "8", "”ª");
-  str = replace(str, "‚W", "”ª");
-  str = replace(str, "9", "‹ã");
-  str = replace(str, "‚X", "‹ã");
-  str = replace(str, "0", "›");
-  str = replace(str, "‚O", "›");
+  str = replace(str, "1", "ä¸€");
+  str = replace(str, "ï¼‘", "ä¸€");
+  str = replace(str, "2", "äºŒ");
+  str = replace(str, "ï¼’", "äºŒ");
+  str = replace(str, "3", "ä¸‰");
+  str = replace(str, "ï¼“", "ä¸‰");
+  str = replace(str, "4", "å››");
+  str = replace(str, "ï¼”", "å››");
+  str = replace(str, "5", "äº”");
+  str = replace(str, "ï¼•", "äº”");
+  str = replace(str, "6", "å…­");
+  str = replace(str, "ï¼–", "å…­");
+  str = replace(str, "7", "ä¸ƒ");
+  str = replace(str, "ï¼—", "ä¸ƒ");
+  str = replace(str, "8", "å…«");
+  str = replace(str, "ï¼˜", "å…«");
+  str = replace(str, "9", "ä¹");
+  str = replace(str, "ï¼™", "ä¹");
+  str = replace(str, "0", "â—‹");
+  str = replace(str, "ï¼", "â—‹");
   [x,y] = str;
 }

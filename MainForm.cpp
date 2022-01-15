@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
-#include <vcl\vcl.h>
-#include <vcl\clipbrd.hpp>
+#include <vcl.h>
+#include <Vcl.clipbrd.hpp>
 #include <process.h>
 #include <stdio.h>
 #include <map>
@@ -177,19 +177,25 @@ void TfmMain::ReadIni()
   History->Clear();
 
   IniFile *Ini = Pref->GetInifile();
-    Left = Ini->ReadInteger("Position","Left",
-      GetSystemMetrics(SM_CXSCREEN)/2 - Width/2);
-    Top = Ini->ReadInteger("Position","Top",
-      GetSystemMetrics(SM_CYSCREEN)/2 - Height/2);
-    Width = Ini->ReadInteger("Position","Width",Width);
 
-    Show();
+  Width = Ini->ReadInteger("Position", "Width", Width);
+  Height = Ini->ReadInteger("Position", "Height", Height);
+  int iniLeft = Ini->ReadInteger("Position", "Left", -1);
+  int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+  Left = (iniLeft >= 0 && iniLeft <= screenWidth - Width)
+      ? iniLeft : (screenWidth / 2 - Width / 2);
+  int iniTop = Ini->ReadInteger("Position", "Top", -1);
+  int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+  Top = (iniTop >= 0 && iniTop <= screenHeight - Height)
+      ? iniTop : (screenHeight / 2 - Height / 2);
+
+  Show();
 #ifdef CssvMacro
     SearchMacro();
 #endif
 
-    Height = Ini->ReadInteger("Position","Height",Height);
-    WindowState = (TWindowState)Ini->ReadInteger("Position","Mode",wsNormal);
+    WindowState =
+        (TWindowState) Ini->ReadInteger("Position", "Mode", (int) wsNormal);
     MainGrid->Font->Name = Ini->ReadString("Font","Name", "‚l‚r ‚oƒSƒVƒbƒN");
     MainGrid->Font->Size = Ini->ReadInteger("Font","Size", 12);
     if (Ini->ReadBool("Font","Bold", false)) {
@@ -232,24 +238,28 @@ void TfmMain::ReadIni()
     PrintMargin[1] = Ini->ReadInteger("Print","MarginRight",15);
     PrintMargin[2] = Ini->ReadInteger("Print","MarginTop",15);
     PrintMargin[3] = Ini->ReadInteger("Print","MarginBottom",15);
+    PrintHeader = Ini->ReadString("Print", "Header", "%f");
+    PrintHeaderPosition = Ini->ReadInteger("Print", "HeaderPosition", 2);
+    PrintFooter = Ini->ReadString("Print", "Footer", "- %p -");
+    PrintFooterPosition = Ini->ReadInteger("Print", "FooterPosition", 2);
 
     int TypeCount = Ini->ReadInteger("DataType","Count", 0);
     if(TypeCount > 0){
       MainGrid->TypeList.Clear();
       for(int i=0; i<TypeCount; i++){
         String Section = (String)"DataType:" + i;
-        TTypeOption *TO = new TTypeOption;
-        TO->Name = Ini->ReadString(Section, "Name", "[V‹K]");
+        TTypeOption option;
+        option.Name = Ini->ReadString(Section, "Name", "[V‹K]");
         String exts = Ini->ReadString(Section, "Exts", "csv");
-        TO->SetExts(exts);
-        TO->ForceExt = Ini->ReadBool(Section, "ForceExt", false);
-        TO->SepChars = Ascii2Ctrl(Ini->ReadString(Section, "SepChars", ",\\t"));
-        TO->WeakSepChars = Ascii2Ctrl(Ini->ReadString(Section, "WeakSepChars", "\\_"));
-        TO->QuoteChars = Ascii2Ctrl(Ini->ReadString(Section, "QuoteChars", "\""));
-        TO->QuoteOption = Ini->ReadInteger(Section, "Quote", 1);
-        TO->OmitComma = Ini->ReadBool(Section, "OmitComma", true);
-        TO->DummyEof = Ini->ReadBool(Section, "DummyEof", false);
-        MainGrid->TypeList.Add(TO);
+        option.SetExts(exts);
+        option.ForceExt = Ini->ReadBool(Section, "ForceExt", false);
+        option.SepChars = Ascii2Ctrl(Ini->ReadString(Section, "SepChars", ",\\t"));
+        option.WeakSepChars = Ascii2Ctrl(Ini->ReadString(Section, "WeakSepChars", "\\_"));
+        option.QuoteChars = Ascii2Ctrl(Ini->ReadString(Section, "QuoteChars", "\""));
+        option.QuoteOption = Ini->ReadInteger(Section, "Quote", 1);
+        option.OmitComma = Ini->ReadBool(Section, "OmitComma", true);
+        option.DummyEof = Ini->ReadBool(Section, "DummyEof", false);
+        MainGrid->TypeList.Add(option);
       }
     }
     SetFilter();
@@ -300,7 +310,7 @@ void TfmMain::ReadIni()
     bool SSB = Ini->ReadBool("Mode","ShowStatusbar",true);
       if(SSB != mnShowStatusbar->Checked) mnShowStatusbarClick(this);
     MainGrid->ShowToolTipForLongCell
-      = Ini->ReadBool("Mode", "ShowToolTipForLongCell", true);
+      = Ini->ReadBool("Mode", "ShowToolTipForLongCell", false);
     Application->HintPause
       = Ini->ReadInteger("Mode","HintPause",Application->HintPause);
     Application->HintHidePause
@@ -384,7 +394,7 @@ void TfmMain::WriteIni(bool PosSlide)
 {
   try {
     IniFile *Ini = Pref->GetInifile();
-    Ini->WriteInteger("Position","Mode",WindowState);
+    Ini->WriteInteger("Position", "Mode", (int) WindowState);
     if(WindowState == wsNormal){
       int Slide = PosSlide ? 32 : 0;
       Ini->WriteInteger("Position","Left",Left+Slide);
@@ -425,6 +435,10 @@ void TfmMain::WriteIni(bool PosSlide)
     Ini->WriteInteger("Print","MarginRight",PrintMargin[1]);
     Ini->WriteInteger("Print","MarginTop",PrintMargin[2]);
     Ini->WriteInteger("Print","MarginBottom",PrintMargin[3]);
+    Ini->WriteString("Print", "Header", PrintHeader);
+    Ini->WriteInteger("Print", "HeaderPosition", PrintHeaderPosition);
+    Ini->WriteString("Print", "Footer", PrintFooter);
+    Ini->WriteInteger("Print", "FooterPosition", PrintFooterPosition);
 
     int DataCount = MainGrid->TypeList.Count;
     Ini->WriteInteger("DataType", "Count", DataCount);
@@ -680,9 +694,9 @@ void TfmMain::SetFilter()
   for(int i=0; i<MainGrid->TypeList.Count; i++){
     TTypeOption *p = MainGrid->TypeList.Items(i);
     FilterExt = "";
-    for(int j=0; j<p->Exts->Count; j++){
+    for(int j=0; j<p->Exts.size(); j++){
       if(j > 0) FilterExt += ";";
-      String str = p->Exts->Strings[j];
+      String str = p->Exts[j];
       FilterExt += "*." + str;
       if(AllExts->IndexOf(str) < 0){ AllExts->Add(str); }
     }
@@ -721,9 +735,9 @@ String TfmMain::MakeId(String prefix, String caption, int i)
 {
   String id = prefix + "_";
   for(int i=1; i<=caption.Length(); i++){
-    if(caption[i] >= 'A' && caption[i] <= 'Z' ||
-       caption[i] >= 'a' && caption[i] <= 'z' ||
-       caption[i] >= '0' && caption[i] <= '9'){
+    if((caption[i] >= 'A' && caption[i] <= 'Z') ||
+       (caption[i] >= 'a' && caption[i] <= 'z') ||
+       (caption[i] >= '0' && caption[i] <= '9')){
       id += caption[i];
     }else{
       id += "_" + ToHex(caption[i]);
@@ -844,6 +858,13 @@ void __fastcall TfmMain::ApplicationHint(TObject *Sender)
 {
   StatusBar->Panels->Items[0]->Text = Application->Hint;
   UpdateStatusbar();
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmMain::FormAfterMonitorDpiChanged(TObject *Sender, int OldDPI,
+                                                    int NewDPI)
+{
+  MainGrid->Canvas->Font->Size = MainGrid->Font->Size;
+  MainGrid->Invalidate();
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnNewClick(TObject *Sender)
@@ -1099,7 +1120,8 @@ void __fastcall TfmMain::mnSaveAsClick(TObject *Sender)
     TTypeOption *Format = MainGrid->TypeList.Items(MainGrid->TypeIndex);
     dlgSave->FileName = "–³‘è." + Format->DefExt();
   }else{
-    dlgSave->FileName = FileName;
+    dlgSave->InitialDir = ExtractFilePath(FileName);
+    dlgSave->FileName = ExtractFileName(FileName);
   }
 
   dlgSave->FilterIndex = MainGrid->TypeIndex + 1;
@@ -1444,7 +1466,7 @@ void __fastcall TfmMain::PopMenuPopup(TObject *Sender)
   mnpNarrow->Default = false;
   mnpPaste->Visible = true;
   mnpPasteInsert->Visible = false;
-  TGridRect *Sel = &(MainGrid->Selection);
+  const TGridRect &Sel = MainGrid->Selection;
 
   bool isRowSelected = MainGrid->IsRowSelected();
   bool isColSelected = MainGrid->IsColSelected();
@@ -1458,7 +1480,7 @@ void __fastcall TfmMain::PopMenuPopup(TObject *Sender)
     mnpDefWidth->Visible = true;
 
     if (!isColSelected) {
-      for (int y = Sel->Top; y <= Sel->Bottom; y++) {
+      for (int y = Sel.Top; y <= Sel.Bottom; y++) {
         if (MainGrid->RowHeights[y] > 8) {
           mnpNarrow->Visible = true;
           break;
@@ -1476,16 +1498,16 @@ void __fastcall TfmMain::PopMenuPopup(TObject *Sender)
     mnpDefWidth->Visible = true;
 
     if (!isRowSelected) {
-      for (int x = Sel->Left; x <= Sel->Right; x++) {
+      for (int x = Sel.Left; x <= Sel.Right; x++) {
         if (MainGrid->ColWidths[x] > 16) {
           mnpNarrow->Visible = true;
           break;
         }
       }
     }
-    if (Sel->Left == Sel->Right) {
+    if (Sel.Left == Sel.Right) {
       mnpSort->Visible = true;
-      if (MainGrid->ColWidths[Sel->Left] > 16) {
+      if (MainGrid->ColWidths[Sel.Left] > 16) {
         mnpNarrow->Default = true;
       } else {
         mnpDefWidth->Default = true;

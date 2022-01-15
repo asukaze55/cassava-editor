@@ -1,0 +1,30 @@
+import { Assert } from "lib/Assert.cms";
+
+class ObjectTest {
+  name() {
+    return "ObjectTest";
+  }
+
+  test(assert) {
+    obj = {a: 1, b: 2, c: 3};
+    assert.that(obj.a + obj.b * obj.c).isEqualTo(7);
+
+    obj = {"with space": 4};
+    assert.that(obj["with space"]).isEqualTo(4);
+
+    obj.a = {};
+    obj.a.b = {};
+    obj.a.b.c = "abc";
+    assert.that(obj.a.b.c).isEqualTo("abc");
+    assert.that(obj["a"]["b"]["c"]).isEqualTo("abc");
+
+    obj[1] = {};
+    obj[1][2] = {};
+    obj[1][2][3] = "123";
+    assert.that(obj[1][2][3]).isEqualTo("123");
+  }
+}
+
+assert = new Assert();
+new ObjectTest().test(assert);
+assert.showResult();

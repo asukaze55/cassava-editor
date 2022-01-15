@@ -33,6 +33,14 @@ __published:	// IDE 管理のコンポーネント
   TUpDown *udYohaku2;
   TEdit *csYohaku3;
   TUpDown *udYohaku3;
+  TGroupBox *gbHeaderFooter;
+  TLabel *lblHeader;
+  TEdit *edHeader;
+  TLabel *Label5;
+  TEdit *edFooter;
+  TComboBox *cbHeaderPosition;
+  TComboBox *cbFooterPosition;
+  TMemo *mmHeaderFooterHint;
   void __fastcall btnPrintClick(TObject *Sender);
   void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
   void __fastcall btnFontClick(TObject *Sender);
@@ -41,7 +49,8 @@ private:	// ユーザー宣言
 public:		// ユーザー宣言
   __fastcall TfmPrint(TComponent* Owner);
   void PrintOut();
-  int PrintPage(TCanvas *Canvas, int Width, int Height, int Top, int Widths[]);
+  int PrintPage(TCanvas *Canvas, int Width, int Height, int Top, int Widths[],
+                int page);
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TfmPrint *fmPrint;

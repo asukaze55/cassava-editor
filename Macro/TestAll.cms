@@ -1,7 +1,9 @@
 import { TestSuite } from "lib/TestSuite.cms";
 import { ArrayTest } from "tests/ArrayTest.cms";
 import { FunctionsTest } from "tests/FunctionsTest.cms";
+import { LambdaTest } from "tests/LambdaTest.cms";
 import { MenuTest } from "tests/MenuTest.cms";
+import { ObjectTest } from "tests/ObjectTest.cms";
 import { OperatorsTest } from "tests/OperatorsTest.cms";
 import { SpecialVarsTest } from "tests/SpecialVarsTest.cms";
 
@@ -9,7 +11,9 @@ testSuite = new TestSuite();
 
 testSuite.run(new ArrayTest());
 testSuite.run(new FunctionsTest());
+testSuite.run(new LambdaTest());
 testSuite.run(new MenuTest());
+testSuite.run(new ObjectTest());
 testSuite.run(new OperatorsTest());
 testSuite.run(new SpecialVarsTest());
 

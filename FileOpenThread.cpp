@@ -33,13 +33,9 @@ private:
   TMainGrid *FGrid;
   String FFileName;
   String Data;
-  int x;
-  int y;
-  int maxx;
-  TStringList *nextRow;
-  void __fastcall UpdateNextCell();
-  void __fastcall GridRefresh();
-  void __fastcall UpdateWidthHeight();
+  TList *allCells;
+  int maxCol;
+  void __fastcall UpdateGrid();
   String __fastcall NormalizeCRLF(String Val);
 protected:
   void __fastcall Execute();
@@ -60,44 +56,6 @@ __fastcall FileOpenThread::FileOpenThread(bool CreateSuspended,
 {
 }
 //---------------------------------------------------------------------------
-void __fastcall FileOpenThread::UpdateNextCell()
-{
-  if(Terminated){
-    return;
-  }
-  ::SendMessage(Grid->Handle, WM_SETREDRAW, 0, 0);
-  if(x >= Grid->ColCount){
-    Grid->ColCount = x + 1;
-  }
-  if(y >= Grid->RowCount){
-    Grid->RowCount = y + 1;
-  }
-  Grid->Rows[y] = nextRow;
-  ::SendMessage(Grid->Handle, WM_SETREDRAW, 1, 0);
-}
-//---------------------------------------------------------------------------
-void __fastcall FileOpenThread::GridRefresh()
-{
-  if(Terminated){
-    return;
-  }
-  Grid->SetDataRightBottom(maxx, y, false);
-  ::SendMessage(Grid->Handle, WM_SETREDRAW, 1, 0);
-  Grid->Refresh();
-}
-//---------------------------------------------------------------------------
-void __fastcall FileOpenThread::UpdateWidthHeight()
-{
-  if(Terminated){
-    return;
-  }
-  Grid->SetDataRightBottom(maxx, y, true);
-  ::SendMessage(Grid->Handle, WM_SETREDRAW, 1, 0);
-  Grid->SetWidth();
-  Grid->SetHeight();
-  Grid->Invalidate();
-}
-//---------------------------------------------------------------------------
 String __fastcall FileOpenThread::NormalizeCRLF(String Val)
 {
   int len = Val.Length();
@@ -115,10 +73,27 @@ String __fastcall FileOpenThread::NormalizeCRLF(String Val)
   return Val;
 }
 //---------------------------------------------------------------------------
+void __fastcall FileOpenThread::UpdateGrid()
+{
+  if (maxCol >= Grid->ColCount) {
+    Grid->ColCount = maxCol + 1;
+  }
+  int dt = Grid->DataTop;
+  int maxRow = allCells->Count + dt - 1;
+  if (maxRow >= Grid->RowCount) {
+    Grid->RowCount = maxRow + 1;
+  }
+  Grid->SetDataRightBottom(maxCol, maxRow, true);
+  for (int i = 0; i < allCells->Count; i++) {
+    Grid->Rows[i + dt] = static_cast<TStringList*>(allCells->Items[i]);
+  }
+  Grid->SetWidth();
+  Grid->SetHeight();
+}
+//---------------------------------------------------------------------------
 void __fastcall FileOpenThread::Execute()
 {
   TTypeOption *typeOption = Grid->TypeOption;
-  int dt = Grid->DataTop;
   int dl = Grid->DataLeft;
   if (Data.Length() > 0) {
     if (Data[1] == TEXT('\xFEFF') || Data[1] == TEXT('\xFFFE')) {
@@ -127,43 +102,41 @@ void __fastcall FileOpenThread::Execute()
   }
   CsvReader *reader = new CsvReader(typeOption, Data);
 
-  y = dt;
-  x = dl;
-  maxx = 1;
-  nextRow = new TStringList();
-  if(dl){ nextRow->Add(""); }
+  allCells = new TList();
+  maxCol = 1;
+  TStringList *nextRow = new TStringList();
+  if (dl) { nextRow->Add(""); }
+  int x = dl;
   while (true) {
     int type = reader->GetNextType();
     if (type == NEXT_TYPE_END_OF_FILE) {
-      if(nextRow->Count > dl + 1 ||
-         (nextRow->Count == dl + 1 && nextRow->Strings[dl] != "")){
-        if(x - 1 > maxx){ maxx = x - 1; }
-        Synchronize(&UpdateNextCell);
-        y++;
+      if (nextRow->Count > dl + 1 ||
+          (nextRow->Count == dl + 1 && nextRow->Strings[dl] != "")) {
+        if (x - 1 > maxCol) { maxCol = x - 1; }
+        allCells->Add(nextRow);
       }
       break;
     } else if (type == NEXT_TYPE_HAS_MORE_ROW) {
-      if(Terminated){
+      if (Terminated) {
         break;
       }
-      if(x - 1 > maxx){ maxx = x - 1; }
-      Synchronize(&UpdateNextCell);
-      nextRow->Clear();
-      if(dl){ nextRow->Add(""); }
-      if (y == Grid->TopRow + Grid->VisibleRowCount){
-        Synchronize(&GridRefresh);
-      } else if (!(y & 0x07ff)) {
-        Synchronize(&GridRefresh);
-      }
-      y++;
+      if (x - 1 > maxCol) { maxCol = x - 1; }
+      allCells->Add(nextRow);
+      nextRow = new TStringList();
+      if (dl) { nextRow->Add(""); }
       x = dl;
+      if (allCells->Count == 100) {
+        Synchronize(&UpdateGrid);
+      }
     }
     nextRow->Add(NormalizeCRLF(reader->Next()));
     x++;
   }
-  delete nextRow;
   delete reader;
-  y--;
-  Synchronize(&UpdateWidthHeight);
+  Synchronize(&UpdateGrid);
+  for (int i = 0; i < allCells->Count; i++) {
+    delete static_cast<TStringList*>(allCells->Items[i]);
+  }
+  delete allCells;
 }
 //---------------------------------------------------------------------------

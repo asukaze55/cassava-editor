@@ -1,2 +1,2 @@
-Right = int(InputBox("—ñ”‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢B", Right));
-Bottom = int(InputBox("s”‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢B", Bottom));
+ï»¿Right = int(InputBox("åˆ—æ•°ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„ã€‚", Right));
+Bottom = int(InputBox("è¡Œæ•°ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„ã€‚", Bottom));

@@ -2,12 +2,12 @@
 #ifndef MultiLineInputBoxH
 #define MultiLineInputBoxH
 //----------------------------------------------------------------------------
-#include <vcl\ExtCtrls.hpp>
-#include <vcl\Buttons.hpp>
-#include <vcl\StdCtrls.hpp>
-#include <vcl\Controls.hpp>
-#include <vcl\Forms.hpp>
-#include <vcl\Graphics.hpp>
+#include <Vcl.ExtCtrls.hpp>
+#include <Vcl.Buttons.hpp>
+#include <Vcl.StdCtrls.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.Forms.hpp>
+#include <Vcl.Graphics.hpp>
 #include <System.Classes.hpp>
 //----------------------------------------------------------------------------
 class TfmMultiLineInputBox : public TForm

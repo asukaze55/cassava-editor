@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 #include <vcl.h>
-#include <vcl\printers.hpp>
+#include <Vcl.printers.hpp>
 #pragma hdrstop
 
 #include "Print.h"
@@ -24,6 +24,11 @@ void __fastcall TfmPrint::FormShow(TObject *Sender)
   csYohaku1->Text = fmMain->PrintMargin[1];
   csYohaku2->Text = fmMain->PrintMargin[2];
   csYohaku3->Text = fmMain->PrintMargin[3];
+
+  edHeader->Text = fmMain->PrintHeader;
+  cbHeaderPosition->ItemIndex = fmMain->PrintHeaderPosition;
+  edFooter->Text = fmMain->PrintFooter;
+  cbFooterPosition->ItemIndex = fmMain->PrintFooterPosition;
   lblFont->Caption = Printer()->Canvas->Font->Name + "    " +
                      Printer()->Canvas->Font->Size + " pt";
 }
@@ -36,6 +41,10 @@ void __fastcall TfmPrint::FormClose(TObject *Sender, TCloseAction &Action)
   fmMain->PrintMargin[1] = udYohaku1->Position;
   fmMain->PrintMargin[2] = udYohaku2->Position;
   fmMain->PrintMargin[3] = udYohaku3->Position;
+  fmMain->PrintHeaderPosition = cbHeaderPosition->ItemIndex;
+  fmMain->PrintHeader = edHeader->Text;
+  fmMain->PrintFooterPosition = cbFooterPosition->ItemIndex;
+  fmMain->PrintFooter = edFooter->Text;
 }
 //---------------------------------------------------------------------------
 void TfmPrint::PrintOut()
@@ -59,35 +68,88 @@ void TfmPrint::PrintOut()
 
   int row = fmMain->MainGrid->DataTop;
   bool newPage = false;
-  while(row <= fmMain->MainGrid->DataBottom) {
+  for (int page = 1; row <= fmMain->MainGrid->DataBottom; page++) {
     if (newPage) {
       Application->ProcessMessages();
       if (ModalResult == mrCancel) { break; }
       printer->NewPage();
     }
-    row += PrintPage(printer->Canvas, pageWidth, pageHeight, row, widths);
+    row += PrintPage(printer->Canvas, pageWidth, pageHeight, row, widths, page);
     newPage = true;
   }
   printer->EndDoc();
   delete[] widths;
 }
 //---------------------------------------------------------------------------
-int TfmPrint::PrintPage(
-    TCanvas *Canvas, int Width, int Height, int Top, int Widths[])
+static TRect rectToDraw(int position, const TRect& page, const TRect& size,
+                        bool isFooter)
+{
+  TRect rect = page;
+  if (position == 2) {
+    rect.Left = (page.Left + page.Right - size.Width()) / 2;
+  } else if (position == 3) {
+    rect.Left = page.Right - size.Width();
+  }
+  if (isFooter) {
+    rect.Top = page.Bottom - size.Height();
+  }
+  return rect;
+}
+//---------------------------------------------------------------------------
+static String formatHeaderFooter(String format, String fileName, int page)
+{
+  String result = "";
+  for (int i = 1; i <= format.Length(); i++) {
+    if (format[i] == '%' && i < format.Length()) {
+      switch (format[i + 1]) {
+        case 'f': result += fileName; break;
+        case 'F': result += ExtractFileName(fileName); break;
+        case 'p': result += page; break;
+        case '%': result += '%'; break;
+        default: result += '%'; result += format[i + 1]; break;
+      }
+      i++;
+    } else {
+      result += format[i];
+    }
+  }
+  return result;
+}
+//---------------------------------------------------------------------------
+int TfmPrint::PrintPage(TCanvas *Canvas, int Width, int Height, int Top,
+                        int Widths[], int page)
 {
   TMainGrid *mg = fmMain->MainGrid;
   const double mmPt = Canvas->Font->PixelsPerInch / 25.4;
   int leftMargin = udYohaku0->Position * mmPt;
   int topMargin = udYohaku2->Position * mmPt;
+  int right = Width - udYohaku1->Position * mmPt;
   int bottom = Height - udYohaku3->Position * mmPt;
   int cellLRMargin = mg->LRMargin;
   int cellTBMargin = mg->TBMargin;
+
+  TRect pageRect(leftMargin, topMargin, right, bottom);
+  if (edHeader->Text != "" && cbHeaderPosition->ItemIndex > 0) {
+    String header = formatHeaderFooter(edHeader->Text, fmMain->FileName, page);
+    TRect size = mg->DrawTextRect(Canvas, pageRect, header, true, true);
+    mg->DrawTextRect(Canvas, rectToDraw(cbHeaderPosition->ItemIndex, pageRect,
+                                        size, false),
+                     header, true, false);
+    topMargin += 2 * size.Height();
+  }
+  if (edFooter->Text != "" && cbFooterPosition->ItemIndex > 0) {
+    String footer = formatHeaderFooter(edFooter->Text, fmMain->FileName, page);
+    TRect size = mg->DrawTextRect(Canvas, pageRect, footer, true, true);
+    mg->DrawTextRect(Canvas, rectToDraw(cbFooterPosition->ItemIndex, pageRect,
+                                        size, true),
+                     footer, true, false);
+    bottom -= 2 * size.Height();
+  }
 
   int widthSum = 0;
   for (int col = mg->DataLeft; col <= mg->DataRight; col++) {
     widthSum += Widths[col];
   }
-
   int y = topMargin;
   Canvas->MoveTo(leftMargin, y);
   Canvas->LineTo(leftMargin + widthSum, y);
@@ -147,4 +209,3 @@ void __fastcall TfmPrint::btnPrintClick(TObject *Sender)
   }
 }
 //---------------------------------------------------------------------------
-

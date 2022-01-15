@@ -2,14 +2,14 @@
 #ifndef MainFormH
 #define MainFormH
 //---------------------------------------------------------------------------
-#include <vcl\Controls.hpp>
-#include <vcl\StdCtrls.hpp>
-#include <vcl\Forms.hpp>
-#include <vcl\ExtCtrls.hpp>
-#include <vcl\Grids.hpp>
-#include <vcl\Buttons.hpp>
-#include <vcl\Menus.hpp>
-#include <vcl\Dialogs.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.StdCtrls.hpp>
+#include <Vcl.Forms.hpp>
+#include <Vcl.ExtCtrls.hpp>
+#include <Vcl.Grids.hpp>
+#include <Vcl.Buttons.hpp>
+#include <Vcl.Menus.hpp>
+#include <Vcl.Dialogs.hpp>
 
 #include "MainGrid.h"
 #include "Preference.h"
@@ -245,6 +245,8 @@ __published:	// IDE 管理のコンポーネント
   TVirtualImageList *imlNormalDisabled;
   TImageCollection *imcAdditional;
   TVirtualImageList *imlAdditional;
+  void __fastcall FormAfterMonitorDpiChanged(TObject *Sender, int OldDPI, int NewDPI);
+  void __fastcall FormCloseQuery(TObject *Sender, bool &CanClose);
   void __fastcall mnNewClick(TObject *Sender);
   void __fastcall mnOpenClick(TObject *Sender);
   void __fastcall mnEndClick(TObject *Sender);
@@ -263,7 +265,6 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall mnInsertCellDownClick(TObject *Sender);
   void __fastcall mnDeleteCellLeftClick(TObject *Sender);
   void __fastcall mnDeleteCellUpClick(TObject *Sender);
-  void __fastcall FormCloseQuery(TObject *Sender, bool &CanClose);
   void __fastcall mnLetterPrintClick(TObject *Sender);
   void __fastcall mnHelpContentsClick(TObject *Sender);
   void __fastcall mnFindClick(TObject *Sender);
@@ -433,6 +434,10 @@ public:     // ユーザー宣言
   String PrintFontName;
   int PrintFontSize;
   int PrintMargin[4];
+  String PrintHeader;
+  int PrintHeaderPosition;
+  String PrintFooter;
+  int PrintFooterPosition;
 
   TStringList *SystemMacroCache;
   String FormatCmsFile;

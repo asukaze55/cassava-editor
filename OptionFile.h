@@ -32,9 +32,9 @@ __published:  // IDE 管理のコンポーネント
 private:  // ユーザー宣言
 public:   // ユーザー宣言
   __fastcall TfrOptionFile(TComponent* Owner);
-  void SetKanren(TCHAR *CassavaType, TCHAR *CassavaTypeName, TCHAR *Ext,
-          String OldFileType, bool OldKanren, bool OldKanrenNew,
-          bool NewKanren, bool NewKanrenNew);
+  void SetKanren(String CassavaType, String CassavaTypeName, String Ext,
+                 String OldFileType, bool OldKanren, bool OldKanrenNew,
+                 bool NewKanren, bool NewKanrenNew);
   bool KanrenCSV;
   bool KanrenCSVNew;
   String CSVFileType;

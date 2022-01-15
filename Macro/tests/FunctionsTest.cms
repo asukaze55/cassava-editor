@@ -1,4 +1,4 @@
-import { Assert } from "lib/Assert.cms";
+ï»¿import { Assert } from "lib/Assert.cms";
 
 class FunctionsTest {
   name() {
@@ -87,29 +87,29 @@ class FunctionsTest {
     [1,3] = 4;
     [1,4] = "AAA3";
     [1,5] = "aaa2";
-    [1,6] = "‚`‚`‚`‚P";
+    [1,6] = "ï¼¡ï¼¡ï¼¡ï¼‘";
     for (y = 1; y <= 6; y++) {
       [2,y] = y;
     }
 
     Sort(1, 1, 2, 6, 1, false, false, false, false);
-    assert.that(this.getValues(1, 1, 1, 6)).isEqualTo("1034AAA3aaa2‚`‚`‚`‚P");
+    assert.that(this.getValues(1, 1, 1, 6)).isEqualTo("1034AAA3aaa2ï¼¡ï¼¡ï¼¡ï¼‘");
     assert.that(this.getValues(2, 1, 2, 6)).isEqualTo("213456");
 
     Sort(1, 1, 2, 6, 1, true, false, false, false);
-    assert.that(this.getValues(1, 1, 1, 6)).isEqualTo("‚`‚`‚`‚Paaa2AAA34310");
+    assert.that(this.getValues(1, 1, 1, 6)).isEqualTo("ï¼¡ï¼¡ï¼¡ï¼‘aaa2AAA34310");
     assert.that(this.getValues(2, 1, 2, 6)).isEqualTo("654312");
 
     Sort(1, 1, 2, 6, 1, false, true, false, false);
-    assert.that(this.getValues(1, 1, 1, 6)).isEqualTo("3410AAA3aaa2‚`‚`‚`‚P");
+    assert.that(this.getValues(1, 1, 1, 6)).isEqualTo("3410AAA3aaa2ï¼¡ï¼¡ï¼¡ï¼‘");
     assert.that(this.getValues(2, 1, 2, 6)).isEqualTo("132456");
 
     Sort(1, 1, 2, 6, 1, false, false, true, false);
-    assert.that(this.getValues(1, 1, 1, 6)).isEqualTo("1034aaa2AAA3‚`‚`‚`‚P");
+    assert.that(this.getValues(1, 1, 1, 6)).isEqualTo("1034aaa2AAA3ï¼¡ï¼¡ï¼¡ï¼‘");
     assert.that(this.getValues(2, 1, 2, 6)).isEqualTo("213546");
 
     Sort(1, 1, 2, 6, 1, false, false, false, true);
-    assert.that(this.getValues(1, 1, 1, 6)).isEqualTo("1034‚`‚`‚`‚PAAA3aaa2");
+    assert.that(this.getValues(1, 1, 1, 6)).isEqualTo("1034ï¼¡ï¼¡ï¼¡ï¼‘AAA3aaa2");
     assert.that(this.getValues(2, 1, 2, 6)).isEqualTo("213645");
 
     for (y = 1; y <= 3; y++) {
@@ -136,6 +136,13 @@ class FunctionsTest {
     assert.that(this.getValues(1, 1, 3, 3)).isEqualTo("#A-B-C##A-B-C##A-B-C##A-B-C##A-B-C##A-B-C##A-B-C##A-B-C##A-B-C#");
     ReplaceAll("-B-", "", false, false, false, 2, 2, 2, 2);
     assert.that(this.getValues(1, 1, 3, 3)).isEqualTo("#A-B-C##A-B-C##A-B-C##A-B-C##AC##A-B-C##A-B-C##A-B-C##A-B-C#");
+    [1,1] = "A\nB\nC\nD";
+    ReplaceAll("B\nC", "Z\n");
+    assert.that([1,1]).isEqualTo("A\nZ\n\nD");
+    [2,1] = "";
+    ReplaceAll("(.*)", "($1)", false, false, true);
+    assert.that([1,1]).isEqualTo("(A\nZ\n\nD)");
+    assert.that([2,1]).isEqualTo("");
 
     cell(3, 1) = "abc";
     assert.that(cell(3, 1)).isEqualTo("abc");
@@ -148,21 +155,26 @@ class FunctionsTest {
     assert.that(max(3, 1, 4)).isEqualTo(4);
     assert.that(min(3, 1, 4)).isEqualTo(1);
 
-    assert.that(len("‚ ‚ ‚ abcde")).isEqualTo(8);
-    assert.that(lenB("‚ ‚ ‚ abcde")).isEqualTo(11);
-    assert.that(left("‚ ‚ ‚ abcde", 3)).isEqualTo("‚ ‚ ‚ ");
-    assert.that(right("‚ ‚ ‚ abcde", 3)).isEqualTo("cde");
-    assert.that(mid("‚ ‚ ‚ abcde", 3, 4)).isEqualTo("‚ abc");
-    assert.that(mid("‚ ‚ ‚ abcde", 3)).isEqualTo("‚ abcde");
-    assert.that(pos("‚ ‚ ‚ abcde", "abc")).isEqualTo(4);
-    assert.that(pos("‚ ‚ ‚ abcde", "ABC")).isEqualTo(0);
-    assert.that(posB("‚ ‚ ‚ abcde", "abc")).isEqualTo(7);
-    assert.that(posB("‚ ‚ ‚ abcde", "ABC")).isEqualTo(0);
-    assert.that(asc("‚ ‚ ‚ abcde")).isEqualTo(33440);
-    assert.that(ascW("‚ ‚ ‚ abcde")).isEqualTo(12354);
-    assert.that(chr(33440)).isEqualTo("‚ ");
-    assert.that(chrW(12354)).isEqualTo("‚ ");
+    assert.that(len("ã‚ã‚ã‚abcde")).isEqualTo(8);
+    assert.that(lenB("ã‚ã‚ã‚abcde")).isEqualTo(11);
+    assert.that(left("ã‚ã‚ã‚abcde", 3)).isEqualTo("ã‚ã‚ã‚");
+    assert.that(right("ã‚ã‚ã‚abcde", 3)).isEqualTo("cde");
+    assert.that(mid("ã‚ã‚ã‚abcde", 3, 4)).isEqualTo("ã‚abc");
+    assert.that(mid("ã‚ã‚ã‚abcde", 3)).isEqualTo("ã‚abcde");
+    assert.that(pos("ã‚ã‚ã‚abcde", "abc")).isEqualTo(4);
+    assert.that(pos("ã‚ã‚ã‚abcde", "ABC")).isEqualTo(0);
+    assert.that(posB("ã‚ã‚ã‚abcde", "abc")).isEqualTo(7);
+    assert.that(posB("ã‚ã‚ã‚abcde", "ABC")).isEqualTo(0);
+    assert.that(asc("ã‚ã‚ã‚abcde")).isEqualTo(33440);
+    assert.that(ascW("ã‚ã‚ã‚abcde")).isEqualTo(12354);
+    assert.that(chr(33440)).isEqualTo("ã‚");
+    assert.that(chrW(12354)).isEqualTo("ã‚");
     assert.that(replace("A&&B", "&", "&amp;")).isEqualTo("A&amp;&amp;B");
+    assert.that(replace("ABC-AB\nC-abc", "ABC", "($1)", false, false)).isEqualTo("($1)-AB\nC-abc");
+    assert.that(replace("ABC-AB\nC-abc", "ABC", "($1)", true, false)).isEqualTo("($1)-AB\nC-($1)");
+    assert.that(replace("ABC-AB\nC-abc", "([A-Z\\n]+)", "($1)", false, true)).isEqualTo("(ABC)-(AB\nC)-abc");
+    assert.that(replace("ABC-AB\nC-abc", "([A-Z\\n]+)", "($1)", true, true)).isEqualTo("(ABC)-(AB\nC)-(abc)");
+    assert.that(replace("ABC-AB\nC-abc", "(.*)", "($1)", true, true)).isEqualTo("(ABC-AB\nC-abc)");
 
     // 3, 10, 4, 1, 2, 3
     [1,1] = 1;

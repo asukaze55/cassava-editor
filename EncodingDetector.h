@@ -2,7 +2,7 @@
 #ifndef EncodingDetectorH
 #define EncodingDetectorH
 //---------------------------------------------------------------------------
-#include <vcl/vcl.h>
+#include <vcl.h>
 //---------------------------------------------------------------------------
 #define CHARCODE_AUTO   (-1)
 #define CHARCODE_SJIS    (0)

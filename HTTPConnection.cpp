@@ -5,7 +5,11 @@
 #include <Wininet.h>
 #include "Version.h"
 //---------------------------------------------------------------------------
+#if _WIN64
+#pragma link "wininet.a"
+#else
 #pragma link "wininet.lib"
+#endif
 #pragma package(smart_init)
 //---------------------------------------------------------------------------
 String HttpsGet(String host, int port, String path)

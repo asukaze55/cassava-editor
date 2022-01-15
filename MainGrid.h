@@ -2,9 +2,9 @@
 #ifndef MainGridH
 #define MainGridH
 //---------------------------------------------------------------------------
-#include <vcl\Controls.hpp>
-#include <vcl\Forms.hpp>
-#include <vcl\Grids.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.Forms.hpp>
+#include <Vcl.Grids.hpp>
 #include "EncodedWriter.h"
 #include "TypeList.h"
 //---------------------------------------------------------------------------
@@ -41,6 +41,7 @@ private:
     int GetDataTop() { return (ShowColCounter ? 1 : 0); }
     int FDataRight, FDataBottom;
     TObject *EOFMarker;
+    bool HasDataInRange(int Left, int Right, int Top, int Bottom);
 
     int FTBMargin;
     void SetTBMargin(int Value);
@@ -307,6 +308,8 @@ public:
                  bool Regex, bool Word, bool Back);
     int ReplaceAll(String FindText, String ReplaceText, int SLeft, int STop,
                    int SRight, int SBottom, bool Case, bool Regex, bool Word);
+    String ReplaceAll(String OriginalText, String FindText, String ReplaceText,
+                      bool Case, bool Regex, bool Word);
     bool NumFind(double *Min, double *Max, int Range, bool Back);
 
     __property bool DragMove = {read=FDragMove, write=SetDragMove};

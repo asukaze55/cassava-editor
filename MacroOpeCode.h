@@ -16,7 +16,7 @@
 #define CMO_GEq      'G' /* ">=" */
 #define CMO_In       'n' /* "in" */
 //---------------------------------------------------------------------------
-char CMOCode(String str){
+static char CMOCode(String str){
   if(str == "++") return CMO_Inc;
   else if(str == "--") return CMO_Dec;
   else if(str == "==") return CMO_Eq;

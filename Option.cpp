@@ -132,7 +132,7 @@ void __fastcall TfmOption::btnOKClick(TObject *Sender)
       ModalResult = mrNone;
       return;
     }
-    if (p->Exts->Count == 0) {
+    if (p->Exts.size() == 0) {
       Application->MessageBox(
           (p->Name + " ‚É•W€Šg’£q‚ªİ’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB").c_str(),
           TEXT("Cassava Option"), MB_ICONWARNING);

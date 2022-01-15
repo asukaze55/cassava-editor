@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------
-#include <vcl\vcl.h>
+#include <vcl.h>
 #include <shlobj.h>
 #pragma hdrstop
 
@@ -23,13 +23,14 @@ int IniFile::ReadInteger(const String section, const String key, int def)
   return file->ReadInteger(section, key, def);
 }
 //---------------------------------------------------------------------------
-String IniFile::ReadString(const String section, const String key, String def)
+String IniFile::ReadString(const String section, const String key,
+                           const String def)
 {
   String raw = file->ReadString(section, key, def);
   String result = "";
   for (int i = 1; i <= raw.Length(); i++) {
     if (i > raw.Length() - 2 || raw[i] != '?' || raw[i + 1] != '#'
-        || raw[i + 2] < '1' && raw[i + 2] > '9') {
+        || (raw[i + 2] < '1' && raw[i + 2] > '9')) {
       result += raw[i];
       continue;
     }
@@ -62,7 +63,8 @@ void IniFile::WriteInteger(const String section, const String key, int value)
   file->WriteInteger(section, key, value);
 }
 //---------------------------------------------------------------------------
-void IniFile::WriteString(const String section, const String key, String value)
+void IniFile::WriteString(const String section, const String key,
+                          const String value)
 {
   AnsiString ansiStr = "";
   for (int i = 1; i <= value.Length(); i++) {

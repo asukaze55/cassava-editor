@@ -1,0 +1,83 @@
+import { Assert } from "lib/Assert.cms";
+
+class Sample {
+  constructor() {
+    this.value = 123;
+  }
+
+  getProvider() {
+    return () => this.value;
+  }
+
+  increment() {
+    this.value++;
+  }
+}
+
+class LambdaTest {
+  name() {
+    return "LambdaTest";
+  }
+
+  invoke0(f) {
+    return f();
+  }
+
+  invoke1(f, a) {
+    return f(a);
+  }
+
+  invoke2(f, a, b) {
+    return f(a, b);
+  }
+
+  test(assert) {
+    f = () => 12345;
+    assert.that(f()).isEqualTo(12345);
+    f = () => { return 23456; };
+    assert.that(f()).isEqualTo(23456);
+    f = x => x * x;
+    assert.that(f(3)).isEqualTo(9);
+    f = x => { return x * x; };
+    assert.that(f(4)).isEqualTo(16);
+    f = (x) => x * x;
+    assert.that(f(5)).isEqualTo(25);
+    f = (x) => { return x * x; };
+    assert.that(f(6)).isEqualTo(36);
+    f = (x, y) => x * y;
+    assert.that(f(2, 3)).isEqualTo(6);
+    f = (x, y) => { return x * y; };
+    assert.that(f(3, 4)).isEqualTo(12);
+
+    assert.that(this.invoke0(() => 34567)).isEqualTo(34567);
+    assert.that(this.invoke1(x => x * x, 7)).isEqualTo(49);
+    assert.that(this.invoke2((x, y) => x * y, 4, 5)).isEqualTo(20);
+    
+    x = 12;
+    f = y => x * y;
+    assert.that(f(11)).isEqualTo(132);
+    
+    f = a => b => x + a + b;
+    g = f(1);
+    assert.that(g(13)).isEqualTo(26);
+    
+    f = () => g(14);
+    assert.that(f()).isEqualTo(27);
+
+    obj = {f: f};
+    assert.that(obj.f()).isEqualTo(27);
+
+    sample = new Sample();
+    f = sample.getProvider();
+    assert.that(f()).isEqualTo(123);
+    sample.increment();
+    assert.that(f()).isEqualTo(124);
+
+    str = str(1.00);
+    assert.that(str).isEqualTo("1");
+  }
+}
+
+assert = new Assert();
+new LambdaTest().test(assert);
+assert.showResult();

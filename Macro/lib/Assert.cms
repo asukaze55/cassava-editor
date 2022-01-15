@@ -1,12 +1,12 @@
-// g—p–@F
-// ‚±‚Ìƒtƒ@ƒCƒ‹‚ğ Assert.cms ‚Æ‚¢‚¤–¼‘O‚Å Cassava Editor ‚Ì Macro/lib ƒtƒHƒ‹ƒ_‚É’u‚¢‚Ä‚­‚¾‚³‚¢B
-// ƒeƒXƒg‚µ‚½‚¢ƒ}ƒNƒ’†‚ÅŸ‚Ì‚æ‚¤‚É‹Lq‚µ‚Ü‚·B
+ï»¿// ä½¿ç”¨æ³•ï¼š
+// ã“ã®ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ Assert.cms ã¨ã„ã†åå‰ã§ Cassava Editor ã® Macro/lib ãƒ•ã‚©ãƒ«ãƒ€ã«ç½®ã„ã¦ãã ã•ã„ã€‚
+// ãƒ†ã‚¹ãƒˆã—ãŸã„ãƒã‚¯ãƒ­ä¸­ã§æ¬¡ã®ã‚ˆã†ã«è¨˜è¿°ã—ã¾ã™ã€‚
 //
 // import { Assert } from "lib/Assert.cms";
 //
 // assert = new Assert();
-// ... ƒeƒXƒg‘ÎÛ‚Ìˆ— ...
-// assert.that(ÀsŒ‹‰Ê).isEqualTo(Šú‘Ò‚·‚éŒ‹‰Ê);
+// ... ãƒ†ã‚¹ãƒˆå¯¾è±¡ã®å‡¦ç† ...
+// assert.that(å®Ÿè¡Œçµæœ).isEqualTo(æœŸå¾…ã™ã‚‹çµæœ);
 // assert.showResult();
 
 class That {

@@ -12,43 +12,28 @@
 TTypeOption::TTypeOption()
 {
   init();
-  Name = TEXT("Default");
-  Exts->Add(TEXT("csv"));
-  Exts->Add(TEXT("txt"));
+  Name = "Default";
+  Exts.push_back("csv");
+  Exts.push_back("txt");
 }
 //---------------------------------------------------------------------------
 TTypeOption::TTypeOption(String str)
 {
   init();
   Name = str;
-  Exts->Add(str.LowerCase());
-  if(str == TEXT("CSV")){
-    SepChars = TEXT(",\t");  WeakSepChars = TEXT("");
-  }else if(str == "TSV"){
-    SepChars = TEXT("\t"); WeakSepChars = TEXT("");
+  Exts.push_back(str.LowerCase());
+  if (str == "CSV") {
+    SepChars = ",\t";
+    WeakSepChars = "";
+  } else if (str == "TSV") {
+    SepChars = "\t";
+    WeakSepChars = "";
     QuoteOption  = 0;
   }
 }
 //---------------------------------------------------------------------------
-TTypeOption::TTypeOption(TTypeOption *p) :
-  Name(p->Name), ForceExt(p->ForceExt), OmitComma(p->OmitComma),
-  SepChars(p->SepChars), WeakSepChars(p->WeakSepChars),
-  QuoteChars(p->QuoteChars), QuoteOption(p->QuoteOption),
-  DummyEof(p->DummyEof)
-{
-  Exts = new TStringList();
-  Exts->Assign(p->Exts);
-}
-//---------------------------------------------------------------------------
-TTypeOption::~TTypeOption()
-{
-  delete Exts;
-}
-//---------------------------------------------------------------------------
 void TTypeOption::init()
 {
-  Exts = new TStringList();
-  Exts->Clear();
   ForceExt = false;
   SepChars = TEXT(",\t");
   WeakSepChars = TEXT(" ");
@@ -60,7 +45,7 @@ void TTypeOption::init()
 //---------------------------------------------------------------------------
 String TTypeOption::DefExt()
 {
-  return ((Exts->Count > 0) ? Exts->Strings[0] : (String)TEXT(""));
+  return Exts.size() > 0 ? Exts[0] : (String)"";
 }
 //---------------------------------------------------------------------------
 wchar_t TTypeOption::DefSepChar()
@@ -75,22 +60,27 @@ bool TTypeOption::UseQuote()
 //---------------------------------------------------------------------------
 void TTypeOption::SetExts(String ExtString)
 {
-  Exts->Clear();
+  ExtString = ExtString.LowerCase();
+  Exts.clear();
   int pos;
-  while((pos = ExtString.Pos(TEXT(";"))) > 0){
-    String ext = ExtString.SubString(1,pos-1);
-    if(ext != TEXT("")) { Exts->Add(ext); }
-    ExtString.Delete(1,pos);
+  while ((pos = ExtString.Pos(TEXT(";"))) > 0) {
+    String ext = ExtString.SubString(1, pos - 1);
+    if (ext != "") {
+      Exts.push_back(ext);
+    }
+    ExtString.Delete(1, pos);
   }
-  if(ExtString != TEXT("")) Exts->Add(ExtString);
+  if (ExtString != "") {
+    Exts.push_back(ExtString);
+  }
 }
 //---------------------------------------------------------------------------
 String TTypeOption::GetExtsStr(int From)
 {
-  String Temp = TEXT("");
-  for(int i=From; i<Exts->Count; i++){
-    if(i > From) Temp += TEXT(";");
-    Temp += Exts->Strings[i];
+  String Temp = "";
+  for (int i = From; i < Exts.size(); i++) {
+    if (i > From) Temp += ";";
+    Temp += Exts[i];
   }
   return Temp;
 }

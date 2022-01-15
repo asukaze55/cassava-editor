@@ -3,12 +3,13 @@
 #define CsvReaderH
 //---------------------------------------------------------------------------
 #include <vcl.h>
+#include <vector>
 //---------------------------------------------------------------------------
 class TTypeOption
 {
 public:
   String Name;
-  TStringList *Exts;
+  std::vector<String> Exts;
   bool ForceExt;
   String SepChars;
   String WeakSepChars;
@@ -19,8 +20,6 @@ public:
 
   TTypeOption();
   TTypeOption(String str);
-  TTypeOption(TTypeOption *p);
-  ~TTypeOption();
 
   void init();
   String DefExt();

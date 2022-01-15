@@ -2,11 +2,11 @@
 #ifndef PasteDlgH
 #define PasteDlgH
 //---------------------------------------------------------------------------
-#include <vcl\Controls.hpp>
-#include <vcl\StdCtrls.hpp>
-#include <vcl\Forms.hpp>
-#include <vcl\ExtCtrls.hpp>
-#include <vcl\Buttons.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.StdCtrls.hpp>
+#include <Vcl.Forms.hpp>
+#include <Vcl.ExtCtrls.hpp>
+#include <Vcl.Buttons.hpp>
 #include <System.Classes.hpp>
 //---------------------------------------------------------------------------
 class TfmPasteDialog : public TForm

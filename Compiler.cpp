@@ -1,6 +1,7 @@
 //---------------------------------------------------------------------------
 #ifdef CssvMacro
 //---------------------------------------------------------------------------
+#include <deque>
 #include <map>
 #include <vcl.h>
 #include <vector>
@@ -68,7 +69,7 @@ CMCElement::CMCElement(String s){
     pri = 30; type = tpOpe;
   } else if (s == "+" || s == "-") {
     pri = 20; type = tpOpe;
-  } else if (s == "<" || s == ">" || s == "<=" || s == ">=") {
+  } else if (s == "<" || s == ">" || s == "<=" || s == ">=" || s == "=>") {
     pri = 17; type = tpOpe;
   } else if (s == "==" || s == "!=") {
     pri = 15; type = tpOpe;
@@ -85,34 +86,6 @@ CMCElement::CMCElement(String s){
   }
 }
 //---------------------------------------------------------------------------
-class TEList {
-  TList *L;
-public:
-  TEList(){
-    L = new TList();
-    L->Clear();
-  }
-  int size(){ return L->Count; }
-  CMCElement back(){ return *(static_cast<CMCElement *>(L->Last())); }
-  void pop_back(){
-    CMCElement *e = static_cast<CMCElement *>(L->Last());
-    if(e) delete e;
-    L->Delete(L->Count - 1);
-  }
-  void push_back(CMCElement e){ L->Add(new CMCElement(e)); }
-  void clear(){
-    for(int i=L->Count-1; i>=0; i--){
-      CMCElement *e = static_cast<CMCElement *>(L->Items[i]);
-      if(e) delete e;
-    }
-    L->Clear();
-  }
-  ~TEList(){
-    clear();
-    delete L;
-  }
-};
-//---------------------------------------------------------------------------
 class CMCException{
 public:
   String Message;
@@ -126,15 +99,15 @@ class TTokenizer {
   wchar_t ReadHex();
   wchar_t Peek();
   CMCElement last;
-  CMCElement next;
+  std::deque<CMCElement> elements;
   CMCElement GetR();
 public:
   int x, y;
   TTokenizer(String src) :
-      source(src), pos(0), last(CMCEOF), next(CMCEOF), x(0), y(1) {};
+      source(src), pos(0), last(CMCEOF), elements(), x(0), y(1) {}
   String GetString(wchar_t EOS);
   CMCElement Get();
-  CMCElement GetNext();
+  CMCElement GetNext(size_t index = 0);
 };
 //---------------------------------------------------------------------------
 bool TTokenizer::Read(wchar_t *c)
@@ -164,7 +137,7 @@ wchar_t TTokenizer::ReadHex()
   } else if (c >= 'a' && c <= 'f') {
     return (c - 'a') + 10;
   }
-  throw CMCException("エスケープシーケンス が不正です：" + c);
+  throw CMCException((String)"エスケープシーケンス が不正です：" + c);
 }
 //---------------------------------------------------------------------------
 wchar_t TTokenizer::Peek()
@@ -237,8 +210,10 @@ CMCElement TTokenizer::GetR()
   if (c == DBLQUOTE || c == QUOTE) {
     return CMCElement(GetString(c), prElement, tpString);
   }
-  if (IsNumChar(c) || (c == '.' && IsUnaryOpeExpected(last))) {
-    bool IsDouble = false;
+  bool isUnaryOpeExpected = IsUnaryOpeExpected(elements.size() == 0 ?
+                                               last : elements.back());
+  if (IsNumChar(c) || (c == '.' && isUnaryOpeExpected)) {
+    bool IsDouble = (c == '.');
     String s = c;
     while (IsNumCharOrDot(Peek())) {
       Read(&c);
@@ -258,7 +233,7 @@ CMCElement TTokenizer::GetR()
     }
     if (s == "function" || s == "return") {
       return CMCElement(s, prElement, tpFunc);
-    } else if (s == "in" && !IsUnaryOpeExpected(last)) {
+    } else if (s == "in" && !isUnaryOpeExpected) {
       return CMCElement(CMO_In, 17, tpOpe);
     }
     return CMCElement(s, prElement, (Peek() == '(') ? tpFunc : tpVar);
@@ -284,7 +259,7 @@ CMCElement TTokenizer::GetR()
   }
 
   CMCElement elm = CMCElement(s1);
-  if (s2 == "==" || s2 == "!=" || s2 == "<=" || s2 == ">=" ||
+  if (s2 == "==" || s2 == "!=" || s2 == "<=" || s2 == ">=" || s2 == "=>" ||
       s2 == "++" || s2 == "--" || s2 == "&&" || s2 == "||" || s2 == "::" ||
       s2 == "+=" || s2 == "-=" || s2 == "*=" || s2 == "/=") {
     Read(&c);
@@ -293,7 +268,7 @@ CMCElement TTokenizer::GetR()
   if (elm.type == tpStructure) {
     return elm;
   }
-  if (IsUnaryOpeExpected(last)) {
+  if (isUnaryOpeExpected) {
     if (s1 == "!" || s2 == "++" || s2 == "--" || s2 == "::") {
       return elm;
     } else if (s1 == "-") {
@@ -308,11 +283,11 @@ CMCElement TTokenizer::GetR()
 }
 //---------------------------------------------------------------------------
 CMCElement TTokenizer::Get(){
-  if(next.iseof()){
+  if (elements.size() == 0) {
     last = GetR();
-  }else{
-    last = next;
-    next = CMCEOF;
+  } else {
+    last = elements.front();
+    elements.pop_front();
   }
 
   if (last.type != tpVar) {
@@ -357,12 +332,20 @@ CMCElement TTokenizer::Get(){
   return last;
 }
 //---------------------------------------------------------------------------
-CMCElement TTokenizer::GetNext(){
-  if(next.iseof()){
-    next = GetR();
+CMCElement TTokenizer::GetNext(size_t index){
+  while (elements.size() <= index) {
+    elements.push_back(GetR());
   }
-  return next;
+  return elements.at(index);
 }
+//---------------------------------------------------------------------------
+inline TStringList *newTStringList() {
+  TStringList *list = new TStringList();
+  list->CaseSensitive = true;
+  return list;
+}
+//---------------------------------------------------------------------------
+enum FunctionType { FUNCTION, METHOD, LAMBDA };
 //---------------------------------------------------------------------------
 class TCompiler {
 private:
@@ -374,20 +357,23 @@ private:
   TStringList *Modules;
   TStringList *Variables;
   TStringList *Constants;
+  TStringList *CapturableVariables;
+  TStringList *CapturedVariables;
   std::vector<__int64> *Breaks;
   std::vector<__int64> *Continues;
   int DummyFunctionName;
 
   void Output(CMCElement e);
   int OutputPositionPlaceholder();
-  void Push(CMCElement e, TEList *L);
-  void PushAll(TEList *L);
+  void Push(CMCElement e, std::deque<CMCElement> *L);
+  void PushAll(std::deque<CMCElement> *L);
   void GetIf();
   void GetWhile();
   void GetFor();
   void GetBasicFor();
-  String GetFunction(bool isMethod);
-  void GetReturn();
+  String GetFunction(FunctionType functionType, String paramName = "");
+  void GetReturn(char EOS);
+  void GetLambda(String paramName = "");
   void GetCell();
   String GetObject();
   void GetObjectKey();
@@ -398,7 +384,9 @@ private:
   void GetBlock();
 
   bool IsKnownVariable(const CMCElement& e) const {
-    return e.isSystemVar() || Variables->IndexOf(e.str) >= 0;
+    return e.type == tpVar
+        && (e.isSystemVar() || Variables->IndexOf(e.str) >= 0 ||
+            CapturableVariables->IndexOf(e.str) >= 0);
   }
 
 public:
@@ -407,8 +395,7 @@ public:
   bool Compile(String source, String filePath, String libName,
                TStringList *modules, bool showMessage);
   TCompiler() : Breaks(NULL), Continues(NULL), DummyFunctionName(0) {
-    import = new TStringList;
-    import->CaseSensitive = true;
+    import = newTStringList();
   }
   ~TCompiler() { delete import; }
 };
@@ -567,32 +554,42 @@ void TCompiler::GetBasicFor()
   fout->Position = bp2to;
 }
 //---------------------------------------------------------------------------
-String TCompiler::GetFunction(bool isMethod)
+#define LAMBDA_EOS 'L'
+//---------------------------------------------------------------------------
+String TCompiler::GetFunction(FunctionType functionType, String paramName)
 {
   TStream *orgFOut = fout;
   TStringList* orgVariables = Variables;
   TStringList* orgConstants = Constants;
 
-  String functionName = lex->Get().str;
-  if (functionName == "(") {
+  String functionName;
+  if (functionType == LAMBDA) {
     functionName = ++DummyFunctionName;
-  } else if(lex->Get().str != "("){
-    throw CMCException("function文が不正です。");
+  } else {
+    functionName = lex->Get().str;
+    if (functionName == "(") {
+      functionName = ++DummyFunctionName;
+    } else if (lex->Get().str == "(") {
+      ImportedFunctions[functionName] = InName + "\n" + functionName;
+    } else {
+      throw CMCException("function文が不正です：" + functionName);
+    }
   }
-  ImportedFunctions[functionName] = InName + "\n" + functionName;
 
-  Variables = new TStringList();
-  Variables->CaseSensitive = true;
-  Constants = new TStringList();
-  Constants->CaseSensitive = true;
-  if (isMethod) {
+  Variables = newTStringList();
+  Constants = newTStringList();
+  if (functionType == METHOD) {
     Variables->Add("this");
     Constants->Add("this");
   }
 
   fout = new TMemoryStream();
   wchar_t H = 0;
-  if (lex->GetNext().str == ")") {
+  if (paramName != "") {
+    H = 1;
+    Variables->Add(paramName);
+    Output(CMCElement(paramName, prElement, tpVar));
+  } else if (lex->GetNext().str == ")") {
     lex->Get();
   } else {
     while (true) {
@@ -600,7 +597,7 @@ String TCompiler::GetFunction(bool isMethod)
       if (e.type != tpVar) {
         throw CMCException("引数名が不正です：" + e.str);
       }
-      if (IsKnownVariable(e)) {
+      if (e.isSystemVar() || Variables->IndexOf(e.str) >= 0) {
         throw CMCException("引数名がすでに使用されています：" + e.str);
       }
       Variables->Add(e.str);
@@ -618,7 +615,15 @@ String TCompiler::GetFunction(bool isMethod)
   bool funcEqual = false;
   String outName = GetMacroModuleName(InName, functionName, argCount);
 
-  if(lex->GetNext().str == ";"){
+  if (functionType == LAMBDA) {
+    CMCElement arrow = lex->Get();
+    if (arrow.str != "=>") {
+      throw CMCException("ラムダ式が不正です：" + arrow.str);
+    }
+    if (lex->GetNext().str != "{") {
+      funcEqual = true;
+    }
+  } else if (lex->GetNext().str == ";") {
     delete fout;
     delete Variables;
     delete Constants;
@@ -626,7 +631,7 @@ String TCompiler::GetFunction(bool isMethod)
     Variables = orgVariables;
     Constants = orgConstants;
     return outName;
-  }else if(lex->GetNext().str == "="){
+  } else if (lex->GetNext().str == "=") {
     lex->Get();
     funcEqual = true;
   }
@@ -637,14 +642,16 @@ String TCompiler::GetFunction(bool isMethod)
   fout->Write(&H, 2);
   fout->Write(L"func=", 10);
 
-  // Ok to use these pre-defined variables.
-  Variables->Add("x");
-  Variables->Add("y");
-  Variables->Add("Left");
-  Variables->Add("Top");
+  if (functionType != LAMBDA) {
+    // Ok to use these pre-defined variables.
+    Variables->Add("x");
+    Variables->Add("y");
+    Variables->Add("Left");
+    Variables->Add("Top");
+  }
 
   if(funcEqual){
-    GetReturn();
+    GetReturn(LAMBDA_EOS);
   }else{
     GetSentence(';');     // 関数本体
   }
@@ -657,10 +664,10 @@ String TCompiler::GetFunction(bool isMethod)
   return outName;
 }
 //---------------------------------------------------------------------------
-void TCompiler::GetReturn()
+void TCompiler::GetReturn(char EOS)
 {
   char H;
-  GetValues(';', &H);
+  GetValues(EOS, &H);
   if(H == 0){
     fout->Write("i\x7f\x7f\x7f\x7f-g",7);
   }else if(H == 1){
@@ -668,6 +675,47 @@ void TCompiler::GetReturn()
   }else{
     throw CMCException((String)"return 文に引数が" + (int)H + "個あります。");
   }
+}
+//---------------------------------------------------------------------------
+void TCompiler::GetLambda(String paramName)
+{
+  TStringList* orgCapturableVariables = CapturableVariables;
+  TStringList* orgCapturedVariables = CapturedVariables;
+  CapturableVariables = newTStringList();
+  CapturableVariables->AddStrings(orgCapturableVariables);
+  CapturableVariables->AddStrings(Variables);
+  CapturedVariables = newTStringList();
+
+  String functionName = GetFunction(LAMBDA, paramName);
+  if (CapturedVariables->Count == 0) {
+    Output(CMCElement(functionName, prElement, tpString));
+  } else {
+    Output(CMCElement((String)'\0' + "{}", prElement, tpFunc));
+    Output(CMCElement("", prElement, tpString));
+    Output(CMCElement(functionName, prElement, tpString));
+    fout->Write("-:", 2);
+
+    for (int i = 0; i < CapturedVariables->Count; i++) {
+      String name = CapturedVariables->Strings[i];
+      Output(CMCElement(name, prElement, tpString));
+      if (Variables->IndexOf(name) < 0) {
+        Output(CMCElement("this", prElement, tpVar));
+        Output(CMCElement(name, prElement, tpString));
+        Output(CMCElement("."));
+        if (orgCapturedVariables->IndexOf(name) < 0) {
+          orgCapturedVariables->Add(name);
+        }
+      } else {
+        Output(CMCElement(name, prElement, tpVar));
+      }
+      fout->Write("-:", 2);
+    }
+  }
+
+  delete CapturableVariables;
+  delete CapturedVariables;
+  CapturableVariables = orgCapturableVariables;
+  CapturedVariables = orgCapturedVariables;
 }
 //---------------------------------------------------------------------------
 void TCompiler::GetCell()
@@ -744,7 +792,7 @@ int TCompiler::OutputPositionPlaceholder()
   return position;
 }
 //---------------------------------------------------------------------------
-void TCompiler::Push(CMCElement e, TEList *L)
+void TCompiler::Push(CMCElement e, std::deque<CMCElement> *L)
 {
   if(e.iseof()) return;
   while (L->size() > 0) {
@@ -759,7 +807,7 @@ void TCompiler::Push(CMCElement e, TEList *L)
   L->push_back(e);
 }
 //---------------------------------------------------------------------------
-void TCompiler::PushAll(TEList *L)
+void TCompiler::PushAll(std::deque<CMCElement> *L)
 {
   while (L->size() > 0) {
     Output(L->back());
@@ -773,9 +821,8 @@ String TCompiler::GetObject()
   Output(CMCElement((String)'\0' + "{}", prElement, tpFunc));
   while (true) {
     CMCElement key = lex->Get();
-    if (key.str == "}") {
-      return constructor;
-    } else if (key.type == tpVar) {
+    if (key.type == tpVar || key.type == tpString || key.type == tpInteger ||
+        key.type == tpDouble) {
       CMCElement colon = lex->Get();
       if (colon.str != ":") {
         throw CMCException(
@@ -789,11 +836,13 @@ String TCompiler::GetObject()
       }
     } else if (key.type == tpFunc) {
       Output(CMCElement(key.str, prElement, tpVar));
-      String functionName = GetFunction(true);
+      String functionName = GetFunction(METHOD);
       Output(CMCElement(functionName, prElement, tpString));
       fout->Write("-:", 2);
       if (lex->GetNext().str == ",") { lex->Get(); }
       if (key.str == "constructor") { constructor = functionName; }
+    } else if (key.str == "}") {
+      return constructor;
     } else if (key.iseof()) {
       throw CMCException("オブジェクトリテラルが終了していません。");
     } else {
@@ -896,14 +945,45 @@ bool TCompiler::GetValues(char EOS, char *nHikisu)
   return GetSentence(EOS, false, nHikisu);
 }
 //---------------------------------------------------------------------------
+bool IsLambda(TTokenizer *lex)
+{
+  CMCElement next0 = lex->GetNext(0);
+  CMCElement next1 = lex->GetNext(1);
+  if (next0.type == tpStructure && next0.str == ")" &&
+      next1.type == tpOpe && next1.str == "=>") {
+    return true;
+  }
+  if (next0.type == tpVar) {
+    if (next1.type == tpStructure && next1.str == ",") {
+      return true;
+    }
+    CMCElement next2 = lex->GetNext(2);
+    if (next1.type == tpStructure && next1.str == ")" &&
+        next2.type == tpOpe && next2.str == "=>") {
+      return true;
+    }
+  }
+  return false;
+}
+//---------------------------------------------------------------------------
 bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
 {
   CMCElement e;
   char hikisu = 1;
 
   bool firstloop = true;
-  TEList ls;
+  std::deque<CMCElement> ls;
   while (true) {
+    if (EOS == LAMBDA_EOS) {
+      e = lex->GetNext();
+      if (e.type == tpStructure && (e.str == ',' || e.str == ';' ||
+          e.str == ')' || e.str == ']' || e.str == '}')) {
+        PushAll(&ls);
+        if (nHikisu) { *nHikisu = firstloop ? 0 : hikisu; }
+        return true;
+      }
+    }
+
     e = lex->Get();
     if(e.iseof()){ PushAll(&ls); return false; }
 
@@ -933,7 +1013,11 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         }
         return false; // ブロック終了
       case '(':
-        GetValues(')');
+        if (IsLambda(lex)) {
+          GetLambda();
+        } else {
+          GetValues(')');
+        }
         break;
       case '{':
         if (firstloop && allowBlock) {
@@ -966,7 +1050,7 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
       }
     }else if(e.type == tpFunc){
       if (e.str == "function") {
-        String funcName = GetFunction(false);
+        String funcName = GetFunction(FUNCTION);
         if (firstloop && allowBlock) {
           return true;
         }
@@ -976,14 +1060,35 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         if (!firstloop) {
           throw CMCException(e.str + " の前に ; が必要です。");
         }
-        if     (e.str == "if")       { GetIf();       }
-        else if(e.str == "while")    { GetWhile();    }
-        else if(e.str == "for")      { GetFor();      }
-        else if(e.str == "For")      { GetBasicFor(); }
-        else if(e.str == "return")   { GetReturn();   }
+        if (e.str == "if") {
+          GetIf();
+        } else if (e.str == "while") {
+          GetWhile();
+        } else if (e.str == "for") {
+          GetFor();
+        } else if (e.str == "For") {
+          GetBasicFor();
+        } else if (e.str == "return") {
+          GetReturn(';');
+        }
         return true;
       } else {
         lex->Get(); // "(" があるはず
+        bool isLambdaCall = ((Variables->IndexOf(e.str) >= 0
+                              || CapturableVariables->IndexOf(e.str) >= 0)
+                             && (ls.size() == 0 || ls.back().str != "."));
+        if (isLambdaCall) {
+          if (Variables->IndexOf(e.str) < 0) {
+            Output(CMCElement("this", prElement, tpVar));
+            Output(CMCElement(e.str, prElement, tpString));
+            Output(CMCElement("."));
+            if (CapturedVariables->IndexOf(e.str) < 0) {
+              CapturedVariables->Add(e.str);
+            }
+          } else {
+            Output(CMCElement(e.str, prElement, tpVar));
+          }
+        }
         char H;
         GetValues(')', &H);
         if(e.str == "mid" && lex->GetNext().str == "=" && H == 3 && firstloop){
@@ -997,10 +1102,11 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         if (ls.size() > 0 && ls.back().str == ".") {
           e.str = (String)(++H)  + "." + e.str;
           ls.pop_back();
-        } else if (ImportedFunctions.count(e.str) > 0) {
-          e.str = (String)H + "$" + ImportedFunctions[e.str];
         } else {
-          e.str = (String)H + e.str;
+          String prefix = isLambdaCall ? (String)(++H) + ">" : (String) H;
+          String funcName = ImportedFunctions.count(e.str) > 0
+                          ? "$" + ImportedFunctions[e.str] : e.str;
+          e = CMCElement(prefix + funcName, prElement, tpFunc);
         }
         Push(e, &ls);
       }
@@ -1053,21 +1159,36 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         fout->Write("-g", 2);
       } else if (e.str == "class" && lex->GetNext().type == tpVar) {
         GetClass();
+        return true;
       } else if (e.str == "import" && lex->GetNext().str == "{") {
         GetImport();
         return true;
       } else if (e.str == "new"
           && (lex->GetNext().type == tpFunc || lex->GetNext().type == tpVar)) {
         // Ignore.
+      } else if (lex->GetNext().str == "=>") {
+        GetLambda(e.str);
       } else {
         if (isUndefined) {
           if (lex->GetNext().str != "=") {
             throw CMCException("値が代入されていない変数です：" + e.str);
           }
           Variables->Add(e.str);
-        } else if (lex->GetNext().str == "=" &&
-                   Constants->IndexOf(e.str) >= 0) {
-          throw CMCException("定数への再代入はできません：" + e.str);
+        } else if (lex->GetNext().str == "=") {
+          if (Constants->IndexOf(e.str) >= 0) {
+            throw CMCException("定数への再代入はできません：" + e.str);
+          } else if (CapturableVariables->IndexOf(e.str) >= 0) {
+            throw CMCException("ラムダ式内では変数への再代入はできません：" +
+                               e.str);
+          }
+        } else if (Variables->IndexOf(e.str) < 0 &&
+                   CapturableVariables->IndexOf(e.str) >= 0) {
+          Push(CMCElement("this", prElement, tpVar), &ls);
+          Push(CMCElement("."), &ls);
+          if (CapturedVariables->IndexOf(e.str) < 0) {
+            CapturedVariables->Add(e.str);
+          }
+          e.type = tpString;
         }
         Push(e, &ls);
       }
@@ -1111,10 +1232,10 @@ bool TCompiler::Compile(String string, String filePath, String libName,
   fout = new TMemoryStream();
   Modules = modules;
   Modules->AddObject(libName, fout);
-  Variables = new TStringList();
-  Variables->CaseSensitive = true;
-  Constants = new TStringList();
-  Constants->CaseSensitive = true;
+  Variables = newTStringList();
+  Constants = newTStringList();
+  CapturableVariables = newTStringList();
+  CapturedVariables = newTStringList();
   // Ok to use these pre-defined variables.
   Variables->Add("x");
   Variables->Add("y");
@@ -1143,6 +1264,9 @@ bool TCompiler::Compile(String string, String filePath, String libName,
   // Do not delete fout. It is stored in Modules.
   delete lex;
   delete Variables;
+  delete Constants;
+  delete CapturableVariables;
+  delete CapturedVariables;
   return !Fail;
 }
 //---------------------------------------------------------------------------
@@ -1201,10 +1325,12 @@ bool MacroCompile(String *source, String name, TStringList *macroDirs,
       filelength = file->Read(&(buf[0]), filelength);
       buf.Length = filelength;
       delete file;
-      TEncoding *encoding =
-          (buf[0] == L'\xef' && buf[1] == L'\xbb' && buf[2] == L'\xbf')
-          ? TEncoding::UTF8 : TEncoding::GetEncoding(932);
-      String string = encoding->GetString(buf);
+      String string;
+      try {
+        string = TEncoding::UTF8->GetString(buf);
+      } catch (...) {
+        string = TEncoding::GetEncoding(932)->GetString(buf);
+      }
       bool ok = compiler.Compile(
           string, libFileName, libName, modules, showMessage);
       if (!ok) { return false; }

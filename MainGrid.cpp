@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
-#include <vcl\vcl.h>
-#include <vcl\clipbrd.hpp>
+#include <vcl.h>
+#include <Vcl.clipbrd.hpp>
 #include <shellapi.h>
 #include <string.h>
 #include <process.h>
@@ -1423,16 +1423,21 @@ void TMainGrid::PasteFromClipboard(int Way)
 //---------------------------------------------------------------------------
 bool TMainGrid::IsNumber(String Str)
 {
-  try{
-    if(Str == "") return false;
+  try {
+    // In Win32, ToDouble() fails if the number is too big.
+    // Disallow too long string and E/e.
+    if (Str == "" || Str.Length() > 100 ||
+        Str.Pos("E") > 0 || Str.Pos("e") > 0) {
+      return false;
+    }
     Str.ToDouble();
     return true;
-  }catch(...){}
+  } catch (...) {}
 
   return false;
 }
 //---------------------------------------------------------------------------
-typedef struct { double Num; void *Data; int Row; } DoubleData;
+typedef struct { double Num; TStringList *Data; int Row; } DoubleData;
 //---------------------------------------------------------------------------
 int __fastcall CompareDoubleData(void *a, void *b) {
   DoubleData *dda = static_cast<DoubleData*>(a);
@@ -1443,7 +1448,7 @@ int __fastcall CompareDoubleData(void *a, void *b) {
   }else return ((dda->Num < ddb->Num) ? -1 : 1);
 }
 //---------------------------------------------------------------------------
-typedef struct { String Str; void *Data; int Row; } StringData;
+typedef struct { String Str; TStringList *Data; int Row; } StringData;
 //---------------------------------------------------------------------------
 int __fastcall CompareOrderedString(void *a, void *b) {
   StringData *osa = static_cast<StringData*>(a);
@@ -1494,22 +1499,23 @@ void TMainGrid::Sort(int SLeft, int STop, int SRight, int SBottom, int SCol,
   StrList->Sort(CompareOrderedString);
   NumList->Sort(CompareDoubleData);
 
-  for(int y=STop; y<=SBottom; y++){
-    int Idx = Shoujun ? y-STop : SBottom-y;
-    TStringList *L;
-    if(Idx <NumList->Count){
-      L = static_cast<TStringList*>(
-            static_cast<DoubleData*>(NumList->Items[Idx])->Data);
-      delete(NumList->Items[Idx]);
-    }else{
-      int idx2 = Idx - NumList->Count;
-      L = static_cast<TStringList*>(
-            static_cast<StringData*>(StrList->Items[idx2])->Data);
+  for (int y = STop; y <= SBottom; y++){
+    int index = Shoujun ? y - STop : SBottom - y;
+    TStringList *list;
+    if (index < NumList->Count) {
+      DoubleData *dd = static_cast<DoubleData*>(NumList->Items[index]);
+      list = dd->Data;
+      delete dd;
+    } else {
+      StringData *sd =
+          static_cast<StringData*>(StrList->Items[index - NumList->Count]);
+      list = sd->Data;
+      delete sd;
     }
-    for(int x=SLeft; x<=SRight; x++){
-      Cells[x][y] = L->Strings[x-SLeft];
+    for (int x = SLeft; x <= SRight; x++){
+      Cells[x][y] = list->Strings[x - SLeft];
     }
-    delete L;
+    delete list;
   }
 
   delete StrList;
@@ -1521,19 +1527,21 @@ double TMainGrid::GetSum(int l, int t, int r, int b, int *Count)
 {
   double Sum = 0;
   int NumCount = 0;
-  for(int i=l; i <= r; i++){
-	for(int j=t; j <= b; j++){
-	  String Str = GetACells(i,j);
-      if(Str != ""){
-        try{
+  for (int i=l; i <= r; i++) {
+    for (int j=t; j <= b; j++) {
+      String Str = GetACells(i,j);
+      if (IsNumber(Str)) {
+        try {
           Sum += Str.ToDouble();
           NumCount++;
-        }catch(...){}
+        } catch(...) {}
       }
     }
   }
 
-  if(Count) *Count = NumCount;
+  if (Count) {
+    *Count = NumCount;
+  }
   return Sum;
 }
 //---------------------------------------------------------------------------
@@ -2572,11 +2580,20 @@ void __fastcall TMainGrid::MouseWheelDown(System::TObject* Sender,
 #define drThisCol 1
 #define drAll 2
 //---------------------------------------------------------------------------
-static void UpdateMatch(const boost::wcmatch& From, TStrings *To)
+inline static String AddCr(String str) {
+  return StringReplace(str, "\n", "\r\n", TReplaceFlags() << rfReplaceAll);
+}
+//---------------------------------------------------------------------------
+inline static String StripCr(String str) {
+  return StringReplace(str, "\r\n", "\n", TReplaceFlags() << rfReplaceAll);
+}
+//---------------------------------------------------------------------------
+static void UpdateMatch(const boost::wcmatch& From, TStrings *To, bool AddsCr)
 {
   To->Clear();
   for (size_t i = 0; i < From.size(); i++) {
-    To->Add(From[i].str().c_str());
+    String str = From[i].str().c_str();
+    To->Add(AddsCr ? AddCr(str) : str);
   }
 }
 //---------------------------------------------------------------------------
@@ -2602,50 +2619,41 @@ static int FindHit(String CellText, String FindText, bool Case, bool Regex,
     }
     return CellText.Pos(FindText);
   }
-
-  for (int i = FindText.Length() - 1; i > 0; i--) {
-    if (FindText[i] == '\\' && FindText[i + 1] == 'n') {
-      FindText.Insert("\\r?", i);
-    }
-  }
-
-  wchar_t* cell_text = CellText.c_str();
+  bool hasCr = CellText.Pos("\r\n") > 0;
+  String withoutCr = hasCr ? StripCr(CellText) : CellText;
   boost::wregex regex = Case ? boost::wregex(FindText.c_str())
       : boost::wregex(FindText.c_str(), boost::regex::icase);
   if (Word) {
     boost::wcmatch match;
-    if (boost::regex_match(cell_text, match, regex)) {
-      UpdateMatch(match, LastMatch);
+    if (boost::regex_match(withoutCr.c_str(), match, regex)) {
+      UpdateMatch(match, LastMatch, hasCr);
       *Length = CellText.Length();
       return 1;
     }
     return 0;
   }
-  int hit = 0;
-  int len = 0;
+  const wchar_t *next = withoutCr.c_str();
   if(Back) {
     while(true){
       boost::wcmatch match;
-      if (boost::regex_search(cell_text + hit, match, regex,
-          boost::match_not_null)) {
-        UpdateMatch(match, LastMatch);
-        hit = match[0].first - cell_text + 1;
-        len = match[0].second - match[0].first;
+      if (boost::regex_search(next, match, regex, boost::match_not_null)) {
+        UpdateMatch(match, LastMatch, hasCr);
+        next = match[0].first + 1;
       } else {
         break;
       }
     }
   } else {
     boost::wcmatch match;
-    if (boost::regex_search(cell_text, match, regex, boost::match_not_null)) {
-      UpdateMatch(match, LastMatch);
-      hit = match[0].first - cell_text + 1;
-      len = match[0].second - match[0].first;
+    if (boost::regex_search(next, match, regex, boost::match_not_null)) {
+      UpdateMatch(match, LastMatch, hasCr);
+      next = match[0].first + 1;
     }
   }
-  if (hit > 0) {
-    *Length = len;
-    return hit;
+  if (next > withoutCr.c_str()) {
+    *Length = LastMatch->Strings[0].Length();
+    return AddCr(withoutCr.SubString(1, next - withoutCr.c_str() - 1)).Length()
+        + 1;
   }
   return 0;
 }
@@ -2828,28 +2836,9 @@ int TMainGrid::ReplaceAll(String FindText, String ReplaceText, int SLeft,
   int count = 0;
   for (int y = STop; y <= SBottom; y++) {
     for (int x = SLeft; x <= SRight; x++) {
-      String replacedText = "";
-      String cellText = Cells[x][y];
-      while (true) {
-        int len;
-        int hit = FindHit(
-            cellText, FindText, Case, Regex, Word, false, &len, LastMatch);
-        if (!hit) {
-          replacedText += cellText;
-          break;
-        }
-        if (len == 0) {
-          if (Word) {
-            replacedText = GetStringForReplace(ReplaceText, Regex, LastMatch);
-          } else {
-            replacedText += cellText;
-          }
-          break;
-        }
-        replacedText += cellText.SubString(1, hit - 1)
-            + GetStringForReplace(ReplaceText, Regex, LastMatch);
-        cellText = cellText.SubString(hit + len, cellText.Length());
-      }
+      String replacedText = AddCr(ReplaceAll(
+          StripCr(Cells[x][y]), StripCr(FindText), StripCr(ReplaceText),
+          Case, Regex, Word));
       if (replacedText != Cells[x][y]) {
         if (count == 0) {
           SetUndoCsv();
@@ -2865,6 +2854,43 @@ int TMainGrid::ReplaceAll(String FindText, String ReplaceText, int SLeft,
     Modified = true;
   }
   return count;
+}
+//---------------------------------------------------------------------------
+String TMainGrid::ReplaceAll(String OriginalText, String FindText,
+    String ReplaceText, bool Case, bool Regex, bool Word)
+{
+  if (Regex && !Word) {
+    bool hasCr = OriginalText.Pos("\r\n") > 0;
+    std::wstring withoutCr =
+        (hasCr ? StripCr(OriginalText) : OriginalText).c_str();
+    boost::wregex regex =
+        Case ? boost::wregex(FindText.c_str())
+             : boost::wregex(FindText.c_str(), boost::regex::icase);
+    String result = boost::regex_replace(
+        withoutCr, regex, (std::wstring) ReplaceText.c_str(),
+        boost::format_perl | boost::match_single_line | boost::match_not_null)
+        .c_str();
+    return hasCr ? AddCr(result) : result;
+  }
+
+  String replacedText = "";
+  while (true) {
+    int len;
+    int hit = FindHit(OriginalText, FindText, Case, Regex, Word, false, &len,
+                      LastMatch);
+    if (!hit) {
+      return replacedText + OriginalText;
+    }
+    if (len == 0) {
+      if (Word) {
+        return GetStringForReplace(ReplaceText, Regex, LastMatch);
+      }
+      return replacedText + OriginalText;
+    }
+    replacedText += OriginalText.SubString(1, hit - 1)
+        + GetStringForReplace(ReplaceText, Regex, LastMatch);
+    OriginalText = OriginalText.SubString(hit + len, OriginalText.Length());
+  }
 }
 //---------------------------------------------------------------------------
 bool TMainGrid::NumFind(double *Min, double *Max, int Range, bool Back)
@@ -2950,7 +2976,61 @@ void __fastcall TMainGrid::KeyDown(Word &Key, Classes::TShiftState Shift)
     InplaceEditor->SelStart = InplaceEditor->Text.Length();
   }
 
+  if ((Key == VK_RIGHT || Key == VK_LEFT || Key == VK_UP || Key == VK_DOWN)
+      && Shift.Contains(ssCtrl)) {
+    if (Shift.Contains(ssShift)) {
+      EditorMode = false;
+      Options >> goAlwaysShowEditor;
+    }
+    TGridRect s = Selection;
+    if (Key == VK_LEFT || Key == VK_RIGHT) {
+      int x = Col;
+      int step = (Key == VK_LEFT ? -1 : 1);
+      int max = (step < 0 ? -FixedCols : FDataRight);
+      if (x * step < max) {
+        x += step;
+      }
+      bool hasData = HasDataInRange(x, x, s.Top, s.Bottom);
+      while (x * step < max &&
+             HasDataInRange(x + step, x + step, s.Top, s.Bottom) == hasData) {
+        x += step;
+      }
+      if (!hasData && x * step < max) {
+        x += step;
+      }
+      FocusCell(x, Row, !Shift.Contains(ssShift));
+    } else if (Key == VK_UP || Key == VK_DOWN) {
+      int y = Row;
+      int step = (Key == VK_UP ? -1 : 1);
+      int max = (step < 0 ? -FixedRows : FDataBottom);
+      if (y * step < max) {
+        y += step;
+      }
+      bool hasData = HasDataInRange(s.Left, s.Right, y, y);
+      while (y * step < max &&
+             HasDataInRange(s.Left, s.Right, y + step, y + step) == hasData) {
+        y += step;
+      }
+      if (!hasData && y * step < max) {
+        y += step;
+      }
+      FocusCell(Col, y, !Shift.Contains(ssShift));
+    }
+    return;
+  }
   TStringGrid::KeyDown(Key,Shift);
+}
+//---------------------------------------------------------------------------
+bool TMainGrid::HasDataInRange(int Left, int Right, int Top, int Bottom)
+{
+  for (int y = Top; y <= Bottom; y++) {
+    for (int x = Left; x <= Right; x++) {
+      if (Cells[x][y] != "") {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainGrid::KeyUp(Word &Key, Classes::TShiftState Shift)

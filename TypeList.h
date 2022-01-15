@@ -2,52 +2,53 @@
 #ifndef TypeListH
 #define TypeListH
 //---------------------------------------------------------------------------
+#include <algorithm>
 #include <vcl.h>
+#include <vector>
 #include "CsvReader.h"
 //---------------------------------------------------------------------------
 class TTypeList {
-  TList *L;
-  int GetCount() { return L->Count; }
+  std::vector<TTypeOption> v;
+  int GetCount() const {
+    return v.size();
+  }
 public:
   TTypeList() {
-    L = new TList();
-    L->Add(new TTypeOption());
-    L->Add(new TTypeOption("CSV"));
-    L->Add(new TTypeOption("TSV"));
+    v.push_back(TTypeOption());
+    v.push_back(TTypeOption("CSV"));
+    v.push_back(TTypeOption("TSV"));
   }
-  void Clear(){
-    for(int i=L->Count-1; i>=0; i--){
-      if(L->Items[i]) delete L->Items[i];
-    }
-    L->Clear();
+  void Clear() {
+    v.clear();
   }
-  ~TTypeList(){ Clear(); delete L; }
   __property int Count = { read=GetCount };
-  void Add(TTypeOption *op){
-    L->Add(op);
+  void Add(const TTypeOption &op) {
+    v.push_back(op);
   }
-  void Delete(int i){
-    if(L->Items[i]) delete L->Items[i];
-    L->Delete(i);
+  void Delete(int i) {
+    v.erase(v.begin() + i);
   }
-  TTypeOption *Items(int i){
-    if(i < 0 || i >= L->Count) i = 0;
-    return static_cast<TTypeOption *>(L->Items[i]);
+  TTypeOption *Items(size_t i) {
+    if (i >= v.size()) {
+      return &v[0];
+    }
+    return &v[i];
   }
-  int IndexOf(String Ext){
-    TTypeOption *p;
-    for(int i=1; i<L->Count; i++) {
-      p = static_cast<TTypeOption *>(L->Items[i]);
-      if(p->Exts->IndexOf(Ext) >= 0) { return i; }
+  int IndexOf(String Ext) const {
+    Ext = Ext.LowerCase();
+    for (size_t i = 1; i < v.size(); i++) {
+      const std::vector<String> &exts = v[i].Exts;
+      if (std::find(exts.begin(), exts.end(), Ext) != exts.end()) {
+        return i;
+      }
     }
     return 0;
   }
-  TTypeOption *DefItem(){ return static_cast<TTypeOption *>(L->Items[0]); }
-  TTypeList *operator =(TTypeList &src) {
-    Clear();
-    for(int i=0; i<src.Count; i++){
-      L->Add(new TTypeOption(src.Items(i)));
-    }
+  TTypeOption *DefItem() {
+    return &v[0];
+  }
+  TTypeList *operator =(const TTypeList &src) {
+    v = src.v;
     return this;
   }
 };

@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------
-#include <vcl\vcl.h>
+#include <vcl.h>
 #pragma hdrstop
 
 #include "PasteDlg.h"

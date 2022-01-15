@@ -1,5 +1,4 @@
 //---------------------------------------------------------------------------
-
 #include <vcl.h>
 #include <registry.hpp>
 #pragma hdrstop
@@ -67,16 +66,16 @@ void TfrOptionFile::StoreToMainForm()
             cbKanrenTSV->Checked, cbKanrenTSVNew->Checked);
 }
 //---------------------------------------------------------------------------
-void TfrOptionFile::SetKanren(TCHAR *CassavaType, TCHAR *CassavaTypeName,
-		TCHAR *Ext, String OldFileType, bool OldKanren,
-		bool OldKanrenNew, bool NewKanren, bool NewKanrenNew)
+void TfrOptionFile::SetKanren(String  CassavaType, String CassavaTypeName,
+    String Ext, String OldFileType, bool OldKanren, bool OldKanrenNew,
+    bool NewKanren, bool NewKanrenNew)
 {
   if(NewKanren != OldKanren){
     TRegistry *Reg = new TRegistry;
     Reg->RootKey = HKEY_CURRENT_USER;
     if(NewKanren){
-      if(Application->MessageBox(TEXT("関連付けを設定します"), CassavaType,
-                                 MB_OKCANCEL)==IDOK){
+      if (Application->MessageBox(TEXT("関連付けを設定します"),
+                                  CassavaType.c_str(), MB_OKCANCEL) == IDOK) {
         Reg->OpenKey("\\Software", true);
         Reg->OpenKey("Classes", true);
         Reg->OpenKey(CassavaType, true);
@@ -103,8 +102,8 @@ void TfrOptionFile::SetKanren(TCHAR *CassavaType, TCHAR *CassavaTypeName,
         Reg->CloseKey();
       }
     }else{
-      if(Application->MessageBox(TEXT("関連付けを解除します"), CassavaType,
-                                 MB_OKCANCEL)==IDOK){
+      if (Application->MessageBox(TEXT("関連付けを解除します"),
+                                  CassavaType.c_str(), MB_OKCANCEL) == IDOK) {
         String FileType = "";
         Reg->OpenKey("\\Software", false);
         Reg->OpenKey("Classes", false);
@@ -129,8 +128,8 @@ void TfrOptionFile::SetKanren(TCHAR *CassavaType, TCHAR *CassavaTypeName,
 	TRegistry *Reg = new TRegistry;
 	Reg->RootKey = HKEY_CURRENT_USER;
 	if(NewKanrenNew){
-      if(Application->MessageBox(TEXT("新規作成に追加します"), CassavaType,
-                                 MB_OKCANCEL)==IDOK){
+      if (Application->MessageBox(TEXT("新規作成に追加します"),
+                                  CassavaType.c_str(), MB_OKCANCEL) == IDOK) {
         Reg->OpenKey((String)"\\Software\\Classes\\" + Ext + "\\ShellNew",
                      true);
         Reg->WriteString("NullFile", "");
@@ -138,8 +137,8 @@ void TfrOptionFile::SetKanren(TCHAR *CassavaType, TCHAR *CassavaTypeName,
       }
     }else if(Reg->KeyExists((String)"\\Software\\Classes\\" + Ext
              + "\\ShellNew")){
-      if(Application->MessageBox(TEXT("新規作成を解除します"), CassavaType,
-                                 MB_OKCANCEL)==IDOK){
+      if (Application->MessageBox(TEXT("新規作成を解除します"),
+                                  CassavaType.c_str(), MB_OKCANCEL) == IDOK) {
           Reg->DeleteKey((String)"\\Software\\Classes\\" + Ext
                          + "\\ShellNew");
       }

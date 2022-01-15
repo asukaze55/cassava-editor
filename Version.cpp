@@ -8,12 +8,12 @@
 //---------------------------------------------------------------------------
 String Version::Current()
 {
-  return "2.1.5";
+  return "2.2.6";
 }
 //---------------------------------------------------------------------------
 String Version::CurrentDate()
 {
-  return "2020/01/25";
+  return "2021/04/17";
 }
 //---------------------------------------------------------------------------
 bool Version::CurrentIsBeta()
@@ -32,6 +32,11 @@ String Version::CurrentText()
   text = StringReplace(text, "a", " ƒ¿", replaceAll);
   text = StringReplace(text, "b", " ƒÀ", replaceAll);
   text = StringReplace(text, "rc", " RC", replaceAll);
+#if _WIN64
+  text += " (64 bit)";
+#else
+  text += " (32 bit)";
+#endif
   return text;
 }
 //---------------------------------------------------------------------------

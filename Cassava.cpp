@@ -19,7 +19,7 @@ USEFORM("MainForm.cpp", fmMain);
 USEFORM("Find.cpp", fmFind);
 USEFORM("KeyCustomize.cpp", fmKey);
 //---------------------------------------------------------------------------
-WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
+int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
 {
   try
   {

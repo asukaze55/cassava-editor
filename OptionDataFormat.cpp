@@ -152,7 +152,7 @@ void __fastcall TfrOptionDataFormat::edNameChange(TObject *Sender)
 {
   if (TypeIndex == TypeList.Count) {
     if (edName->Text == "") { return; }
-    TypeList.Add(new TTypeOption());
+    TypeList.Add(TTypeOption());
     btnDeleteType->Enabled = true;
   }
   TTypeOption *p = TypeList.Items(TypeIndex);

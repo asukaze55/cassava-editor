@@ -1,4 +1,4 @@
-import { Assert } from "lib/Assert.cms";
+Ôªøimport { Assert } from "lib/Assert.cms";
 
 class MenuTest {
   name() {
@@ -106,19 +106,19 @@ class MenuTest {
     assert.that([2,4]).isEqualTo(3);
 
     moveto(1, 1);
-    [1,1] = "ABC123!?ÉAÉCÉE";
+    [1,1] = "ABC123!?„Ç¢„Ç§„Ç¶";
     TransChar1();
-    assert.that([1,1]).isEqualTo("Ç`ÇaÇbÇPÇQÇRÅIÅHÉAÉCÉE");
+    assert.that([1,1]).isEqualTo("Ôº°Ôº¢Ôº£ÔºëÔºíÔºìÔºÅÔºü„Ç¢„Ç§„Ç¶");
     TransChar0();
-    assert.that([1,1]).isEqualTo("ABC123!?ÉAÉCÉE");
+    assert.that([1,1]).isEqualTo("ABC123!?„Ç¢„Ç§„Ç¶");
     TransChar3();
-    assert.that([1,1]).isEqualTo("abc123!?ÉAÉCÉE");
+    assert.that([1,1]).isEqualTo("abc123!?„Ç¢„Ç§„Ç¶");
     TransChar2();
-    assert.that([1,1]).isEqualTo("ABC123!?ÉAÉCÉE");
+    assert.that([1,1]).isEqualTo("ABC123!?„Ç¢„Ç§„Ç¶");
     TransChar4();
-    assert.that([1,1]).isEqualTo("ABC123!?±≤≥");
+    assert.that([1,1]).isEqualTo("ABC123!?ÔΩ±ÔΩ≤ÔΩ≥");
     TransChar5();
-    assert.that([1,1]).isEqualTo("ABC123!?ÉAÉCÉE");
+    assert.that([1,1]).isEqualTo("ABC123!?„Ç¢„Ç§„Ç¶");
 
     [1,1] = "data001";
     SelLeft = 1;
