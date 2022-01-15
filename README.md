@@ -1,17 +1,17 @@
 # Cassava Editor
 
-あすかぜ が 2000 年から開発を続けている CSV 専用エディターです。
+あすかぜ が 2000 年から開発を続けている CSV エディターです。
 編集作業に必要なさまざまな機能を備えています。
 
 ## ビルド方法
 
-### 開発環境
+### C++Builder のインストール
 
 開発には Embarcadero C++Builder を使用しています。
 個人またはスタートアップ企業の場合 https://www.embarcadero.com/jp/products/cbuilder/starter から C++Builder Community Edition がダウンロードできます。
 その他の企業で Cassava Editor をビルドする場合、有償エディションの購入が必要となります。
 
-### Boost Library
+### Boost Library のインストール
 
 正規表現の処理に Boost Library を使用しています。
 C++Builder の \[ツール\]-\[GetIt パッケージマネージャ...\] メニューでパッケージマネージャを開き、
@@ -19,7 +19,7 @@ C++Builder の \[ツール\]-\[GetIt パッケージマネージャ...\] メニ�
 
 ### プロジェクトのビルドと実行
 
-cassava-editor リポジトリをクローンし、「Cassava**.groupproj」ファイルを C++Builder で開いてください。
+cassava-editor リポジトリをクローンし、「Cassava\?\?.groupproj」ファイルを C++Builder で開いてください。
 \[実行\] メニューをクリックすると Cassava Editor がビルド・実行されます。
 
 ### テスト
