@@ -5,47 +5,15 @@ object frOptionDataFormat: TfrOptionDataFormat
   Height = 400
   TabOrder = 0
   TabStop = True
-  object cbType: TComboBox
-    Left = 0
-    Top = 8
-    Width = 129
-    Height = 21
-    Style = csDropDownList
-    ItemIndex = 0
-    TabOrder = 0
-    Text = 'Default'
-    OnChange = cbTypeChange
-    Items.Strings = (
-      'Default'
-      'CSV'
-      'TSV')
-  end
-  object btnRename: TButton
-    Left = 136
-    Top = 8
-    Width = 73
-    Height = 25
-    Caption = #21517#21069#22793#26356
-    TabOrder = 1
-    OnClick = btnRenameClick
-  end
-  object btnNewType: TButton
-    Left = 208
-    Top = 8
-    Width = 73
-    Height = 25
-    Caption = #26032#35215#20316#25104
-    TabOrder = 2
-    OnClick = btnNewTypeClick
-  end
-  object btnDeleteType: TButton
-    Left = 280
-    Top = 8
-    Width = 73
-    Height = 25
-    Caption = #21066#38500
-    TabOrder = 3
-    OnClick = btnDeleteTypeClick
+  DesignSize = (
+    360
+    400)
+  object lblName: TLabel
+    Left = 8
+    Top = 11
+    Width = 70
+    Height = 13
+    Caption = #12487#12540#12479#24418#24335#21517#65306
   end
   object gbExt: TGroupBox
     Left = 0
@@ -53,7 +21,7 @@ object frOptionDataFormat: TfrOptionDataFormat
     Width = 353
     Height = 97
     Caption = #25313#24373#23376
-    TabOrder = 4
+    TabOrder = 2
     object Label9: TLabel
       Left = 96
       Top = 23
@@ -109,7 +77,7 @@ object frOptionDataFormat: TfrOptionDataFormat
     Width = 353
     Height = 97
     Caption = #21306#20999#12426#25991#23383
-    TabOrder = 5
+    TabOrder = 3
     object Label10: TLabel
       Left = 188
       Top = 25
@@ -144,7 +112,6 @@ object frOptionDataFormat: TfrOptionDataFormat
       ShowHint = True
       TabOrder = 0
       Text = ','
-      OnChange = edDefSepCharChange
     end
     object edSepChars: TEdit
       Left = 280
@@ -177,19 +144,19 @@ object frOptionDataFormat: TfrOptionDataFormat
     Caption = #12463#12458#12540#12488
     ItemIndex = 1
     Items.Strings = (
-      #20840#12390#12398#12475#12523#12434'""'#12391#22258#12414#12394#12356
+      #12377#12409#12390#12398#12475#12523#12434'""'#12391#22258#12414#12394#12356
       #24517#35201#12394#12475#12523#12398#12415'""'#12391#22258#12416
       #25991#23383#21015#12399'""'#12391#22258#12416
-      #20840#12390#12398#12475#12523#12434'""'#12391#22258#12416)
-    TabOrder = 6
+      #12377#12409#12390#12398#12475#12523#12434'""'#12391#22258#12416)
+    TabOrder = 4
   end
   object cbCommaRect: TCheckBox
     Left = 8
     Top = 358
     Width = 321
     Height = 17
-    Caption = #12475#12540#12502#26178#12395#21508#34892#12398#12300','#12301#12398#25968#12434#32113#19968#12377#12427
-    TabOrder = 7
+    Caption = #12475#12540#12502#26178#12395#21508#34892#12398#21015#25968#12434#32113#19968#12377#12427
+    TabOrder = 5
     OnClick = cbCommaRectClick
     OnKeyDown = cbCommaRectKeyUpDown
     OnKeyPress = cbCommaRectKeyPress
@@ -200,7 +167,26 @@ object frOptionDataFormat: TfrOptionDataFormat
     Top = 375
     Width = 305
     Height = 25
-    Caption = #34892#25968#12539#21015#25968#12398#28187#23569#12434#38450#27490#12377#12427
-    TabOrder = 8
+    Caption = #19979#31471#12539#21491#31471#12398#20869#23481#12398#12394#12356#34892#12539#21015#12418#20445#23384#12377#12427
+    TabOrder = 6
+  end
+  object edName: TEdit
+    Left = 84
+    Top = 8
+    Width = 177
+    Height = 21
+    TabOrder = 0
+    Text = 'edName'
+    OnChange = edNameChange
+  end
+  object btnDeleteType: TButton
+    Left = 300
+    Top = 6
+    Width = 54
+    Height = 25
+    Anchors = [akTop, akRight]
+    Caption = #21066#38500
+    TabOrder = 1
+    OnClick = btnDeleteTypeClick
   end
 end

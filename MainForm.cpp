@@ -12,7 +12,6 @@
 #include "KeyCustomize.h"
 #include "Option.h"
 #include "Print.h"
-#include "Size.h"
 #include "FormattedFileName.h"
 #include "Macro.h"
 #include "Compiler.h"
@@ -27,7 +26,24 @@ TfmMain *fmMain;
 //---------------------------------------------------------------------------
 #define min(X,Y) ((X)<(Y) ? (X) : (Y))
 #define max(X,Y) ((X)>(Y) ? (X) : (Y))
-// #define CssvMacro
+//---------------------------------------------------------------------------
+static String MaybeCompileMacro(String fileName, Preference *pref,
+                                TStringList *modules)
+{
+  String cmsFile = pref->UserPath + "Macro\\" + fileName;
+  if (!FileExists(cmsFile)) {
+    cmsFile = pref->SharedPath + "Macro\\" + fileName;
+  }
+  if (!FileExists(cmsFile)) {
+    return "";
+  }
+  TStringList *macroDirs = new TStringList;
+  macroDirs->Add(pref->UserPath + "Macro\\");
+  macroDirs->Add(pref->SharedPath + "Macro\\");
+  bool compiled = MacroCompile(cmsFile, macroDirs, modules, true);
+  delete macroDirs;
+  return compiled ? cmsFile : (String)"";
+}
 //---------------------------------------------------------------------------
 __fastcall TfmMain::TfmMain(TComponent* Owner)
   : TForm(Owner)
@@ -99,23 +115,21 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
     StartupMacroDone = true;
     ExecStartupMacro();
   }
-  StatusbarMacroCache = new TStringList;
-  AnsiString CmsFile = Pref->UserPath + "Macro\\!statusbar.cms";
-  if(!FileExists(CmsFile)){
-    CmsFile = Pref->SharedPath + "Macro\\!statusbar.cms";
+  SystemMacroCache = new TStringList;
+  FormatCmsFile = MaybeCompileMacro("!format.cms", Pref, SystemMacroCache);
+  if (FormatCmsFile != "") {
+    MainGrid->OnGetFormattedCell = GetFormattedCell;
   }
-  if(FileExists(CmsFile)){
-    TStringList *InPaths = new TStringList;
-    InPaths->Add(Pref->UserPath + "Macro\\");
-    InPaths->Add(Pref->SharedPath + "Macro\\");
-    MacroCompile(CmsFile, InPaths, StatusbarMacroCache, false);
-    delete InPaths;
-    StatusbarCmsFile = ChangeFileExt(ExtractFileName(CmsFile),"");
-    if(StatusbarMacroCache->IndexOf("!statusbar$init$0") >= 0){
-      try{
-        ExecMacro("!statusbar$init$0", StopMacroCount, StatusbarMacroCache,
-                  -1, -1, NULL, true);
-      }catch(...){}
+
+  StatusbarCmsFile =
+      MaybeCompileMacro("!statusbar.cms", Pref, SystemMacroCache);
+  if (StatusbarCmsFile != "") {
+    String statusbarInit = GetMacroModuleName(StatusbarCmsFile, "init", "0");
+    if (SystemMacroCache->IndexOf(statusbarInit) >= 0) {
+      try {
+        ExecMacro(statusbarInit, StopMacroCount, SystemMacroCache, -1, -1,
+                  NULL, true);
+      } catch (...) {}
     }
     UpdateStatusbar();
   }
@@ -124,7 +138,7 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
 //---------------------------------------------------------------------------
 void TfmMain::ExecStartupMacro()
 {
-  AnsiString CmsFile;
+  String CmsFile;
   CmsFile = Pref->SharedPath + "Macro\\!startup.cms";
   if(FileExists(CmsFile)){
     MacroExec(CmsFile, NULL);
@@ -142,7 +156,7 @@ void TfmMain::ExecOpenMacro(System::TObject* Sender)
     ExecStartupMacro();
   }
 
-  AnsiString CmsFile;
+  String CmsFile;
   CmsFile = Pref->SharedPath + "Macro\\!open.cms";
   if(FileExists(CmsFile)){
     MacroExec(CmsFile, NULL);
@@ -158,15 +172,15 @@ __fastcall TfmMain::~TfmMain()
   delete MainGrid;
   delete History;
   delete Pref;
-  if(LockingFile){ delete LockingFile; }
-  if(StatusbarMacroCache){ delete StatusbarMacroCache; }
+  if (LockingFile) { delete LockingFile; }
+  if (SystemMacroCache) { delete SystemMacroCache; }
 }
 //---------------------------------------------------------------------------
 void TfmMain::ReadIni()
 {
   History->Clear();
 
-  TIniFile *Ini = Pref->GetInifile();
+  IniFile *Ini = Pref->GetInifile();
     Left = Ini->ReadInteger("Position","Left",
       GetSystemMetrics(SM_CXSCREEN)/2 - Width/2);
     Top = Ini->ReadInteger("Position","Top",
@@ -227,10 +241,10 @@ void TfmMain::ReadIni()
     if(TypeCount > 0){
       MainGrid->TypeList.Clear();
       for(int i=0; i<TypeCount; i++){
-        AnsiString Section = (AnsiString)"DataType:" + (AnsiString)i;
+        String Section = (String)"DataType:" + i;
         TTypeOption *TO = new TTypeOption;
         TO->Name = Ini->ReadString(Section, "Name", "[新規]");
-        AnsiString exts = Ini->ReadString(Section, "Exts", "csv");
+        String exts = Ini->ReadString(Section, "Exts", "csv");
         TO->SetExts(exts);
         TO->ForceExt = Ini->ReadBool(Section, "ForceExt", false);
         TO->SepChars = Ascii2Ctrl(Ini->ReadString(Section, "SepChars", ",\\t"));
@@ -313,15 +327,23 @@ void TfmMain::ReadIni()
     SortIgnoreCase = Ini->ReadBool("Mode", "SortIgnoreCase", false);
     SortIgnoreZenhan = Ini->ReadBool("Mode", "SortIgnoreZenhan", false);
     MainGrid->CheckKanji = Ini->ReadBool("Mode","CheckKanji",false);
-    MainGrid->DefaultViewMode = Ini->ReadBool("Mode","DefaultViewMode", 0);
-    MainGrid->CalcWidthForAllRow = Ini->ReadBool("Mode","CalcWidthForAllRow", 0);
+    MainGrid->DefaultCharCode = Ini->ReadInteger("Mode", "DefaultCharCode", 0);
+    if (FileName == "") {
+      MainGrid->KanjiCode = MainGrid->DefaultCharCode;
+    }
+    MainGrid->CompactColWidth =
+        Ini->ReadBool("Mode","CompactColWidth", true);
+    MainGrid->CalcWidthForAllRow =
+        Ini->ReadBool("Mode","CalcWidthForAllRow", 0);
+    MainGrid->MaxRowHeightLines =
+        Ini->ReadFloat("Mode", "MaxRowHeightLines", 1.5);
     StopMacroCount = Ini->ReadInteger("Mode","StopMacro", 0);
 
     FindCase = Ini->ReadBool("Search", "Case", true);
     FindWordSearch = Ini->ReadBool("Search", "Word", false);
     FindRegex = Ini->ReadBool("Search", "Regex", false);
 
-    AnsiString LaunchName[3];
+    String LaunchName[3];
     mnAppli0->Hint = Ini->ReadString("Application", "E0", "");
     mnAppli0->Tag  = Ini->ReadBool("Application", "Q0", true);
     mnAppli0->Enabled = (mnAppli0->Hint != "");
@@ -338,7 +360,7 @@ void TfmMain::ReadIni()
 
     History->Clear();
       for(int i=0; i<10; i++){
-        AnsiString S = Ini->ReadString("History", (AnsiString)i, "");
+        String S = Ini->ReadString("History", (String)i, "");
         if(S != "") History->Add(S);
         else break;
       }
@@ -354,9 +376,9 @@ void TfmMain::ReadIni()
     delete fmKey;
   }
 
-  mnAppli0->Caption = (AnsiString)"&0: " + LaunchName[0];
-  mnAppli1->Caption = (AnsiString)"&1: " + LaunchName[1];
-  mnAppli2->Caption = (AnsiString)"&2: " + LaunchName[2];
+  mnAppli0->Caption = (String)"&0: " + LaunchName[0];
+  mnAppli1->Caption = (String)"&1: " + LaunchName[1];
+  mnAppli2->Caption = (String)"&2: " + LaunchName[2];
 
   SetHistory("");
 }
@@ -364,7 +386,7 @@ void TfmMain::ReadIni()
 void TfmMain::WriteIni(bool PosSlide)
 {
   try {
-    TIniFile *Ini = Pref->GetInifile();
+    IniFile *Ini = Pref->GetInifile();
     Ini->WriteInteger("Position","Mode",WindowState);
     if(WindowState == wsNormal){
       int Slide = PosSlide ? 32 : 0;
@@ -410,7 +432,7 @@ void TfmMain::WriteIni(bool PosSlide)
     int DataCount = MainGrid->TypeList.Count;
     Ini->WriteInteger("DataType", "Count", DataCount);
     for(int i=0; i<DataCount; i++){
-      AnsiString Section = (AnsiString)"DataType:" + (AnsiString)i;
+      String Section = (String)"DataType:" + i;
       TTypeOption *TO = MainGrid->TypeList.Items(i);
       Ini->WriteString(Section, "Name", TO->Name);
       Ini->WriteString(Section, "Exts", TO->GetExtsStr(0));
@@ -453,17 +475,19 @@ void TfmMain::WriteIni(bool PosSlide)
     Ini->WriteBool("Mode","SortAll", SortAll);
     Ini->WriteInteger("Mode","UseURL", MainGrid->DblClickOpenURL);
 
-    Ini->WriteBool("Mode","NewWindow",MakeNewWindow);
-    Ini->WriteBool("Mode","TitleFullPath",TitleFullPath);
-    Ini->WriteInteger("Mode","LockFile",LockFile);
-    Ini->WriteBool("Mode","CheckTimeStamp",CheckTimeStamp);
-    Ini->WriteBool("Mode","SortByNumber", SortByNumber);
+    Ini->WriteBool("Mode", "NewWindow", MakeNewWindow);
+    Ini->WriteBool("Mode"," TitleFullPath", TitleFullPath);
+    Ini->WriteInteger("Mode", "LockFile", LockFile);
+    Ini->WriteBool("Mode", "CheckTimeStamp", CheckTimeStamp);
+    Ini->WriteBool("Mode", "SortByNumber", SortByNumber);
     Ini->WriteBool("Mode", "SortIgnoreCase", SortIgnoreCase);
     Ini->WriteBool("Mode", "SortIgnoreZenhan", SortIgnoreZenhan);
-    Ini->WriteBool("Mode","CheckKanji",MainGrid->CheckKanji);
-    Ini->WriteBool("Mode","DefaultViewMode", MainGrid->DefaultViewMode);
-    Ini->WriteBool("Mode","CalcWidthForAllRow", MainGrid->CalcWidthForAllRow);
-    Ini->WriteInteger("Mode","StopMacro", StopMacroCount);
+    Ini->WriteBool("Mode", "CheckKanji", MainGrid->CheckKanji);
+    Ini->WriteInteger("Mode", "DefaultCharCode", MainGrid->DefaultCharCode);
+    Ini->WriteBool("Mode", "CompactColWidth", MainGrid->CompactColWidth);
+    Ini->WriteBool("Mode", "CalcWidthForAllRow", MainGrid->CalcWidthForAllRow);
+    Ini->WriteFloat("Mode", "MaxRowHeightLines", MainGrid->MaxRowHeightLines);
+    Ini->WriteInteger("Mode", "StopMacro", StopMacroCount);
 
     Ini->WriteBool("Search", "Case", fmFind->cbCase->Checked);
     Ini->WriteBool("Search", "Word", fmFind->cbWordSearch->Checked);
@@ -481,9 +505,9 @@ void TfmMain::WriteIni(bool PosSlide)
     Ini->WriteString("Application", "Browser", MainGrid->BrowserFileName);
 
     for(int i=0; i<History->Count; i++)
-      Ini->WriteString("History", (AnsiString)i,History->Strings[i]);
+      Ini->WriteString("History", (String)i,History->Strings[i]);
     for(int i=History->Count; i<10; i++)
-      Ini->DeleteKey("History", (AnsiString)i);
+      Ini->DeleteKey("History", (String)i);
 
     delete Ini;
   }catch(...){}
@@ -609,7 +633,7 @@ void __fastcall TfmMain::UserToolBarAction(TObject *Sender)
     action = action.SubString(pos + 1, action.Length() - pos).Trim();
   }
   if(action != ""){
-    AnsiString CmsFile = Pref->UserPath + "Macro\\" + action;
+    String CmsFile = Pref->UserPath + "Macro\\" + action;
     if(!FileExists(CmsFile)){
       CmsFile = Pref->SharedPath + "Macro\\" + action;
     }
@@ -644,16 +668,16 @@ void __fastcall TfmMain::CoolBarResize(TObject *Sender)
 //---------------------------------------------------------------------------
 void TfmMain::SetFilter()
 {
-  AnsiString OFilter = "";
-  AnsiString SFilter = "";
-  AnsiString FilterExt;
+  String OFilter = "";
+  String SFilter = "";
+  String FilterExt;
   TStringList *AllExts = new TStringList;
   for(int i=0; i<MainGrid->TypeList.Count; i++){
     TTypeOption *p = MainGrid->TypeList.Items(i);
     FilterExt = "";
     for(int j=0; j<p->Exts->Count; j++){
       if(j > 0) FilterExt += ";";
-      AnsiString str = p->Exts->Strings[j];
+      String str = p->Exts->Strings[j];
       FilterExt += "*." + str;
       if(AllExts->IndexOf(str) < 0){ AllExts->Add(str); }
     }
@@ -667,7 +691,7 @@ void TfmMain::SetFilter()
     if(i > 0) FilterExt += ";";
     FilterExt += "*." + AllExts->Strings[i];
   }
-  AnsiString CFilter = (AnsiString)"Cassava (" + FilterExt + ")|" + FilterExt + "|";
+  String CFilter = (String)"Cassava (" + FilterExt + ")|" + FilterExt + "|";
   dlgOpen->Filter = CFilter + OFilter + "すべてのファイル (*.*)|*.*";
   dlgSave->Filter = SFilter;
   delete AllExts;
@@ -847,44 +871,6 @@ void __fastcall TfmMain::mnNewClick(TObject *Sender)
   }
 }
 //---------------------------------------------------------------------------
-void __fastcall TfmMain::mnNewSizeClick(TObject *Sender)
-{
-  int wd, ht;
-
-  if(!MakeNewWindow && !IfModifiedThenSave()) return;
-
-  fmSize = new TfmSize(Application);
-    if(fmSize->ShowModal() == mrOk){
-      wd = fmSize->udWidth->Position;
-      ht = fmSize->udHeight->Position;
-    }else{
-      return;
-    }
-  delete fmSize;
-
-  if(MakeNewWindow){
-    String W = wd;
-    String H = ht;
-    WriteIni(true);
-    _wspawnl(P_NOWAITO, ParamStr(0).c_str(), ParamStr(0).c_str(),
-      TEXT("-w"), W.c_str(), TEXT("-h"), H.c_str(), NULL);
-  }else{
-    if(mnFixFirstCol->Checked) mnFixFirstColClick(this);
-    if(mnFixFirstRow->Checked) mnFixFirstRowClick(this);
-
-    FileName = "";
-    Caption = "Cassava";
-    Application->Title = Caption;
-    MainGrid->Clear(wd+1, ht+1, true); // ダミーセル分広げる
-    mnReloadCode->Enabled = false;
-
-    if(LockingFile){
-      delete LockingFile;
-      LockingFile = NULL;
-    }
-  }
-}
-//---------------------------------------------------------------------------
 void TfmMain::OpenFile (String OpenFileName, int KCode)
 {
   if(!FileExists(OpenFileName)){
@@ -905,19 +891,6 @@ void TfmMain::OpenFile (String OpenFileName, int KCode)
   Application->Title = Caption;
   SetHistory(FileName);
   FileAge(FileName, TimeStamp);
-  switch(MainGrid->KanjiCode){
-    case CHARCODE_JIS:     mnJis->Checked=true;     break;
-    case CHARCODE_EUC:     mnEuc->Checked=true;     break;
-    case CHARCODE_UTF8:    mnUtf8->Checked=true;    break;
-    case CHARCODE_UTF16BE: mnUtf16be->Checked=true; break;
-    case CHARCODE_UTF16LE: mnUnicode->Checked=true; break;
-    default:               mnSjis->Checked=true;    break;
-  }
-  switch(MainGrid->ReturnCode){
-    case '\x0A': mnLf->Checked=true;   break;
-    case '\x0D': mnCr->Checked=true;   break;
-    default:     mnLfcr->Checked=true; break;
-  }
   dlgSave->FilterIndex = MainGrid->TypeIndex + 1;
   tmAutoSaver->Enabled = false;
   mnReloadCode->Enabled = true;
@@ -1017,30 +990,17 @@ bool TfmMain::IfModifiedThenSave()
   try {
     if(FileName != ""){
       if(BackupOnSave && DelBuSExit){
-        AnsiString BuFN = FormattedFileName(BuFileNameS, FileName);
+        String BuFN = FormattedFileName(BuFileNameS, FileName);
         if(FileExists(BuFN)) DeleteFile(BuFN);
       }
       if(BackupOnTime && DelBuT){
-        AnsiString BuFN = FormattedFileName(BuFileNameT, FileName);
+        String BuFN = FormattedFileName(BuFileNameT, FileName);
         if(FileExists(BuFN)) DeleteFile(BuFN);
       }
     }
   }catch(...){}
 
   return true;
-}
-//---------------------------------------------------------------------------
-void TfmMain::UpdateKCode()
-{
-  if(mnJis->Checked)         { MainGrid->KanjiCode = CHARCODE_JIS;     }
-  else if(mnEuc->Checked)    { MainGrid->KanjiCode = CHARCODE_EUC;     }
-  else if(mnUtf8->Checked)   { MainGrid->KanjiCode = CHARCODE_UTF8;    }
-  else if(mnUtf16be->Checked){ MainGrid->KanjiCode = CHARCODE_UTF16BE; }
-  else if(mnUnicode->Checked){ MainGrid->KanjiCode = CHARCODE_UTF16LE; }
-  else                       { MainGrid->KanjiCode = CHARCODE_SJIS;    }
-  if(mnLf->Checked)      { MainGrid->ReturnCode = '\x0A'; }
-  else if(mnCr->Checked) { MainGrid->ReturnCode = '\x0D'; }
-  else                   { MainGrid->ReturnCode = '\0';   }
 }
 //---------------------------------------------------------------------------
 void TfmMain::SaveFile(TTypeOption *Format)
@@ -1051,8 +1011,6 @@ void TfmMain::SaveFile(TTypeOption *Format)
 	  TEXT("Cassava"), MB_ICONERROR);
     return;
   }
-
-  UpdateKCode();
 
   if(FileName == "")
     mnSaveAsClick(this);
@@ -1080,7 +1038,7 @@ void TfmMain::SaveFile(TTypeOption *Format)
     }
 
     // 必要ならばバックアップ
-    AnsiString NewFile = "";
+    String NewFile = "";
     try {
       if(BackupOnSave && FileExists(FileName)){
         NewFile = FormattedFileName(BuFileNameS, FileName);
@@ -1151,7 +1109,7 @@ void __fastcall TfmMain::tmAutoSaverTimer(TObject *Sender)
       if(MainGrid->FileOpenThread){
         return;
       }
-      AnsiString BuFN = FormattedFileName(BuFileNameT, FileName);
+      String BuFN = FormattedFileName(BuFileNameT, FileName);
       MainGrid->SaveToFile(BuFN, NULL, false);
     }else{
       tmAutoSaver->Enabled = false;
@@ -1170,7 +1128,9 @@ void TfmMain::GetCheckedMenus(TStringList *list)
 //---------------------------------------------------------------------------
 void TfmMain::AddCheckedMenus(TStringList *list, TMenuItem* item)
 {
-   if(item->Caption == "-"){ return; }
+   if (item == mnFile || item->Caption == "-") {
+     return;
+   }
 
    if(item->Checked){
      list->Add(item->Name);
@@ -1193,7 +1153,9 @@ void TfmMain::RestoreCheckedMenus(TStringList *list)
 //---------------------------------------------------------------------------
 void TfmMain::RestoreCheckedMenus(TStringList *list, TMenuItem* item)
 {
-  if(item->Caption == "-"){ return; }
+  if (item == mnFile || item->Caption == "-") {
+    return;
+  }
 
   bool isChecked = item->Checked;
   bool toChecked = (list->IndexOf(item->Name) >= 0);
@@ -1227,16 +1189,15 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
     return;
   }
 
-  UpdateKCode();
-  AnsiString strFilter = "";
-  AnsiString strOrgFilter = dlgSave->Filter;
+  String strFilter = "";
+  String strOrgFilter = dlgSave->Filter;
   TStringList *types = new TStringList;
   TSearchRec sr;
   if(FindFirst(Pref->UserPath+"Export\\*.cms", faAnyFile, sr) == 0){
     do{
-      AnsiString type = ChangeFileExt(sr.Name,"");
-      AnsiString ext = ExtractFileExt(type);
-      if(ext == ""){ ext = (AnsiString)"." + type; }
+      String type = ChangeFileExt(sr.Name,"");
+      String ext = ExtractFileExt(type);
+      if(ext == ""){ ext = (String)"." + type; }
       strFilter += type.UpperCase() + " 形式 (*" + ext + ")|*" + ext + "|";
       types->Add(type);
     }while (FindNext(sr) == 0);
@@ -1244,9 +1205,9 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
   }
   if(FindFirst(Pref->SharedPath+"Export\\*.cms", faAnyFile, sr) == 0){
     do{
-      AnsiString type = ChangeFileExt(sr.Name,"");
-      AnsiString ext = ExtractFileExt(type);
-      if(ext == ""){ ext = (AnsiString)"." + type; }
+      String type = ChangeFileExt(sr.Name,"");
+      String ext = ExtractFileExt(type);
+      if(ext == ""){ ext = (String)"." + type; }
       strFilter += type.UpperCase() + " 形式 (*" + ext + ")|*" + ext + "|";
       types->Add(type);
     }while (FindNext(sr) == 0);
@@ -1261,10 +1222,10 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
   dlgSave->Filter = strFilter;
   if(dlgSave->Execute()){
     dlgSave->Filter = strOrgFilter;
-    AnsiString type = types->Strings[dlgSave->FilterIndex - 1];
+    String type = types->Strings[dlgSave->FilterIndex - 1];
     if(ExtractFileExt(dlgSave->FileName) == ""){
-      AnsiString ext = ExtractFileExt(type);
-      if(ext == ""){ ext = (AnsiString)"." + type; }
+      String ext = ExtractFileExt(type);
+      if(ext == ""){ ext = (String)"." + type; }
       dlgSave->FileName = dlgSave->FileName + ext;
     }
     Export(dlgSave->FileName, type);
@@ -1277,7 +1238,7 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
 void TfmMain::Export(String filename, String type)
 {
 #ifdef CssvMacro
-    AnsiString CmsFile = Pref->SharedPath + "Export\\" + type + ".cms";
+    String CmsFile = Pref->SharedPath + "Export\\" + type + ".cms";
     if(FileExists(Pref->UserPath + "Export\\" + type + ".cms")){
       CmsFile = Pref->UserPath + "Export\\" + type + ".cms";
     }
@@ -1293,11 +1254,17 @@ void TfmMain::Export(String filename, String type)
     TStringList *checkedMenus = NULL;
     try{
       out = new TFileStream(filename, fmCreate | fmShareDenyWrite);
-      ew = new EncodedWriter(out, MainGrid->KanjiCode);
+      int kanjiCode = MainGrid->KanjiCode;
+      wchar_t returnCode = MainGrid->ReturnCode;
+      ew = new EncodedWriter(out, kanjiCode);
       checkedMenus = new TStringList();
       GetCheckedMenus(checkedMenus);
+
       MacroExec(CmsFile, ew);
+
       RestoreCheckedMenus(checkedMenus);
+      MainGrid->KanjiCode = kanjiCode;
+      MainGrid->ReturnCode = returnCode;
     }catch(Exception *e){
 	  Application->MessageBox(e->Message.c_str(),
                               TEXT("Cassava Macro Interpreter"), 0);
@@ -1327,12 +1294,12 @@ void TfmMain::SetHistory(String S)
 
   for(int i=0; i<10; i++){
     if(i < History->Count){
-      MnHist[i]->Caption = "&" +(AnsiString)i + ": " + History->Strings[i];
+      MnHist[i]->Caption = (String)"&" + i + ": " + History->Strings[i];
       MnHist[i]->Enabled = true;
       MnHist[i]->Visible = true;
     } else {
       MnHist[i]->Visible = false;
-      MnHist[i]->Caption = "&" +(AnsiString)i + ": (なし)";
+      MnHist[i]->Caption = (String)"&" + i + ": (なし)";
     }
   }
   if(History->Count == 0){
@@ -1377,7 +1344,7 @@ void __fastcall TfmMain::PopMenuOpenPopup(TObject *Sender)
 
   for(int i=0; i<History->Count; i++){
     TMenuItem *NewItem = new TMenuItem(mi->Owner);
-    NewItem->Caption = "&" +(AnsiString)i + ": " + History->Strings[i];
+    NewItem->Caption = (String)"&" + i + ": " + History->Strings[i];
     NewItem->Tag = i;
     NewItem->OnClick = mnOpenHistorysClick;
     mi->Add(NewItem);
@@ -1466,9 +1433,9 @@ void __fastcall TfmMain::PopMenuPopup(TObject *Sender)
     mnpKugiri->Visible = true;
     mnpInsRow->Visible = true;
     mnpCutRow->Visible = true;
+    mnpDefWidth->Visible = true;
 
     if(Sel->Top == Sel->Bottom){
-      mnpDefWidth->Visible = true;
       if(MainGrid->PasteOption < 0) mnpPaste->Caption = "挿入貼り付け(&P)";
       if(MainGrid->RowHeights[Sel->Top] > 8) {
         mnpNarrow->Visible = true;
@@ -1481,10 +1448,10 @@ void __fastcall TfmMain::PopMenuPopup(TObject *Sender)
     mnpKugiri->Visible = true;
     mnpInsCol->Visible = true;
     mnpCutCol->Visible = true;
+    mnpDefWidth->Visible = true;
 
     if(Sel->Left == Sel->Right){
       mnpSort->Visible = true;
-      mnpDefWidth->Visible = true;
       if(MainGrid->PasteOption < 0) mnpPaste->Caption = "挿入貼り付け(&P)";
       if(MainGrid->ColWidths[Sel->Left] > 16) {
         mnpNarrow->Visible = true;
@@ -1778,10 +1745,16 @@ void __fastcall TfmMain::mnDeleteCellUpClick(TObject *Sender)
 void __fastcall TfmMain::mnpDefWidthClick(TObject *Sender)
 {
   TGridRect *Sel = &(MainGrid->Selection);
-  if(Sel->Top == Sel->Bottom)
-    MainGrid->RowHeights[Sel->Top] = MainGrid->DefaultRowHeight;
-  else if(Sel->Left == Sel->Right)
-    MainGrid->SetWidth(Sel->Left);
+  if (Sel->Left == MainGrid->FixedCols && Sel->Right == MainGrid->ColCount-1) {
+    for (int y = Sel->Top; y <= Sel->Bottom; y++) {
+      MainGrid->RowHeights[y] = MainGrid->DefaultRowHeight;
+    }
+  }
+  if (Sel->Top == MainGrid->FixedRows && Sel->Bottom == MainGrid->RowCount-1) {
+    for (int x = Sel->Left; x <= Sel->Right; x++) {
+      MainGrid->SetWidth(x);
+    }
+  }
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnpNarrowClick(TObject *Sender)
@@ -1797,15 +1770,6 @@ void __fastcall TfmMain::mnRefreshClick(TObject *Sender)
 {
   MainGrid->Cut();
   MainGrid->SetWidth();
-  MainGrid->SetHeight();
-  MainGrid->Invalidate();
-  UpdateStatusbar();
-}
-//---------------------------------------------------------------------------
-void __fastcall TfmMain::mnShowAllColumnClick(TObject *Sender)
-{
-  MainGrid->Cut();
-  MainGrid->ShowAllColumn();
   MainGrid->SetHeight();
   MainGrid->Invalidate();
   UpdateStatusbar();
@@ -2073,32 +2037,32 @@ void TfmMain::SearchMacro()
 void __fastcall TfmMain::mnMacroOpenUserFolderClick(TObject *Sender)
 {
 #ifdef CssvMacro
-  AnsiString path = Pref->UserPath + "Macro";
+  String path = Pref->UserPath + "Macro";
   if(!DirectoryExists(path)){
     ForceDirectories(path);
   }
-  spawnlp(P_NOWAITO, "Explorer.exe", "/idlist", path.c_str(), NULL);
+  _wspawnlp(P_NOWAITO, L"Explorer.exe", L"/idlist", path.c_str(), NULL);
 #endif
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnMacroOpenFolderClick(TObject *Sender)
 {
 #ifdef CssvMacro
-  spawnlp(P_NOWAITO, "Explorer.exe", "/idlist",
-         (Pref->SharedPath + "Macro").c_str(), NULL);
+  _wspawnlp(P_NOWAITO, L"Explorer.exe", L"/idlist",
+            (Pref->SharedPath + "Macro").c_str(), NULL);
 #endif
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnMacroExecuteClick(TObject *Sender)
 {
 #ifdef CssvMacro
-  AnsiString path = Pref->UserPath + "Macro";
+  String path = Pref->UserPath + "Macro";
   if(!DirectoryExists(path)){
     path = Pref->SharedPath + "Macro";
   }
   dlgOpenMacro->InitialDir = path;
   if(dlgOpenMacro->Execute()){
-    AnsiString CmsFile = dlgOpenMacro->FileName;
+    String CmsFile = dlgOpenMacro->FileName;
     MacroExec(CmsFile, NULL);
   }
 #endif
@@ -2108,7 +2072,7 @@ void __fastcall TfmMain::mnMacroUserExecClick(TObject *Sender)
 {
 #ifdef CssvMacro
   TMenuItem *Menu = static_cast<TMenuItem *>(Sender);
-  AnsiString CmsFile = Pref->UserPath + "Macro\\" + Menu->Hint + ".cms";
+  String CmsFile = Pref->UserPath + "Macro\\" + Menu->Hint + ".cms";
   MacroExec(CmsFile, NULL);
 #endif
 }
@@ -2117,7 +2081,7 @@ void __fastcall TfmMain::mnMacroExecClick(TObject *Sender)
 {
 #ifdef CssvMacro
   TMenuItem *Menu = static_cast<TMenuItem *>(Sender);
-  AnsiString CmsFile = Pref->SharedPath + "Macro\\" + Menu->Hint + ".cms";
+  String CmsFile = Pref->SharedPath + "Macro\\" + Menu->Hint + ".cms";
   MacroExec(CmsFile, NULL);
 #endif
 }
@@ -2137,11 +2101,16 @@ void __fastcall TfmMain::acMacroTerminateUpdate(TObject *Sender)
 void TfmMain::MacroExec(String CmsFile, EncodedWriter *io)
 {
 #ifdef CssvMacro
-  AnsiString InName = ChangeFileExt(ExtractFileName(CmsFile),"");
+  MainGrid->Cursor = crAppStart;
+  MainGrid->Hint = "マクロを実行中です。";
+  MainGrid->ShowHint = true;
+  Application->Hint = MainGrid->Hint;
+  ApplicationHint(NULL);
+
   TStringList *Modules = new TStringList;
   TStringList *InPaths = new TStringList;
-  AnsiString inpath = ExtractFilePath(CmsFile);
-  if(*(inpath.AnsiLastChar()) != '\\') inpath += "\\";
+  String inpath = ExtractFilePath(CmsFile);
+  if(*(inpath.LastChar()) != '\\') inpath += "\\";
   InPaths->Add(inpath);
   InPaths->Add(Pref->UserPath + "Macro\\");
   InPaths->Add(Pref->SharedPath + "Macro\\");
@@ -2151,7 +2120,7 @@ void TfmMain::MacroExec(String CmsFile, EncodedWriter *io)
     MainGrid->UndoSetLock++;
     MainGrid->Invalidate();
     acMacroTerminate->Enabled = true;
-    ExecMacro(InName, StopMacroCount, Modules, -1, -1, io);
+    ExecMacro(CmsFile, StopMacroCount, Modules, -1, -1, io);
     MainGrid->Invalidate();
     MainGrid->UndoSetLock--;
   }
@@ -2160,6 +2129,11 @@ void TfmMain::MacroExec(String CmsFile, EncodedWriter *io)
   }
   delete Modules;
   delete InPaths;
+
+  MainGrid->Cursor = crDefault;
+  MainGrid->Hint = "";
+  MainGrid->ShowHint = false;
+  Application->CancelHint();
 #endif
 }
 //---------------------------------------------------------------------------
@@ -2168,8 +2142,8 @@ void TfmMain::UpdateStatusbar()
 #ifdef CssvMacro
   if(mnShowStatusbar->Checked && StatusbarCmsFile != ""){
     try{
-      ExecMacro(StatusbarCmsFile, StopMacroCount, StatusbarMacroCache,
-                -1, -1, NULL, true);
+      ExecMacro(StatusbarCmsFile, StopMacroCount, SystemMacroCache, -1, -1,
+                NULL, true);
     }catch(...){}
   }
 #endif
@@ -2178,20 +2152,15 @@ void TfmMain::UpdateStatusbar()
 void TfmMain::MacroScriptExec(String cmsname, String script)
 {
 #ifdef CssvMacro
-  TStream *fs = new TMemoryStream();
-  AnsiString ansiScript = script;
-  fs->Write(ansiScript.c_str(), ansiScript.Length());
-  fs->Position = 0;
   TStringList *modules = new TStringList;
   TStringList *inPaths = new TStringList;
   inPaths->Add(Pref->UserPath + "Macro\\");
   inPaths->Add(Pref->SharedPath + "Macro\\");
-  bool C = MacroCompile(fs, inPaths, "", cmsname, ".cms", modules, true);
-  if(C){
+  bool ok = MacroCompile(&script, cmsname, inPaths, modules, true);
+  if (ok) {
     acMacroTerminate->Enabled = true;
     ExecMacro(cmsname, StopMacroCount, modules, -1, -1);
   }
-  delete fs;
   for(int i=modules->Count-1; i>=0; i--){
     if(modules->Objects[i]) delete modules->Objects[i];
   }
@@ -2202,45 +2171,45 @@ void TfmMain::MacroScriptExec(String cmsname, String script)
 //---------------------------------------------------------------------------
 String TfmMain::GetCalculatedCell(String Str, int ACol, int ARow)
 {
-  String ResultCell = (String)CALC_NG + Str;
-#ifdef CssvMacro
-  String CmsName = "";
+  String result = (String)CALC_NG + Str;
+  if (Str.Length() == 0 || Str[1] != '=') { return (String)CALC_NOTEXPR + Str; }
 
-  if(Str.Length() == 0 || Str[1] != '='){ return (AnsiString)CALC_NOTEXPR + Str; }
+#ifdef CssvMacro
   Str.Delete(1,1);
-  TStream *fs = NULL;
-  TStringList *modules = NULL;
-  TStringList *inPaths = NULL;
-  try{
-    CmsName = (AnsiString)"$@cell_" + ACol + "_" + ARow;
-	AnsiString Formula = (AnsiString) Str;
-	fs = new TMemoryStream();
-    fs->Write("return ", 7);
-	fs->Write(Formula.c_str(), Formula.Length());
-    fs->Write(";", 1);
-    fs->Position = 0;
-    modules = new TStringList;
-    inPaths = new TStringList;
-    inPaths->Add(Pref->UserPath + "Macro\\");
-    inPaths->Add(Pref->SharedPath + "Macro\\");
-    bool C = MacroCompile(fs, inPaths, "", CmsName, ".cms", modules, false);
-    if(C){
-      AnsiString Result = ExecMacro(CmsName, StopMacroCount, modules, ACol, ARow, NULL, true);
-      ResultCell = (AnsiString)CALC_OK + Result;
+  TStringList *modules = new TStringList;
+  TStringList *inPaths = new TStringList;
+  inPaths->Add(Pref->UserPath + "Macro\\");
+  inPaths->Add(Pref->SharedPath + "Macro\\");
+  String cmsName = (String)"$@cell_" + ACol + "_" + ARow;
+  try {
+    String formula = "return " + Str + ";";
+    bool ok = MacroCompile(&formula, cmsName, inPaths, modules, false);
+    if (ok){
+      String macroResult =
+          ExecMacro(cmsName, StopMacroCount, modules, ACol, ARow, NULL, true);
+      result = (String)CALC_OK + macroResult;
     }
   }catch(...){
     // エラー用のResultCell文字列は設定済み
   }
-  if(fs){ delete fs; }
-  if(modules){
-    for(int i=modules->Count-1; i>=0; i--){
-      if(modules->Objects[i]) delete modules->Objects[i];
-    }
-    delete modules;
+  for(int i=modules->Count-1; i>=0; i--){
+    if(modules->Objects[i]) delete modules->Objects[i];
   }
-  if(inPaths){ delete inPaths; }
+  delete modules;
+  delete inPaths;
 #endif
-  return ResultCell;
+  return result;
+}
+//---------------------------------------------------------------------------
+String TfmMain::GetFormattedCell(int ACol, int ARow)
+{
+  if (FormatCmsFile == "") { return ""; }
+  try {
+    return ExecMacro(FormatCmsFile, StopMacroCount, SystemMacroCache, ACol,
+                     ARow, NULL, true);
+  } catch (...) {
+    return "";
+  }
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnQuickFindClick(TObject *Sender)
@@ -2367,11 +2336,57 @@ void __fastcall TfmMain::mnKeyClick(TObject *Sender)
   delete fmKey;
 }
 //---------------------------------------------------------------------------
+void __fastcall TfmMain::mnCharCodeClick(TObject *Sender)
+{
+  switch (MainGrid->KanjiCode) {
+    case CHARCODE_JIS:
+      mnJis->Checked = true;
+      mnReloadCodeJIS->Checked = true;
+      break;
+    case CHARCODE_EUC:
+      mnEuc->Checked = true;
+      mnReloadCodeEUC->Checked = true;
+      break;
+    case CHARCODE_UTF8:
+      mnUtf8->Checked = true;
+      mnReloadCodeUTF8->Checked = true;
+      break;
+    case CHARCODE_UTF16BE:
+      mnUtf16be->Checked = true;
+      mnReloadCodeUTF16BE->Checked = true;
+      break;
+    case CHARCODE_UTF16LE:
+      mnUnicode->Checked = true;
+      mnReloadCodeUnicode->Checked = true;
+      break;
+    default:
+      mnSjis->Checked = true;
+      mnReloadCodeShiftJIS->Checked = true;
+      break;
+  }
+
+  switch (MainGrid->ReturnCode) {
+    case '\x0A': mnLf->Checked=true;   break;
+    case '\x0D': mnCr->Checked=true;   break;
+    default:     mnLfcr->Checked=true; break;
+  }
+}
+//---------------------------------------------------------------------------
 void __fastcall TfmMain::mnKCodeClick(TObject *Sender)
 {
   TMenuItem *Menu = static_cast<TMenuItem *>(Sender);
-  if (!Menu->Checked) {
-    Menu->Checked = true;
+
+  if (MainGrid->KanjiCode != Menu->Tag) {
+    MainGrid->KanjiCode = Menu->Tag;
+    MainGrid->Modified = true;
+  }
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmMain::mnReturnCodeClick(TObject *Sender)
+{
+  TMenuItem *Menu = static_cast<TMenuItem *>(Sender);
+  if (MainGrid->ReturnCode != Menu->Tag) {
+    MainGrid->ReturnCode = Menu->Tag;
     MainGrid->Modified = true;
   }
 }

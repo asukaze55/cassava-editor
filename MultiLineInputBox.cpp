@@ -13,22 +13,23 @@ __fastcall TfmMultiLineInputBox::TfmMultiLineInputBox(TComponent* AOwner)
 {
 }
 //---------------------------------------------------------------------
-AnsiString InputBoxMultiLine(const AnsiString ACaption,
-  const AnsiString APrompt, const AnsiString ACancel, const AnsiString ADefault)
+bool InputBoxMultiLine(
+    const String ACaption, const String APrompt, String& AValue)
 {
   TfmMultiLineInputBox *dialog = new TfmMultiLineInputBox(fmMain);
   dialog->Caption = ACaption;
   dialog->Label1->Caption = APrompt;
-  dialog->Memo1->Lines->Text = ADefault;
+  dialog->Memo1->Lines->Text = AValue;
   int result = dialog->ShowModal();
-  AnsiString value;
-  if(result == mrOk){
-    value = dialog->Memo1->Lines->Text;
-  }else{
-    value = ACancel;
+  bool isOk;
+  if (result == mrOk) {
+    AValue = dialog->Memo1->Lines->Text;
+    isOk = true;
+  } else {
+    isOk = false;
   }
   delete dialog;
-  return value;
+  return isOk;
 }
 //---------------------------------------------------------------------
 

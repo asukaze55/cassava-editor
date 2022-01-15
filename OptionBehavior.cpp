@@ -22,13 +22,13 @@ void TfrOptionBehavior::RestoreFromMainForm()
   cbLeftArrowInCell->Checked = fmMain->MainGrid->LeftArrowInCell;
   cbAlwaysShowEditor->Checked = fmMain->MainGrid->AlwaysShowEditor;
   cbSortAll->Checked = fmMain->SortAll;
-  cbCalcWidthForAllRow->Checked = fmMain->MainGrid->CalcWidthForAllRow;
 
   cbWheelMoveCursol->ItemIndex = fmMain->MainGrid->WheelMoveCursol;
   udWheelScrollStep->Position = fmMain->MainGrid->WheelScrollStep;
 
   cbStopMacro->Checked = (fmMain->StopMacroCount > 0);
-  seStopMacroCount->Text = AnsiString(cbStopMacro->Checked ? fmMain->StopMacroCount : 100000);
+  seStopMacroCount->Text =
+      String(cbStopMacro->Checked ? fmMain->StopMacroCount : 100000);
   seStopMacroCount->Enabled = cbStopMacro->Checked;
 }
 //---------------------------------------------------------------------------
@@ -39,7 +39,6 @@ void TfrOptionBehavior::StoreToMainForm()
   fmMain->MainGrid->LeftArrowInCell = cbLeftArrowInCell->Checked;
   fmMain->MainGrid->AlwaysShowEditor = cbAlwaysShowEditor->Checked;
   fmMain->SortAll = cbSortAll->Checked;
-  fmMain->MainGrid->CalcWidthForAllRow = cbCalcWidthForAllRow->Checked;
 
   fmMain->MainGrid->WheelMoveCursol = cbWheelMoveCursol->ItemIndex;
   fmMain->MainGrid->WheelScrollStep = udWheelScrollStep->Position;

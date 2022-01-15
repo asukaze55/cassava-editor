@@ -11,12 +11,12 @@
 
 <!-- HEAD LINE -->
 <div class="headline">
-  <a href="http://www.asukaze.net/">
+  <a href="https://www.asukaze.net/">
     <img src="asukaze.png" width="88" height="31"
       alt="[あすかぜ・ねっと]" title="あすかぜ・ねっと"
       class="headline" />あすかぜ・ねっと</a> ＞
-  <a href="http://www.asukaze.net/soft/index.html">自作ソフト</a> ＞
-  <a href="http://www.asukaze.net/soft/cassava/index.html">Cassava</a> ＞
+  <a href="https://www.asukaze.net/soft/">自作ソフト</a> ＞
+  <a href="https://www.asukaze.net/soft/cassava/">Cassava</a> ＞
   <a href="index.html">ヘルプ</a> ＞
   表示オプション
 </div>
@@ -34,8 +34,6 @@
 <h3>フォント設定</h3>
   <ul>
   <li>表示フォントを設定します。</li>
-  <li>太字・斜体・取り消し線・下線・文字セットの設定はCassavaを再起動すると失われます。
-      フォント名とサイズのみ設定を保存できます。</li>
   <li>ダイアログボックスのフォントは変更できません。</li>
   </ul>
 <h3>上下マージン</h3>
@@ -66,6 +64,28 @@
   <ul>
   <li>「123.456789」のような小数値のセルを「123.45」のように切り捨てて表示します。</li>
   </ul>
+<h3>列数が多い場合は列幅を狭くする</h3>
+  <ul>
+  <li>
+    ファイルを開いたときや「表示の更新」時に、
+    列幅を狭くして可能な限りウィンドウ内に全ての列が見えるようにします。
+  </li>
+  </ul>
+<h3>画面外の行も列幅調整の対象とする</h3>
+  <ul>
+  <li>
+    ファイルを開いたときや「表示の更新」時に、全ての行のテキストの長さを反映して列幅を決定します。
+    チェックをはずした場合、その時点で画面に表示されている範囲のみが反映されます。
+  </li>
+  </ul>
+<h3>セル内改行を含む行の高さの最大値</h3>
+  <ul>
+  <li>
+    ファイルを開いたときや「表示の更新」時の行の高さを指定できます。
+    セル内の行数がこの最大値を超える場合、行の高さはここで指定した値になります。
+    セル内の行数が最大値以下の場合、データがすべて表示されるように行の高さが調整されます。
+  </li>
+  </ul>
 <h3>長いセルの内容をポップアップ表示する</h3>
   <ul>
   <li>画面に表示しきれない長さのセルにマウスカーソルをあわせた時に、セルの内容をポップアップ表示します。</li>
@@ -82,7 +102,7 @@
 <h2 class="sectitle">Menu</h2>
 
 <div class="MainMenu"><a href="index.html">Cassava ヘルプ</a></div>
-<div class="MainMenu"><a href="about.html">Cassavaとは</a></div>
+<div class="MainMenu"><a href="about.html">Cassava とは</a></div>
 <div class="MainMenu"><a href="install.html">インストール</a></div>
 <div class="MainMenuSel">メニュー</div>
   <ul class="MainMenu">
@@ -119,7 +139,7 @@
 <!-- SIGN -->
 <br style="clear: both;" />
 <address>
-  Copyright (C) 2000-2017 asukaze, Some Rights Reserved.<br />
+  Copyright (C) 2000-2018 asukaze, Some Rights Reserved.<br />
   mail (at) asukaze.net
 </address>
 <!-- ==== -->

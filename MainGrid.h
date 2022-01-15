@@ -20,6 +20,7 @@ private:
     int OldWidthHeight;
     bool MouseDownColBorder;
     bool MouseDownRowBorder;
+    bool SameCellClicking;
     bool GetRangeSelect() {
       return(Selection.Top  != Selection.Bottom
       || Selection.Left != Selection.Right);
@@ -58,7 +59,7 @@ private:
     int FTBMargin;
     void SetTBMargin(int Value);
 
-	String GetACells(int ACol, int ARow);
+    String GetACells(int ACol, int ARow);
     void SetACells(int ACol, int ARow, String Val);
 
     double SelectSum(int *Count);
@@ -74,6 +75,7 @@ private:
 
     bool FExecCellMacro;
     TStringList *CalculatedCellCache;
+    TStringList *FormattedCellCache;
     TStringList *UsingCellMacro;
     void SetExecCellMacro(bool Value);
     void ClearCalcCache();
@@ -94,8 +96,7 @@ private:
     void __fastcall SetDragDropAccept(bool Accept);
 
 	int TextWidth(TCanvas *cnvs, String str);
-    TRect DrawTextRect(TCanvas *Canvas, TRect Rect, String Str,
-                       bool Wrap, bool MeasureOnly=false);
+    void ShowAllColumn();
 
     void (__closure *OnFileOpenThreadTerminate)(System::TObject* Sender);
 
@@ -172,11 +173,10 @@ public:
     void Clear(int AColCount=4, int ARowCount=4, bool UpdateRightBottom=false);
     void SetWidth(int i);
     void SetWidth();
-    void SetHeight(int i);
+    void SetHeight(int j, bool useMaxRowHeightLines);
     void SetHeight();
     void CompactWidth(int *Widths, int WindowSize, int Minimum,
                       TCanvas *Cnvs = NULL);
-    void ShowAllColumn();
     void Cut();
     void UpdateDataRight();
     void UpdateDataBottom();
@@ -195,6 +195,7 @@ public:
     int PasteOption;
     int DefWay;
     bool CheckKanji;
+    int DefaultCharCode;
     int KanjiCode;
 #define LFCR TEXT('\0')
     wchar_t ReturnCode;
@@ -220,13 +221,12 @@ public:
 	String BrowserFileName;
     void OpenURL(String FileName);
 
-    int DefaultViewMode;
-#define cssv_viewallcolumn 0
-#define cssv_viewalltext   1
     int NumberComma;
     int DecimalDigits;
     int MinColWidth;
+    bool CompactColWidth;
     bool CalcWidthForAllRow;
+    double MaxRowHeightLines;
     bool ShowToolTipForLongCell;
 
     __property bool ExecCellMacro
@@ -268,8 +268,16 @@ public:
 #define CALC_OK '\x02'
 #define CALC_NG '\x04'
 #define CALC_LOOP '\x0c'
-	String GetCalculatedCell(int ACol, int ARow);
+    String GetCalculatedCell(int ACol, int ARow);
     String (__closure *OnGetCalculatedCell)(String Str, int ACol, int ARow);
+
+    String GetFormattedCell(int ACol, int ARow);
+    String (__closure *OnGetFormattedCell)(int ACol, int ARow);
+
+    String GetCellToDraw(int RX, int RY, int *CellType, bool *IsNum);
+
+    TRect DrawTextRect(TCanvas *Canvas, TRect Rect, String Str,
+                       bool Wrap, bool MeasureOnly=false);
 
     void SelectRow(long Index){
       SetSelection(ColCount-1, FixedCols, Index, Index);
@@ -287,12 +295,12 @@ public:
       SetSelection(ColCount-1, FixedCols, RowCount-1, FixedRows);
     };
 
-	bool Find(String FindText,
-			int Range, bool Case, bool Regex, bool Word, bool Back);
-	bool Replace(String FindText , String ReplaceText,
-			int Range, bool Case, bool Regex, bool Word, bool Back);
-    void AllReplace(String FindText , String ReplaceText,
-            int Range, bool Case, bool Regex, bool Word, bool Back);
+    bool Find(String FindText, int Range, bool Case, bool Regex, bool Word,
+              bool Back);
+    bool Replace(String FindText , String ReplaceText, int Range, bool Case,
+                 bool Regex, bool Word, bool Back);
+    int ReplaceAll(String FindText, String ReplaceText, int SLeft, int STop,
+                   int SRight, int SBottom, bool Case, bool Regex, bool Word);
     bool NumFind(double *Min, double *Max, int Range, bool Back);
 
     __property bool DragMove = {read=FDragMove, write=SetDragMove};

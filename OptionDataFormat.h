@@ -16,9 +16,8 @@
 class TfrOptionDataFormat : public TFrame
 {
 __published:    // IDE 管理のコンポーネント
-    TComboBox *cbType;
-    TButton *btnRename;
-    TButton *btnNewType;
+    TLabel *lblName;
+    TEdit *edName;
     TButton *btnDeleteType;
     TGroupBox *gbExt;
     TLabel *Label9;
@@ -36,11 +35,8 @@ __published:    // IDE 管理のコンポーネント
     TRadioGroup *rgSaveQuote;
     TCheckBox *cbCommaRect;
     TCheckBox *cbDummyEOF;
-    void __fastcall btnRenameClick(TObject *Sender);
-    void __fastcall cbTypeChange(TObject *Sender);
-    void __fastcall btnNewTypeClick(TObject *Sender);
+    void __fastcall edNameChange(TObject *Sender);
     void __fastcall btnDeleteTypeClick(TObject *Sender);
-    void __fastcall edDefSepCharChange(TObject *Sender);
     void __fastcall cbCommaRectClick(TObject *Sender);
     void __fastcall cbCommaRectKeyUpDown(TObject *Sender, WORD &Key,
           TShiftState Shift);
@@ -53,12 +49,12 @@ public:     // ユーザー宣言
     void RestoreDataPage(int id);
     void StoreDataPage();
     void UpdateOptionTree();
-    void UpdateActiveOptionTree();
     void Select(int index);
+    void ApplyToCurrentFile(int index);
+    void Delete(int index);
     TTypeList TypeList;
     int TypeIndex;       // 現在表示中
     int ActiveTypeIndex; // MainFormのアクティブ
-    bool Renaming;
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TfrOptionDataFormat *frOptionDataFormat;

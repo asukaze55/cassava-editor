@@ -35,10 +35,10 @@ void __fastcall TfmFind::btnSearchFromTopClick(TObject *Sender)
 
   if(rgDirection->ItemIndex == 0){
     if(rgRange->ItemIndex != 0){
-      fmMain->MainGrid->Row = fmMain->MainGrid->RowCount-1;
+      fmMain->MainGrid->Row = fmMain->MainGrid->DataBottom + 1;
     }
     if(rgRange->ItemIndex != 1){
-      fmMain->MainGrid->Col = fmMain->MainGrid->ColCount-1;
+      fmMain->MainGrid->Col = fmMain->MainGrid->DataRight + 1;
     }
   }else{
     if(rgRange->ItemIndex != 0){
@@ -90,10 +90,20 @@ void __fastcall TfmFind::btnReplaceClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmFind::btnAllReplaceClick(TObject *Sender)
 {
-  if(edFindText->Text != edReplaceText->Text)
-    fmMain->MainGrid->AllReplace(edFindText->Text,edReplaceText->Text,
-      rgRange->ItemIndex, cbCase->Checked, cbRegex->Checked,
-      cbWordSearch->Checked, (rgDirection->ItemIndex == 0));
+  if (edFindText->Text == edReplaceText->Text) { return; }
+  int left = (rgRange->ItemIndex == 1 ? fmMain->MainGrid->Col
+                                      : fmMain->MainGrid->FixedCols);
+  int top = (rgRange->ItemIndex == 0 ? fmMain->MainGrid->Row
+                                     : fmMain->MainGrid->FixedRows);
+  int right = (rgRange->ItemIndex == 1 ? fmMain->MainGrid->Col
+                                       : fmMain->MainGrid->DataRight);
+  int bottom = (rgRange->ItemIndex == 0 ? fmMain->MainGrid->Row
+                                        : fmMain->MainGrid->DataBottom);
+  int count = fmMain->MainGrid->ReplaceAll(edFindText->Text,
+      edReplaceText->Text, left, top, right, bottom, cbCase->Checked,
+      cbRegex->Checked, cbWordSearch->Checked);
+  Application->MessageBox(((String)count + " 個のセルを置換しました。").c_str(),
+                          TEXT("すべて置換"), 0);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmFind::btnCancelClick(TObject *Sender)

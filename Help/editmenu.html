@@ -11,12 +11,12 @@
 
 <!-- HEAD LINE -->
 <div class="headline">
-  <a href="http://www.asukaze.net/">
+  <a href="https://www.asukaze.net/">
     <img src="asukaze.png" width="88" height="31"
       alt="[あすかぜ・ねっと]" title="あすかぜ・ねっと"
       class="headline" />あすかぜ・ねっと</a> ＞
-  <a href="http://www.asukaze.net/soft/index.html">自作ソフト</a> ＞
-  <a href="http://www.asukaze.net/soft/cassava/index.html">Cassava</a> ＞
+  <a href="https://www.asukaze.net/soft/">自作ソフト</a> ＞
+  <a href="https://www.asukaze.net/soft/cassava/">Cassava</a> ＞
   <a href="index.html">ヘルプ</a> ＞
   編集メニュー
 </div>
@@ -51,12 +51,11 @@
   <ul>
   <li>選択範囲に貼り付けます。</li>
   <li>複数のセルを選択している場合やクリップボードに改行が含まれる場合、
-      CSV/TSV形式として読み込み、貼り付けます。
-      （ファイルを開く場合に準じます。）</li>
+      CSV/TSV形式として読み込み、貼り付けます。</li>
   </ul>
-<h3>全て選択</h3>
+<h3>すべて選択</h3>
   <ul>
-  <li>全ての範囲を選択します。</li>
+  <li>すべての範囲を選択します。</li>
   </ul>
 <h3>形式を指定して切り取り／コピー</h3>
   <ul>
@@ -69,16 +68,17 @@
 <h3>貼り付けオプション</h3>
   <ul>
   <li>CSVデータ貼り付け時のオプションを指定します。</li>
-  <li>「標準」を選んだ場合、次のような動作になります。</li>
+  <li>「標準」を選んだ場合、次のような動作になります。
+    <dl>
+    <dt>行または列全体を選択している時</dt>
+    <dd>データを挿入します。</dd>
+    <dt>選択サイズとクリップボードのサイズが同じ時</dt>
+    <dd>データを上書きします。</dd>
+    <dt>上２つにあてはまらないとき</dt>
+    <dd>貼り付け方法を選択するダイアログボックスが開きます。</dd>
+　  </dl>
+  </li>
   </ul>
-  <dl>
-  <dt>行または列全体を選択している時</dt>
-  <dd>データを挿入します。</dd>
-  <dt>選択サイズとクリップボードのサイズが同じ時</dt>
-  <dd>データを上書きします。</dd>
-  <dt>上２つにあてはまらないとき</dt>
-  <dd>貼り付け方法を選択するダイアログボックスが開きます。</dd>
-  </dl>
 <h3>ソート</h3>
   <ul>
   <li>選択範囲をソートします。</li>
@@ -120,7 +120,7 @@
 <h2 class="sectitle">Menu</h2>
 
 <div class="MainMenu"><a href="index.html">Cassava ヘルプ</a></div>
-<div class="MainMenu"><a href="about.html">Cassavaとは</a></div>
+<div class="MainMenu"><a href="about.html">Cassava とは</a></div>
 <div class="MainMenu"><a href="install.html">インストール</a></div>
 <div class="MainMenuSel">メニュー</div>
   <ul class="MainMenu">
@@ -157,7 +157,7 @@
 <!-- SIGN -->
 <br style="clear: both;" />
 <address>
-  Copyright (C) 2000-2014 asukaze, Some Rights Reserved.<br />
+  Copyright (C) 2000-2018 asukaze, Some Rights Reserved.<br />
   mail (at) asukaze.net
 </address>
 <!-- ==== -->

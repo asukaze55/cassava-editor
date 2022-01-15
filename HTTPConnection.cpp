@@ -8,7 +8,7 @@
 #pragma link "wininet.lib"
 #pragma package(smart_init)
 //---------------------------------------------------------------------------
-String HTTPGet(String host, int port, String path)
+String HttpsGet(String host, int port, String path)
 {
   String result = "";
   String agent = (String)"CassavaEditor/" + Version::Current();
@@ -34,8 +34,14 @@ String HTTPGet(String host, int port, String path)
     return "";
   }
 
-  hReq = ::HttpOpenRequest(hConn, TEXT("GET"), path.c_str(),
-    NULL, NULL, NULL, 0, NULL);
+  DWORD dwFlags = INTERNET_FLAG_RELOAD
+                | INTERNET_FLAG_DONT_CACHE
+                | INTERNET_FLAG_NO_AUTO_REDIRECT
+                | INTERNET_FLAG_SECURE
+                | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID
+                | INTERNET_FLAG_IGNORE_CERT_CN_INVALID;
+  hReq = ::HttpOpenRequest(hConn, TEXT("GET"), path.c_str(), NULL, NULL, NULL,
+                           dwFlags, NULL);
   if(hReq == NULL) {
     ::InternetCloseHandle(hConn);
     ::InternetCloseHandle(hInet);

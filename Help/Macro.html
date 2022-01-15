@@ -11,12 +11,12 @@
 
 <!-- HEAD LINE -->
 <div class="headline">
-  <a href="http://www.asukaze.net/">
+  <a href="https://www.asukaze.net/">
     <img src="asukaze.png" width="88" height="31"
       alt="[あすかぜ・ねっと]" title="あすかぜ・ねっと"
       class="headline" />あすかぜ・ねっと</a> ＞
-  <a href="http://www.asukaze.net/soft/index.html">自作ソフト</a> ＞
-  <a href="http://www.asukaze.net/soft/cassava/index.html">Cassava</a> ＞
+  <a href="https://www.asukaze.net/soft/">自作ソフト</a> ＞
+  <a href="https://www.asukaze.net/soft/cassava/">Cassava</a> ＞
   <a href="index.html">ヘルプ</a> ＞
   マクロ
 </div>
@@ -32,14 +32,15 @@
 
 <h2>基本動作</h2>
 <p>
-起動時や「マクロの検索」の実行時に「Macro」フォルダがスキャンされ、
-「*.cms」ファイルの一覧が「マクロ」メニューに追加されます。
-「マクロ」メニューから項目を選ぶことで実行できます。
+「マクロ」メニューにマクロフォルダ内の「*.cms」ファイルの一覧が表示されるので、項目を選ぶことで実行できます。
+マクロフォルダにはユーザーマクロフォルダ (C:\Users\(ユーザ名)\AppData\Roaming\Asukaze\Cassava\Macro) と
+アプリケーションマクロフォルダ（Cassava.exe のあるフォルダ内の「Macro」フォルダ）があり、
+どちらに保存したマクロも実行できます。
 エラー処理は適当なので、ちょっとした間違いで誤動作するかもしれません。
 注意して使ってください。
 </p>
 <p>
-「Macro」フォルダ内に「!startup.cms」というファイル名でマクロを置いておくと、
+マクロフォルダ内に「!startup.cms」というファイル名でマクロを置いておくと、
 起動時に自動的に実行されます。
 また、「!open.cms」というファイル名でマクロを置いておくと、
 ファイルを開いた時に自動的に実行されます。
@@ -52,18 +53,31 @@
 
 <h2>文法</h2>
 <p>
-このマクロはＣ言語／JavaScript言語を簡略化しつつ
-BASICの影響も受けた独自言語で書かれます。
-テキスト形式なのでテキストエディタでCMSファイルを編集してください。
-基本的には「<code>関数名(引数,引数…);</code>」か
+このマクロは JavaScript 言語風の独自言語で書かれます。
+テキスト形式なのでテキストエディタで CMS ファイルを編集してください。
+CMS ファイルの文字コードは Shift_JIS もしくは BOM つきの UTF-8 としてください。
+マクロファイルの内容は基本的には「<code>関数名(引数,引数…);</code>」か
 「<code>変数 = 値;</code>」という形の文の羅列になります。
 最後の「;」を忘れないようにしてください。
 大文字と小文字は区別されます。
 </p>
 
-<h2>数字</h2>
+<h2>コメント</h2>
 <p>
-「0」〜「9」「.」の文字の連続を数字として認識します。
+「//」から行末までと、「/*」から「*/」まではコメントとなります。
+コメントはマクロの動作に影響しません。
+</p>
+<blockquote><pre><code>
+// コメント
+
+/* 
+ * コメント
+ */
+</code></pre></blockquote>
+
+<h2>数値</h2>
+<p>
+「0」～「9」「.」の文字の連続を数値として認識します。
 内部的には整数・小数ともdouble型で計算されます。
 </p>
 
@@ -72,8 +86,9 @@ BASICの影響も受けた独自言語で書かれます。
 「"」で囲まれた部分を文字列として認識します。
 「\」はエスケープシーケンスで、「\"」は「"」を、「\n」は改行を、
 「\t」はタブを、「\\」は「\」を表します。
-「\xHH」形式で、文字コード HH の文字を表します。
-HH は2桁の16進数（0〜9,A〜F,a〜f）です。
+また、「\xHH」形式で Shift_JIS で文字コード HH の文字を、
+「\uHHHH」形式で Unicode で文字コード HHHH の文字を表します。
+HH は2桁の16進数（0～9, A～F, a～f）、HHHH は4桁の16進数です。
 </p>
 <p>
 保存時の設定に関わらず、セル内改行は「\n」で表されます。
@@ -82,9 +97,9 @@ HH は2桁の16進数（0〜9,A〜F,a〜f）です。
 <h2>変数</h2>
 <p>
 半角英字で始まる、半角英数字の連続を変数名として認識します。
-宣言は不要で、一度作った変数はマクロ終了時まで存在し続けます。
-関数以外ではスコープは存在しないので、同じ名前の変数は同じものを表します。
-関数内は別のスコープとなり、トップレベルの変数も参照できません。
+宣言は不要です。
+スコープは関数単位で、同じ関数内では同じ名前の変数は同じものを表します。
+関数内は別スコープとなり、トップレベルの変数も参照できません。
 </p>
 <p>
 以下の変数にはマクロ開始時に値がセットされます。
@@ -137,7 +152,10 @@ true は 1 を、false と null は 0 を表します。
 
 <h2>セル操作</h2>
 <blockquote><pre><code>val = [x,y];</code></pre></blockquote>
-<p>と書くと y 行 x 列のデータが val に代入されます。逆に</p>
+<p>
+と書くと y 行 x 列のデータが val に代入されます。
+「セル内計算式を処理」が有効な場合、計算後の値が取得できます。
+</p>
 <blockquote><pre><code>[x,y] = val;</code></pre></blockquote>
 <p>と書くと val の内容が y 行 x 列に書かれます。</p>
 <p>以下の表記も可能です。</p>
@@ -158,7 +176,8 @@ cell(x,y) = val;
 <p>
 変数に対しては、「=」で代入、
 「++」で 1 を足す、「--」で 1 を引くことができます。
-「=」,「++」,「--」は値を返さないので注意してください。
+また、「+=」「-=」「*=」「/=」で変数の値を四則演算・文字列連結の結果に更新できます。
+これらの代入演算子は値を返さないので注意してください。
 </p>
 <p>
 条件文には以下のブール演算子が使えます。
@@ -174,173 +193,12 @@ cell(x,y) = val;
 	
 <h2>組み込み関数</h2>
 <p>
-マクロに組み込まれたコマンド・関数と、メニューを実行するものがあります。
+Cassava Editor の状態を設定・取得する関数や、
+文字列処理・数値処理用の関数が組み込み関数として定義されています。
 </p>
 
-<h3>コマンド</h3>
-
-<dl>
-<dt><code>write(str);</code></dt>
-<dd>カーソル位置のセルの内容をstrにし、カーソルを右に移動します。
-    エクスポートマクロ中ではファイルに書き出します。</dd>
-<dt><code>writeln(str);</code></dt>
-<dd>カーソル位置のセルの内容をstrにし、カーソルを次の行に移動します。
-    エクスポートマクロ中ではファイルに書き出します。</dd>
-<dt><code>move(vx, vy);</code></dt>
-<dd>カーソル位置を(vx,vy)だけ移動します。</dd>
-<dt><code>moveto(x,y);</code></dt>
-<dd>カーソル位置を(x,y)に設定します。</dd>
-<dt><code>swap(a,b);</code></dt>
-<dd>a と b の値を交換します。</dd>
-<dt><code>InsertRow(y);</code></dt>
-<dd>y 行目に新しい行を挿入します。</dd>
-<dt><code>DeleteRow(y);</code></dt>
-<dd>y 行目を削除します。</dd>
-<dt><code>InsertCol(x);</code></dt>
-<dd>x 列目に新しい列を挿入します。</dd>
-<dt><code>DeleteCol(x);</code></dt>
-<dd>x 列目を削除します。</dd>
-<dt><code>mid(str1,x,y) = str2;</code></dt>
-<dd>文字列 str1 の x 文字目から y 文字を str2 に置き換えます。
-    最初の文字のインデックスは 1 です。
-    全角文字を1文字と数えます。</dd>
-<dt><code>SetRowHeight(y,h);</code></dt>
-<dd>y 行目の高さを h に設定します。</dd>
-<dt><code>SetRowHeight(h);</code></dt>
-<dd>全ての行の高さを h に設定します。</dd>
-<dt><code>AdjustRowHeight(y);</code></dt>
-<dd>y 行目の高さをセル内容に合わせて最適化します。</dd>
-<dt><code>SetColWidth(x,w);</code></dt>
-<dd>x 列目の幅を w に設定します。</dd>
-<dt><code>SetColWidth(w);</code></dt>
-<dd>全ての列の幅を w に設定します。</dd>
-<dt><code>AdjustColWidth(x);</code></dt>
-<dd>x 列目の幅をセル内容に合わせて最適化します。</dd>
-<dt><code>SaveIniSetting();</code></dt>
-<dd>現在の Cassava の状態を設定ファイルに保存します。</dd>
-<dt><code>LoadIniSetting();</code></dt>
-<dd>前回保存した設定ファイルを読み込み、Cassava の状態を元に戻します。</dd>
-<dt><code>SetIniSetting(sec,key,val);</code></dt>
-<dd>保存されている設定ファイルを更新し、sec セクションの key キーの値を val にします。
-    この変更は LoadIniSetting() 実行まで反映されません。</dd>
-<dt><code>SetFontName(str);</code></dt>
-<dd>フォントを str に変更します。</dd>
-<dt><code>SetFontSize(x);</code></dt>
-<dd>フォントサイズを x に変更します。</dd>
-<dt><code>ShellOpen(filename);</code></dt>
-<dd>指定されたファイルを関連付けられたアプリケーションで開きます。</dd>
-<dt><code>ShellOpen(appname, filename);</code></dt>
-<dd>filename をパラメータとして appname で指定したアプリケーションを実行します。<dt><code>Open(filename);</code></dt>
-<dd>filename を Cassava で読み込みます。</dd>
-<dt><code>SaveAs(filename);</code></dt>
-<dd>現在開いているファイルを filename に保存します。</dd>
-<dt><code>SaveAs(filename, type);</code></dt>
-<dd>現在開いているファイルを type で指定した形式で filename に保存します。</dd>
-<dt><code>Export(filename, type);</code></dt>
-<dd>現在開いているファイルを type で指定した形式で filename にエクスポートします。</dd>
-<dt><code>Sort(l, t, r, b, x, dir, num, case, zenhan);</code></dt>
-<dd>
-  (l,t) から (r,b) までの範囲を x 列でソートします。
-  第六引数以降は真偽値のフラグで、順に
-  「降順ソート」「数字のセルは数値の大小でソートする」
-  「大文字と小文字を同一視する」「全角と半角を同一視する」を表します。
-</dd>
-</dl>
-
-<h3>関数</h3>
-
-<dl>
-<dt><code>cell(x,y) / [x,y]</code></dt>
-<dd>(x,y)のセルの内容です。読み書きともできます。</dd>
-<dt><code>int(x)</code></dt>
-<dd>xの値を0方向に丸めた数値を返します。
-    intの返す値に対して「+」演算子を適用すると加算となります。</dd>
-<dt><code>double(x)</code></dt>
-<dd>xと同じ値の数値を返します。<code>(x - 0)</code>と同じ効果です。
-    doubleの返す値に対して「+」演算子を適用すると加算となります。</dd>
-<dt><code>str(x)</code></dt>
-<dd>xと同じ値の文字列を返します。<code>(x + "")</code>と同じ効果です。
-    strの返す値に対して「+」演算子を適用すると文字列連結となります。</dd>
-<dt><code>max(a,b,...)</code></dt>
-<dd>引数に渡したもののうち最大の値を返します。</dd>
-<dt><code>min(a,b,...)</code></dt>
-<dd>引数に渡したもののうち最小の値を返します。</dd>
-<dt><code>len(str)</code></dt>
-<dd>文字列 str の長さを返します。全角文字を1文字と数えます。</dd>
-<dt><code>lenB(str)</code></dt>
-<dd>文字列 str の長さを返します。全角文字を2文字と数えます。</dd>
-<dt><code>left(str,x)</code></dt>
-<dd>文字列 str の最初 x 文字を切り出して返します。全角文字を1文字と数えます。</dd>
-<dt><code>right(str,x)</code></dt>
-<dd>文字列 str の最後 x 文字を切り出して返します。全角文字を1文字と数えます。</dd>
-<dt><code>mid(str,x,y)</code></dt>
-<dd>文字列 str の x 文字目から y 文字を切り出して返します。
-    最初の文字のインデックスは 1 です。
-    全角文字を1文字と数えます。</dd>
-<dt><code>mid(str,x)</code></dt>
-<dd>文字列 str の x 文字以降を切り出して返します。
-    最初の文字のインデックスは 1 です。
-    全角文字を1文字と数えます。</dd>
-<dt><code>pos(str1,str2)</code></dt>
-<dd>str1 中の str2 の位置を返します。
-    最初の文字のインデックスは 1 です。
-    str2 が str1 に含まれなかった場合、 0 が返されます。
-    全角文字を1文字と数えます。</dd>
-<dt><code>posB(str1,str2)</code></dt>
-<dd>str1 中の str2 の位置を返します。
-    最初の文字のインデックスは 1 です。
-    str2 が str1 に含まれなかった場合、 0 が返されます。
-    全角文字を2文字と数えます。</dd>
-<dt><code>replace(str1,str2,str3)</code></dt>
-<dd>str1 中の str2 を全て str3 に置換した文字列を返します。
-    元の str1 は変化しません。</dd>
-<dt><code>asc(str)</code></dt>
-<dd>Shift_JIS で str の 1 文字目のコードポイントを返します。</dd>
-<dt><code>ascW(str)</code></dt>
-<dd>Unicode で str の 1 文字目のコードポイントを返します。</dd>
-<dt><code>chr(x)</code></dt>
-<dd>Shift_JIS のコードポイントが x である文字を返します。</dd>
-<dt><code>chrW(x)</code></dt>
-<dd>Unicode のコードポイントが x である文字を返します。</dd>
-<dt><code>sum(l,t,r,b)</code></dt>
-<dd>t行l列からb行r列までの範囲の数値データの合計値を返します。</dd>
-<dt><code>avr(l,t,r,b)</code></dt>
-<dd>t行l列からb行r列までの範囲の数値データの平均値を返します。</dd>
-<dt><code>random(x)</code></dt>
-<dd>0以上x未満の整数をランダムに返します。</dd>
-<dt><code>GetRowHeight(y)</code></dt>
-<dd>y 行目の高さを返します。
-    y を省略すると標準の行の高さが返されます。</dd>
-<dt><code>GetColWidth(x)</code></dt>
-<dd>x 列目の幅を返します。
-    x を省略すると標準の列の幅が返されます。</dd>
-<dt><code>GetFileName()</code></dt>
-<dd>編集中のCSVファイルのファイル名を返します。
-    新規作成中したデータを編集中は空の文字列が返されます。</dd>
-<dt><code>GetFilePath()</code></dt>
-<dd>編集中のCSVファイルの絶対パスを返します。
-    新規作成中したデータを編集中は空の文字列が返されます。
-    それ以外の場合、必ず「\」で終わる文字列が返されます。</dd>
-<dt><code>GetYear()</code></dt>
-<dd>実行時の日付の「年」を返します。4桁の整数が返されます。</dd>
-<dt><code>GetMonth()</code></dt>
-<dd>実行時の日付の「月」を返します。1〜12の整数が返されます。</dd>
-<dt><code>GetDate()</code></dt>
-<dd>実行時の日付の「日」を返します。1〜31の整数が返されます。</dd>
-<dt><code>GetHours()</code></dt>
-<dd>実行時の時間の「時」を返します。0〜23の整数が返されます。</dd>
-<dt><code>GetMinutes()</code></dt>
-<dd>実行時の時間の「分」を返します。0〜59の整数が返されます。</dd>
-<dt><code>GetSeconds()</code></dt>
-<dd>実行時の時間の「秒」を返します。0〜59の整数が返されます。</dd>
-<dt><code>GetIniSetting(sec,key);</code></dt>
-<dd>保存されている設定ファイルを読み込み、sec セクションの key キーの値を取得します。
-    この値は設定ファイルに保存された値であり、最新の Cassava の状態とは異なる場合があります。</dd>
-<dt><code>GetFontName();</code></dt>
-<dd>現在設定されているフォント名を取得します。</dd>
-<dt><code>GetFontSize();</code></dt>
-<dd>現在設定されているフォントサイズを取得します。</dd>
-</dl>
+<h3>組み込み関数の一覧</h3>
+<p>組み込み関数の一覧は<a href="macroref.html">マクロリファレンス</a>を参照してください。</p>
 
 <h3>メッセージボックス</h3>
 <p>
@@ -389,16 +247,16 @@ InputBox 関数はインプットボックスを表示し、入力された文�
 <dl>
 <dt><code>InputBox(str);</code></dt>
 <dd>str を表示します。
-    「OK」が押されれば入力された文字列を、
-    「キャンセル」が押されれば "" を返します。</dd>
+    「OK」が押されると入力された文字列を返します。
+    「キャンセル」が押されるとマクロを終了します。</dd>
 <dt><code>InputBox(str, def);</code></dt>
-<dd>str を表示します。
-    「OK」が押されれば入力された文字列を、
-    「キャンセル」が押されれば def を返します。</dd>
+<dd>str を表示します。テキストボックスのデフォルト値は def です。
+    「OK」が押されると入力された文字列を返します。
+    「キャンセル」が押されるとマクロを終了します。</dd>
 <dt><code>InputBox(str1, str2, def);</code></dt>
 <dd>インプットボックス内に str1 を、タイトルに str2 を表示します。
-    「OK」が押されれば入力された文字列を、
-    「キャンセル」が押されれば def を返します。</dd>
+    「OK」が押されると入力された文字列を返します。
+    「キャンセル」が押されるとマクロを終了します。</dd>
 </dl>
 
 <p>
@@ -408,22 +266,17 @@ InputBoxMultiLine 関数は複数行のテキストを入力可能なインプ�
 <dl>
 <dt><code>InputBoxMultiLine(str);</code></dt>
 <dd>str を表示します。
-    「OK」が押されれば入力された文字列を、
-    「キャンセル」が押されれば "" を返します。</dd>
+    「OK」が押されると入力された文字列を返します。
+    「キャンセル」が押されるとマクロを終了します。</dd>
 <dt><code>InputBoxMultiLine(str, def);</code></dt>
 <dd>str を表示します。テキストボックスのデフォルト値は def です。
-    「OK」が押されれば入力された文字列を、
-    「キャンセル」が押されれば def を返します。</dd>
+    「OK」が押されると入力された文字列を返します。
+    「キャンセル」が押されるとマクロを終了します。</dd>
 <dt><code>InputBoxMultiLine(str1, str2, def);</code></dt>
 <dd>インプットボックス内に str1 を、タイトルに str2 を表示します。
     テキストボックスのデフォルト値は def です。
-    「OK」が押されれば入力された文字列を、
-    「キャンセル」が押されれば def を返します。</dd>
-<dt><code>InputBoxMultiLine(str1, str2, def1, def2);</code></dt>
-<dd>インプットボックス内に str1 を、タイトルに str2 を表示します。
-    テキストボックスのデフォルト値は def2 です。
-    「OK」が押されれば入力された文字列を、
-    「キャンセル」が押されれば def1 を返します。</dd>
+    「OK」が押されると入力された文字列を返します。
+    「キャンセル」が押されるとマクロを終了します。</dd>
 </dl>
 
 <h3>メニューコマンド</h3>
@@ -445,12 +298,13 @@ InputBoxMultiLine 関数は複数行のテキストを入力可能なインプ�
 <dd>列幅を調整して再描画</dd>
 </dl>
 などです。
+<a href="macroref.html">マクロリファレンス</a>にも利用可能な関数の一覧があります。
 ダイアログを開くようなメニューも多いですが、
 マクロからはダイアログの入力を行えません。
 
-<h2>構文</h2>
+<h2>制御構文</h2>
 <blockquote><pre><code>
-if(条件){
+if (条件) {
   ブロック;
 }
 </code></pre></blockquote>
@@ -459,11 +313,11 @@ if(条件){
 </p>
 
 <blockquote><pre><code>
-if(条件1){
+if (条件1) {
   ブロック1;
-}else if(条件2){
+} else if (条件2) {
   ブロック2;
-}else{
+} else {
   ブロック3;
 }
 </code></pre></blockquote>
@@ -473,7 +327,7 @@ if(条件1){
 </p>
 
 <blockquote><pre><code>
-while(条件){
+while (条件) {
   ブロック;
 }
 </code></pre></blockquote>
@@ -482,7 +336,7 @@ while(条件){
 </p>
 
 <blockquote><pre><code>
-for(文1;条件;文2){
+for (文1; 条件; 文2) {
   ブロック;
 }
 </code></pre></blockquote>
@@ -491,26 +345,12 @@ for(文1;条件;文2){
 ループの最後で文2が実行されます。
 </p>
 
-<blockquote><pre><code>
-for(x=1; x&lt;=max; x++){
-  ブロック;
-}
-</code></pre></blockquote>
-<p>
-は以下の略記が可能です（推奨されません）。
-</p>
-<blockquote><pre><code>
-For(x to max){
-  ブロック;
-}
-</code></pre></blockquote>
-
 <h2>関数定義</h2>
 <p>
 function 文により、自分で関数を定義することができます。
 </p>
 <blockquote><pre><code>
-function 関数名(引数名1, 引数名2,...){
+function 関数名(引数名1, 引数名2, ...) {
   ...
   return 戻り値;
 }
@@ -530,10 +370,10 @@ MessageBox(mult(x,y));
 関数を呼び出す部分は関数を定義した場所より下に置いてください。
 </p>
 <p>
-また、上のマクロが「Math.cms」という名前で保存されていれば、
-他のファイルからも「Math.mult(x,y)」のように
-「ファイル名（パス・拡張子以外）．関数名」と書くことにより
-利用することが可能です。
+戻り値を使用しない場合は return 文は不要です。
+また、戻り値を省略して return; のみにもできます。
+return 文は関数の最後だけではなく任意の箇所で使用できます。
+関数内でなくトップレベルで return 文を実行するとマクロが終了します。
 </p>
 <p>
 組み込み関数と同名の関数定義があった場合、
@@ -541,17 +381,101 @@ MessageBox(mult(x,y));
 関数名の前に「::」記号をつけることで明示的に組み込み関数を使用できます。
 </p>
 
-<h2>コメント</h2>
+<h2 id="OBJECT">オブジェクト</h2>
 <p>
-「//」から行末までと、「/*」から「*/」まではコメントとなります。
+複数の値や関数の集まりをオブジェクトとしてまとめて扱うことができます。
+文頭以外で次のように記述するとオブジェクトとして認識されます。
 </p>
 <blockquote><pre><code>
-// コメント
-
-/* 
- * コメント
- */
+{ キー1: 値1, キー2: 値2, ... }
 </code></pre></blockquote>
+<p>
+オブジェクト内の値には「obj.key」もしくは「obj[key]」の形でアクセスできます。
+[] を用いる場合、[] 内の計算結果がキーとして扱われます。
+関数の引数・戻り値にオブジェクトを渡す場合はポインタ渡しとなり、値の変更は関数外部にも反映されます。
+</p>
+<p>
+次のような構文でクラスを宣言できます。
+</p>
+<blockquote><pre><code>
+class クラス名 {
+  constructor() {
+    ...
+  }
+  メソッド名1() {
+    ...
+  }
+  メソッド名2() {
+    ...
+  }
+  ...
+}
+</code></pre></blockquote>
+<p>
+クラスが宣言されている場合、「new クラス名()」でオブジェクトを生成できます。
+生成されたオブジェクトはクラスで定義されたメソッドを持ちます。
+メソッドは「obj.method()」とすると実行できます。
+オブジェクト生成時には constructor が定義されていれば自動的に実行されます。
+constructor やメソッド内では「this」という変数でオブジェクト自身を参照できます。
+</p>
+<p>
+constructor やメソッドは引数を持つことができます。
+オブジェクト生成時やメソッド実行時の引数の個数は宣言時と一致している必要があります。
+引数の数が異なっても同じ名前のメソッドはオブジェクト内に 1 つしか持てません。
+</p>
+
+<h2>インポート</h2>
+<p>
+マクロの先頭で次のように記述すると、他のファイルで定義された関数やクラスを再利用できます。
+</p>
+<blockquote><pre><code>
+import { 関数名, クラス名, ... } from "ファイル名.cms";
+</code></pre></blockquote>
+<p>「ファイル名.cms」はマクロフォルダからの相対パスで、読み込むファイルを指定します。</p>
+<p>
+次のように「as 別名」を付加することで、関数やクラスに別名をつけて読み込むことができます。
+別名をつけた場合には元の名前では関数やクラスを参照できません。
+</p>
+<blockquote><pre><code>
+import { 元の名前 as 別名 } from "ファイル名.cms";
+</code></pre></blockquote>
+<p>
+また、ファイル名から「.cms」を除いた名前が半角英数字のみであり、かつ変数として使われていない場合、
+インポートをせずに「ファイル名.関数名()」という形でも他のファイルの関数を実行できます。
+この場合、読み込むファイルは拡張子「.cms」でマクロフォルダ直下に配置する必要があります。
+「ファイル名」部分が変数として使われていた場合はオブジェクトのメソッド呼び出しとなります。
+</p>
+<p>
+ユーザーマクロフォルダとアプリケーションマクロフォルダに同名のファイルがある場合、
+ユーザーマクロフォルダ内のファイルが優先されます。
+</p>
+
+<h2 id="FORMAT">フォーマットマクロ</h2>
+<p>
+マクロフォルダ内に「!format.cms」という名前のマクロを作成することで、
+データの表示の仕方を自由に変更することができます。
+</p>
+<p>
+セルが再描画される時に x と y が設定された状態でこのマクロが呼ばれます。
+差し替えたい内容を return 文で返すと、
+実際のデータではなく return 文で返された内容が画面に表示されます。
+行番号・列番号に対しても x = 0 および y = 0 としてこのマクロが呼ばれます。
+通常のセルについては [x,y] で、行番号と列番号については y や x で対象のデータを取得できます。
+「!format.cms」が起動時に存在しなかった場合や、
+return 文が実行されなかった場合、 
+もしくは return 文で空文字 "" が返された場合は通常通りセルの内容が表示されます。
+</p>
+<p>
+[x,y] では「セル内計算式を処理」を適用後の結果が返されます。
+一方、「数値を右寄せ」「数値を 3 桁区切り表示」「小数を省略表示」オプションは
+フォーマットマクロの実行後に適用されます。
+フォーマットマクロの実行結果は画面表示と印刷時のみに適用されます。
+通常のマクロからはフォーマットマクロの適用結果は参照できません。
+</p>
+<p>
+ユーザーマクロフォルダに !format.cms がある場合には、
+アプリケーションマクロフォルダ内のファイルよりも優先されます。
+</p>
 
 <h2 id="STATUSBAR">ステータスバー表示</h2>
 <p>
@@ -600,9 +524,7 @@ init 関数内の初期化コードは Cassava 起動時に一度だけ実行さ
 </p>
 <p>
 ユーザーマクロフォルダに !statusbar.cms がある場合には、
-共有マクロフォルダ内のファイルよりも優先されます。
-共有マクロフォルダ内の !statusbar.cms は Cassava 更新時に上書きされるので、
-ユーザーマクロフォルダに設置するほうが安全です。
+アプリケーションマクロフォルダ内のファイルよりも優先されます。
 </p>
 </div>
 
@@ -612,7 +534,7 @@ init 関数内の初期化コードは Cassava 起動時に一度だけ実行さ
 <h2 class="sectitle">Menu</h2>
 
 <div class="MainMenu"><a href="index.html">Cassava ヘルプ</a></div>
-<div class="MainMenu"><a href="about.html">Cassavaとは</a></div>
+<div class="MainMenu"><a href="about.html">Cassava とは</a></div>
 <div class="MainMenu"><a href="install.html">インストール</a></div>
 <div class="MainMenu">メニュー</div>
   <ul class="MainMenu">
@@ -649,7 +571,7 @@ init 関数内の初期化コードは Cassava 起動時に一度だけ実行さ
 <!-- SIGN -->
 <br style="clear: both;" />
 <address>
-  Copyright (C) 2000-2014 asukaze, Some Rights Reserved.<br />
+  Copyright (C) 2000-2018 asukaze, Some Rights Reserved.<br />
   mail (at) asukaze.net
 </address>
 <!-- ==== -->

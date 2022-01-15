@@ -118,6 +118,7 @@
         <VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
         <VerInfo_Keys>CompanyName=;FileVersion=1.9.0.708;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=1.9.0.708;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
         <DynamicRTL>true</DynamicRTL>
+        <Icon_MainIcon>Cassava.ico</Icon_MainIcon>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <FinalOutputDir>Release_Build</FinalOutputDir>
@@ -129,12 +130,15 @@
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <BCC_Defines>NDEBUG;NO_WIN32_LEAN_AND_MEAN;$(BCC_Defines);$(BCC_Defines)</BCC_Defines>
-        <VerInfo_Build>714</VerInfo_Build>
+        <VerInfo_Build>783</VerInfo_Build>
         <BCC_UserSuppliedOptions> -5 -Vx -Ve -r</BCC_UserSuppliedOptions>
-        <VerInfo_Keys>CompanyName=;FileVersion=1.9.5.714;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=1.9.4.714;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileVersion=2.0.6.783;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=2.0.6.783;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
         <AppEnableHighDPI>true</AppEnableHighDPI>
         <VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
-        <VerInfo_Release>5</VerInfo_Release>
+        <VerInfo_MajorVer>2</VerInfo_MajorVer>
+        <VerInfo_MinorVer>0</VerInfo_MinorVer>
+        <Icon_MainIcon>Cassava.ico</Icon_MainIcon>
+        <VerInfo_Release>6</VerInfo_Release>
     </PropertyGroup>
     <ItemGroup>
         <CppCompile Include="AutoOpen.cpp">
@@ -286,23 +290,11 @@
             <DependentOn>Preference.h</DependentOn>
             <BuildOrder>10</BuildOrder>
         </CppCompile>
-        <CppCompile Include="Preview.cpp">
-            <BuildOrder>5</BuildOrder>
-            <Form>fmPreview</Form>
-            <DependentOn>Preview.h</DependentOn>
-            <BuildOrder>16</BuildOrder>
-        </CppCompile>
         <CppCompile Include="Print.cpp">
             <BuildOrder>7</BuildOrder>
             <Form>fmPrint</Form>
             <DependentOn>Print.h</DependentOn>
             <BuildOrder>26</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="Size.cpp">
-            <BuildOrder>8</BuildOrder>
-            <Form>fmSize</Form>
-            <DependentOn>Size.h</DependentOn>
-            <BuildOrder>27</BuildOrder>
         </CppCompile>
         <CppCompile Include="Sort.cpp">
             <Form>fmSort</Form>
@@ -318,24 +310,22 @@
             <DependentOn>Version.h</DependentOn>
             <BuildOrder>31</BuildOrder>
         </CppCompile>
-        <FormResources Include="OptionFile.dfm"/>
-        <FormResources Include="OptionDataFormat.dfm"/>
-        <FormResources Include="OptionView.dfm"/>
-        <FormResources Include="OptionLaunch.dfm"/>
-        <FormResources Include="OptionBackUp.dfm"/>
-        <FormResources Include="Option.dfm"/>
         <FormResources Include="OptionColor.dfm"/>
+        <FormResources Include="OptionDataFormat.dfm"/>
+        <FormResources Include="OptionFile.dfm"/>
         <FormResources Include="OptionBehavior.dfm"/>
-        <FormResources Include="Sort.dfm"/>
-        <FormResources Include="Size.dfm"/>
-        <FormResources Include="PasteDlg.dfm"/>
-        <FormResources Include="Print.dfm"/>
-        <FormResources Include="Preview.dfm"/>
         <FormResources Include="MultiLineInputBox.dfm"/>
+        <FormResources Include="Option.dfm"/>
+        <FormResources Include="OptionBackUp.dfm"/>
+        <FormResources Include="OptionLaunch.dfm"/>
+        <FormResources Include="Sort.dfm"/>
+        <FormResources Include="Print.dfm"/>
+        <FormResources Include="OptionView.dfm"/>
+        <FormResources Include="PasteDlg.dfm"/>
         <FormResources Include="Letter.dfm"/>
         <FormResources Include="MainForm.dfm"/>
-        <FormResources Include="Find.dfm"/>
         <FormResources Include="KeyCustomize.dfm"/>
+        <FormResources Include="Find.dfm"/>
         <BuildConfiguration Include="リリース">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

@@ -11,12 +11,12 @@
 
 <!-- HEAD LINE -->
 <div class="headline">
-  <a href="http://www.asukaze.net/">
+  <a href="https://www.asukaze.net/">
     <img src="asukaze.png" width="88" height="31"
       alt="[あすかぜ・ねっと]" title="あすかぜ・ねっと"
       class="headline" />あすかぜ・ねっと</a> ＞
-  <a href="http://www.asukaze.net/soft/index.html">自作ソフト</a> ＞
-  <a href="http://www.asukaze.net/soft/cassava/index.html">Cassava</a> ＞
+  <a href="https://www.asukaze.net/soft/">自作ソフト</a> ＞
+  <a href="https://www.asukaze.net/soft/cassava/">Cassava</a> ＞
   <a href="index.html">ヘルプ</a> ＞
   ファイルオプション
 </div>
@@ -57,7 +57,14 @@
   <dl>
   <dt>ロード時に文字コードを判別する</dt>
   <dd>ファイルを開くときに自動的に文字コードを判別し、適切な文字コードで開きます。
-      チェックしていない場合、常にShift_JIS(CP932)として開きます</dd>
+      チェックしていない場合は、「UTF-8 を優先して使用する」の設定によって
+      Shift_JIS (CP932) もしくは UTF-8 としてファイルを開きます</dd>
+  <dt>UTF-8 を優先して使用する</dt>
+  <dd>「ロード時に文字コードを判別する」がチェックされている場合、
+      ファイルの先頭 1000 文字がすべて英数字だった場合に
+      Shift_JIS ではなく UTF-8 としてファイルを開きます。
+      「ロード時に文字コードを判別する」がチェックされていない場合、
+      すべてのファイルを UTF-8 として開きます。</dd>
   </dl>
 <h3>関連付け</h3>
   <dl>
@@ -86,7 +93,7 @@
 <h2 class="sectitle">Menu</h2>
 
 <div class="MainMenu"><a href="index.html">Cassava ヘルプ</a></div>
-<div class="MainMenu"><a href="about.html">Cassavaとは</a></div>
+<div class="MainMenu"><a href="about.html">Cassava とは</a></div>
 <div class="MainMenu"><a href="install.html">インストール</a></div>
 <div class="MainMenuSel">メニュー</div>
   <ul class="MainMenu">
@@ -123,7 +130,7 @@
 <!-- SIGN -->
 <br style="clear: both;" />
 <address>
-  Copyright (C) 2000-2007 asukaze, Some Rights Reserved.<br />
+  Copyright (C) 2000-2018 asukaze, Some Rights Reserved.<br />
   mail (at) asukaze.net
 </address>
 <!-- ==== -->

@@ -139,3 +139,9 @@
 
   dl { margin-left: 1em; }
   dt { font-weight: bold; }
+
+  table, tr, th, td {
+    border: 1px solid #000;
+    border-collapse: collapse;
+    padding: .2em;
+  }

@@ -89,22 +89,63 @@ void __fastcall TfmOption::tvCategoryChange(TObject *Sender, TTreeNode *Node)
   frOptionColor->Visible = (Show == frOptionColor);
   frOptionFile->Visible = (Show == frOptionFile);
 
-  lblHeader->Caption = (AnsiString)" " + Node->Text;
+  lblHeader->Caption = Node->Text;
   lblHeader->Color = clBlack;
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmOption::tvCategoryMouseUp(
+    TObject *Sender, TMouseButton Button, TShiftState Shift, int X, int Y)
+{
+  if (Button != mbRight) { return; }
+  TTreeNode *selected = tvCategory->Selected;
+  if (selected->Parent != tnDataFormat /* Not a data format */
+      || selected->getNextSibling() == NULL /* "新規作成" */) {
+    return;
+  }
+  mnDelete->Enabled = selected->getPrevSibling() != NULL; // Not "Default"
+  popupMenu->PopupComponent = tvCategory;
+  popupMenu->Tag = selected->Index;
+  TPoint point = fmOption->ClientToScreen(
+      TPoint(X + tvCategory->Left, Y + tvCategory->Top));
+  popupMenu->Popup(point.x, point.y);
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmOption::mnApplyToCurrentFileClick(TObject *Sender)
+{
+  frOptionDataFormat->ApplyToCurrentFile(popupMenu->Tag);
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmOption::mnDeleteClick(TObject *Sender)
+{
+  frOptionDataFormat->Delete(popupMenu->Tag);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmOption::btnOKClick(TObject *Sender)
 {
-  if(frOptionDataFormat->Renaming){
-    ModalResult = mrNone;
-    frOptionDataFormat->btnRenameClick(this);
-    return;
-  }else if(Ascii2Ctrl(frOptionDataFormat->edDefSepChar->Text).Length() != 1){
-    Application->MessageBox(
-	  TEXT("標準区切り文字は１文字にしてください。"),
-      TEXT("Cassava Option"), MB_ICONWARNING);
-    ModalResult = mrNone;
-    return;
+  frOptionDataFormat->StoreDataPage();
+  for (int i = 0; i < frOptionDataFormat->TypeList.Count; i++) {
+    TTypeOption *p = frOptionDataFormat->TypeList.Items(i);
+    if (p->Name == "") {
+      Application->MessageBox(
+          TEXT("データ形式名の設定されていないデータ形式があります。"),
+          TEXT("Cassava Option"), MB_ICONWARNING);
+      ModalResult = mrNone;
+      return;
+    }
+    if (p->Exts->Count == 0) {
+      Application->MessageBox(
+          (p->Name + " に標準拡張子が設定されていません。").c_str(),
+          TEXT("Cassava Option"), MB_ICONWARNING);
+      ModalResult = mrNone;
+      return;
+    }
+    if (p->SepChars.Length() == 0) {
+      Application->MessageBox(
+          (p->Name + " に標準区切り文字が設定されていません。").c_str(),
+          TEXT("Cassava Option"), MB_ICONWARNING);
+      ModalResult = mrNone;
+      return;
+    }
   }
 
   frOptionDataFormat->StoreToMainForm();

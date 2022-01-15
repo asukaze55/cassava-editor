@@ -47,7 +47,7 @@ object fmFind: TfmFind
     Top = 104
     Width = 105
     Height = 25
-    Caption = #20840#12390#32622#25563'(&A)'
+    Caption = #12377#12409#12390#32622#25563'(&A)'
     TabOrder = 6
     OnClick = btnAllReplaceClick
   end
@@ -106,7 +106,7 @@ object fmFind: TfmFind
         Top = 84
         Width = 241
         Height = 17
-        Caption = #12527#12540#12489#26908#32034#65288#12475#12523#20840#20307#12392#12398#27604#36611#65289'(&W)'
+        Caption = #12475#12523#20869#23481#12364#23436#20840#12395#21516#19968#12391#12354#12427#12418#12398#12434#26908#32034'(&W)'
         TabOrder = 3
       end
       object cbRegex: TCheckBox
@@ -138,7 +138,7 @@ object fmFind: TfmFind
       object Label3: TLabel
         Left = 152
         Top = 52
-        Width = 30
+        Width = 22
         Height = 13
         Caption = #8806'x'#8806
       end

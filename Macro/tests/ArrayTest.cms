@@ -1,0 +1,130 @@
+import { Array, split } from "lib/Array.cms";
+import { Assert } from "lib/Assert.cms";
+
+class ArrayTest {
+  name() {
+    return "ArrayTest";
+  }
+
+  concat(assert) {
+    array1 = split("a,b,c", ",");
+    array2 = split("d,e,f", ",");
+    array3 = array1.concat(array2);
+    assert.that(array1.join(":")).isEqualTo("a:b:c");
+    assert.that(array2.join(":")).isEqualTo("d:e:f");
+    assert.that(array3.join(":")).isEqualTo("a:b:c:d:e:f");
+  }
+
+  includes(assert) {
+    array = split("a,b,c,c", ",");
+    assert.that(array.includes("c")).isTrue();
+    assert.that(array.includes("d")).isFalse();
+  }
+
+  indexOf(assert) {
+    array = split("a,b,c,c", ",");
+    assert.that(array.indexOf("c")).isEqualTo(2);
+    assert.that(array.indexOf("d")).isEqualTo(-1);
+  }
+
+  join(assert) {
+    array = split("a,b,c,c", ",");
+    assert.that(array.join(":")).isEqualTo("a:b:c:c");
+    assert.that(new Array().join(":")).isEqualTo("");
+  }
+
+  lastIndexOf(assert) {
+    array = split("a,b,c,c", ",");
+    assert.that(array.lastIndexOf("c")).isEqualTo(3);
+    assert.that(array.lastIndexOf("d")).isEqualTo(-1);
+  }
+
+  pop(assert) {
+    array = split("a,b,c,c", ",");
+    assert.that(array.pop()).isEqualTo("c");
+    assert.that(array.join(":")).isEqualTo("a:b:c");
+    assert.that(array.pop()).isEqualTo("c");
+    assert.that(array.join(":")).isEqualTo("a:b");
+    assert.that(array.pop()).isEqualTo("b");
+    assert.that(array.join(":")).isEqualTo("a");
+    assert.that(array.pop()).isEqualTo("a");
+    assert.that(array.join(":")).isEqualTo("");
+    assert.that(array.pop()).isEqualTo("");
+    assert.that(array.join(":")).isEqualTo("");
+  }
+
+  push(assert) {
+    array = new Array();
+    assert.that(array.length).isEqualTo(0);
+    assert.that(array.push("aaa")).isEqualTo(1);
+    assert.that(array.length).isEqualTo(1);
+    assert.that(array[0]).isEqualTo("aaa");
+    assert.that(array.push("bbb")).isEqualTo(2);
+    assert.that(array.length).isEqualTo(2);
+    assert.that(array[0]).isEqualTo("aaa");
+    assert.that(array[1]).isEqualTo("bbb");
+  }
+
+  reverse(assert) {
+    array = split("a,b,c,c", ",");
+    assert.that(array.reverse().join(":")).isEqualTo("c:c:b:a");
+    assert.that(array.join(":")).isEqualTo("c:c:b:a");
+
+    array = split("a,b,c", ",");
+    assert.that(array.reverse().join(":")).isEqualTo("c:b:a");
+    assert.that(array.join(":")).isEqualTo("c:b:a");
+  }
+
+  shift(assert) {
+    array = split("a,b,c,c", ",");
+    assert.that(array.shift()).isEqualTo("a");
+    assert.that(array.join(":")).isEqualTo("b:c:c");
+    assert.that(array.shift()).isEqualTo("b");
+    assert.that(array.join(":")).isEqualTo("c:c");
+    assert.that(array.shift()).isEqualTo("c");
+    assert.that(array.join(":")).isEqualTo("c");
+    assert.that(array.shift()).isEqualTo("c");
+    assert.that(array.join(":")).isEqualTo("");
+    assert.that(array.shift()).isEqualTo("");
+    assert.that(array.join(":")).isEqualTo("");
+  }
+
+  slice(assert) {
+    array = split("a,b,c,c", ",");
+    assert.that(array.slice(1, 3).join(":")).isEqualTo("b:c");
+    assert.that(array.slice(1, 5).join(":")).isEqualTo("b:c:c");
+    assert.that(array.slice(3, 1).join(":")).isEqualTo("");
+    assert.that(array.slice(5, 6).join(":")).isEqualTo("");
+    assert.that(array.slice(-3, -1).join(":")).isEqualTo("b:c");
+    assert.that(array.slice(-11, -10).join(":")).isEqualTo("");
+  }
+
+  unshift(assert) {
+    array = new Array();
+    assert.that(array.unshift("a")).isEqualTo(1);
+    assert.that(array.join(":")).isEqualTo("a");
+    assert.that(array.unshift("b")).isEqualTo(2);
+    assert.that(array.join(":")).isEqualTo("b:a");
+    assert.that(array.unshift("c")).isEqualTo(3);
+    assert.that(array.join(":")).isEqualTo("c:b:a");
+  }
+
+  test(assert) {
+    this.concat(assert);
+    this.includes(assert);
+    this.indexOf(assert);
+    this.join(assert);
+    this.lastIndexOf(assert);
+    this.pop(assert);
+    this.push(assert);
+    this.reverse(assert);
+    this.shift(assert);
+    this.slice(assert);
+    this.unshift(assert);
+  }
+}
+
+assert = new Assert();
+new ArrayTest().test(assert);
+assert.showResult();
+MessageBox(new Array());

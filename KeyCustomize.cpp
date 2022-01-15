@@ -148,7 +148,7 @@ void __fastcall TfmKey::tvMenuChange(TObject *Sender, TTreeNode *Node)
     } else if(ii == 2){
       csFNumber->Enabled = true;
       udFNumber->Enabled = true;
-      csFNumber->Text = AnsiString(static_cast<long>(SCKey - VK_F1) + 1);
+      csFNumber->Text = String(static_cast<long>(SCKey - VK_F1) + 1);
     }
   }
 }
@@ -218,12 +218,6 @@ void __fastcall TfmKey::edSCKeyKeyPress(TObject *Sender, char &Key)
     Key -= (char)32u; // toupper
 }
 //---------------------------------------------------------------------------
-void __fastcall TfmKey::tvMenuEdited(TObject *Sender, TTreeNode *Node,
-      AnsiString &S)
-{
-  static_cast<TMenuShortCut*>(Node->Data)->Caption = S;
-}
-//---------------------------------------------------------------------------
 void __fastcall TfmKey::edSelectedChange(TObject *Sender)
 {
   if(NowMSC){
@@ -241,7 +235,7 @@ void __fastcall TfmKey::btnSaveClick(TObject *Sender)
 
   if(dlgSave->Execute())
   {
-    AnsiString KeyFileName = dlgSave->FileName;
+    String KeyFileName = dlgSave->FileName;
     if(ExtractFileExt(KeyFileName) == "") KeyFileName += ".csv";
     if(SaveKey(KeyFileName))
 	  Application->MessageBox(TEXT("ï€ë∂ÇµÇ‹ÇµÇΩ"), TEXT("Cassava"),0);
@@ -254,7 +248,7 @@ void __fastcall TfmKey::btnOpenClick(TObject *Sender)
 {
   if(dlgOpen->Execute())
   {
-    AnsiString KeyFileName = dlgOpen->FileName;
+    String KeyFileName = dlgOpen->FileName;
     if(ExtractFileExt(KeyFileName) == "") KeyFileName += ".csv";
     if(LoadKey(KeyFileName))
 	  Application->MessageBox(TEXT("ÉtÉ@ÉCÉãÇì«Ç›çûÇ›Ç‹ÇµÇΩ"), TEXT("Cassava"),0);
@@ -263,7 +257,7 @@ void __fastcall TfmKey::btnOpenClick(TObject *Sender)
   }
 }
 //---------------------------------------------------------------------------
-bool TfmKey::SaveKey(AnsiString FileName)
+bool TfmKey::SaveKey(String FileName)
 {
   TStringList *File = new TStringList;
   TStringList *OneRow = new TStringList;
@@ -275,15 +269,7 @@ bool TfmKey::SaveKey(AnsiString FileName)
         = static_cast<TMenuShortCut*>(tvMenu->Items->Item[i]->Data);
       OneRow->Clear();
       OneRow->Add(ShortCutToText(MSC->MShortCut));
-      if(MSC->MenuItem->Name != ""){
-        OneRow->Add(MSC->MenuItem->Name);
-      }else{
-        AnsiString str = MSC->Caption;
-        int L = str.Length();
-        if(L > 4 && str[L-3] == '(' && str[L-2] == '&' && str[L] == ')'){
-          str.SetLength(L-4);
-        }
-      }
+      OneRow->Add(MSC->MenuItem->Name);
       OneRow->Add(MSC->Caption);
       File->Add(OneRow->CommaText);
     }
@@ -297,7 +283,7 @@ bool TfmKey::SaveKey(AnsiString FileName)
   return true;
 }
 //---------------------------------------------------------------------------
-bool TfmKey::LoadKey(AnsiString FileName)
+bool TfmKey::LoadKey(String FileName)
 {
   TStringList *File = new TStringList;
   TStringList *OneRow = new TStringList;

@@ -6,14 +6,13 @@
 
 #include "Letter.h"
 #include "MainForm.h"
-#include "Preview.h"
 #include "AutoOpen.h"
 //---------------------------------------------------------------------------
 #pragma link "CSPIN"
 #pragma resource "*.dfm"
 TfmLetter *fmLetter;
 //---------------------------------------------------------------------------
-bool IsNumericChar(char c){
+bool IsNumericChar(TCHAR c){
   return (c >= '0' && c <= '9');
 }
 //---------------------------------------------------------------------------
@@ -31,8 +30,6 @@ __fastcall TfmLetter::TfmLetter(TComponent* Owner)
   }catch(...){
     cbxFont->Items->Assign(Screen->Fonts);
   }
-  
-  fmPreview = new TfmPreview(Application);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmLetter::FormShow(TObject *Sender)
@@ -56,19 +53,12 @@ void __fastcall TfmLetter::FormShow(TObject *Sender)
     DataRead(fmMain->Pref->Path + "Auto.dat");
   }
 
-  PreView();
+  UpdatePreviewImage(NULL);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmLetter::FormClose(TObject *Sender, TCloseAction &Action)
 {
-  delete fmPreview;
   DataSave(fmMain->Pref->Path + "Auto.dat");
-}
-//---------------------------------------------------------------------------
-void __fastcall TfmLetter::imPreviewClick(TObject *Sender)
-{
-  PreView();
-  fmPreview->Show();
 }
 //---------------------------------------------------------------------------
 void TfmLetter::PrintOut()
@@ -80,36 +70,37 @@ void TfmLetter::PrintOut()
 
   btnPrint->Enabled = false;
   btnClose->Enabled = false;
-  Printer()->Title = "Cassava";
-  Printer()->Copies = udCopies->Position;
-  Printer()->BeginDoc();
-  bool NewPage = false;
-  for(int i = udTop->Position; i<=udBottom->Position; i++)
-  {
-    if(NewPage) Printer()->NewPage();
-    // fmMain->MainGrid->TopRow = i;
-    NewPage = Print(Printer()->Canvas,i);
+
+  try {
+    TPrinter *printer = Printer();
+    printer->Title = "Cassava";
+    printer->Copies = udCopies->Position;
+    printer->BeginDoc();
+    bool newPage = false;
+    for(int i = udTop->Position; i<=udBottom->Position; i++) {
+      if(newPage) Printer()->NewPage();
+      newPage = Print(Printer()->Canvas,i);
+    }
+    printer->EndDoc();
+  } catch (...) {
+    btnPrint->Enabled = true;
+    btnClose->Enabled = true;
+    throw;
   }
-  Printer()->EndDoc();
 
   btnPrint->Enabled = true;
   btnClose->Enabled = true;
-  // edTop->Value = edBottom->Value+1;
 }
 //---------------------------------------------------------------------------
-void TfmLetter::PreView()
+void __fastcall TfmLetter::UpdatePreviewImage(TObject *Sender)
 {
+  if (cbxFont->Text == "") { return; }
+
   Graphics::TBitmap *Bmp = new Graphics::TBitmap;
   const float mmPt = Bmp->Canvas->Font->PixelsPerInch / 25.4;
-  fmPreview->imPreview->Width  = 100 * mmPt;
-       fmPreview->ClientWidth  = 100 * mmPt;
-		   Bmp->Width  = 100 * mmPt;
-  fmPreview->imPreview->Height = 148 * mmPt;
-       fmPreview->ClientHeight = 148 * mmPt;
-		   Bmp->Height = 148 * mmPt;
+  Bmp->Width = 100 * mmPt;
+  Bmp->Height = 148 * mmPt;
   Print(Bmp->Canvas, udTop->Position);
-
-  fmPreview->imPreview->Picture->Assign(Bmp);
 
   TRect Rect;
   Rect.Left = 0; Rect.Top = 0;
@@ -117,50 +108,42 @@ void TfmLetter::PreView()
   imPreview->Canvas->StretchDraw(Rect, Bmp);
 }
 //---------------------------------------------------------------------------
-int TfmLetter::TateBytes(AnsiString Str)
+int TfmLetter::TateBytes(String Str)
 {
   int Count = 0;
   bool num = false;
-  int L = Str.Length();
-  for(int i=1; i<=L; i++){
-    if(Str.IsLeadByte(i)){
-      Count += 2;
-      num = false;
-      i++;
-    }else if(Str[i] == ' ' || Str[i] == '_'){
+  for (int i = 1; i <= Str.Length(); i++) {
+    TCHAR c = Str[i];
+    if (c == ' ' || c == '_') {
       Count++;
       num = false;
-    }else if(cbHorzNum->Checked && IsNumericChar(Str[i])){
-      if(!num){
+    } else if (cbHorzNum->Checked && IsNumericChar(c)) {
+      if (!num) {
         Count += 2;
         num = true;
       }
-    }else{
+    } else {
       Count += 2;
       num = false;
+      if (Str.IsLeadSurrogate(i)) {
+        i++;
+      }
     }
   }
   return Count;
 }
 //---------------------------------------------------------------------------
-int TfmLetter::Name2Indent(AnsiString Name1)
+int TfmLetter::Name2Indent(String Name1)
 {
   int pos = 1;
   bool flag = false;
-  for(int i=1; i<Name1.Length(); i++){
-    if(Name1.IsLeadByte(i)){
-      if(Name1.SubString(i,2)=="@"){
-        flag = true;
-      }else if(flag){
-        pos = i; break;
-      }
-      i++;
-    }else{
-      if(Name1[i]==' ' || Name1[i]=='_'){
-        flag = true;
-      }else if(flag){
-        pos = i; break;
-      }
+  for (int i = 1; i < Name1.Length(); i++) {
+    TCHAR c = Name1[i];
+    if (c == L'@' || c == ' ' || c == '_') {
+      flag = true;
+    } else if (flag) {
+      pos = i;
+      break;
     }
   }
   return pos;
@@ -178,16 +161,16 @@ if(cbMyDataInCsv->Checked)
   edMyAddress2->Text = fmMain->MainGrid->ACells[udToAddress2->Position][MyDat];
 }
 
-AnsiString Number[2];        //ˆ¶æorŽ©•ª
+String Number[2];        //ˆ¶æorŽ©•ª
 Number[0] = fmMain->MainGrid->ACells[udToNumber->Position][Index];
 Number[1] = edMyNumber->Text;
-AnsiString Box[2][2][2];    //[ZŠ–¼‘O][ˆ¶æŽ©•ª][‰E¶]
+String Box[2][2][2];    //[ZŠ–¼‘O][ˆ¶æŽ©•ª][‰E¶]
 int Name2Pos[2];
 Box[0][0][0] = Tate(fmMain->MainGrid->ACells[udToAddress1->Position][Index]);
 Box[0][0][1] = Tate(fmMain->MainGrid->ACells[udToAddress2->Position][Index]);
 Box[0][1][0] = Tate(edMyAddress1->Text);
 Box[0][1][1] = Tate(edMyAddress2->Text);
-AnsiString NameTmp = fmMain->MainGrid->ACells[udToName->Position][Index];
+String NameTmp = fmMain->MainGrid->ACells[udToName->Position][Index];
 Box[1][0][0] = Tate(NameTmp + edPrefix->Text);
 Name2Pos[0] = Name2Indent(NameTmp);
 NameTmp = fmMain->MainGrid->ACells[udToName2->Position][Index];
@@ -200,7 +183,7 @@ if(NameTmp == ""){
 Box[1][1][0] = Tate(edMyName->Text);
 Box[1][1][1] = Tate(edMyName2->Text);
 Name2Pos[1] = Name2Indent(edMyName->Text);
-AnsiString Note = fmMain->MainGrid->ACells[udToNote->Position][Index];
+String Note = fmMain->MainGrid->ACells[udToNote->Position][Index];
 
 const int PX = udHorz->Position;
 const int PY = udVert->Position;
@@ -230,7 +213,9 @@ int NengaDY = (Who==1 && cbNenga->Checked) ? -14 : 0;
 //—X•Ö”Ô†
 Canvas->Font->Name = "‚l‚r ‚o–¾’©";
 Canvas->Font->Height = NumberSize[Who] * mmPt;
-if(Number[Who].AnsiPos("-")) Number[Who].Delete(Number[Who].AnsiPos("-"),1);
+if (Number[Who].Pos("-")) {
+  Number[Who].Delete(Number[Who].Pos("-"), 1);
+}
 for(int i=0; i<=6 && i<Number[Who].Length(); i++)
 {
   Canvas->TextOut(((double)(NumberLeft[Who][i]) / 10 + PX) * mmPt,
@@ -238,7 +223,8 @@ for(int i=0; i<=6 && i<Number[Who].Length(); i++)
 		   Number[Who][i+1]);
 }
 //ZŠAˆ¶–¼
-Canvas->Font = lbFont->Font;
+Canvas->Font->Name = cbxFont->Text;
+bool verticalFont = (cbxFont->Text[1] == '@');
 for(int ibox=0; ibox<2; ibox++){
   int Lng = TateBytes(Box[ibox][Who][0]);
   int Lng2 = TateBytes(Box[ibox][Who][1]);
@@ -267,6 +253,23 @@ for(int ibox=0; ibox<2; ibox++){
     YItv = min(YItv, double(BoxBottom - BoxTop) / Lng);
   }
   Canvas->Font->Height = ((YItv * 2) - 0.25) * mmPt;
+
+  LOGFONT VerticalLogFont;
+  LOGFONT NonVerticalLogFont;
+  if (verticalFont) {
+    ZeroMemory(&VerticalLogFont, sizeof(LOGFONT));
+    VerticalLogFont.lfHeight = YItv * 2 * mmPt;
+    VerticalLogFont.lfEscapement = -90 * 10;
+    VerticalLogFont.lfOrientation = -90 * 10;
+    VerticalLogFont.lfCharSet = DEFAULT_CHARSET;
+    _tcscpy(VerticalLogFont.lfFaceName, Canvas->Font->Name.c_str());
+
+    ZeroMemory(&NonVerticalLogFont, sizeof(LOGFONT));
+    NonVerticalLogFont.lfHeight = Canvas->Font->Height;
+    NonVerticalLogFont.lfCharSet = DEFAULT_CHARSET;
+    _tcscpy(NonVerticalLogFont.lfFaceName, Canvas->Font->Name.c_str());
+  }
+
   for(int i=0; i<=1; i++)
   {
     FE = Box[ibox][Who][i].Length();
@@ -293,11 +296,11 @@ for(int ibox=0; ibox<2; ibox++){
 
     for(int j=1; j <= FE; j++)
     {
-      AnsiString Msg;
-      char c = Box[ibox][Who][i][j];
+      String Msg;
+      TCHAR c = Box[ibox][Who][i][j];
       bool num = false;
       if(j == Name2Pos[Who]) Name2Top = PCY;
-      if(Box[ibox][Who][i].IsLeadByte(j)){
+      if(Box[ibox][Who][i].IsLeadSurrogate(j)){
         Msg = Box[ibox][Who][i].SubString(j,2);
         j++;
       }else if(cbHorzNum->Checked && IsNumericChar(c)){
@@ -314,26 +317,17 @@ for(int ibox=0; ibox<2; ibox++){
       int HWidth = Canvas->TextWidth(Msg) / 2;
       if(Msg == " " || Msg == "_"){
         PCY += YItv;
-      }else if(Canvas->Font->Name[1] ==  '@'){
+      }else if(verticalFont){
         if(num || Msg == "b"){
           Canvas->TextOut((BoxMiddle + PX)*mmPt - (Canvas->TextWidth(Msg) / 2),
                           PCY*mmPt, Msg);
           PCY += (Canvas->TextHeight(Msg) / mmPt);
         }else{
-          LOGFONT lf;
-          Canvas->Brush->Style = bsClear;
-          ZeroMemory(&lf, sizeof(LOGFONT));
-          lf.lfHeight = YItv * 2 * mmPt;
-          lf.lfEscapement = -90 * 10;
-          lf.lfOrientation = -90 * 10;
-          lf.lfCharSet = DEFAULT_CHARSET;
-          _tcscpy(lf.lfFaceName, Canvas->Font->Name.c_str());
-          Canvas->Font->Handle = CreateFontIndirect(&lf);
+          Canvas->Font->Handle = CreateFontIndirect(&VerticalLogFont);
           int HWidth = Canvas->TextHeight(Box[ibox][Who][i]) / 2;
           Canvas->TextOut((BoxMiddle + PX)*mmPt + HWidth, PCY*mmPt, Msg);
           PCY += (Canvas->TextWidth(Msg) / mmPt);
-          Canvas->Font = lbFont->Font;
-          Canvas->Font->Height = ((YItv * 2) - 0.25) * mmPt;
+          Canvas->Font->Handle = CreateFontIndirect(&NonVerticalLogFont);
         }
       }else{
         Canvas->TextOut((BoxMiddle + PX)*mmPt - HWidth, PCY*mmPt, Msg);
@@ -347,80 +341,38 @@ for(int ibox=0; ibox<2; ibox++){
 return(true);
 }
 //---------------------------------------------------------------------------
-AnsiString TfmLetter::Tate(AnsiString Source)
+String TfmLetter::Tate(String Str)
 {
-  bool verticalFont = (lbFont->Font->Name[1] == '@');
-  if(verticalFont && !cbHorzNum->Checked){
-    int p;
-    while((p = Source.AnsiPos("_")) > 0){
-      Source[p] = ' ';
-    }
-    return Source;
-  }
-
-  AnsiString St = "";
-  bool longnumber = false;
-  int L = Source.Length();
-  for(int i=1; i<=L; i++){
-    char c = Source[i];
-    if(Source.IsLeadByte(i)){
-      longnumber = false;
-      AnsiString S = Source.SubString(i,2);
-      i++;
-      if (verticalFont) {
-        St += S;
-      }else{
-        if(S == "[" || S == "|") St += "b";
-        else if(S == "A")         St += "@";
-        else                       St += S;
+  bool verticalFont = (cbxFont->Text[1] == '@');
+  for (int i = 1; i <= Str.Length(); i++) {
+    TCHAR c = Str[i];
+    if (c == '_') {
+      Str[i] = ' ';
+    } else if (!verticalFont && (c == '-' || c == L'[' || c == L'|')) {
+      Str[i] = L'b';
+    } else if (!verticalFont && c == L'A') {
+      Str[i] = L'@';
+    } else if (IsNumericChar(c)) {
+      int length = 1;
+      while (i + length <= Str.Length() && IsNumericChar(Str[i + length])) {
+        length++;
       }
-    }else if(cbHorzNum->Checked && IsNumericChar(c)){
-      int r = i + udHorzNumMax->Position;
-      if(!longnumber && r <= L){
-        longnumber = true;
-        for(int j=r; j>i; j--){
-          if(!IsNumericChar(Source[j])){
-            longnumber = false;
-            break;
-          }
+      if (!cbHorzNum->Checked || length == 1
+          || length > udHorzNumMax->Position) {
+        for (int j = 0; j < length; j++) {
+          Str[i + j] = L"‚O‚P‚Q‚R‚S‚T‚U‚V‚W‚X"[Str[i + j] - '0'];
         }
       }
-      bool shortnumber = true;
-      if(i+1 <= L && IsNumericChar(Source[i+1])) shortnumber = false;
-      else if(i-1 >= 1 && IsNumericChar(Source[i-1])) shortnumber = false;
-
-      if(longnumber || shortnumber){
-        St += ((AnsiString)"‚O‚P‚Q‚R‚S‚T‚U‚V‚W‚X").SubString((c-'0')*2+1,2);
-      }else{
-        St += c;
-      }
-    }else if(!cbHorzNum->Checked && IsNumericChar(c)){
-      St += ((AnsiString)"‚O‚P‚Q‚R‚S‚T‚U‚V‚W‚X").SubString((c-'0')*2+1,2);
-    }else{
-      longnumber = false;
-      if(c == '-'){
-        St += "b";
-      }else{
-        St += c;
-      }
+      i += length - 1;
     }
   }
-
-
-  return(St);
+  return Str;
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmLetter::btnPrintClick(TObject *Sender)
 {
-  PrintOut();
-}
-//---------------------------------------------------------------------------
-void __fastcall TfmLetter::cbxFontChange(TObject *Sender)
-{
-  if(cbxFont->Text != "")
-  {
-    lbFont->Font->Name = cbxFont->Text;
-    PreView();
+  if (dlgPrinter->Execute()) {
+    PrintOut();
   }
 }
 //---------------------------------------------------------------------------
@@ -433,9 +385,9 @@ void __fastcall TfmLetter::btnSaveClick(TObject *Sender)
   }
 }
 //---------------------------------------------------------------------------
-void TfmLetter::DataSave(AnsiString FileName)
+void TfmLetter::DataSave(String FileName)
 {
-  TIniFile *Ini = new TIniFile(FileName);
+  IniFile *Ini = new IniFile(FileName);
   Ini->WriteString("·ol","Name",edMyName->Text);
   Ini->WriteString("·ol","Name2",edMyName2->Text);
   Ini->WriteString("·ol","Number",edMyNumber->Text);
@@ -446,8 +398,11 @@ void TfmLetter::DataSave(AnsiString FileName)
   Ini->WriteBool("·ol","Nenga",cbNenga->Checked);
   Ini->WriteString("ˆ¶æ","Name",edToName->Text);
   Ini->WriteString("ˆ¶æ","Name2",edToName2->Text);
-  if(edPrefix->Text != "" && edPrefix->Text[1] == ' ')
-  { AnsiString Str = edPrefix->Text; Str[1] = '_'; edPrefix->Text = Str; }
+  if (edPrefix->Text != "" && edPrefix->Text[1] == ' ') {
+    String Str = edPrefix->Text;
+    Str[1] = '_';
+    edPrefix->Text = Str;
+  }
   Ini->WriteString("ˆ¶æ","Prefix",edPrefix->Text);
   Ini->WriteString("ˆ¶æ","Number",edToNumber->Text);
   Ini->WriteString("ˆ¶æ","Address1",edToAddress1->Text);
@@ -463,11 +418,10 @@ void TfmLetter::DataSave(AnsiString FileName)
   Ini->WriteString("”÷’²®","Vert",edVert->Text);
 
   for(int i=0; i<2; i++){
-    AnsiString Section = (i==0 ? "ˆóüˆÊ’uFˆ¶æ" : "ˆóüˆÊ’uF·ol");
+    String Section = (i==0 ? "ˆóüˆÊ’uFˆ¶æ" : "ˆóüˆÊ’uF·ol");
     Ini->WriteInteger(Section,"NumberTop",NumberTop[i]);
     for(int j=0; j<7; j++){
-      Ini->WriteFloat(Section,
-        (AnsiString)"NumberLeft" + (AnsiString)j, NumberLeft[i][j]);
+      Ini->WriteFloat(Section, (String)"NumberLeft" + j, NumberLeft[i][j]);
     }
     Ini->WriteInteger(Section,"NumberSize", NumberSize[i]);
     Ini->WriteInteger(Section,"AddressTop", AddressTop[i]);
@@ -490,13 +444,13 @@ void __fastcall TfmLetter::btnReadClick(TObject *Sender)
   if(dlgOpen->Execute())
   {
     DataRead(dlgOpen->FileName);
-    PreView();
+    UpdatePreviewImage(Sender);
   }
 }
 //---------------------------------------------------------------------------
-void TfmLetter::DataRead(AnsiString FileName)
+void TfmLetter::DataRead(String FileName)
 {
-  TIniFile *Ini = new TIniFile(FileName);
+  IniFile *Ini = new IniFile(FileName);
   edMyName->Text = Ini->ReadString("·ol","Name",edMyName->Text);
   edMyName2->Text = Ini->ReadString("·ol","Name2",edMyName->Text);
   edMyNumber->Text = Ini->ReadString("·ol","Number",edMyNumber->Text);
@@ -518,16 +472,15 @@ void TfmLetter::DataRead(AnsiString FileName)
   cbHorzNum->Checked = Ini->ReadBool("ƒtƒHƒ“ƒg","HorzNum",cbHorzNum->Checked);
   seHorzNumMax->Text = Ini->ReadString("ƒtƒHƒ“ƒg","HorzNumMax",seHorzNumMax->Text);
   cbxFont->ItemIndex = Ini->ReadInteger("ƒtƒHƒ“ƒg","Font",cbxFont->ItemIndex);
-  lbFont->Font->Name = cbxFont->Text;
   edHorz->Text = Ini->ReadString("”÷’²®","Horz",edHorz->Text);
   edVert->Text = Ini->ReadString("”÷’²®","Vert",edVert->Text);
 
   for(int i=0; i<2; i++){
-    AnsiString Section = (i==0 ? "ˆóüˆÊ’uFˆ¶æ" : "ˆóüˆÊ’uF·ol");
+    String Section = (i==0 ? "ˆóüˆÊ’uFˆ¶æ" : "ˆóüˆÊ’uF·ol");
     NumberTop[i] = Ini->ReadInteger(Section,"NumberTop",NumberTop[i]);
     for(int j=0; j<7; j++){
-      NumberLeft[i][j] = Ini->ReadFloat(Section,
-        (AnsiString)"NumberLeft" + (AnsiString)j, NumberLeft[i][j]);
+      NumberLeft[i][j] =
+          Ini->ReadFloat(Section, (String)"NumberLeft" + j, NumberLeft[i][j]);
     }
     NumberSize[i] = Ini->ReadInteger(Section,"NumberSize", NumberSize[i]);
     AddressTop[i] = Ini->ReadInteger(Section,"AddressTop", AddressTop[i]);
@@ -576,16 +529,6 @@ void TfmLetter::DataSetDefault()
   NameBottom[0] = 120;      NameBottom[1] = 129;
   NameMiddle[0] = 55;       NameMiddle[1] = 11;
   NameSize[0] = 10;         NameSize[1] = 6;
-}
-//---------------------------------------------------------------------------
-void __fastcall TfmLetter::btnPrinterClick(TObject *Sender)
-{
-  dlgPrinter->Execute();
-}
-//---------------------------------------------------------------------------
-void __fastcall TfmLetter::edTopChange(TObject *Sender)
-{
-  PreView();
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmLetter::btnHelpClick(TObject *Sender)

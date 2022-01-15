@@ -4,9 +4,10 @@
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 //---------------------------------------------------------------------------
-#define DELIMITER_TYPE_NONE     0x00
-#define DELIMITER_TYPE_WEAK     0x01
-#define DELIMITER_TYPE_STRONG   0x03
+#define DELIMITER_TYPE_NONE      0x00
+#define DELIMITER_TYPE_WEAK_PRE  0x01
+#define DELIMITER_TYPE_WEAK_POST 0x02
+#define DELIMITER_TYPE_STRONG    0x03
 //---------------------------------------------------------------------------
 TTypeOption::TTypeOption()
 {
@@ -104,29 +105,30 @@ CsvReader::CsvReader(TTypeOption *_typeOption, String _data)
 //---------------------------------------------------------------------------
 CsvReaderState CsvReader::GetNextType()
 {
-  if(delimiterType == DELIMITER_TYPE_WEAK){
-    while(pos < last && typeOption->WeakSepChars.Pos(*pos) > 0){
+  if (delimiterType == DELIMITER_TYPE_STRONG) {
+    // Always create a cell after a strong delimiter.
+    return NEXT_TYPE_HAS_MORE_CELL;
+  }
+  if (delimiterType == DELIMITER_TYPE_WEAK_PRE
+      || delimiterType == DELIMITER_TYPE_WEAK_POST) {
+    // Ignore consecutive weak delimiters.
+    while (pos < last && typeOption->WeakSepChars.Pos(*pos) > 0) {
       pos++;
     }
   }
-  if(pos < last) {
-    if(*pos == TEXT('\r') || *pos == TEXT('\n')){
-      if(delimiterType == DELIMITER_TYPE_STRONG){
-        return NEXT_TYPE_HAS_MORE_CELL;
-      }else{
-        return NEXT_TYPE_HAS_MORE_ROW;
-      }
-    } else {
-    return NEXT_TYPE_HAS_MORE_CELL;
-    }
-  } else {
+  if (pos >= last) {
     return NEXT_TYPE_END_OF_FILE;
+  } else if (*pos == TEXT('\r') || *pos == TEXT('\n')) {
+    return NEXT_TYPE_HAS_MORE_ROW;
+  } else {
+    return NEXT_TYPE_HAS_MORE_CELL;
   }
 }
 //---------------------------------------------------------------------------
 String CsvReader::Next()
 {
-  if(delimiterType == DELIMITER_TYPE_WEAK){
+  if (delimiterType == DELIMITER_TYPE_WEAK_PRE
+      || delimiterType == DELIMITER_TYPE_WEAK_POST) {
     // 改行の次へ進める。改行の情報は GetNextType で取る。
     if (*pos == TEXT('\r')) { pos++; delimiterType = DELIMITER_TYPE_STRONG; }
     if (*pos == TEXT('\n')) { pos++; delimiterType = DELIMITER_TYPE_STRONG; }
@@ -141,11 +143,11 @@ String CsvReader::Next()
     if (!quoted) {
       if (ch == TEXT('\r') || ch == TEXT('\n')) {
         // 改行
-        delimiterType = DELIMITER_TYPE_WEAK;
+        delimiterType = DELIMITER_TYPE_WEAK_POST;
         return String(cellstart, cellend - cellstart);
       } else if (typeOption->SepChars.Pos(ch) > 0) {
         // 強区切り
-        if (delimiterType != DELIMITER_TYPE_WEAK) {
+        if (delimiterType != DELIMITER_TYPE_WEAK_PRE) {
           pos++;
           delimiterType = DELIMITER_TYPE_STRONG;
           return String(cellstart, cellend - cellstart);
@@ -156,10 +158,12 @@ String CsvReader::Next()
         // 弱区切り
         if (delimiterType == DELIMITER_TYPE_NONE) {
           pos++;
-          delimiterType = DELIMITER_TYPE_WEAK;
+          delimiterType = DELIMITER_TYPE_WEAK_PRE;
           return String(cellstart, cellend - cellstart);
         }
-        delimiterType = DELIMITER_TYPE_WEAK;
+        if (delimiterType == DELIMITER_TYPE_STRONG) {
+          delimiterType = DELIMITER_TYPE_WEAK_POST;
+        }
         cellstart = pos + 1;
       } else if (typeOption->UseQuote()
                  && typeOption->QuoteChars.Pos(ch) > 0
@@ -179,7 +183,7 @@ String CsvReader::Next()
           *cellend = *pos;
         } else {
           pos++;
-          delimiterType = DELIMITER_TYPE_WEAK;
+          delimiterType = DELIMITER_TYPE_WEAK_PRE;
           return String(cellstart, cellend - cellstart);
         }
       } else {
@@ -192,6 +196,7 @@ String CsvReader::Next()
     }
   }
 
+  delimiterType = DELIMITER_TYPE_NONE;
   if (cellstart < cellend) {
     return String(cellstart, cellend - cellstart);
   }

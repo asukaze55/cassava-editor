@@ -13,9 +13,8 @@
 #include "EncodedWriter.h"
 #include "FileOpenThread.h"
 #include "EncodingDetector.h"
+#include "Macro.h"
 
-#define min(X,Y) ((X)<(Y) ? (X) : (Y))
-#define max(X,Y) ((X)>(Y) ? (X) : (Y))
 #define DataLeft (ShowRowCounter ? 1 : 0)
 #define DataTop  (ShowColCounter ? 1 : 0)
 #define soNone 0
@@ -23,12 +22,20 @@
 #define soString 2
 #define soAll 3
 
-#define RXtoAX(x)                 (x - DataLeft + 1)
-#define RYtoAY(y)                 (y - DataTop  + 1)
-
-#define MaxHeight(client, fixed)  ((client - fixed) / 4 - 1)
-
-bool SameCellClicking;
+#define RXtoAX(x) ((x) - DataLeft + 1)
+#define RYtoAY(y) ((y) - DataTop  + 1)
+#define AXtoRX(x) ((x) + DataLeft - 1)
+#define AYtoRY(y) ((y) + DataTop  - 1)
+//---------------------------------------------------------------------------
+static inline int min(int a, int b)
+{
+    return (a < b ? a : b);
+}
+//---------------------------------------------------------------------------
+static inline int max(int a, int b)
+{
+    return (a > b ? a : b);
+}
 //---------------------------------------------------------------------------
 static inline TMainGrid *ValidCtrCheck()
 {
@@ -59,6 +66,7 @@ __fastcall TMainGrid::TMainGrid(TComponent* Owner)  //デフォルトの設定
   SameCellClicking = false;
   ExecCellMacro = false;
   CalculatedCellCache = NULL;
+  FormattedCellCache = NULL;
   UsingCellMacro = NULL;
   FDataRight = 1;
   FDataBottom = 1;
@@ -69,9 +77,10 @@ __fastcall TMainGrid::TMainGrid(TComponent* Owner)  //デフォルトの設定
 //---------------------------------------------------------------------------
 __fastcall TMainGrid::~TMainGrid(){
   ClearUndo();
-  if(CalculatedCellCache){ delete CalculatedCellCache; }
-  if(UsingCellMacro){ delete UsingCellMacro; }
-  if(EOFMarker){ delete EOFMarker; }
+  if (CalculatedCellCache) { delete CalculatedCellCache; }
+  if (FormattedCellCache) { delete FormattedCellCache; }
+  if (UsingCellMacro) { delete UsingCellMacro; }
+  if (EOFMarker) { delete EOFMarker; }
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainGrid::ShowEditor()
@@ -129,78 +138,66 @@ String FormatNumComma(String Str, int Count)
 TRect TMainGrid::DrawTextRect(TCanvas *Canvas, TRect Rect,
   String Str, bool Wrap, bool MeasureOnly)
 {
-  int x = Rect.Left;
-  int y = Rect.Top;
   int textHeight = Canvas->TextHeight(Str);
   int yint = textHeight + CellLineMargin;
-  int xmax = x;
+  int wrapWidth = Rect.Right - Rect.Left;
+
+  int maxWidth = 0;
+  int y = Rect.Top;
   int drawIndex = 1;
   TRect R = Rect;
-  for(int i=1; i<=Str.Length(); i++){
-    if(y >= Rect.Bottom){
-      return TRect(0,0,xmax-Rect.Left, Rect.Bottom-Rect.Top);
+  for (int i = 1; i <= Str.Length(); i++) {
+    if (y >= Rect.Bottom) {
+      return TRect(0, 0, maxWidth, Rect.Bottom - Rect.Top);
     }
-    TCHAR c = Str[i];
-    int w = Canvas->TextWidth(c);
-    if(c == L'\n'){
-      if(!MeasureOnly){
+    if (Str[i] == L'\n') {
+      if (!MeasureOnly && i > drawIndex) {
         R.Top = y;
-        Canvas->TextRect(R, R.Left, y, Str.SubString(drawIndex, i-drawIndex));
-        drawIndex = i + 1;
+        Canvas->TextRect(R, R.Left, y, Str.SubString(drawIndex, i - drawIndex));
       }
+      drawIndex = i + 1;
       y += yint;
-      x = Rect.Left;
-    }else{
-      if(Wrap && (x + w) > Rect.Right && x > Rect.Left){
-        if(!MeasureOnly){
-          R.Top = y;
-          Canvas->TextRect(R, R.Left, y, Str.SubString(drawIndex, i-drawIndex));
-          drawIndex = i;
-        }
-        y += yint;
-        x = Rect.Left;
+      continue;
+    }
+    if (i == drawIndex || Str.IsLeadSurrogate(i)
+        || !(Wrap || i == Str.Length() || Str[i + 1] == L'\n')) {
+      continue;
+    }
+    int drawLength = i - drawIndex + 1;
+    int drawWidth = Canvas->TextWidth(Str.SubString(drawIndex, drawLength));
+    if (Wrap && drawWidth > wrapWidth) {
+      // Wrap at the previous character.
+      drawLength -= (Str.IsLeadSurrogate(i - 1) ? 2 : 1);
+      if (drawLength == 0) {
+        continue;
       }
-      x += w;
-      if(x > xmax){ xmax = x; }
+      if (!MeasureOnly) {
+        R.Top = y;
+        Canvas->TextRect(R, R.Left, y, Str.SubString(drawIndex, drawLength));
+      }
+      drawIndex += drawLength;
+      y += yint;
+      continue;
+    }
+    if (drawWidth > maxWidth) {
+      maxWidth = drawWidth;
     }
   }
-  if(!MeasureOnly){
+  if (!MeasureOnly) {
     R.Top = y;
     Canvas->TextRect(R, R.Left, y, Str.SubString(drawIndex, Str.Length()));
   }
   y += textHeight + (2 * TBMargin);
-  return TRect(0,0,xmax-Rect.Left, min(y,Rect.Bottom)-Rect.Top);
+  return TRect(0, 0, maxWidth, min(y, Rect.Bottom) - Rect.Top);
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
   const TRect &ARect, TGridDrawState AState)
 {
   bool isSelected = GetSelected(ACol, ARow);
-  int cellType = CALC_NOTEXPR;
-  String Str = Cells[ACol][ARow];
-  if (ACol == 0 && ARow > 0 && ARow <= DataBottom && DataLeft == 1) {
-    Str = ARow + 1 - DataTop;
-  } else if (ARow == 0 && ACol > 0 && ACol <= DataRight && DataTop == 1) {
-    Str = ACol + 1 - DataLeft;
-  }
-
-#ifdef CssvMacro
-  if(ExecCellMacro){
-    if(Str.Length() > 0 && Str[1] == '='){
-      String CalcdStr = GetCalculatedCell(ACol+1-DataLeft, ARow+1-DataTop);
-      switch(CalcdStr[1]){
-      case CALC_OK:
-        cellType = CALC_OK;
-        break;
-      case CALC_NG:
-      case CALC_LOOP:
-        cellType = CALC_NG;
-        break;
-      }
-      Str = CalcdStr.SubString(2,CalcdStr.Length()-1);
-    }
-  }
-#endif
+  int cellType;
+  bool isNum;
+  String str = GetCellToDraw(ACol, ARow, &cellType, &isNum);
 
   if (isSelected) {
     Canvas->Brush->Color = clHighlight;
@@ -224,18 +221,8 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
   TRect R;
   R.Left = ARect.Left + LRMargin; R.Top = ARect.Top + FTBMargin;
   R.Right = ARect.Right - LRMargin; R.Bottom = ARect.Bottom - FTBMargin;
-  bool isnum = ((TextAlignment == cssv_taNumRight)
-                || (DecimalDigits >= 0)
-                || (NumberComma > 0))
-             && IsNumber(Str);
-  if(isnum && (DecimalDigits >= 0)){
-    Str = FormatOmitDecimal(Str, DecimalDigits);
-  }
-  if(isnum && (NumberComma > 0)){
-    Str = FormatNumComma(Str, NumberComma);
-  }
-  if((TextAlignment == cssv_taNumRight) && isnum){
-    int L = R.Right - Canvas->TextWidth(Str);
+  if (TextAlignment == cssv_taNumRight && isNum) {
+    int L = R.Right - Canvas->TextWidth(str);
     if(R.Left < L) R.Left = L;
   }
 
@@ -243,11 +230,11 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
   if (TypeOption->DummyEof && ACol == DataRight + 1 && ARow == DataBottom + 1) {
     Canvas->Font->Color = clGray;
     Canvas->TextRect(R, R.Left, R.Top, "[EOF]");
-  } else if (ShowURLBlue && isUrl(Str)) {
+  } else if (ShowURLBlue && isUrl(str)) {
     TFontStyles CFS = Canvas->Font->Style;
     Canvas->Font->Style = TFontStyles() << fsUnderline;
     Canvas->Font->Color = UrlColor;
-    DrawTextRect(Canvas, R, Str, WordWrap);
+    DrawTextRect(Canvas, R, str, WordWrap);
     Canvas->Font->Style = CFS;
   } else {
     if (isSelected) {
@@ -261,7 +248,7 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
     } else {
       Canvas->Font->Color = Font->Color;
     }
-    DrawTextRect(Canvas, R, Str, WordWrap);
+    DrawTextRect(Canvas, R, str, WordWrap);
   }
   Canvas->Font->Color = CFC;
 
@@ -285,11 +272,15 @@ void TMainGrid::SetExecCellMacro(bool Value)
 //---------------------------------------------------------------------------
 void TMainGrid::ClearCalcCache()
 {
-  if(CalculatedCellCache){
+  if (CalculatedCellCache) {
     delete CalculatedCellCache;
     CalculatedCellCache = NULL;
   }
-  if(UsingCellMacro){
+  if (FormattedCellCache) {
+    delete FormattedCellCache;
+    FormattedCellCache = NULL;
+  }
+  if (UsingCellMacro) {
     delete UsingCellMacro;
     UsingCellMacro = NULL;
   }
@@ -307,8 +298,8 @@ void TMainGrid::ErrorCalcLoop()
 //---------------------------------------------------------------------------
 String TMainGrid::GetCalculatedCell(int ACol, int ARow)
 {
-  int c = ACol+DataLeft-1;
-  int r = ARow+DataTop-1;
+  int c = AXtoRX(ACol);
+  int r = AYtoRY(ARow);
   if(ACol<=0 || ARow<=0 || c<0 || c>=ColCount || r<0 || r>=RowCount) {
     return CALC_NOTEXPR;
   }
@@ -370,6 +361,82 @@ String TMainGrid::GetCalculatedCell(int ACol, int ARow)
   }
 }
 //---------------------------------------------------------------------------
+String TMainGrid::GetFormattedCell(int ACol, int ARow)
+{
+  int c = AXtoRX(ACol);
+  int r = AYtoRY(ARow);
+  if (c < 0 || c > DataRight || r < 0 || r > DataBottom) {
+    return "";
+  }
+  String key = (String)ACol + "," + ARow;
+
+  if (FormattedCellCache) {
+    int index = FormattedCellCache->IndexOfName(key);
+    if (index >= 0) {
+      return FormattedCellCache->Values[key];
+    }
+  }
+  if (!OnGetFormattedCell) {
+    return "";
+  }
+  String result = OnGetFormattedCell(ACol, ARow);
+
+  if (!FormattedCellCache) {
+    FormattedCellCache = new TStringList;
+  }
+  FormattedCellCache->Values[key] = result;
+  return result;
+}
+//---------------------------------------------------------------------------
+String TMainGrid::GetCellToDraw(int RX, int RY, int *CellType, bool *IsNum)
+{
+  int cellType = CALC_NOTEXPR;
+  int ax = RXtoAX(RX);
+  int ay = RYtoAY(RY);
+  String str = Cells[RX][RY];
+  if (ax == 0 && ay > 0 && RY <= DataBottom) {
+    str = RYtoAY(RY);
+  } else if (ay == 0 && ax > 0 && RX <= DataRight) {
+    str = RXtoAX(RX);
+  }
+
+#ifdef CssvMacro
+  if (ExecCellMacro && str.Length() > 0 && str[1] == '=') {
+    String cstr = GetCalculatedCell(ax, ay);
+    switch(cstr[1]){
+    case CALC_OK:
+      cellType = CALC_OK;
+      break;
+    case CALC_NG:
+    case CALC_LOOP:
+      cellType = CALC_NG;
+      break;
+    }
+    if (CellType) { *CellType = cellType; }
+    str = cstr.SubString(2, cstr.Length() - 1);
+  }
+  if (OnGetFormattedCell) {
+    String fstr = GetFormattedCell(ax, ay);
+    if (fstr != "") { str = fstr; }
+  }
+#endif
+
+  bool isNum = (TextAlignment == cssv_taNumRight
+                   || DecimalDigits >= 0
+                   || NumberComma > 0)
+               && IsNumber(str);
+  if (isNum && DecimalDigits >= 0) {
+    str = FormatOmitDecimal(str, DecimalDigits);
+  }
+  if (isNum && NumberComma > 0) {
+    str = FormatNumComma(str, NumberComma);
+  }
+
+  if (CellType) { *CellType = cellType; }
+  if (IsNum) { *IsNum = isNum; }
+  return str;
+}
+//---------------------------------------------------------------------------
 String TMainGrid::GetACells(int ACol, int ARow)
 {
   String Str = GetCalculatedCell(ACol, ARow);
@@ -429,8 +496,8 @@ void TMainGrid::Clear(int AColCount, int ARowCount, bool UpdateRightBottom)
     Rows[i]->Clear();
   if(FixedCols >= AColCount){ AColCount = FixedCols + 1; }
   if(FixedRows >= ARowCount){ ARowCount = FixedRows + 1; }
-  ChangeColCount(max(AColCount+1, 5));
-  ChangeRowCount(max(ARowCount+1, 5));
+  ChangeColCount(AColCount + 1);
+  ChangeRowCount(ARowCount + 1);
   ClearUndo();
   Modified = false;
   TypeIndex = 0;
@@ -520,9 +587,8 @@ int TMainGrid::TextWidth(TCanvas *cnvs, String str)
   if((NumberComma > 0) && IsNumber(str)){
     str = FormatNumComma(str, NumberComma);
   }
-  TRect MaxRect(0,0,
-      (ClientWidth - ColWidths[0]), MaxHeight(ClientHeight, RowHeights[0]));
-  TRect R = DrawTextRect(cnvs, MaxRect, str, WordWrap, true);
+  TRect MaxRect(0, 0, INT_MAX, INT_MAX);
+  TRect R = DrawTextRect(cnvs, MaxRect, str, false, true);
 
   return R.Right;
 }
@@ -551,8 +617,7 @@ void TMainGrid::SetWidth(int i)
     b = min(TopRow + VisibleRowCount, RowCount);
   }
   for(int j=t; j <= b; j++){
-    String Str = GetACells(RXtoAX(i), RYtoAY(j));
-    WMax = max(WMax, TextWidth(Canvas, Str));
+    WMax = max(WMax, TextWidth(Canvas, GetCellToDraw(i, j, NULL, NULL)));
   }
   if(WMax > 0){ WMax += 2 * LRMargin; }
   if(WMax < MinColWidth){ //狭すぎないように
@@ -565,27 +630,40 @@ void TMainGrid::SetWidth(int i)
 //---------------------------------------------------------------------------
 void TMainGrid::SetWidth()             //列幅の最適化
 {
-  for(int i=0; i < ColCount; i++)
-  {
-    SetWidth(i);
+  if (CompactColWidth) {
+    ShowAllColumn();
+    return;
   }
 
-  DefaultViewMode = cssv_viewalltext;
+  for(int i=0; i < ColCount; i++) {
+    SetWidth(i);
+  }
 }
 //---------------------------------------------------------------------------
-void TMainGrid::SetHeight(int j)
+void TMainGrid::SetHeight(int j, bool useMaxRowHeightLines)
 {
-  int HMax = DefaultRowHeight;
   if(j==0 && ShowColCounter){
     RowHeights[j] = DefaultRowHeight;
     return;
   }
-  int r = min(LeftCol + VisibleColCount, ColCount);
-  for(int i=LeftCol; i <= r; i++){
-    TRect MaxRect(0, 0, ColWidths[i] - (2 * LRMargin),
-        MaxHeight(ClientHeight, RowHeights[0]));
-    String Str = GetACells(i+1-DataLeft, j+1-DataTop);
-    TRect R = DrawTextRect(Canvas, MaxRect, Str, WordWrap, true);
+
+  int maxRowHeight = ClientHeight;
+  for (int y = 0; y < FixedRows; y++) {
+    maxRowHeight -= (RowHeights[y] + 1);
+  }
+  if (useMaxRowHeightLines) {
+    maxRowHeight = min(maxRowHeight,
+        (Canvas->TextHeight("あ") * MaxRowHeightLines)
+            + (CellLineMargin * (MaxRowHeightLines - 1))
+            + (2 * TBMargin));
+  }
+
+  int HMax = DefaultRowHeight;
+  int right = min(LeftCol + VisibleColCount, ColCount);
+  for (int i = LeftCol; i <= right; i++) {
+    TRect MaxRect(0, 0, ColWidths[i] - (2 * LRMargin), maxRowHeight);
+    String str = GetCellToDraw(i, j, NULL, NULL);
+    TRect R = DrawTextRect(Canvas, MaxRect, str, WordWrap, true);
     HMax = max(HMax, R.Bottom);
   }
   RowHeights[j] = HMax;
@@ -595,84 +673,89 @@ void TMainGrid::SetHeight()
 {
   for(int i=0; i < FixedRows; i++)
   {
-    SetHeight(i);
+    SetHeight(i, true);
   }
 
   int RC = min(TopRow + VisibleRowCount, RowCount);
   for(int i=TopRow; i < RC; i++)
   {
-    SetHeight(i);
+    SetHeight(i, true);
   }
 }
 //---------------------------------------------------------------------------
 void TMainGrid::CompactWidth(int *Widths, int WindowSize, int Minimum,
                             TCanvas *Cnvs)
 {
-  int CC = DataRight - DataLeft + 1;
-  int BigColSize = 0;
-  int Room = WindowSize - (Minimum*CC);
-  if(!Cnvs) Cnvs = Canvas;
+  int bigColSize = 0;
+  int room = WindowSize - (Minimum * (DataRight - DataLeft + 1));
+  if (!Cnvs) { Cnvs = Canvas; }
 
-  int RT;
-  int RC;
-  if(CalcWidthForAllRow){
-    RT = 1;
-    RC = DataBottom - DataTop + 1;
-  }else{
-    RT = TopRow - DataTop + 1;
-    RC = min(TopRow + VisibleRowCount, RowCount) - DataTop + 1;
-  }
-
-  for(int i=1; i<=CC; i++){
-    int AWMax = 0;                     //その列で幅の最大値
-    for(int j=RT; j<=RC; j++){
-      AWMax = max(AWMax, TextWidth(Cnvs, GetACells(i,j)));
+  if (room <= 0) {
+    for (int i = DataLeft; i < ColCount; i++) {
+      Widths[i] = Minimum;
     }
-    if(AWMax > 0){ AWMax += (2 * LRMargin); }
-    Widths[i] = max((AWMax - Minimum), 0);
-    BigColSize += Widths[i];
+    return;
   }
 
-  if(BigColSize > Room){
-    if(Room <= Minimum){
-      for(int i=1; i<=CC; i++) Widths[i] = Minimum;
-    }else {
-      double Zoom = (double)Room / BigColSize;
-      for(int i=1; i<=CC; i++){
-        Widths[i] = (int)(Zoom * Widths[i]) + Minimum;
-      }
+  for (int i = DataRight + 1; i < ColCount; i++) {
+    Widths[i] = Minimum;
+  }
+
+  int top;
+  int bottom;
+  if (CalcWidthForAllRow) {
+    top = DataTop;
+    bottom = DataBottom;
+  } else {
+    top = TopRow;
+    bottom = min(TopRow + VisibleRowCount, RowCount);
+  }
+
+  for (int i = DataLeft; i <= DataRight; i++) {
+    int maxWidth = 0;
+    for (int j = top; j <= bottom; j++){
+      maxWidth = max(maxWidth,
+                     TextWidth(Cnvs, GetCellToDraw(i, j, NULL, NULL)));
     }
-  }else{
-    for(int i=1; i<=CC; i++) Widths[i] += Minimum;
+    if (maxWidth > 0) { maxWidth += (2 * LRMargin); }
+    Widths[i] = max((maxWidth - Minimum), 0);
+    bigColSize += Widths[i];
   }
 
-  DefaultViewMode = cssv_viewallcolumn;
+  if (bigColSize > room) {
+    double zoom = (double)room / bigColSize;
+    for (int i = DataLeft; i <= DataRight; i++) {
+      Widths[i] = (int)(zoom * Widths[i]) + Minimum;
+    }
+  } else {
+    for (int i = DataLeft; i <= DataRight; i++) {
+      Widths[i] += Minimum;
+    }
+  }
 }
 //---------------------------------------------------------------------------
 void TMainGrid::ShowAllColumn()
 {
-  int R = DataRight;
-  int *WMax = new int[ColCount+2];
-  int WindowSize = ClientWidth - 16; // スクロールバー分ね
+  int *widths = new int[ColCount];
+  int windowSize = ClientWidth - 16;
 
-  if(ShowRowCounter){ // カウンタセル
-    WMax[0] = max(MinColWidth,
-      TextWidth(Canvas, (String) DataBottom) + (2 * LRMargin));
-    ColWidths[0] = WMax[0];
-    WindowSize -= WMax[0];
+  if (ShowRowCounter) {
+    widths[0] = max(MinColWidth, TextWidth(Canvas,
+        GetCellToDraw(0, DataBottom, NULL, NULL)) + (2 * LRMargin));
+    windowSize -= widths[0];
   }
 
-  CompactWidth(WMax, WindowSize, MinColWidth);
-  for(int i=DataLeft; i<=R; i++) ColWidths[i] = WMax[i-DataLeft+1];
-  delete[] WMax;
+  CompactWidth(widths, windowSize, MinColWidth);
+  for (int i = 0; i < ColCount; i++) { ColWidths[i] = widths[i]; }
+  delete[] widths;
 }
 //---------------------------------------------------------------------------
 void TMainGrid::Cut()                  //右、下の余計な項目を削除
 {
   if(Col > DataRight){ Col = DataRight; }
   if(Row > DataBottom){ Row = DataBottom; }
-  ChangeColCount(max(5,DataRight+2));
-  ChangeRowCount(max(5,DataBottom+2));
+  ChangeColCount(DataRight + 2);
+  ChangeRowCount(DataBottom + 2);
 }
 //---------------------------------------------------------------------------
 void TMainGrid::UpdateDataRight()
@@ -726,12 +809,10 @@ void TMainGrid::UpdateDataRightBottom(int modx, int mody, bool updateTableSize)
     UpdateDataRight();
     UpdateDataBottom();
     int cc = FDataRight + 2;
-    if(cc < 5){ cc = 5; }
     if(cc <= modx){ cc = modx + 1; }
     if(cc <= Col){ cc = Col + 1; }
     if(updateTableSize){ ChangeColCount(cc); }
     int rc = FDataBottom+2;
-    if(rc < 5){ rc = 5; }
     if(rc <= mody){ rc = mody + 1; }
     if(rc <= Row){ rc = Row + 1; }
     if(updateTableSize){ ChangeRowCount(rc); }
@@ -742,7 +823,6 @@ void TMainGrid::UpdateDataRightBottom(int modx, int mody, bool updateTableSize)
     if(modx > oldRight){
       UpdateDataRight();
       int cc = FDataRight + 2;
-      if(cc < 5){ cc = 5; }
       if(cc <= modx){ cc = modx + 1; }
       if(cc <= Col){ cc = Col + 1; }
       if(updateTableSize){ ChangeColCount(cc); }
@@ -750,7 +830,6 @@ void TMainGrid::UpdateDataRightBottom(int modx, int mody, bool updateTableSize)
     if(mody > oldBottom){
       UpdateDataBottom();
       int rc = FDataBottom+2;
-      if(rc < 5){ rc = 5; }
       if(rc <= mody){ rc = mody + 1; }
       if(rc <= Row){ rc = Row + 1; }
       if(updateTableSize){ ChangeRowCount(rc); }
@@ -790,17 +869,15 @@ void TMainGrid::SetDataRightBottom(int rx, int by, bool updateTableSize)
   int oldRight = DataRight;
   int oldBottom = DataBottom;
 
-  FDataRight = rx;
-  FDataBottom = by;
+  FDataRight = max(rx, 1);
+  FDataBottom = max(by, 1);
   if(updateTableSize){
     int cc = rx + 2;
-    if(cc < 5){ cc = 5; }
     if(cc <= Col){ cc = Col + 1; }
     ChangeColCount(cc);
   }
   if(updateTableSize){
     int rc = by+2;
-    if(rc < 5){ rc = 5; }
     if(rc <= Row){ rc = Row + 1; }
     ChangeRowCount(rc);
   }
@@ -906,11 +983,11 @@ bool TMainGrid::LoadFromFile(String FileName, int KCode,
   buf.Length = filelength;
   delete File;
 
-  if(KCode == CHARCODE_AUTO){
-    if(CheckKanji){
-      KCode = DetectEncode(&(buf[0]), filelength);
-    }else{
-      KCode = CHARCODE_SJIS;
+  if (KCode == CHARCODE_AUTO) {
+    if (CheckKanji) {
+      KCode = DetectEncode(&(buf[0]), filelength, DefaultCharCode);
+    } else {
+      KCode = DefaultCharCode;
     }
   }
   KanjiCode = KCode;
@@ -1290,11 +1367,9 @@ void TMainGrid::PasteFromClipboard()
     return;
   }
   String clipboardText;
-  bool succeeded = false;
   for (int i = 0;; i++) {
     try {
       clipboardText = clip->AsText;
-      succeeded = true;
       break;
     } catch (...) {
       if (i >= 10) {
@@ -1789,26 +1864,41 @@ void TMainGrid::Sequence(bool Inc)
 //
 void TMainGrid::ChangeRowCount(int Count)
 {
-  if(Count > RowCount){
-    int R = RowCount;
+  if (Count > RowCount) {
+    int r = RowCount;
     RowCount = Count;
-    for(int i=R; i<Count; i++) Rows[i]->Clear();
-  }else if(Count < RowCount) RowCount = Count;
+    for (int i = r; i < Count; i++) {
+      Rows[i]->Clear();
+    }
+  } else if (Count < RowCount) {
+    RowCount = max(Count, 5);
+    for (int i = max(Count, 0); i < RowCount; i++) {
+      Rows[i]->Clear();
+    }
+  }
 }
 //---------------------------------------------------------------------------
 void TMainGrid::ChangeColCount(int Count)
 {
-  if(Count > ColCount){
-    int R = ColCount;
+  if (Count > ColCount) {
+    int c = ColCount;
     ColCount = Count;
-    for(int i=R; i<Count; i++) Cols[i]->Clear();
-  }else if(Count < ColCount) ColCount = Count;
+    for (int i = c; i < Count; i++) {
+      Cols[i]->Clear();
+    }
+  } else if (Count < ColCount) {
+    ColCount = max(Count, 5);
+    for (int i = max(Count, 0); i < ColCount; i++) {
+      Cols[i]->Clear();
+    }
+  }
 }
 //---------------------------------------------------------------------------
 void TMainGrid::InsertRow(int Top, int Bottom)
 {
   SetUndoCsv();
   UndoSetLock++;
+  if (RowCount < Top) { RowCount = Top; }
   for(int y = Top; y <= Bottom; y++){
     Rows[RowCount++]->Clear();
     TStringGrid::MoveRow(RowCount-1, y);
@@ -1822,6 +1912,7 @@ void TMainGrid::InsertColumn(int Left, int Right)
 {
   SetUndoCsv();
   UndoSetLock++;
+  if (ColCount < Left) { ColCount = Left; }
   for(int x = Left; x <= Right; x++){
     Cols[ColCount++]->Clear();
     TStringGrid::MoveColumn(ColCount-1, x);
@@ -1881,6 +1972,7 @@ void __fastcall TMainGrid::InsertColumn(int Index)
 //---------------------------------------------------------------------------
 void __fastcall TMainGrid::DeleteRow(int ARow)
 {
+  if (ARow >= RowCount) { return; }
   SetUndoCsv();
   if(RangeSelect){ Col = FixedCols; }
   if(RowCount <= FixedRows+1){
@@ -1898,6 +1990,7 @@ void __fastcall TMainGrid::DeleteRow(int ARow)
 //---------------------------------------------------------------------------
 void __fastcall TMainGrid::DeleteColumn(int ACol)
 {
+  if (ACol >= ColCount) { return; }
   SetUndoCsv();
   if(RangeSelect){ Row = FixedRows; }
   if(ColCount <= FixedCols+1){
@@ -1951,7 +2044,7 @@ void TMainGrid::InsertNewLine()
   if(EditorMode){
     InplaceEditor->SelText = "\r\n";
 
-    TRect MaxRect(0,0,ColWidths[Col]-4, MaxHeight(ClientHeight, RowHeights[0]));
+    TRect MaxRect(0, 0, ColWidths[Col] - 4, ClientHeight);
     TRect R = DrawTextRect(Canvas, MaxRect, InplaceEditor->Text, WordWrap, true);
     if(RowHeights[Row] < R.Bottom){
       RowHeights[Row] = R.Bottom;
@@ -2108,21 +2201,18 @@ void TMainGrid::DeleteCells_Left(long Left, long Right, long Top, long Bottom,
         bool UpdateWidth)
 {
   TStringList *Temp = new TStringList;
-  for(int i=Top; i<=Bottom; i++)
-  {
+  for (int i = Top; i <= min(Bottom, RowCount - 1); i++) {
     Temp->Assign(Rows[i]);
-    for(int j=Left; j<=Right; j++)
-    {
+    for (int j = Left; j <= min(Right, Temp->Count - 1); j++) {
       Temp->Delete(Left);
       Temp->Add("");
     }
     Rows[i]->Assign(Temp);
   }
   delete Temp;
-  if(UpdateWidth)
-  {
+  if (UpdateWidth) {
     int delta = Right - Left + 1;
-    for(int j=Left; j<ColCount - delta; j++){
+    for (int j = Left; j<ColCount - delta; j++) {
       ColWidths[j] = ColWidths[j + delta];
     }
   }
@@ -2132,21 +2222,18 @@ void TMainGrid::DeleteCells_Up(long Left, long Right, long Top, long Bottom,
         bool UpdateHeight)
 {
   TStringList *Temp = new TStringList;
-  for(int i=Left; i<=Right; i++)
-  {
+  for (int i = Left; i <= min(Right, ColCount - 1); i++) {
     Temp->Assign(Cols[i]);
-    for(int j=Top; j<=Bottom; j++)
-    {
+    for (int j = Top; j <= min(Bottom, Temp->Count - 1) ; j++) {
       Temp->Delete(Top);
       Temp->Add("");
     }
     Cols[i]->Assign(Temp);
   }
   delete Temp;
-  if(UpdateHeight)
-  {
+  if (UpdateHeight) {
     int delta = Bottom - Top + 1;
-    for(int j=Top; j<RowCount - delta; j++){
+    for (int j = Top; j < RowCount - delta; j++) {
       RowHeights[j] = RowHeights[j + delta];
     }
   }
@@ -2178,7 +2265,7 @@ void TMainGrid::SetSelection(long Left, long Right, long Top, long Bottom)
     theRect.Bottom = Bottom;
 
     EditorMode = false;
-    Options >> goAlwaysShowEditor; // >> goEditing;
+    Options >> goEditing >> goAlwaysShowEditor;
     Selection = theRect;
   }
 }
@@ -2320,6 +2407,9 @@ void __fastcall TMainGrid::MouseMove(Classes::TShiftState Shift, int X, int Y)
     }else if(FileOpenThread){
       Hint = "ファイルを読み込み中です。";
       ShowHint = true;
+    }else if(GetRunningMacroCount() > 0){
+      Hint = "マクロを実行中です。";
+      ShowHint = true;
     }else{
       Application->CancelHint();
       Hint = "";
@@ -2330,7 +2420,7 @@ void __fastcall TMainGrid::MouseMove(Classes::TShiftState Shift, int X, int Y)
     if(DblClickOpenURL == 2){
       if(ACol >= FixedCols && ARow >= FixedRows && isUrl(Cells[ACol][ARow])){
         Cursor = crHandPoint;
-      }else if(FileOpenThread){
+      }else if(FileOpenThread || GetRunningMacroCount() > 0){
         Cursor = crAppStart;
       }else{
         Cursor = crDefault;
@@ -2382,14 +2472,16 @@ void __fastcall TMainGrid::MouseUp(Controls::TMouseButton Button,
     if(Selection.Top <= RowToResize && Selection.Bottom >= RowToResize &&
        Selection.Left == FixedCols && Selection.Right == ColCount-1){
       double scale = (double) RowHeights[RowToResize] / (double) OldWidthHeight;
-      for(int j=Selection.Top; j<=Selection.Bottom; j++){
-        if(j != RowToResize){
+      int maxRowHeight = ((ClientHeight - RowHeights[0]) / 4 - 1);
+      for (int j = Selection.Top; j <= Selection.Bottom; j++) {
+        if (j != RowToResize) {
           int newHeight = RowHeights[j] * scale;
-          if(newHeight > MaxHeight(ClientHeight, RowHeights[0])){
-            //広すぎないように
-            newHeight = MaxHeight(ClientHeight, RowHeights[0]);
+          if (newHeight > maxRowHeight) {
+            newHeight = maxRowHeight;
           }
-          if(newHeight < 16){ newHeight = 16; }  //狭すぎないように
+          if (newHeight < 16){
+            newHeight = 16;
+          }
           RowHeights[j] = newHeight;
         }
       }
@@ -2433,10 +2525,10 @@ void __fastcall TMainGrid::DblClick(void)
     if(Selection.Top <= RowToResize && Selection.Bottom >= RowToResize &&
        Selection.Left == FixedCols && Selection.Right == ColCount-1){
       for(int j=Selection.Top; j<=Selection.Bottom; j++){
-        SetHeight(j);
+        SetHeight(j, false);
       }
     }else{
-      SetHeight(RowToResize);
+      SetHeight(RowToResize, false);
     }
   }else if(Selection.Top == FixedRows &&
      Selection.Bottom == RowCount-1 &&
@@ -2447,9 +2539,9 @@ void __fastcall TMainGrid::DblClick(void)
       SetWidth(Selection.Left);
     }
   }else if(Selection.Left == FixedCols &&
-     Selection.Right == ColCount-1 &&
-     Selection.Top == Selection.Bottom) {
-      SetHeight(Selection.Top);
+           Selection.Right == ColCount-1 &&
+           Selection.Top == Selection.Bottom) {
+    SetHeight(Selection.Top, false);
   }else if(EditorMode == false){
     Options << goEditing << goAlwaysShowEditor;
     ShowEditor();
@@ -2521,62 +2613,67 @@ void __fastcall TMainGrid::MouseWheelDown(System::TObject* Sender,
 #define drThisCol 1
 #define drAll 2
 //---------------------------------------------------------------------------
-int FindHit(String CellText, String FindText,
-        bool Case, bool Regex, bool Back, int *Length)
+static int FindHit(String CellText, String FindText, bool Case, bool Regex,
+    bool Word, bool Back, int *Length, boost::wcmatch *match)
 {
-  if(!Case){
-    CellText = CellText.LowerCase();
-    FindText = FindText.LowerCase();
-  }
-
-  if(Regex){
-    for(int i=FindText.Length() - 1; i>0; i--){
-      if(FindText[i] == '\\' && FindText[i+1] == 'n'){
-        FindText.Insert("\\r?", i);
-      }
-    }
-
-    wchar_t* cell_text = CellText.c_str();
-
-    boost::wregex regex(FindText.c_str());
-    boost::wcmatch match;
-    int hit = 0;
-    int len = 0;
-    if(Back){
-      while(true){
-        if (boost::regex_search(cell_text + hit, match, regex,
-            boost::match_not_null)) {
-          hit = match[0].first - cell_text + 1;
-          len = match[0].second - match[0].first;
-        } else {
-          break;
-        }
-      }
-    }else{
-      if (boost::regex_search(cell_text, match, regex, boost::match_not_null)) {
-        hit = match[0].first - cell_text + 1;
-        len = match[0].second - match[0].first;
-      }
-    }
-    if(hit > 0){
-      *Length = len;
-      return hit;
-    }else{
-      return 0;
-    }
-  }else{
+  if (!Regex) {
     *Length = FindText.Length();
-    if(Back){
-      for(int i=CellText.Length() - FindText.Length() + 1; i>0; i--){
-        if(CellText.SubString(i, FindText.Length()) == FindText){
+    if(!Case){
+      CellText = CellText.LowerCase();
+      FindText = FindText.LowerCase();
+    }
+    if (Word) {
+      return (CellText == FindText ? 1 : 0);
+    }
+    if (Back) {
+      for (int i = CellText.Length() - FindText.Length() + 1; i > 0; i--){
+        if (CellText.SubString(i, FindText.Length()) == FindText) {
           return i;
         }
       }
       return 0;
-    }else{
-      return (CellText.Pos(FindText));
+    }
+    return CellText.Pos(FindText);
+  }
+
+  for (int i = FindText.Length() - 1; i > 0; i--) {
+    if (FindText[i] == '\\' && FindText[i + 1] == 'n') {
+      FindText.Insert("\\r?", i);
     }
   }
+
+  wchar_t* cell_text = CellText.c_str();
+  boost::wregex regex = Case ? boost::wregex(FindText.c_str())
+      : boost::wregex(FindText.c_str(), boost::regex::icase);
+  boost::wcmatch localMatch;
+  if (!match) { match = &localMatch; }
+  if (Word) {
+    *Length = CellText.Length();
+    return (boost::regex_match(cell_text, *match, regex) ? 1 : 0);
+  }
+  int hit = 0;
+  int len = 0;
+  if(Back) {
+    while(true){
+      if (boost::regex_search(cell_text + hit, *match, regex,
+          boost::match_not_null)) {
+        hit = (*match)[0].first - cell_text + 1;
+        len = (*match)[0].second - (*match)[0].first;
+      } else {
+        break;
+      }
+    }
+  } else {
+    if (boost::regex_search(cell_text, *match, regex, boost::match_not_null)) {
+      hit = (*match)[0].first - cell_text + 1;
+      len = (*match)[0].second - (*match)[0].first;
+    }
+  }
+  if (hit > 0) {
+    *Length = len;
+    return hit;
+  }
+  return 0;
 }
 //---------------------------------------------------------------------------
 void ShowRegexErrorMessage(const boost::regex_error& e) {
@@ -2598,7 +2695,7 @@ bool TMainGrid::Find(String FindText,
   TInplaceEdit *ipEd = InplaceEditor;
   if(!ipEd){ return(false); }
 
-  AnsiString InCellText = "";
+  String InCellText = "";
 
   if(!Word){
     if(Back){
@@ -2606,7 +2703,7 @@ bool TMainGrid::Find(String FindText,
     }else{
       InCellText = ipEd->Text.SubString(ipEd->SelStart + ipEd->SelLength + 1, ipEd->Text.Length());
     }
-    if(Regex){
+    if (Regex && InCellText != ipEd->Text) {
       if(!Back && FindText[1] == '^'){ InCellText = ""; }
       else if(Back && *(FindText.LastChar()) == '$'){ InCellText = ""; }
     }
@@ -2614,7 +2711,7 @@ bool TMainGrid::Find(String FindText,
 
   if(InCellText != ""){
     try {
-      Hit = FindHit(InCellText, FindText, Case, Regex, Back, &Len);
+      Hit = FindHit(InCellText, FindText, Case, Regex, Word, Back, &Len, NULL);
     } catch(const boost::regex_error& e) {
       ShowRegexErrorMessage(e);
       return false;
@@ -2631,14 +2728,9 @@ bool TMainGrid::Find(String FindText,
     }
   }
 
-  if(Regex && Word){
-    if(FindText[1] != '^'){ FindText.Insert("^", 1); }
-    if(*(FindText.LastChar()) != '$'){ FindText += "$"; }
-  }
-
   int step = (Back ? -1 : 1);
   int YStart = Row;
-  int YEnd = (Back ? DataTop : RowCount);
+  int YEnd = (Back ? FixedRows : DataBottom);
   if(Range == drThisRow){
     YEnd = Row;
   }else if(Range == drThisCol){
@@ -2651,42 +2743,28 @@ bool TMainGrid::Find(String FindText,
 
   for(int y=YStart; y*step<=YEnd*step; y+=step)
   {
-    int XStart = (Back ? ColCount : DataLeft);
-    int XEnd   = (Back ? DataLeft : ColCount);
-    if(Range == drThisCol){
-      XStart = Col;  XEnd = Col;
-    }else if(y == Row){
-      if(Word && !Back && (ipEd->SelStart + ipEd->SelLength == 0)){
+    int XStart = (Back ? DataRight : FixedCols);
+    int XEnd = (Back ? FixedCols : DataRight);
+    if (Range == drThisCol) {
+      XStart = Col;
+      XEnd = Col;
+    } else if (y == Row) {
+      if (Word && !Back && ipEd->Text != ""
+          && (ipEd->SelStart + ipEd->SelLength == 0)) {
         XStart = Col;
-      }else{
-        XStart = Col+step;
+      } else {
+        XStart = Col + step;
       }
     }
 
     for(int x=XStart; x*step<=XEnd*step; x+=step)
     {
-      if(Word && !Regex){
-        Hit = 0;
-        if(Case){
-          if(Cells[x][y] == FindText){
-            Hit=1; Len=FindText.Length();
-          }
-        }else{
-          if(Cells[x][y].LowerCase() == FindText.LowerCase()){
-            Hit=1; Len=FindText.Length();
-          }
-        }
-      }else{
-        try {
-          Hit = FindHit(Cells[x][y], FindText, Case, Regex, Back, &Len);
-        } catch(const boost::regex_error& e) {
-          ShowRegexErrorMessage(e);
-          return false;
-        }
-        if(Word){
-          // 「$」が改行にもヒットするのを防ぐ。
-          if(Len < Cells[x][y].Length()){ Hit = 0; }
-        }
+      try {
+        Hit =
+            FindHit(Cells[x][y], FindText, Case, Regex, Word, Back, &Len, NULL);
+      } catch(const boost::regex_error& e) {
+        ShowRegexErrorMessage(e);
+        return false;
       }
       if(Hit>0){
         if(x >= FixedCols){
@@ -2707,48 +2785,63 @@ bool TMainGrid::Find(String FindText,
   return(false);
 }
 //---------------------------------------------------------------------------
-bool TMainGrid::Replace(String FindText , String ReplaceText,
-        int Range, bool Case, bool Regex, bool Word, bool Back)
-{
-  AnsiString FindTextAll = FindText;
-  if(Regex){
-    if(FindTextAll[1] != '^'){ FindTextAll.Insert("^", 1); }
-    if(*(FindTextAll.AnsiLastChar()) != '$'){ FindTextAll += "$"; }
-
-    for(int i=1; i<ReplaceText.Length(); i++){
-      if(ReplaceText[i] == '\\' && ReplaceText[i+1] == 'n'){
+static String GetStringForReplace(
+    String ReplaceText, bool Regex, const boost::wcmatch& match) {
+  if (!Regex) {
+    return ReplaceText;
+  }
+  for (int i = 1; i < ReplaceText.Length(); i++) {
+    TCHAR nextChar = ReplaceText[i + 1];
+    if (ReplaceText[i] == '$' && nextChar >= '0' && nextChar <= '9') {
+      unsigned int group = nextChar - '0';
+      if (match.size() > group) {
+        std::wstring str = match[group].str();
+        const TCHAR *cstr = str.c_str();
+        ReplaceText.Delete(i, 2);
+        ReplaceText.Insert(cstr, i);
+        i += str.length() - 1;
+      }
+    }
+    if (ReplaceText[i] == '\\') {
+      if (nextChar == 'n') {
         ReplaceText[i] = '\r';
         ReplaceText[i+1] = '\n';
-      }else if(ReplaceText[i] == '\\' && ReplaceText[i+1] == 't'){
+      } else if (nextChar == 't') {
         ReplaceText[i] = '\t';
-        ReplaceText.Delete(i+1, 1);
-      }else if(ReplaceText[i] == '\\' && ReplaceText[i+1] == '\\'){
-        ReplaceText[i] = '\\';
-        ReplaceText.Delete(i+1, 1);
+        ReplaceText.Delete(i + 1, 1);
+      } else if(nextChar == '\\' || nextChar == '$') {
+        ReplaceText.Delete(i, 1);
       }
     }
   }
-
+  return ReplaceText;
+}
+//---------------------------------------------------------------------------
+bool TMainGrid::Replace(String FindText , String ReplaceText,
+        int Range, bool Case, bool Regex, bool Word, bool Back)
+{
   TInplaceEdit *ipEd = InplaceEditor;
   if((Regex || ReplaceText != FindText) && ipEd){
     ipEd->SetFocus();
     if(Word && !Regex){
-      if((Case && (ipEd->Text == FindTextAll)) ||
-         (!Case && (ipEd->Text.LowerCase() == FindTextAll.LowerCase()))){
+      if((Case && (ipEd->Text == FindText)) ||
+         (!Case && (ipEd->Text.LowerCase() == FindText.LowerCase()))){
         ipEd->Text = ReplaceText;
         Modified = true;
       }
     }else{
-      if(Word){ ipEd->SelectAll(); }
+      if (Word) { ipEd->SelectAll(); }
       int Hit,Len;
+      boost::wcmatch match;
       try {
-        Hit = FindHit(ipEd->SelText, FindTextAll, Case, Regex, Back, &Len);
+        Hit = FindHit(
+            ipEd->SelText, FindText, Case, Regex, Word, Back, &Len, &match);
       } catch(const boost::regex_error& e) {
         ShowRegexErrorMessage(e);
         return false;
       }
-      if(Hit == 1 && Len == ipEd->SelText.Length()) {
-        ipEd->SelText = ReplaceText;
+      if (Hit == 1 && Len == ipEd->SelText.Length()) {
+        ipEd->SelText = GetStringForReplace(ReplaceText, Regex, match);
       }
     }
   }
@@ -2756,40 +2849,50 @@ bool TMainGrid::Replace(String FindText , String ReplaceText,
   return(Find(FindText,Range,Case,Regex,Word,Back));
 }
 //---------------------------------------------------------------------------
-void TMainGrid::AllReplace(String FindText , String ReplaceText,
-        int Range, bool Case, bool Regex, bool Word, bool Back)
+int TMainGrid::ReplaceAll(String FindText, String ReplaceText, int SLeft,
+    int STop, int SRight, int SBottom, bool Case, bool Regex, bool Word)
 {
-  int C = Col, R = Row;
-  Options << goEditing << goAlwaysShowEditor;
-  ShowEditor();
-  if(!Back){
-    if(Range != drThisCol) Col = FixedCols;
-    if(Range != drThisRow) Row = FixedRows;
-    TInplaceEdit *ipEd = InplaceEditor;
-    if(ipEd){
-      ipEd->SelLength = 0; ipEd->SelStart = 0;
-    }
-  }else{
-    if(Range != drThisCol) Col = DataRight;
-    if(Range != drThisRow) Row = DataBottom;
-    TInplaceEdit *ipEd = InplaceEditor;
-    if(ipEd){
-      ipEd->SelLength = 0; ipEd->SelStart = ipEd->Text.Length();
-    }
-  }
-
-  ::SendMessage(Handle, WM_SETREDRAW, 0, 0);
   int count = 0;
-  while(Replace(FindText,ReplaceText, Range, Case, Regex, Word, Back)){
-    if (!(++count & 0x07ff)) {
-      ::SendMessage(Handle, WM_SETREDRAW, 1, 0);
-      Refresh();
-      ::SendMessage(Handle, WM_SETREDRAW, 0, 0);
+  for (int y = STop; y <= SBottom; y++) {
+    for (int x = SLeft; x <= SRight; x++) {
+      String replacedText = "";
+      String cellText = Cells[x][y];
+      while (true) {
+        int len;
+        boost::wcmatch match;
+        int hit = FindHit(
+            cellText, FindText, Case, Regex, Word, false, &len, &match);
+        if (!hit) {
+          replacedText += cellText;
+          break;
+        }
+        if (len == 0) {
+          if (Word) {
+            replacedText = GetStringForReplace(ReplaceText, Regex, match);
+          } else {
+            replacedText += cellText;
+          }
+          break;
+        }
+        replacedText += cellText.SubString(1, hit - 1)
+            + GetStringForReplace(ReplaceText, Regex, match);
+        cellText = cellText.SubString(hit + len, cellText.Length());
+      }
+      if (replacedText != Cells[x][y]) {
+        if (count == 0) {
+          SetUndoCsv();
+          UndoSetLock++;
+        }
+        Cells[x][y] = replacedText;
+        count++;
+      }
     }
   }
-  ::SendMessage(Handle, WM_SETREDRAW, 1, 0);
-  Col = C; Row = R;
-  Refresh();
+  if (count > 0) {
+    UndoSetLock--;
+    Modified = true;
+  }
+  return count;
 }
 //---------------------------------------------------------------------------
 bool TMainGrid::NumFind(double *Min, double *Max, int Range, bool Back)

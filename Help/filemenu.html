@@ -11,12 +11,12 @@
 
 <!-- HEAD LINE -->
 <div class="headline">
-  <a href="http://www.asukaze.net/">
+  <a href="https://www.asukaze.net/">
     <img src="asukaze.png" width="88" height="31"
       alt="[あすかぜ・ねっと]" title="あすかぜ・ねっと"
       class="headline" />あすかぜ・ねっと</a> ＞
-  <a href="http://www.asukaze.net/soft/index.html">自作ソフト</a> ＞
-  <a href="http://www.asukaze.net/soft/cassava/index.html">Cassava</a> ＞
+  <a href="https://www.asukaze.net/soft/">自作ソフト</a> ＞
+  <a href="https://www.asukaze.net/soft/cassava/">Cassava</a> ＞
   <a href="index.html">ヘルプ</a> ＞
   ファイルメニュー
 </div>
@@ -36,12 +36,6 @@
   <ul>
   <li>現在の内容を破棄し、データを初期化します。</li>
   </ul>
-<h3>表サイズを指定して作成</h3>
-  <ul>
-  <li>行数・列数を指定して新規作成します。</li>
-  <li>一番下と一番右にダミーの行・列ができるため、
-      表のサイズは入力した行数・列数よりも1ずつ大きくなります。</li>
-  </ul>
 <h3>開く</h3>
   <ul>
   <li>保存したCSVファイルを読み込みます。</li>
@@ -50,11 +44,11 @@
   <ul>
   <li>変更内容を破棄し、今開いているファイルをもう一度読み込みます。</li>
   </ul>
-<h3>開き直す</h3>
+<h3>最近使用したファイル</h3>
   <ul>
   <li>最近開いたファイルを開きます。</li>
   </ul>
-<h3>文字コード指定再読込</h3>
+<h3>文字コード指定再読み込み</h3>
   <ul>
   <li>文字コードを指定して、今開いているファイルをもう一度読み込みます。</li>
   </ul>
@@ -69,7 +63,13 @@
 <h3>エクスポート</h3>
   <ul>
   <li>HTMLの&lt;table&gt;タグで出力します。</li>
-  <li>Exportフォルダ内にマクロファイルを置くことで、HTML以外の形式にも対応できます。</li>
+  <li>Exportフォルダ内にマクロファイルを置くことで、HTML以外の形式でも出力できます。</li>
+  </ul>
+<h3>保存時文字コード</h3>
+  <ul>
+  <li>出力時（保存・エクスポート）の文字コードと改行コードを指定します。</li>
+  <li>オプションダイアログで「ロード時に文字コードを判別する」がチェックされていれば、
+      ファイル読み込み時に自動判別された文字コードが設定されます。</li>
   </ul>
 <h3>現在のセルのファイルを開く</h3>
   <ul>
@@ -81,8 +81,10 @@
   </ul>
 <h3>印刷</h3>
   <ul>
-  <li>データを印刷します。「<strong>一応</strong>」印刷できる、程度のものです。</li>
-  <li>余白は設定よりも大きくなります。</li>
+  <li>データを印刷します。</li>
+  <li>余白・フォントを指定した後、「印刷」ボタンをクリックしてください。
+      プリンターの設定ダイアログが表示されるので、出力先のプリンターや用紙サイズを指定して
+      「OK」ボタンをクリックすると印刷が始まります。</li>
   </ul>
 <h3>はがき印刷</h3>
   <ul>
@@ -90,7 +92,7 @@
   </ul>
 <h3>終了</h3>
   <ul>
-  <li>Cassavaを終了します。</li>
+  <li>Cassava Editorを終了します。</li>
   </ul>
 
 
@@ -102,7 +104,7 @@
 <h2 class="sectitle">Menu</h2>
 
 <div class="MainMenu"><a href="index.html">Cassava ヘルプ</a></div>
-<div class="MainMenu"><a href="about.html">Cassavaとは</a></div>
+<div class="MainMenu"><a href="about.html">Cassava とは</a></div>
 <div class="MainMenu"><a href="install.html">インストール</a></div>
 <div class="MainMenuSel">メニュー</div>
   <ul class="MainMenu">
@@ -139,7 +141,7 @@
 <!-- SIGN -->
 <br style="clear: both;" />
 <address>
-  Copyright (C) 2000-2009 asukaze, Some Rights Reserved.<br />
+  Copyright (C) 2000-2018 asukaze, Some Rights Reserved.<br />
   mail (at) asukaze.net
 </address>
 <!-- ==== -->

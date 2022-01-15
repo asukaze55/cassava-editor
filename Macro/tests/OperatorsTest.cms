@@ -1,0 +1,76 @@
+import { Assert } from "lib/Assert.cms";
+
+class OperatorsTest {
+  name() {
+    return "OperatorsTest";
+  }
+
+  test(assert) {
+    assert.that(1 + 2).isEqualTo(3);
+    assert.that("1" + "2").isEqualTo("12");
+    assert.that("1" + 2).isEqualTo("12");
+    assert.that(1 + "2").isEqualTo("12");
+    assert.that(5 % 3).isEqualTo(2);
+    assert.that(10 * 20 + 30 / 5 - 40).isEqualTo(166);
+
+    assert.that(1 == 1).isTrue();
+    assert.that(1 == 2).isFalse();
+    assert.that(1 != 1).isFalse();
+    assert.that(1 != 2).isTrue();
+    assert.that(1 < 1).isFalse();
+    assert.that(1 < 2).isTrue();
+    assert.that(1 > 1).isFalse();
+    assert.that(2 > 1).isTrue();
+    assert.that(1 <= 1).isTrue();
+    assert.that(2 <= 1).isFalse();
+    assert.that(1 >= 1).isTrue();
+    assert.that(1 >= 2).isFalse();
+    assert.that(!false).isTrue();
+    assert.that(!true).isFalse();
+    assert.that(false && false).isFalse();
+    assert.that(false && true).isFalse();
+    assert.that(true && false).isFalse();
+    assert.that(true && true).isTrue();
+    assert.that(false || false).isFalse();
+    assert.that(false || true).isTrue();
+    assert.that(true || false).isTrue();
+    assert.that(true || true).isTrue();
+    assert.that(1 + 2 == 3 && 4 * 5 == 20 || false).isTrue();
+
+    a = 100;
+    a++;
+    assert.that(a).isEqualTo(101);
+
+    a = 100;
+    a--;
+    assert.that(a).isEqualTo(99);
+
+    a = 100;
+    a += 5;
+    assert.that(a).isEqualTo(105);
+
+    a = 100;
+    a += "5";
+    assert.that(a).isEqualTo("1005");
+
+    a = 100;
+    a -= 5;
+    assert.that(a).isEqualTo(95);
+
+    a = 100;
+    a *= 5;
+    assert.that(a).isEqualTo(500);
+
+    a = 100;
+    a /= 5;
+    assert.that(a).isEqualTo(20);
+
+    a = 100;
+    a /= 3;
+    assert.that(a).isEqualTo(100/3);
+  }
+}
+
+assert = new Assert();
+new OperatorsTest().test(assert);
+assert.showResult();

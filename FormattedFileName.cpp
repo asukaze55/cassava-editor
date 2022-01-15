@@ -3,12 +3,12 @@
 #pragma hdrstop
 #include "FormattedFileName.h"
 //---------------------------------------------------------------------------
-AnsiString FormattedFileName(AnsiString Format, AnsiString BaseFileName)
+String FormattedFileName(String Format, String BaseFileName)
 {
-  AnsiString Path2 = ExtractFilePath(BaseFileName);
-  AnsiString FileName2 = ExtractFileName(BaseFileName);
-  AnsiString Ext2 = ExtractFileExt(FileName2);
-  AnsiString Body2 = ChangeFileExt(FileName2,"");
+  String Path2 = ExtractFilePath(BaseFileName);
+  String FileName2 = ExtractFileName(BaseFileName);
+  String Ext2 = ExtractFileExt(FileName2);
+  String Body2 = ChangeFileExt(FileName2,"");
   if(Ext2.Length() >= 1 && Ext2[1]=='.') Ext2.Delete(1,1);
   unsigned short year, month, day;
   Date().DecodeDate(&year, &month, &day);
@@ -16,11 +16,11 @@ AnsiString FormattedFileName(AnsiString Format, AnsiString BaseFileName)
   Time().DecodeTime(&hours, &minutes, &seconds, &msec);
 
   bool nExists = false;
-  AnsiString FileName = "";
+  String FileName = "";
   for(int i=1; i<=Format.Length(); i++){
     if(Format[i] == '%' && i < Format.Length()){
       i++;
-      char ch = Format[i];
+      TCHAR ch = Format[i];
       switch(ch){
       case 'f':
         FileName += Body2;
@@ -29,7 +29,7 @@ AnsiString FormattedFileName(AnsiString Format, AnsiString BaseFileName)
         FileName += Ext2;
         break;
       case 'y':
-        FileName += (AnsiString)year;
+        FileName += (String)year;
         break;
       case 'M':
         FileName += (char)('0' + (month / 10));
@@ -73,11 +73,11 @@ AnsiString FormattedFileName(AnsiString Format, AnsiString BaseFileName)
   }
   if(nExists){
     for(int n = 1;; n++){
-      AnsiString FileNameTest = FileName;
+      String FileNameTest = FileName;
       int p;
-      while((p = FileNameTest.AnsiPos("<n>")) > 0){
+      while((p = FileNameTest.Pos("<n>")) > 0){
         FileNameTest.Delete(p, 3);
-        FileNameTest.Insert((AnsiString)n, p);
+        FileNameTest.Insert((String)n, p);
       }
       if(! FileExists(FileNameTest)){
         return FileNameTest;

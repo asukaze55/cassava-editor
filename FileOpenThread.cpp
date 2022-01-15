@@ -93,13 +93,8 @@ void __fastcall FileOpenThread::UpdateWidthHeight()
   }
   Grid->SetDataRightBottom(maxx, y, true);
   ::SendMessage(Grid->Handle, WM_SETREDRAW, 1, 0);
-  if(Grid->DefaultViewMode == 0){
-    Grid->ShowAllColumn();
-    Grid->SetHeight();
-  }else{
-    Grid->SetWidth();
-    Grid->SetHeight();
-  }
+  Grid->SetWidth();
+  Grid->SetHeight();
   Grid->Invalidate();
 }
 //---------------------------------------------------------------------------

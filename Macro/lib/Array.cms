@@ -1,0 +1,143 @@
+// 使用法：
+// このファイルを Array.cms という名前で Cassava Editor の Macro/lib フォルダに置いてください。
+// マクロ中で次のように記述すると文字列を分割して処理できます。
+//
+// import { split } from "lib/Array.cms";
+//
+// array = split("a,b,c", ",");          // "a,b,c" は分割したい文字列。"," は分割する記号。
+// for (i = 0; i < array.length; i++) {  // array.length で個数を取得。
+//   e = array[i];                       // array[i] で i 番目の要素を取得。
+//   // e に対する処理
+// }
+//
+// Array オブジェクトに対しては concat, includes, indexOf, join, lastIndexOf, pop, push, reverse,
+// shift, slice, unshift のメソッドを使用できます。各メソッドの仕様は実装から推測してください。
+
+class Array {
+  constructor() {
+    this.length = 0;
+  }
+
+  concat(array) {
+    result = new Array();
+    for (i = 0; i < this.length; i++) {
+      result.push(this[i]);
+    }
+    for (i = 0; i < array.length; i++) {
+      result.push(array[i]);
+    }
+    return result;
+  }
+
+  includes(searchElement) {
+    return this.indexOf(searchElement) >= 0;
+  }
+
+  indexOf(searchElement) {
+    for (i = 0; i < this.length; i++) {
+      if (this[i] == searchElement) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  join(separator) {
+    result = "";
+    for (i = 0; i < this.length; i++) {
+      if (i > 0) {
+        result += separator;
+      }
+      result += this[i];
+    }
+    return result;
+  }
+
+  lastIndexOf(searchElement) {
+    for (i = this.length - 1; i >= 0; i--) {
+      if (this[i] == searchElement) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  pop() {
+    if (this.length == 0) {
+      return "";
+    }
+    this.length--;
+    return this[this.length];
+  }
+
+  push(element) {
+    this[this.length] = element;
+    this.length++;
+    return this.length;
+  }
+
+  reverse() {
+    i = 0;
+    j = this.length - 1;
+    while (i < j) {
+      swap(this[i], this[j]);
+      i++;
+      j--;
+    }
+    return this;
+  }
+
+  shift() {
+    if (this.length == 0) {
+      return "";
+    }
+    result = this[0];
+    this.length--;
+    for (i = 0; i < this.length; i++) {
+      this[i] = this[i + 1];
+    }
+    return result;
+  }
+
+  slice(begin, end) {
+    result = new Array();
+    if (begin < 0) {
+      begin += this.length;
+    }
+    if (end < 0) {
+      end += this.length;
+    }
+    for (i = max(begin, 0); i < min(end, this.length); i++) {
+      result.push(this[i]);
+    }
+    return result;
+  }
+
+  unshift(element) {
+    for (i = this.length; i > 0; i--) {
+      this[i] = this[i - 1];
+    }
+    this[0] = element;
+    this.length++;
+    return this.length;
+  }
+}
+
+function split(str, separator) {
+  array = new Array();
+  while (str != "") {
+    p = pos(str, separator);
+    if (p > 0) {
+      array.push(left(str, p - 1));
+      str = mid(str, p + 1);
+    } else {
+      array.push(str);
+      str = "";
+    }
+  }
+  return array;
+}
+
+function arrayInputBox(message) {
+  return split(InputBoxMultiLine(message), "\n");
+}

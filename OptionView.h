@@ -44,6 +44,12 @@ __published:	// IDE 管理のコンポーネント
   TUpDown *udHintHidePause;
   TLabel *lblHintPauseMs;
   TLabel *lblHintHidePauseMs;
+    TGroupBox *gbRefresh;
+    TLabel *lblMaxRowHeightLines;
+    TLabel *lblMaxRowHeightLinesUnit;
+    TCheckBox *cbCompactColWidth;
+    TEdit *edMaxRowHeightLines;
+    TCheckBox *cbCalcWidthForAllRow;
     void __fastcall btnFontClick(TObject *Sender);
 private:	// ユーザー宣言
 public:		// ユーザー宣言

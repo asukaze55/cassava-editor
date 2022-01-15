@@ -25,11 +25,16 @@ void TfrOptionView::RestoreFromMainForm()
   udCellLineMargin->Position = fmMain->MainGrid->CellLineMargin;
 
   cbWordWrap->Checked = fmMain->MainGrid->WordWrap;
-  cbNumAlignRight->Checked = (fmMain->MainGrid->TextAlignment == cssv_taNumRight);
+  cbNumAlignRight->Checked =
+      (fmMain->MainGrid->TextAlignment == cssv_taNumRight);
   cbNum3->Checked = (fmMain->MainGrid->NumberComma != 0);
   int decimalDigits = fmMain->MainGrid->DecimalDigits;
   cbOmitDecimal->Checked = (decimalDigits >= 0);
   udOmitDigits->Position = (decimalDigits >= 0 ? decimalDigits : 2);
+
+  cbCompactColWidth->Checked = fmMain->MainGrid->CompactColWidth;
+  cbCalcWidthForAllRow->Checked = fmMain->MainGrid->CalcWidthForAllRow;
+  edMaxRowHeightLines->Text = fmMain->MainGrid->MaxRowHeightLines;
 
   cbShowToolTipForLongCell->Checked = fmMain->MainGrid->ShowToolTipForLongCell;
   udHintPause->Position = Application->HintPause;
@@ -50,6 +55,10 @@ void TfrOptionView::StoreToMainForm()
   fmMain->MainGrid->NumberComma = (cbNum3->Checked ? 3 : 0);
   fmMain->MainGrid->DecimalDigits = (cbOmitDecimal->Checked ?
     udOmitDigits->Position : -1);
+
+  fmMain->MainGrid->CompactColWidth = cbCompactColWidth->Checked;
+  fmMain->MainGrid->CalcWidthForAllRow = cbCalcWidthForAllRow->Checked;
+  fmMain->MainGrid->MaxRowHeightLines = edMaxRowHeightLines->Text.ToDouble();
 
   fmMain->MainGrid->ShowToolTipForLongCell = cbShowToolTipForLongCell->Checked;
   Application->HintPause = udHintPause->Position;

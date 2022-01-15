@@ -106,7 +106,7 @@ __published:	// IDE 管理のコンポーネント
   TMenuItem *mnUnFix;
   TMenuItem *mnN12;
   TMenuItem *mnSort;
-  TMenuItem *mnKanjiCode;
+  TMenuItem *mnCharCode;
   TMenuItem *mnSjis;
   TMenuItem *mnEuc;
   TMenuItem *mnJis;
@@ -131,7 +131,6 @@ __published:	// IDE 管理のコンポーネント
   TMenuItem *mnOpenHistory0;
   TMenuItem *mnUtf16be;
   TMenuItem *mnOptionDlg;
-  TMenuItem *mnShowAllColumn;
   TMenuItem *mnPrint;
   TMenuItem *mnTransChar;
   TMenuItem *mnTransChar0;
@@ -147,7 +146,6 @@ __published:	// IDE 管理のコンポーネント
   TMenuItem *mnSequence;
   TMenuItem *mnSequenceC;
   TMenuItem *mnSequenceS;
-  TMenuItem *mnNewSize;
   TMenuItem *mnRedo;
   TMenuItem *mnpSort;
   TTimer *tmAutoSaver;
@@ -208,7 +206,6 @@ __published:	// IDE 管理のコンポーネント
     TToolButton *tsbFind;
     TToolButton *ToolButton19;
     TToolButton *tsbRefresh;
-    TToolButton *tsbShowAllColumn;
     TToolButton *tsbFont;
     TToolButton *sbCalcExpression;
     TToolButton *ToolButton23;
@@ -240,6 +237,7 @@ __published:	// IDE 管理のコンポーネント
   TMenuItem *mnCutFormat;
   TMenuItem *mnCutFormatDefault;
   TMenuItem *mnpCutFormat;
+  TMenuItem *mnN10;
   void __fastcall mnNewClick(TObject *Sender);
   void __fastcall mnOpenClick(TObject *Sender);
   void __fastcall mnEndClick(TObject *Sender);
@@ -285,7 +283,6 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall mnOpenHistorysClick(TObject *Sender);
   void __fastcall mnOpenHistoryClearClick(TObject *Sender);
   void __fastcall mnOptionDlgClick(TObject *Sender);
-  void __fastcall mnShowAllColumnClick(TObject *Sender);
   void __fastcall mnPrintClick(TObject *Sender);
   void __fastcall mnTransCharClick(TObject *Sender);
   void __fastcall mnShowToolbarClick(TObject *Sender);
@@ -293,7 +290,6 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall mnSequenceClick(TObject *Sender);
   void __fastcall mnSequenceCClick(TObject *Sender);
   void __fastcall mnSequenceSClick(TObject *Sender);
-  void __fastcall mnNewSizeClick(TObject *Sender);
   void __fastcall mnpSortClick(TObject *Sender);
   void __fastcall tmAutoSaverTimer(TObject *Sender);
   void __fastcall mnMacroExecClick(TObject *Sender);
@@ -337,6 +333,8 @@ __published:	// IDE 管理のコンポーネント
     void __fastcall acPasteUpdate(TObject *Sender);
   void __fastcall mnCutFormatDefaultClick(TObject *Sender);
   void __fastcall mnMacroClick(TObject *Sender);
+  void __fastcall mnCharCodeClick(TObject *Sender);
+  void __fastcall mnReturnCodeClick(TObject *Sender);
 
 private:    // ユーザー宣言
   void OpenFile(String OpenFileName, int KCode=CHARCODE_AUTO);
@@ -391,7 +389,7 @@ public:     // ユーザー宣言
   void MacroExec(String CmsFile, EncodedWriter *io);
   void MacroScriptExec(String cmsname, String script);
   String GetCalculatedCell(String Str, int ACol, int ARow);
-  void UpdateKCode();
+  String GetFormattedCell(int ACol, int ARow);
   void Export(String filename, String type);
 
   bool MakeNewWindow;
@@ -427,8 +425,9 @@ public:     // ユーザー宣言
   int PrintFontSize;
   int PrintMargin[4];
 
+  TStringList *SystemMacroCache;
+  String FormatCmsFile;
   String StatusbarCmsFile;
-  TStringList *StatusbarMacroCache;
   void UpdateStatusbar();
 };
 //---------------------------------------------------------------------------

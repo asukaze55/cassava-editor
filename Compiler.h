@@ -3,12 +3,13 @@
 #ifndef CompilerH
 #define CompilerH
 //---------------------------------------------------------------------------
-bool MacroCompile(TStream *stream, TStringList *inpaths,
-                  AnsiString inpath, AnsiString inname, AnsiString ext,
+bool MacroCompile(String *source, String fileName, TStringList *macroDirs,
                   TStringList *modules, bool showMessage);
 
-bool MacroCompile(AnsiString infile, TStringList *inpaths,
-                  TStringList *modules, bool showMessage);
+bool MacroCompile(String fileName, TStringList *macroDirs, TStringList *modules,
+                  bool showMessage);
+
+String GetMacroModuleName(String fileName, String funcName, String argCount);
 //---------------------------------------------------------------------------
 #endif
 #endif

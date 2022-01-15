@@ -2,7 +2,7 @@ object frOptionView: TfrOptionView
   Left = 0
   Top = 0
   Width = 360
-  Height = 400
+  Height = 510
   TabOrder = 0
   object gbFont: TGroupBox
     Left = 3
@@ -128,7 +128,7 @@ object frOptionView: TfrOptionView
   end
   object gbView: TGroupBox
     Left = 3
-    Top = 143
+    Top = 146
     Width = 354
     Height = 146
     Caption = #34920#31034#12458#12503#12471#12519#12531
@@ -193,11 +193,11 @@ object frOptionView: TfrOptionView
   end
   object gbTooltip: TGroupBox
     Left = 3
-    Top = 292
+    Top = 403
     Width = 354
     Height = 105
     Caption = #12484#12540#12523#12481#12483#12503
-    TabOrder = 2
+    TabOrder = 3
     object lblHintPause: TLabel
       Left = 13
       Top = 52
@@ -273,6 +273,52 @@ object frOptionView: TfrOptionView
       Max = 2147483647
       Position = 500
       TabOrder = 4
+    end
+  end
+  object gbRefresh: TGroupBox
+    Left = 3
+    Top = 298
+    Width = 354
+    Height = 99
+    Caption = #21015#24133#12392#34892#12398#39640#12373
+    TabOrder = 2
+    object lblMaxRowHeightLines: TLabel
+      Left = 14
+      Top = 70
+      Width = 181
+      Height = 13
+      Caption = #12475#12523#20869#25913#34892#12434#21547#12416#34892#12398#39640#12373#12398#26368#22823#20516#65306
+    end
+    object lblMaxRowHeightLinesUnit: TLabel
+      Left = 321
+      Top = 70
+      Width = 12
+      Height = 13
+      Caption = #34892
+    end
+    object cbCompactColWidth: TCheckBox
+      Left = 14
+      Top = 21
+      Width = 337
+      Height = 17
+      Caption = #21015#25968#12364#22810#12356#22580#21512#12399#21015#24133#12434#29421#12367#12377#12427
+      TabOrder = 0
+    end
+    object edMaxRowHeightLines: TEdit
+      Left = 226
+      Top = 67
+      Width = 89
+      Height = 21
+      TabOrder = 2
+      Text = '1.5'
+    end
+    object cbCalcWidthForAllRow: TCheckBox
+      Left = 14
+      Top = 44
+      Width = 337
+      Height = 17
+      Caption = #30011#38754#22806#12398#34892#12418#21015#24133#35519#25972#12398#23550#35937#12392#12377#12427
+      TabOrder = 1
     end
   end
 end

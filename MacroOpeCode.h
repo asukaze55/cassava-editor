@@ -2,30 +2,33 @@
 #ifndef MacroOpeCodeH
 #define MacroOpeCodeH
 //---------------------------------------------------------------------------
-#define CMO_Pointer  'P' /* "*"  */
 #define CMO_Goto     'g' /* if,while */
 #define CMO_Minus    'm' /* "-"  */
 #define CMO_Inc      'i' /* "++" */
 #define CMO_Dec      'd' /* "--" */
 #define CMO_Eq       'Q' /* "==" */
-#define CMO_PSubst   'p' /* "=&" */
+#define CMO_Add      'A' /* "+=" */
+#define CMO_Subtract 'S' /* "-=" */
+#define CMO_Multiply 'M' /* "*=" */
+#define CMO_Divide   'D' /* "/=" */
 #define CMO_NEq      'N' /* "!=" */
 #define CMO_LEq      'L' /* "<=" */
 #define CMO_GEq      'G' /* ">=" */
 //---------------------------------------------------------------------------
-char CMOCode(AnsiString str){
-  if(str == "++") return 'i';
-  else if(str == "--") return 'd';
-  else if(str == "==") return 'Q';
-  else if(str == "=&") return 'p';
-  else if(str == "!=") return 'N';
-  else if(str == "<=" || str == "=<") return 'L';
-  else if(str == ">=" || str == "=>") return 'G';
+char CMOCode(String str){
+  if(str == "++") return CMO_Inc;
+  else if(str == "--") return CMO_Dec;
+  else if(str == "==") return CMO_Eq;
+  else if(str == "+=") return CMO_Add;
+  else if(str == "-=") return CMO_Subtract;
+  else if(str == "*=") return CMO_Multiply;
+  else if(str == "/=") return CMO_Divide;
+  else if(str == "!=") return CMO_NEq;
+  else if(str == "<=" || str == "=<") return CMO_LEq;
+  else if(str == ">=" || str == "=>") return CMO_GEq;
   else if(str == "&&") return '&';
   else if(str == "||") return '|';
   return '\0';
 }
 //---------------------------------------------------------------------------
 #endif
-
- 

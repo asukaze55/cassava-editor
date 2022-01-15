@@ -42,8 +42,6 @@ __published:	// IDE 管理のコンポーネント
         void __fastcall btnOpenClick(TObject *Sender);
         void __fastcall tvMenuChanging(TObject *Sender, TTreeNode *Node,
           bool &AllowChange);
-        void __fastcall tvMenuEdited(TObject *Sender, TTreeNode *Node,
-          AnsiString &S);
         void __fastcall edSelectedChange(TObject *Sender);
 private:	// ユーザー宣言
 public:		// ユーザー宣言
@@ -62,7 +60,7 @@ public:		// ユーザー宣言
             TMenuItem *MenuItem;
             Word Key;
             TShiftState Shift;
-            AnsiString Caption;
+            String Caption;
             __property TShortCut MShortCut
               = {read=GetMShortCut, write=SetMShortCut};
             __property bool Modified = {read=GetModified};
@@ -79,8 +77,8 @@ public:		// ユーザー宣言
         void SetMSC(TMenuShortCut *MSC);
         int KeyToIndex(Word Key);
         void MenuUpDate();
-        bool SaveKey(AnsiString FileName);
-        bool LoadKey(AnsiString FileName);
+        bool SaveKey(String FileName);
+        bool LoadKey(String FileName);
         TMenuShortCut *NowMSC;
 };
 //---------------------------------------------------------------------------

@@ -8,12 +8,12 @@
 //---------------------------------------------------------------------------
 String Version::Current()
 {
-  return "1.9.5";
+  return "2.0.6";
 }
 //---------------------------------------------------------------------------
 String Version::CurrentDate()
 {
-  return "2018/06/03";
+  return "2019/04/07";
 }
 //---------------------------------------------------------------------------
 bool Version::CurrentIsBeta()
@@ -55,8 +55,8 @@ void __fastcall UpdateCheckThread::Execute()
 {
   TCHAR title[] = TEXT("更新の確認");
   TStringList *list = new TStringList();
-  list->Text = HTTPGet("www.asukaze.net", 80,
-    "/soft/cassava/update.cgi?ver=" + Version::Current());
+  list->Text = HttpsGet("www.asukaze.net", 443,
+                        "/soft/cassava/update.cgi?ver=" + Version::Current());
   if(list->Count < 6){
     Application->MessageBox(TEXT("情報の取得に失敗しました。"), title,0);
     delete list;

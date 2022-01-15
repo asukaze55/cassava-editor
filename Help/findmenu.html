@@ -11,12 +11,12 @@
 
 <!-- HEAD LINE -->
 <div class="headline">
-  <a href="http://www.asukaze.net/">
+  <a href="https://www.asukaze.net/">
     <img src="asukaze.png" width="88" height="31"
       alt="[あすかぜ・ねっと]" title="あすかぜ・ねっと"
       class="headline" />あすかぜ・ねっと</a> ＞
-  <a href="http://www.asukaze.net/soft/index.html">自作ソフト</a> ＞
-  <a href="http://www.asukaze.net/soft/cassava/index.html">Cassava</a> ＞
+  <a href="https://www.asukaze.net/soft/">自作ソフト</a> ＞
+  <a href="https://www.asukaze.net/soft/cassava/">Cassava</a> ＞
   <a href="index.html">ヘルプ</a> ＞
   検索メニュー
 </div>
@@ -64,7 +64,7 @@
   <li>アルファベットの大文字と小文字を区別して検索します。
       チェックをはずすと大文字・小文字を無視します。</li>
   </ul>
-<h3>ワード検索（セル全体との比較）</h3>
+<h3>セル内容が完全に同一であるものを検索</h3>
   <ul>
   <li>セルの内容が完全に一致するもののみを検索します。</li>
   </ul>
@@ -72,8 +72,17 @@
   <ul>
   <li>正規表現で検索します。</li>
   <li>. [ ] - ^ * ? + $ ( ) { } などの記号が使えます。</li>
-  <li>正規表現検索の場合のみ、置換後の文字列で「\n」が改行に、
-      「\t」がタブに、「\\」が「\」に変換されます。</li>
+  <li>正規表現検索の場合のみ、置換後の文字列が以下のように変換されます。
+    <table>
+    <tr><th>入力値</th><th>実際に置換される文字列</th></tr>
+    <tr><td>\n</td><td>改行</td></tr>
+    <tr><td>\t</td><td>タブ</td></tr>
+    <tr><td>\\</td><td>\</td></tr>
+    <tr><td>\$</td><td>$</td></tr>
+    <tr><td>$0</td><td>正規表現全体にマッチした文字列</td></tr>
+    <tr><td>$1, $2, ..., $9</td><td>正規表現の () 内にマッチした文字列</td></tr>
+    </table>
+  </li>
   </ul>
 <h3>検索対象</h3>
   <ul>
@@ -116,7 +125,7 @@
 <h2 class="sectitle">Menu</h2>
 
 <div class="MainMenu"><a href="index.html">Cassava ヘルプ</a></div>
-<div class="MainMenu"><a href="about.html">Cassavaとは</a></div>
+<div class="MainMenu"><a href="about.html">Cassava とは</a></div>
 <div class="MainMenu"><a href="install.html">インストール</a></div>
 <div class="MainMenuSel">メニュー</div>
   <ul class="MainMenu">
@@ -153,7 +162,7 @@
 <!-- SIGN -->
 <br style="clear: both;" />
 <address>
-  Copyright (C) 2000-2014 asukaze, Some Rights Reserved.<br />
+  Copyright (C) 2000-2018 asukaze, Some Rights Reserved.<br />
   mail (at) asukaze.net
 </address>
 <!-- ==== -->

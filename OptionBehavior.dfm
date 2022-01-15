@@ -2,17 +2,17 @@ object frOptionBehavior: TfrOptionBehavior
   Left = 0
   Top = 0
   Width = 360
-  Height = 400
+  Height = 420
   TabOrder = 0
   TabStop = True
-  object Label14: TLabel
+  object lblDragMove: TLabel
     Left = 8
     Top = 16
     Width = 129
     Height = 13
     Caption = #22266#23450#12475#12523#12489#12521#12483#12464#26178#12398#21205#20316#65306
   end
-  object Label15: TLabel
+  object lblEnterMove: TLabel
     Left = 8
     Top = 48
     Width = 116
@@ -66,12 +66,12 @@ object frOptionBehavior: TfrOptionBehavior
   end
   object gbMacro: TGroupBox
     Left = 3
-    Top = 264
+    Top = 230
     Width = 354
     Height = 81
     Caption = #12510#12463#12525
-    TabOrder = 7
-    object Label17: TLabel
+    TabOrder = 6
+    object lblStopMacroCount: TLabel
       Left = 141
       Top = 47
       Width = 12
@@ -95,6 +95,7 @@ object frOptionBehavior: TfrOptionBehavior
       Top = 44
       Width = 121
       Height = 21
+      NumbersOnly = True
       TabOrder = 1
       Text = '100000'
     end
@@ -107,29 +108,21 @@ object frOptionBehavior: TfrOptionBehavior
     Caption = #21336#19968#21015#36984#25246#26178#12399#20840#20307#12434#12477#12540#12488
     TabOrder = 4
   end
-  object cbCalcWidthForAllRow: TCheckBox
-    Left = 8
-    Top = 150
-    Width = 337
-    Height = 17
-    Caption = #21015#24133#35519#25972#12399#30011#38754#22806#12398#34892#12418#23550#35937#12392#12377#12427
-    TabOrder = 5
-  end
   object gbWheel: TGroupBox
     Left = 3
-    Top = 173
+    Top = 150
     Width = 354
-    Height = 85
+    Height = 74
     Caption = #12507#12452#12540#12523
-    TabOrder = 6
-    object Label1: TLabel
+    TabOrder = 5
+    object lblWheelScrollStep: TLabel
       Left = 14
       Top = 46
       Width = 124
       Height = 13
       Caption = #12510#12454#12473#12507#12452#12540#12523#12398#31227#21205#34892#25968
     end
-    object Label2: TLabel
+    object lblWheelMoveCursol: TLabel
       Left = 14
       Top = 22
       Width = 112
@@ -141,6 +134,7 @@ object frOptionBehavior: TfrOptionBehavior
       Top = 44
       Width = 126
       Height = 21
+      NumbersOnly = True
       TabOrder = 1
       Text = '1'
     end

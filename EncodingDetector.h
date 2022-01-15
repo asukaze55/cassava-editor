@@ -12,6 +12,6 @@
 #define CHARCODE_UTF16LE (4)
 #define CHARCODE_UTF16BE (5)
 //---------------------------------------------------------------------------
-int DetectEncode(byte *buf, int len);
+int DetectEncode(byte *buf, int len, int def);
 //---------------------------------------------------------------------------
 #endif

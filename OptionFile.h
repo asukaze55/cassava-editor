@@ -28,6 +28,7 @@ __published:  // IDE 管理のコンポーネント
   TGroupBox *gbOpen;
   TCheckBox *cbNewWindow;
   TCheckBox *cbTitleFullPath;
+  TCheckBox *cbUseUtf8AsDefault;
 private:  // ユーザー宣言
 public:   // ユーザー宣言
   __fastcall TfrOptionFile(TComponent* Owner);
@@ -36,10 +37,10 @@ public:   // ユーザー宣言
           bool NewKanren, bool NewKanrenNew);
   bool KanrenCSV;
   bool KanrenCSVNew;
-  AnsiString CSVFileType;
+  String CSVFileType;
   bool KanrenTSV;
   bool KanrenTSVNew;
-  AnsiString TSVFileType;
+  String TSVFileType;
   void RestoreFromMainForm();
   void StoreToMainForm();
 };

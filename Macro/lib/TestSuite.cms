@@ -1,0 +1,44 @@
+// 使用法：
+// このファイルを TestSuite.cms という名前で Cassava Editor の Macro/lib フォルダに置いてください。
+// 各テストクラスは、name() と test(assert) メソッドを実装してください。
+// name() はテスト内容を表す文字列を返します。
+// test(assert) は assert.that() を使用したテストを実行します。
+// 複数のテストをまとめたテストスイートは次のように実行します。
+//
+// import { TestSuite } from "lib/TestSuite.cms";
+//
+// testSuite = new TestSuite();
+//
+// testSuite.run(new テストクラス1());
+// testSuite.run(new テストクラス2());
+// testSuite.run(new テストクラス3());
+//
+// testSuite.showResult();
+
+import { Assert } from "lib/Assert.cms";
+
+class TestSuite {
+  constructor() {
+    this.failed = false;
+    this.detail = "";
+  }
+
+  run(testCase) {
+    if (this.failed) {
+      return;
+    }
+    var assert = new Assert().setName(testCase.name());
+    testCase.test(assert);
+    if (assert.isFailed()) {
+      assert.showResult();
+      this.failed = true;
+    }
+    this.detail += testCase.name() + " (" + assert.passed + "/" + assert.tested + ")\n";
+  }
+
+  showResult() {
+    if (!this.failed) {
+      MessageBox("OK\n\n" + this.detail);
+    }
+  }
+}

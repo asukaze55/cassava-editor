@@ -1,0 +1,75 @@
+// 使用法：
+// このファイルを Assert.cms という名前で Cassava Editor の Macro/lib フォルダに置いてください。
+// テストしたいマクロ中で次のように記述します。
+//
+// import { Assert } from "lib/Assert.cms";
+//
+// assert = new Assert();
+// ... テスト対象の処理 ...
+// assert.that(実行結果).isEqualTo(期待する結果);
+// assert.showResult();
+
+class That {
+  constructor(assert, actual) {
+    this.assert = assert;
+    this.actual = actual;
+  }
+
+  isEqualTo(expected) {
+    if (expected == this.actual) {
+      this.assert.passed++;
+      this.assert.detail += expected + " = " + this.actual + "\n";
+    } else {
+      this.assert.detail += "FAILED: " + expected + " != " + this.actual + "\n";
+    }
+  }
+
+  isTrue() {
+    if (this.actual) {
+      this.assert.passed++;
+      this.assert.detail += "true: " + this.actual + "\n";
+    } else {
+      this.assert.detail += "FAILED: false: " + this.actual + "\n";
+    }
+  }
+
+  isFalse() {
+    if (this.actual) {
+      this.assert.detail += "FAILED: true: " + this.actual + "\n";
+    } else {
+      this.assert.passed++;
+      this.assert.detail += "false: " + this.actual + "\n";
+    }
+  }
+}
+
+class Assert {
+  constructor() {
+    this.tested = 0;
+    this.passed = 0;
+    this.name = "";
+    this.detail = "";
+  }
+
+  setName(name) {
+    this.name = ": " + name;
+    return this;
+  }
+
+  that(actual) {
+    this.tested++;
+    return new That(this, actual);
+  }
+
+  showResult() {
+    if (this.tested == this.passed) {
+      MessageBox("OK" + this.name + "\n\n" + this.detail);
+    } else {
+      MessageBox("FAILED" + this.name + "\n\n" + this.detail);
+    }
+  }
+
+  isFailed() {
+    return this.tested != this.passed;
+  }
+}

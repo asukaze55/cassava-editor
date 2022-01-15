@@ -44,7 +44,7 @@ object frOptionFile: TfrOptionFile
   end
   object gbKanren: TGroupBox
     Left = 3
-    Top = 247
+    Top = 263
     Width = 354
     Height = 121
     Caption = #38306#36899#20184#12369
@@ -86,7 +86,7 @@ object frOptionFile: TfrOptionFile
     Left = 3
     Top = 174
     Width = 354
-    Height = 59
+    Height = 83
     Caption = #25991#23383#12467#12540#12489
     TabOrder = 2
     object cbCheckKanji: TCheckBox
@@ -97,6 +97,14 @@ object frOptionFile: TfrOptionFile
       Caption = #12525#12540#12489#26178#12395#25991#23383#12467#12540#12489#12434#21028#21029#12377#12427
       TabOrder = 0
     end
+    object cbUseUtf8AsDefault: TCheckBox
+      Left = 12
+      Top = 48
+      Width = 338
+      Height = 17
+      Caption = 'UTF-8 '#12434#20778#20808#12375#12390#20351#29992#12377#12427
+      TabOrder = 1
+    end
   end
   object gbOpen: TGroupBox
     Left = 3
@@ -106,7 +114,7 @@ object frOptionFile: TfrOptionFile
     Caption = #38283#12367
     TabOrder = 0
     object cbNewWindow: TCheckBox
-      Left = 13
+      Left = 12
       Top = 24
       Width = 337
       Height = 17
@@ -114,7 +122,7 @@ object frOptionFile: TfrOptionFile
       TabOrder = 0
     end
     object cbTitleFullPath: TCheckBox
-      Left = 13
+      Left = 12
       Top = 47
       Width = 337
       Height = 17

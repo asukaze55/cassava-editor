@@ -101,7 +101,7 @@ void UTF16BE_Next(byte b, int i, int &error, int &hit, int &flag)
   }
 }
 //---------------------------------------------------------------------------
-int DetectEncode(byte *buf, int len)
+int DetectEncode(byte *buf, int len, int def)
 {
 #define CHARCODE_COUNT 6
   funcNext *next[CHARCODE_COUNT];
@@ -143,11 +143,11 @@ int DetectEncode(byte *buf, int len)
     }
   }
 
-  int result = 0;
-  int minerr = error[0];
+  int result = (def >= 0 && def < CHARCODE_UTF16LE) ? def : 0;
+  int minerr = error[result];
   // UTF-16 は error をカウントしないため比較対象外
-  for(int i=1; i<CHARCODE_UTF16LE; i++){
-    if(error[i] < minerr){
+  for (int i = 0; i < CHARCODE_UTF16LE; i++) {
+    if (error[i] < minerr) {
       result = i;
       minerr = error[i];
     }

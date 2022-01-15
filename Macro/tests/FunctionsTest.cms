@@ -1,0 +1,188 @@
+import { Assert } from "lib/Assert.cms";
+
+class FunctionsTest {
+  name() {
+    return "FunctionsTest";
+  }
+
+  clear() {
+    Right = 1;
+    Bottom = 1;
+    Col = 1;
+    Row = 1;
+    [1,1] = "";
+  }
+
+  getValues(l, t, r, b) {
+    result = "";
+    for (y = t; y <= b; y++) {
+      for (x = l; x <= r; x++) {
+        result += [x,y];
+      }
+    }
+    return result;
+  }
+
+  test(assert) {
+    this.clear();
+
+    moveto(1, 2);
+    assert.that(Col).isEqualTo(1);
+    assert.that(Row).isEqualTo(2);
+
+    move(3, 4);
+    assert.that(Col).isEqualTo(4);
+    assert.that(Row).isEqualTo(6);
+
+    write(123);
+    assert.that([4,6]).isEqualTo(123);
+    assert.that(Col).isEqualTo(5);
+    assert.that(Row).isEqualTo(6);
+
+    writeln(456);
+    assert.that([5,6]).isEqualTo(456);
+    assert.that(Col).isEqualTo(1);
+    assert.that(Row).isEqualTo(7);
+
+    a = 1;
+    b = 2;
+    swap(a, b);
+    assert.that(a).isEqualTo(2);
+    assert.that(b).isEqualTo(1);
+
+    InsertRow(1);
+    assert.that([4,7]).isEqualTo(123);
+
+    DeleteRow(1);
+    assert.that([4,6]).isEqualTo(123);
+
+    InsertCol(1);
+    assert.that([5,6]).isEqualTo(123);
+
+    DeleteCol(1);
+    assert.that([4,6]).isEqualTo(123);
+
+    a = "abcde";
+    mid(a, 3, 2) = "===";
+    assert.that(a).isEqualTo("ab===e");
+
+    originalRowHeight = GetRowHeight();
+    SetRowHeight(1, 5);
+    assert.that(GetRowHeight(1)).isEqualTo(5);
+
+    SetRowHeight(10);
+    assert.that(GetRowHeight(1)).isEqualTo(10);
+    SetRowHeight(originalRowHeight);
+
+    originalColWidth = GetColWidth();
+    SetColWidth(1, 5);
+    assert.that(GetColWidth(1)).isEqualTo(5);
+
+    SetColWidth(10);
+    assert.that(GetColWidth(1)).isEqualTo(10);
+    SetColWidth(originalColWidth);
+
+    [1,1] = 3;
+    [1,2] = 10;
+    [1,3] = 4;
+    [1,4] = "AAA3";
+    [1,5] = "aaa2";
+    [1,6] = "‚`‚`‚`‚P";
+    for (y = 1; y <= 6; y++) {
+      [2,y] = y;
+    }
+
+    Sort(1, 1, 2, 6, 1, false, false, false, false);
+    assert.that(this.getValues(1, 1, 1, 6)).isEqualTo("1034AAA3aaa2‚`‚`‚`‚P");
+    assert.that(this.getValues(2, 1, 2, 6)).isEqualTo("213456");
+
+    Sort(1, 1, 2, 6, 1, true, false, false, false);
+    assert.that(this.getValues(1, 1, 1, 6)).isEqualTo("‚`‚`‚`‚Paaa2AAA34310");
+    assert.that(this.getValues(2, 1, 2, 6)).isEqualTo("654312");
+
+    Sort(1, 1, 2, 6, 1, false, true, false, false);
+    assert.that(this.getValues(1, 1, 1, 6)).isEqualTo("3410AAA3aaa2‚`‚`‚`‚P");
+    assert.that(this.getValues(2, 1, 2, 6)).isEqualTo("132456");
+
+    Sort(1, 1, 2, 6, 1, false, false, true, false);
+    assert.that(this.getValues(1, 1, 1, 6)).isEqualTo("1034aaa2AAA3‚`‚`‚`‚P");
+    assert.that(this.getValues(2, 1, 2, 6)).isEqualTo("213546");
+
+    Sort(1, 1, 2, 6, 1, false, false, false, true);
+    assert.that(this.getValues(1, 1, 1, 6)).isEqualTo("1034‚`‚`‚`‚PAAA3aaa2");
+    assert.that(this.getValues(2, 1, 2, 6)).isEqualTo("213645");
+
+    for (y = 1; y <= 3; y++) {
+      for (x = 1; x <= 3; x++) {
+        [x,y] = "ABC";
+      }
+    }
+
+    ReplaceAll("B", "Z");
+    assert.that(this.getValues(1, 1, 3, 3)).isEqualTo("AZCAZCAZCAZCAZCAZCAZCAZCAZC");
+    ReplaceAll("z", "y", true, false, false);
+    assert.that(this.getValues(1, 1, 3, 3)).isEqualTo("AyCAyCAyCAyCAyCAyCAyCAyCAyC");
+    ReplaceAll("y", "x", false, true, false);
+    assert.that(this.getValues(1, 1, 3, 3)).isEqualTo("AyCAyCAyCAyCAyCAyCAyCAyCAyC");
+    ReplaceAll("AyC", "ABC", false, true, false);
+    assert.that(this.getValues(1, 1, 3, 3)).isEqualTo("ABCABCABCABCABCABCABCABCABC");
+    ReplaceAll("(A+)(B+)(C+)", "$1:$2:$3", false, false, true);
+    assert.that(this.getValues(1, 1, 3, 3)).isEqualTo("A:B:CA:B:CA:B:CA:B:CA:B:CA:B:CA:B:CA:B:CA:B:C");
+    ReplaceAll("(a+):(b+):(c+)", "$1-$2-$3", true, false, true);
+    assert.that(this.getValues(1, 1, 3, 3)).isEqualTo("A-B-CA-B-CA-B-CA-B-CA-B-CA-B-CA-B-CA-B-CA-B-C");
+    ReplaceAll("B+", "#$0#", false, true, true);
+    assert.that(this.getValues(1, 1, 3, 3)).isEqualTo("A-B-CA-B-CA-B-CA-B-CA-B-CA-B-CA-B-CA-B-CA-B-C");
+    ReplaceAll("A+\\-B+\\-C+", "#$0#", false, true, true);
+    assert.that(this.getValues(1, 1, 3, 3)).isEqualTo("#A-B-C##A-B-C##A-B-C##A-B-C##A-B-C##A-B-C##A-B-C##A-B-C##A-B-C#");
+    ReplaceAll("-B-", "", false, false, false, 2, 2, 2, 2);
+    assert.that(this.getValues(1, 1, 3, 3)).isEqualTo("#A-B-C##A-B-C##A-B-C##A-B-C##AC##A-B-C##A-B-C##A-B-C##A-B-C#");
+
+    cell(3, 1) = "abc";
+    assert.that(cell(3, 1)).isEqualTo("abc");
+    assert.that([3, 1]).isEqualTo("abc");
+
+    assert.that(int("1.25") + int(-5.5)).isEqualTo(-4);
+    assert.that(double("1.25") + double(-5.5)).isEqualTo(-4.25);
+    assert.that(str("1.25") + str(-5.5)).isEqualTo("1.25-5.5");
+
+    assert.that(max(3, 1, 4)).isEqualTo(4);
+    assert.that(min(3, 1, 4)).isEqualTo(1);
+
+    assert.that(len("‚ ‚ ‚ abcde")).isEqualTo(8);
+    assert.that(lenB("‚ ‚ ‚ abcde")).isEqualTo(11);
+    assert.that(left("‚ ‚ ‚ abcde", 3)).isEqualTo("‚ ‚ ‚ ");
+    assert.that(right("‚ ‚ ‚ abcde", 3)).isEqualTo("cde");
+    assert.that(mid("‚ ‚ ‚ abcde", 3, 4)).isEqualTo("‚ abc");
+    assert.that(mid("‚ ‚ ‚ abcde", 3)).isEqualTo("‚ abcde");
+    assert.that(pos("‚ ‚ ‚ abcde", "abc")).isEqualTo(4);
+    assert.that(pos("‚ ‚ ‚ abcde", "ABC")).isEqualTo(0);
+    assert.that(posB("‚ ‚ ‚ abcde", "abc")).isEqualTo(7);
+    assert.that(posB("‚ ‚ ‚ abcde", "ABC")).isEqualTo(0);
+    assert.that(asc("‚ ‚ ‚ abcde")).isEqualTo(33440);
+    assert.that(ascW("‚ ‚ ‚ abcde")).isEqualTo(12354);
+    assert.that(chr(33440)).isEqualTo("‚ ");
+    assert.that(chrW(12354)).isEqualTo("‚ ");
+
+    // 3, 10, 4, 1, 2, 3
+    [1,1] = 1;
+    [2,1] = 10;
+    [1,2] = "";
+    [2,2] = 10;
+    assert.that(sum(1, 1, 2, 3)).isEqualTo(21);
+    assert.that(avr(1, 1, 2, 3)).isEqualTo(7);
+    assert.that(random(1)).isEqualTo(0);
+
+    pi = 3.141592653589793;
+    assert.that(sqrt(9)).isEqualTo(3);
+    assert.that(sin(pi / 2)).isEqualTo(1);
+    assert.that(cos(pi)).isEqualTo(-1);
+    assert.that(tan(pi / 3)).isEqualTo(sqrt(3));
+    assert.that(pow(4, 2.5)).isEqualTo(32);
+
+    this.clear();
+  }
+}
+
+assert = new Assert();
+new FunctionsTest().test(assert);
+assert.showResult();

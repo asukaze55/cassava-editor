@@ -24,8 +24,7 @@ public:
 //----------------------------------------------------------------------------
 extern PACKAGE TfmMultiLineInputBox *fmMultiLineInputBox;
 //----------------------------------------------------------------------------
-AnsiString InputBoxMultiLine(const AnsiString ACaption,
-  const AnsiString APrompt, const AnsiString ACancel,
-  const AnsiString ADefault);
+bool InputBoxMultiLine(
+    const String ACaption, const String APrompt, String& AValue);
 //----------------------------------------------------------------------------
 #endif

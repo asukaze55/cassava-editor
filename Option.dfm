@@ -3,7 +3,7 @@ object fmOption: TfmOption
   Top = 0
   BorderStyle = bsDialog
   Caption = 'Cassava '#12458#12503#12471#12519#12531
-  ClientHeight = 490
+  ClientHeight = 590
   ClientWidth = 529
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -20,18 +20,20 @@ object fmOption: TfmOption
     Left = 0
     Top = 0
     Width = 145
-    Height = 455
+    Height = 555
     Align = alLeft
     Indent = 20
     ReadOnly = True
+    RightClickSelect = True
     TabOrder = 0
     OnChange = tvCategoryChange
+    OnMouseUp = tvCategoryMouseUp
   end
   object pnlClient: TPanel
     Left = 145
     Top = 0
     Width = 384
-    Height = 455
+    Height = 555
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
@@ -40,7 +42,7 @@ object fmOption: TfmOption
       Left = 5
       Top = 30
       Width = 374
-      Height = 420
+      Height = 520
       Margins.Left = 5
       Margins.Top = 5
       Margins.Right = 5
@@ -88,7 +90,7 @@ object fmOption: TfmOption
   end
   object pnlBottom: TPanel
     Left = 0
-    Top = 455
+    Top = 555
     Width = 529
     Height = 35
     Align = alBottom
@@ -121,6 +123,18 @@ object fmOption: TfmOption
       ModalResult = 2
       NumGlyphs = 2
       TabOrder = 1
+    end
+  end
+  object popupMenu: TPopupMenu
+    Left = 166
+    Top = 38
+    object mnApplyToCurrentFile: TMenuItem
+      Caption = #32232#38598#20013#12398#12501#12449#12452#12523#12395#36969#29992'(&A)'
+      OnClick = mnApplyToCurrentFileClick
+    end
+    object mnDelete: TMenuItem
+      Caption = #21066#38500'(&D)'
+      OnClick = mnDeleteClick
     end
   end
 end
