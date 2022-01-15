@@ -31,10 +31,16 @@ class OperatorsTest {
     assert.that(false && true).isFalse();
     assert.that(true && false).isFalse();
     assert.that(true && true).isTrue();
+    assert.that(
+            false && assert.that("evaluated").isEqualTo("do not evaluate"))
+        .isFalse();
     assert.that(false || false).isFalse();
     assert.that(false || true).isTrue();
     assert.that(true || false).isTrue();
     assert.that(true || true).isTrue();
+    assert.that(
+            true || assert.that("evaluated").isEqualTo("do not evaluate"))
+        .isTrue();
     assert.that(1 + 2 == 3 && 4 * 5 == 20 || false).isTrue();
 
     a = 100;
@@ -68,6 +74,10 @@ class OperatorsTest {
     a = 100;
     a /= 3;
     assert.that(a).isEqualTo(100/3);
+
+    in = {in: 1, out: 2};
+    assert.that("in" in in).isTrue();
+    assert.that(in in in).isFalse();
   }
 }
 

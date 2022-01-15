@@ -42,7 +42,7 @@ void TfmPrint::PrintOut()
 {
   TPrinter *printer = Printer();
   String fileName = ExtractFileName(fmMain->FileName);
-  printer->Title = fileName == "" ? (String)"Cassava" : fileName;
+  printer->Title = fileName == "" ? (String)CASSAVA_TITLE : fileName;
   printer->Copies = 1;
   printer->BeginDoc();
   const double mmPt = printer->Canvas->Font->PixelsPerInch / 25.4;

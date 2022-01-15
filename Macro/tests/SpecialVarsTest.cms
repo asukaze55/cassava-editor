@@ -50,6 +50,13 @@ class SpecialVarsTest {
     assert.that(Col).isEqualTo(1);
     assert.that(Row).isEqualTo(2);
 
+    assert.that(true).isEqualTo(1 == 1);
+    assert.that("true").isEqualTo("tru" + "e");
+    assert.that(false).isEqualTo(1 == 2);
+    assert.that("false").isEqualTo("fals" + "e");
+    assert.that(null).isEqualTo(false);
+    assert.that("null").isEqualTo("nul" + "l");
+
     this.clear();
   }
 }

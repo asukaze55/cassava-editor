@@ -24,9 +24,6 @@
 #pragma resource "*.dfm"
 TfmMain *fmMain;
 //---------------------------------------------------------------------------
-#define min(X,Y) ((X)<(Y) ? (X) : (Y))
-#define max(X,Y) ((X)>(Y) ? (X) : (Y))
-//---------------------------------------------------------------------------
 static String MaybeCompileMacro(String fileName, Preference *pref,
                                 TStringList *modules)
 {
@@ -96,8 +93,7 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
   }
   if(!FileOpening){
     FileName = "";
-    Caption = "Cassava";
-    Application->Title = Caption;
+    UpdateTitle();
     MainGrid->Clear(wd+1, ht+1, true); // ダミーセル分広げる
   }
 
@@ -326,8 +322,9 @@ void TfmMain::ReadIni()
     SortByNumber = Ini->ReadBool("Mode","SortByNumber",true);
     SortIgnoreCase = Ini->ReadBool("Mode", "SortIgnoreCase", false);
     SortIgnoreZenhan = Ini->ReadBool("Mode", "SortIgnoreZenhan", false);
-    MainGrid->CheckKanji = Ini->ReadBool("Mode","CheckKanji",false);
-    MainGrid->DefaultCharCode = Ini->ReadInteger("Mode", "DefaultCharCode", 0);
+    MainGrid->CheckKanji = Ini->ReadBool("Mode", "CheckKanji", true);
+    MainGrid->DefaultCharCode =
+        Ini->ReadInteger("Mode", "DefaultCharCode", CHARCODE_UTF8);
     if (FileName == "") {
       MainGrid->KanjiCode = MainGrid->DefaultCharCode;
     }
@@ -515,6 +512,9 @@ void TfmMain::WriteIni(bool PosSlide)
 //---------------------------------------------------------------------------
 void TfmMain::ReadToolBar()
 {
+  CoolBarResize(NULL);
+  tbarAdditional->Left = tbarNormal->Left + tbarNormal->Width;
+
   String toolbarcsv = Pref->Path + "ToolBar.csv";
   if(FileExists(toolbarcsv)){
     ::SendMessage(CoolBar->Handle, WM_SETREDRAW, 0, 0);
@@ -551,7 +551,6 @@ void TfmMain::ReadToolBar()
         tbarLeft = -1;
       }else if(str0 != "" && str0[1] == '#'){
         if(toolBar){
-          toolBar->Tag = width;
           toolBar->Width = width;
           if(tbarLeft >= 0){ tbarLeft += width; }
         }
@@ -559,14 +558,16 @@ void TfmMain::ReadToolBar()
         if(str0 == "#1"){
           toolBar = tbarNormal;
           toolBar->Visible = true;
-          width = toolBar->Tag;
+          width = toolBar->Width;
         }else if(str0 == "#2"){
           toolBar = tbarAdditional;
           toolBar->Visible = true;
-          width = toolBar->Tag;
+          width = toolBar->Width;
         }else{
           toolBar = new TToolBar(CoolBar);
           toolBar->Parent = CoolBar;
+          toolBar->Wrapable = false;
+          toolBar->Height = tbarNormal->Height;
           width = 0;
         }
         toolBar->Top = tbarTop;
@@ -574,8 +575,9 @@ void TfmMain::ReadToolBar()
         String toolbarbmp = Pref->Path + name;
         if(name == "#1"){
           toolBar->Images = imlNormal;
+          toolBar->DisabledImages = imlNormalDisabled;
         }else if(name == "#2"){
-          toolBar->Images = imlMenu;
+          toolBar->Images = imlAdditional;
         }else if(name != "" && FileExists(toolbarbmp)){
           TCustomImageList *images = new TCustomImageList(16, 16);
           images->FileLoad(rtBitmap, toolbarbmp, clSilver);
@@ -614,7 +616,6 @@ void TfmMain::ReadToolBar()
       }
     }
     if(toolBar){
-      toolBar->Tag = width;
       toolBar->Width = width;
     }
     delete list;
@@ -658,11 +659,15 @@ void __fastcall TfmMain::UserToolBarAction(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::CoolBarResize(TObject *Sender)
 {
-  for(int i=0; i<CoolBar->ControlCount; i++){
-    TControl *tbar = CoolBar->Controls[i];
-    if(tbar->Tag > 0){
-      tbar->Width = tbar->Tag;
+  CoolBar->RowSize = tbarNormal->Height + 4;
+
+  for (int i = 0; i < CoolBar->ControlCount; i++) {
+    TToolBar *toolbar = static_cast<TToolBar *>(CoolBar->Controls[i]);
+    int width = 0;
+    for (int j = 0; j < toolbar->ControlCount; j++) {
+      width += toolbar->Controls[j]->Width;
     }
+    toolbar->Width = width;
   }
 }
 //---------------------------------------------------------------------------
@@ -774,11 +779,12 @@ void TfmMain::SetPasteMenu(TMenuItem *Item)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::MainGridChangeModified(TObject *Sender)
 {
-  bool Enab = MainGrid->Modified;
-  acSave->Enabled = Enab;
-  if(Enab && LockFile == cssv_lfEdit && LockingFile == NULL && FileName != ""){
+  bool m = MainGrid->Modified;
+  acSave->Enabled = m;
+  if(m && LockFile == cssv_lfEdit && LockingFile == NULL && FileName != ""){
     LockingFile = new TFileStream(FileName, fmOpenWrite|fmShareDenyWrite);
   }
+  UpdateTitle();
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::MainGridKeyDown(System::TObject* Sender,
@@ -857,8 +863,7 @@ void __fastcall TfmMain::mnNewClick(TObject *Sender)
         MainGrid->Clear();
       }
       FileName = "";
-      Caption = "Cassava";
-      Application->Title = Caption;
+      UpdateTitle();
       dlgSave->FilterIndex = 0;
       mnReloadCode->Enabled = false;
       UpdateStatusbar();
@@ -887,8 +892,7 @@ void TfmMain::OpenFile (String OpenFileName, int KCode)
     return;
   }
   FileName = OpenFileName;
-  Caption = TitleFullPath ? FileName : ExtractFileName(FileName);
-  Application->Title = Caption;
+  UpdateTitle();
   SetHistory(FileName);
   FileAge(FileName, TimeStamp);
   dlgSave->FilterIndex = MainGrid->TypeIndex + 1;
@@ -951,38 +955,54 @@ void __fastcall TfmMain::MainGridDropFiles(TObject *Sender, int iFiles,
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnReloadClick(TObject *Sender)
 {
-  if(FileName == "") return;
+  if (FileName == "") { return; }
 
-  if(MainGrid->Modified)
-  {
-    int A =
-    Application->MessageBox(
-      (Caption + "への変更を破棄しますか？").c_str(),
-      TEXT("Cassava"),MB_YESNO + MB_ICONQUESTION);
-    if(A == IDNO) return;
+  if (MainGrid->Modified) {
+    if (Application->MessageBox(
+            (GetUiFileName() + "への変更を破棄しますか？").c_str(),
+            CASSAVA_TITLE, MB_YESNO + MB_ICONQUESTION) == IDNO) {
+      return;
+    }
   }
 
   OpenFile(FileName);
 }
 //---------------------------------------------------------------------------
+String TfmMain::GetUiFileName()
+{
+  if (FileName == "") {
+    return "無題";
+  }
+  return TitleFullPath ? FileName : ExtractFileName(FileName);
+}
+//---------------------------------------------------------------------------
+void TfmMain::UpdateTitle()
+{
+  String title = MainGrid->Modified ? "* " : "";
+  if (FileName == "") {
+    title += CASSAVA_TITLE;
+  } else {
+    title += TitleFullPath ? FileName : ExtractFileName(FileName);
+  }
+  Caption = title;
+  Application->Title = title;
+}
+//---------------------------------------------------------------------------
 bool TfmMain::IfModifiedThenSave()
 {
-  if(MainGrid->Modified)
-  {
-    String FN;
-    if(FileName != ""){ FN = Caption; }else{ FN=TEXT("無題"); }
-    int A = Application->MessageBox(
-              (FN + " への変更を保存しますか？").c_str(),
-			  TEXT("Cassava"), MB_YESNOCANCEL + MB_ICONQUESTION);
-	if(A == IDYES){
-	  if(MainGrid->FileOpenThread){
-		Application->MessageBox(
-		  TEXT("ファイルの読み込みが完了していないため保存できません。"),
-          TEXT("Cassava"), MB_ICONERROR);
+  if (MainGrid->Modified) {
+    int a = Application->MessageBox(
+                (GetUiFileName() + " への変更を保存しますか？").c_str(),
+                CASSAVA_TITLE, MB_YESNOCANCEL + MB_ICONQUESTION);
+    if (a == IDYES) {
+      if (MainGrid->FileOpenThread) {
+        Application->MessageBox(
+            TEXT("ファイルの読み込みが完了していないため保存できません。"),
+            CASSAVA_TITLE, MB_ICONERROR);
         return false;
       }
       acSaveExecute(this);
-    }else if(A == IDCANCEL){
+    } else if (a == IDCANCEL) {
       return false;
     }
   }
@@ -1007,8 +1027,8 @@ void TfmMain::SaveFile(TTypeOption *Format)
 {
   if(MainGrid->FileOpenThread){
     Application->MessageBox(
-      TEXT("ファイルの読み込みが完了していないため保存できません。"),
-	  TEXT("Cassava"), MB_ICONERROR);
+        TEXT("ファイルの読み込みが完了していないため保存できません。"),
+        CASSAVA_TITLE, MB_ICONERROR);
     return;
   }
 
@@ -1096,8 +1116,7 @@ void __fastcall TfmMain::mnSaveAsClick(TObject *Sender)
     if(Ext == "" || (Format->ForceExt && Ext != DefExt)){
       FileName += DefExt;
     }
-    Caption = TitleFullPath ? FileName : ExtractFileName(FileName);
-    Application->Title = Caption;
+    UpdateTitle();
     SaveFile(Format);
   }
 }
@@ -1184,8 +1203,8 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
 #ifdef CssvMacro
   if(MainGrid->FileOpenThread){
     Application->MessageBox(
-	  TEXT("ファイルの読み込みが完了していないためエクスポートできません。"),
-      TEXT("Cassava"), MB_ICONERROR);
+      TEXT("ファイルの読み込みが完了していないためエクスポートできません。"),
+      CASSAVA_TITLE, MB_ICONERROR);
     return;
   }
 
@@ -1354,13 +1373,12 @@ void __fastcall TfmMain::PopMenuOpenPopup(TObject *Sender)
 void __fastcall TfmMain::mnReloadCodeClick(TObject *Sender)
 {
   int code = static_cast<TMenuItem *>(Sender)->Tag;
-  if(MainGrid->Modified)
-  {
-    int A =
-    Application->MessageBox(
-      (Caption + "への変更を破棄しますか？").c_str(),
-      TEXT("Cassava"), MB_YESNO + MB_ICONQUESTION);
-    if(A == IDNO) return;
+  if (MainGrid->Modified) {
+    if (Application->MessageBox(
+            (GetUiFileName() + "への変更を破棄しますか？").c_str(),
+            CASSAVA_TITLE, MB_YESNO + MB_ICONQUESTION) == IDNO) {
+      return;
+    }
   }
   OpenFile(FileName, code);
 }
@@ -1412,7 +1430,6 @@ void __fastcall TfmMain::FormCloseQuery(TObject *Sender, bool &CanClose)
   }catch(...){}
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TfmMain::PopMenuPopup(TObject *Sender)
 {
   mnpKugiri->Visible = false;
@@ -1425,38 +1442,52 @@ void __fastcall TfmMain::PopMenuPopup(TObject *Sender)
   mnpDefWidth->Default = false;
   mnpNarrow->Visible = false;
   mnpNarrow->Default = false;
-  mnpPaste->Caption = "貼り付け(&P)";
+  mnpPaste->Visible = true;
+  mnpPasteInsert->Visible = false;
   TGridRect *Sel = &(MainGrid->Selection);
-  if(Sel->Left == MainGrid->FixedCols &&
-     Sel->Right == MainGrid->ColCount-1)
-  {
+
+  bool isRowSelected = MainGrid->IsRowSelected();
+  bool isColSelected = MainGrid->IsColSelected();
+  if (isRowSelected) {
+    mnpPaste->Visible = false;
+    mnpPasteInsert->Enabled = Clipboard()->HasFormat(CF_TEXT);
+    mnpPasteInsert->Visible = true;
     mnpKugiri->Visible = true;
     mnpInsRow->Visible = true;
     mnpCutRow->Visible = true;
     mnpDefWidth->Visible = true;
 
-    if(Sel->Top == Sel->Bottom){
-      if(MainGrid->PasteOption < 0) mnpPaste->Caption = "挿入貼り付け(&P)";
-      if(MainGrid->RowHeights[Sel->Top] > 8) {
-        mnpNarrow->Visible = true;
+    if (!isColSelected) {
+      for (int y = Sel->Top; y <= Sel->Bottom; y++) {
+        if (MainGrid->RowHeights[y] > 8) {
+          mnpNarrow->Visible = true;
+          break;
+        }
       }
     }
   }
-  if(Sel->Top == MainGrid->FixedRows &&
-     Sel->Bottom == MainGrid->RowCount-1)
-  {
+  if (isColSelected) {
+    mnpPaste->Visible = false;
+    mnpPasteInsert->Enabled = Clipboard()->HasFormat(CF_TEXT);
+    mnpPasteInsert->Visible = true;
     mnpKugiri->Visible = true;
     mnpInsCol->Visible = true;
     mnpCutCol->Visible = true;
     mnpDefWidth->Visible = true;
 
-    if(Sel->Left == Sel->Right){
+    if (!isRowSelected) {
+      for (int x = Sel->Left; x <= Sel->Right; x++) {
+        if (MainGrid->ColWidths[x] > 16) {
+          mnpNarrow->Visible = true;
+          break;
+        }
+      }
+    }
+    if (Sel->Left == Sel->Right) {
       mnpSort->Visible = true;
-      if(MainGrid->PasteOption < 0) mnpPaste->Caption = "挿入貼り付け(&P)";
-      if(MainGrid->ColWidths[Sel->Left] > 16) {
-        mnpNarrow->Visible = true;
+      if (MainGrid->ColWidths[Sel->Left] > 16) {
         mnpNarrow->Default = true;
-      }else{
+      } else {
         mnpDefWidth->Default = true;
       }
     }
@@ -1552,7 +1583,7 @@ void __fastcall TfmMain::acPasteExecute(TObject *Sender)
   }else if(fmFind->edMax->Focused()){
     fmFind->edMax->PasteFromClipboard();
   }else{
-    MainGrid->PasteFromClipboard();
+    MainGrid->PasteFromClipboard(PASTE_OPTION_UNKNOWN);
   }
 }
 //---------------------------------------------------------------------------
@@ -1562,6 +1593,15 @@ void __fastcall TfmMain::acPasteUpdate(TObject *Sender)
     acPaste->Enabled = Clipboard()->HasFormat(CF_TEXT);
   }else{
     acPaste->Enabled = false;
+  }
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmMain::mnpPasteInsertClick(TObject *Sender)
+{
+  if (MainGrid->IsColSelected()) {
+    MainGrid->PasteFromClipboard(PASTE_OPTION_INSERT_COL);
+  } else {
+    MainGrid->PasteFromClipboard(PASTE_OPTION_INSERT_ROW);
   }
 }
 //---------------------------------------------------------------------------
@@ -1595,7 +1635,7 @@ void __fastcall TfmMain::mnPasteFormatDefaultClick(TObject *Sender)
   MainGrid->TypeIndex = static_cast<TMenuItem *>(Sender)->Tag;
   MainGrid->TypeOption = MainGrid->TypeList.Items(MainGrid->TypeIndex);
 
-  MainGrid->PasteFromClipboard();
+  MainGrid->PasteFromClipboard(PASTE_OPTION_UNKNOWN);
 
   MainGrid->TypeIndex = XTypeIndex;
   MainGrid->TypeOption = MainGrid->TypeList.Items(MainGrid->TypeIndex);
@@ -1694,7 +1734,14 @@ void __fastcall TfmMain::mnInsRowClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnInsColClick(TObject *Sender)
 {
-  MainGrid->InsertColumn(MainGrid->Selection.Left, MainGrid->Selection.Right);
+  int left = MainGrid->Selection.Left;
+  MainGrid->InsertColumn(left, MainGrid->Selection.Right);
+
+  if(mnFixFirstRow->Checked){ mnFixFirstRowClick(this); }
+  MainGrid->Row = MainGrid->FixedRows;
+  MainGrid->Col = left;
+  MainGrid->Options << goEditing << goAlwaysShowEditor;
+  MainGrid->EditorMode = true;
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnCutRowClick(TObject *Sender)
@@ -1744,14 +1791,14 @@ void __fastcall TfmMain::mnDeleteCellUpClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnpDefWidthClick(TObject *Sender)
 {
-  TGridRect *Sel = &(MainGrid->Selection);
-  if (Sel->Left == MainGrid->FixedCols && Sel->Right == MainGrid->ColCount-1) {
-    for (int y = Sel->Top; y <= Sel->Bottom; y++) {
+  const TGridRect& sel = MainGrid->Selection;
+  if (MainGrid->IsRowSelected()) {
+    for (int y = sel.Top; y <= sel.Bottom; y++) {
       MainGrid->RowHeights[y] = MainGrid->DefaultRowHeight;
     }
   }
-  if (Sel->Top == MainGrid->FixedRows && Sel->Bottom == MainGrid->RowCount-1) {
-    for (int x = Sel->Left; x <= Sel->Right; x++) {
+  if (MainGrid->IsColSelected()) {
+    for (int x = sel.Left; x <= sel.Right; x++) {
       MainGrid->SetWidth(x);
     }
   }
@@ -1759,11 +1806,17 @@ void __fastcall TfmMain::mnpDefWidthClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnpNarrowClick(TObject *Sender)
 {
-  TGridRect *Sel = &(MainGrid->Selection);
-  if(Sel->Top == Sel->Bottom)
-    MainGrid->RowHeights[Sel->Top] = 8;
-  else if(Sel->Left == Sel->Right)
-    MainGrid->ColWidths[Sel->Left] = 16;
+  const TGridRect& sel = MainGrid->Selection;
+  if (MainGrid->IsRowSelected()) {
+    for (int y = sel.Top; y <= sel.Bottom; y++) {
+      MainGrid->RowHeights[y] = 8;
+    }
+  }
+  if (MainGrid->IsColSelected()) {
+    for (int x = sel.Left; x <= sel.Right; x++) {
+      MainGrid->ColWidths[x] = 16;
+    }
+  }
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnRefreshClick(TObject *Sender)
@@ -1829,8 +1882,8 @@ void __fastcall TfmMain::mnFixFirstRowClick(TObject *Sender)
     mnFixFirstRow->Checked = !MainGrid->ShowColCounter;
     tsbFixFirstRow->Down   = !MainGrid->ShowColCounter;
     Application->MessageBox(
-      TEXT("ファイルの読み込み中は固定セルを変更できません。"),
-      TEXT("Cassava"), MB_ICONERROR);
+        TEXT("ファイルの読み込み中は固定セルを変更できません。"),
+        CASSAVA_TITLE, MB_ICONERROR);
     return;
   }
 
@@ -1853,8 +1906,8 @@ void __fastcall TfmMain::mnFixFirstColClick(TObject *Sender)
     mnFixFirstCol->Checked = !MainGrid->ShowRowCounter;
     tsbFixFirstCol->Down   = !MainGrid->ShowRowCounter;
     Application->MessageBox(
-	  TEXT("ファイルの読み込み中は固定セルを変更できません。"),
-	  TEXT("Cassava"), MB_ICONERROR);
+        TEXT("ファイルの読み込み中は固定セルを変更できません。"),
+        CASSAVA_TITLE, MB_ICONERROR);
     return;
   }
 
@@ -1879,8 +1932,8 @@ void __fastcall TfmMain::mnFixUpLeftClick(TObject *Sender)
     mnFixFirstCol->Checked = !MainGrid->ShowRowCounter;
     tsbFixFirstCol->Down   = !MainGrid->ShowRowCounter;
     Application->MessageBox(
-	  TEXT("ファイルの読み込み中は固定セルを変更できません。"),
-	  TEXT("Cassava"), MB_ICONERROR);
+        TEXT("ファイルの読み込み中は固定セルを変更できません。"),
+        CASSAVA_TITLE, MB_ICONERROR);
     return;
   }
 
@@ -1933,8 +1986,8 @@ void __fastcall TfmMain::mnUnFixClick(TObject *Sender)
     mnFixFirstCol->Checked = !MainGrid->ShowRowCounter;
     tsbFixFirstCol->Down   = !MainGrid->ShowRowCounter;
     Application->MessageBox(
-	  TEXT("ファイルの読み込み中は固定セルを変更できません。"),
-	  TEXT("Cassava"), MB_ICONERROR);
+        TEXT("ファイルの読み込み中は固定セルを変更できません。"),
+        CASSAVA_TITLE, MB_ICONERROR);
     return;
   }
 
@@ -1958,11 +2011,7 @@ void __fastcall TfmMain::mnUnFixClick(TObject *Sender)
 void __fastcall TfmMain::mnOptionDlgClick(TObject *Sender)
 {
   fmOption->ShowModal();
-
-  if(FileName != ""){
-    Caption = TitleFullPath ? FileName : ExtractFileName(FileName);
-    Application->Title = Caption;
-  }
+  UpdateTitle();
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnAppliClick(TObject *Sender)

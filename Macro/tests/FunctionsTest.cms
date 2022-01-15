@@ -162,6 +162,7 @@ class FunctionsTest {
     assert.that(ascW("‚ ‚ ‚ abcde")).isEqualTo(12354);
     assert.that(chr(33440)).isEqualTo("‚ ");
     assert.that(chrW(12354)).isEqualTo("‚ ");
+    assert.that(replace("A&&B", "&", "&amp;")).isEqualTo("A&amp;&amp;B");
 
     // 3, 10, 4, 1, 2, 3
     [1,1] = 1;

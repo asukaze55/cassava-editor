@@ -73,7 +73,7 @@ void TfmLetter::PrintOut()
 
   try {
     TPrinter *printer = Printer();
-    printer->Title = "Cassava";
+    printer->Title = CASSAVA_TITLE;
     printer->Copies = udCopies->Position;
     printer->BeginDoc();
     bool newPage = false;
@@ -137,7 +137,7 @@ int TfmLetter::Name2Indent(String Name1)
 {
   int pos = 1;
   bool flag = false;
-  for (int i = 1; i < Name1.Length(); i++) {
+  for (int i = 1; i <= Name1.Length(); i++) {
     TCHAR c = Name1[i];
     if (c == L'@' || c == ' ' || c == '_') {
       flag = true;

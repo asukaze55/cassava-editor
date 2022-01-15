@@ -655,6 +655,12 @@ void TMacro::ExecFnc(String s){
       }
       if (menu && menu->OnClick) {
         menu->OnClick(menu);
+        if (s.SubString(1, 4) == "Open") {
+          do {
+            Sleep(100);
+            Application->ProcessMessages();
+          } while (fmMain->MainGrid->FileOpenThread);
+        }
       } else {
         throw MacroException("定義されていない関数です:" + s + "/0");
       }
@@ -973,9 +979,19 @@ void TMacro::ExecOpe(char c){
     } else if (c == CMO_GEq) {
       Stack->Add(new Element(((ope1->Val() >= ope2->Val()) ? 1 : 0)));
     } else if (c == '&') {
-      Stack->Add(new Element((ope1->Val() != 0) && (ope2->Val() != 0) ? 1 : 0));
+      if (ope1->Val() == 0) {
+        Stack->Add(ope1);
+        fs->Position = ope2->Val();
+        delete ope2;
+        return;
+      }
     } else if (c == '|') {
-      Stack->Add(new Element((ope1->Val() != 0) || (ope2->Val() != 0) ? 1 : 0));
+      if (ope1->Val() != 0) {
+        Stack->Add(ope1);
+        fs->Position = ope2->Val();
+        delete ope2;
+        return;
+      }
     } else if (c == '.') {
       if (ope1->Value().Type != etObject) {
         throw MacroException("「.」の左がオブジェクトではありません："
@@ -984,6 +1000,15 @@ void TMacro::ExecOpe(char c){
       TEnvironment *varEnv =
           static_cast<TEnvironment *>(env.GetObjects()->Items[ope1->Val()]);
       Stack->Add(new Element(ope2->Str(), etVar, varEnv));
+    } else if (c == CMO_In) {
+      if (ope2->Value().Type != etObject) {
+        throw MacroException("in の右がオブジェクトではありません："
+            + (ope2->Type == etVar ? ope2->Name() : ope2->Str()));
+      }
+      map<String, Element>& vars =
+          static_cast<TEnvironment *>(env.GetObjects()->Items[ope2->Val()])
+          ->Vars;
+      Stack->Add(new Element((vars.find(ope1->Str()) != vars.end()) ? 1 : 0));
     } else if (c == '?') {
       if (ope1->Val() == 0) {
         fs->Position = ope2->Val();

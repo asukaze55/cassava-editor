@@ -14,6 +14,7 @@
 #define CMO_NEq      'N' /* "!=" */
 #define CMO_LEq      'L' /* "<=" */
 #define CMO_GEq      'G' /* ">=" */
+#define CMO_In       'n' /* "in" */
 //---------------------------------------------------------------------------
 char CMOCode(String str){
   if(str == "++") return CMO_Inc;
@@ -28,6 +29,7 @@ char CMOCode(String str){
   else if(str == ">=" || str == "=>") return CMO_GEq;
   else if(str == "&&") return '&';
   else if(str == "||") return '|';
+  else if(str == "in") return CMO_In;
   return '\0';
 }
 //---------------------------------------------------------------------------

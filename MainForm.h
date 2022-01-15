@@ -21,6 +21,9 @@
 #include <System.Actions.hpp>
 #include <System.Classes.hpp>
 #include <System.ImageList.hpp>
+#include <Vcl.BaseImageCollection.hpp>
+#include <Vcl.ImageCollection.hpp>
+#include <Vcl.VirtualImageList.hpp>
 //---------------------------------------------------------------------------
 class TfmMain : public TForm
 {
@@ -45,6 +48,7 @@ __published:	// IDE 管理のコンポーネント
   TMenuItem *mnpCut;
   TMenuItem *mnpCopy;
   TMenuItem *mnpPaste;
+  TMenuItem *mnpPasteInsert;
   TMenuItem *mnpSelectAll;
   TFontDialog *dlgFont;
   TMenuItem *mnEdit;
@@ -173,7 +177,6 @@ __published:	// IDE 管理のコンポーネント
   TMenuItem *mnPasteOption5;
   TMenuItem *mnNewLine;
   TMenuItem *mnReloadCodeUTF16BE;
-  TImageList *imlMenu;
   TPopupMenu *PopMenuOpen;
   TMenuItem *mnFindBack;
   TMenuItem *mnCopyFormat;
@@ -193,7 +196,6 @@ __published:	// IDE 管理のコンポーネント
   TSpeedButton *btnSearchCancel;
   TEdit *edFindText;
   TMenuItem *mnShowStatusbar;
-  TImageList *imlNormal;
     TControlBar *CoolBar;
     TToolBar *tbarAdditional;
     TToolButton *tsbSort;
@@ -238,6 +240,11 @@ __published:	// IDE 管理のコンポーネント
   TMenuItem *mnCutFormatDefault;
   TMenuItem *mnpCutFormat;
   TMenuItem *mnN10;
+  TImageCollection *imcNormal;
+  TVirtualImageList *imlNormal;
+  TVirtualImageList *imlNormalDisabled;
+  TImageCollection *imcAdditional;
+  TVirtualImageList *imlAdditional;
   void __fastcall mnNewClick(TObject *Sender);
   void __fastcall mnOpenClick(TObject *Sender);
   void __fastcall mnEndClick(TObject *Sender);
@@ -335,6 +342,7 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall mnMacroClick(TObject *Sender);
   void __fastcall mnCharCodeClick(TObject *Sender);
   void __fastcall mnReturnCodeClick(TObject *Sender);
+  void __fastcall mnpPasteInsertClick(TObject *Sender);
 
 private:    // ユーザー宣言
   void OpenFile(String OpenFileName, int KCode=CHARCODE_AUTO);
@@ -347,7 +355,8 @@ private:    // ユーザー宣言
   void RestoreCheckedMenus(TStringList *list);
   void RestoreCheckedMenus(TStringList *list, TMenuItem* item);
   void SearchMacro();
-
+  String GetUiFileName();
+  void UpdateTitle();
 
 public:     // ユーザー宣言
   TMainGrid *MainGrid;

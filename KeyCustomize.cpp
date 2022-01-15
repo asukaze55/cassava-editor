@@ -169,7 +169,7 @@ void __fastcall TfmKey::tvMenuChanging(TObject *Sender, TTreeNode *Node,
              (ShortCutToText(NowMSC->MShortCut) + " は、「" +
              MSC->MenuItem->Caption +
              "」ですでに設定されています。").c_str(),
-             TEXT("Cassava"),
+             CASSAVA_TITLE,
              MB_OKCANCEL) == IDCANCEL){
           AllowChange = false;
         }
@@ -231,29 +231,37 @@ void __fastcall TfmKey::edSelectedChange(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmKey::btnSaveClick(TObject *Sender)
 {
-  if(NowMSC) SetMSC(NowMSC);
+  if (NowMSC) {
+    SetMSC(NowMSC);
+  }
 
-  if(dlgSave->Execute())
-  {
+  if (dlgSave->Execute()) {
     String KeyFileName = dlgSave->FileName;
-    if(ExtractFileExt(KeyFileName) == "") KeyFileName += ".csv";
-    if(SaveKey(KeyFileName))
-	  Application->MessageBox(TEXT("保存しました"), TEXT("Cassava"),0);
-	else
-      Application->MessageBox(TEXT("保存に失敗しました"), TEXT("Cassava"),0);
+    if (ExtractFileExt(KeyFileName) == "") {
+      KeyFileName += ".csv";
+    }
+
+    if (SaveKey(KeyFileName)) {
+      Application->MessageBox(TEXT("保存しました"), CASSAVA_TITLE, 0);
+    } else {
+      Application->MessageBox(TEXT("保存に失敗しました"), CASSAVA_TITLE, 0);
+    }
   }
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmKey::btnOpenClick(TObject *Sender)
 {
-  if(dlgOpen->Execute())
-  {
+  if (dlgOpen->Execute()) {
     String KeyFileName = dlgOpen->FileName;
-    if(ExtractFileExt(KeyFileName) == "") KeyFileName += ".csv";
-    if(LoadKey(KeyFileName))
-	  Application->MessageBox(TEXT("ファイルを読み込みました"), TEXT("Cassava"),0);
-	else
-	  Application->MessageBox(TEXT("読み込みに失敗しました"), TEXT("Cassava"),0);
+    if (ExtractFileExt(KeyFileName) == "") {
+      KeyFileName += ".csv";
+    }
+    if (LoadKey(KeyFileName)) {
+      Application->MessageBox(
+          TEXT("ファイルを読み込みました"), CASSAVA_TITLE, 0);
+    } else {
+      Application->MessageBox(TEXT("読み込みに失敗しました"), CASSAVA_TITLE, 0);
+    }
   }
 }
 //---------------------------------------------------------------------------

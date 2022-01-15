@@ -4,7 +4,7 @@
         <ProjectType>CppVCLApplication</ProjectType>
         <MainSource>Cassava.cpp</MainSource>
         <Config Condition="'$(Config)'==''">リリース</Config>
-        <ProjectVersion>18.2</ProjectVersion>
+        <ProjectVersion>18.8</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
@@ -68,7 +68,7 @@
         <BCC_GenerateWindowsApp>true</BCC_GenerateWindowsApp>
         <TASM_AdditionalSwitches> /w2</TASM_AdditionalSwitches>
         <ILINK_ObjectSearchPath>$(BDS)\ObjRepos\Cpp;..\OpenFile;$(ILINK_ObjectSearchPath)</ILINK_ObjectSearchPath>
-        <AllPackageLibs>rtl.lib;vcl.lib;bcbsmp.lib;vclx.lib</AllPackageLibs>
+        <AllPackageLibs>rtl.lib;vcl.lib;bcbsmp.lib;vclx.lib;vclwinx.lib;vclimg.lib</AllPackageLibs>
         <ILINK_LibraryPath>$(BDS)\lib\obj;$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <DCC_ObjPath>$(BDS)\ObjRepos\Cpp;..\OpenFile;$(DCC_ObjPath)</DCC_ObjPath>
         <DCC_AdditionalSwitches> -M</DCC_AdditionalSwitches>
@@ -113,12 +113,12 @@
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <BCC_Defines>_DEBUG;NO_WIN32_LEAN_AND_MEAN;$(BCC_Defines);$(BCC_Defines)</BCC_Defines>
         <BCC_UserSuppliedOptions> -5 -Vx -Ve -k</BCC_UserSuppliedOptions>
-        <AppEnableHighDPI>true</AppEnableHighDPI>
         <VerInfo_Build>708</VerInfo_Build>
         <VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
         <VerInfo_Keys>CompanyName=;FileVersion=1.9.0.708;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=1.9.0.708;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
         <DynamicRTL>true</DynamicRTL>
         <Icon_MainIcon>Cassava.ico</Icon_MainIcon>
+        <AppDPIAwarenessMode>PerMonitor</AppDPIAwarenessMode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <FinalOutputDir>Release_Build</FinalOutputDir>
@@ -130,15 +130,17 @@
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <BCC_Defines>NDEBUG;NO_WIN32_LEAN_AND_MEAN;$(BCC_Defines);$(BCC_Defines)</BCC_Defines>
-        <VerInfo_Build>783</VerInfo_Build>
+        <VerInfo_Build>794</VerInfo_Build>
         <BCC_UserSuppliedOptions> -5 -Vx -Ve -r</BCC_UserSuppliedOptions>
-        <VerInfo_Keys>CompanyName=;FileVersion=2.0.6.783;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=2.0.6.783;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
-        <AppEnableHighDPI>true</AppEnableHighDPI>
+        <VerInfo_Keys>CompanyName=;FileVersion=2.1.5.794;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=2.1.5.794;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
         <VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
-        <VerInfo_MinorVer>0</VerInfo_MinorVer>
+        <VerInfo_MinorVer>1</VerInfo_MinorVer>
         <Icon_MainIcon>Cassava.ico</Icon_MainIcon>
-        <VerInfo_Release>6</VerInfo_Release>
+        <AppDPIAwarenessMode>PerMonitor</AppDPIAwarenessMode>
+        <BT_BuildType>Debug</BT_BuildType>
+        <LinkPackageStatics>rtl.lib;vcl.lib;bcbsmp.lib;vclx.lib;vclwinx.lib;vclimg.lib</LinkPackageStatics>
+        <VerInfo_Release>5</VerInfo_Release>
     </PropertyGroup>
     <ItemGroup>
         <CppCompile Include="AutoOpen.cpp">
@@ -417,7 +419,10 @@
                     <Parameters Name="LoadAllSymbols">True</Parameters>
                     <Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
                 </Parameters>
-                <Excluded_Packages/>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k260.bpl">Embarcadero C++Builder Office 2000 サーバー パッケージ</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp260.bpl">Embarcadero C++Builder Office XP サーバー パッケージ</Excluded_Packages>
+                </Excluded_Packages>
                 <Source>
                     <Source Name="MainSource">Cassava.cpp</Source>
                 </Source>

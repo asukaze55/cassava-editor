@@ -3,6 +3,7 @@
 //---------------------------------------------------------------------------
 #include <map>
 #include <vcl.h>
+#include <vector>
 #pragma hdrstop
 #include "Compiler.h"
 #include "MacroOpeCode.h"
@@ -18,13 +19,12 @@
 #define tpFunc      '*'
 #define tpVar       '~'
 #define tpOpe       '-'
-#define tpComment   '#'
 #define tpStructure ';'
 
 #define prElement 100
 #define prEOF -1
 
-#define CMCEOF CMCElement("",prEOF,tpStructure)
+#define CMCEOF CMCElement("", prEOF, tpStructure, 0)
 
 static const int INT_SIZE = sizeof(int);
 //---------------------------------------------------------------------------
@@ -33,17 +33,15 @@ public:
   String str;
   int pri;
   char type;
-  CMCElement() : str(""), pri(prEOF), type(tpStructure) {};
+  int jump;
+
+  CMCElement() : str(""), pri(prEOF), type(tpStructure), jump(0) {}
   CMCElement(String s);
-  CMCElement(char *s);
-  CMCElement::CMCElement(String s, int p, char t) :
-      str(s), pri(p), type(t) {};
-  CMCElement::CMCElement(const CMCElement &e) :
-      str(e.str), pri(e.pri), type(e.type) {};
-  bool operator >(CMCElement e);
-  bool operator ==(CMCElement e);
-  bool iseof(){ return(pri == prEOF); }
-  bool isSystemVar() {
+  CMCElement(String s, int p, char t, int j = 0) :
+      str(s), pri(p), type(t), jump(j) {}
+
+  bool iseof() const { return(pri == prEOF); }
+  bool isSystemVar() const {
     if (type != tpVar) { return false; }
     return AnsiPos("/" + str + "/",
         "/Col/Row/Right/Bottom/SelLeft/SelTop/SelRight/SelBottom/") > 0;
@@ -51,7 +49,7 @@ public:
 };
 //---------------------------------------------------------------------------
 CMCElement::CMCElement(String s){
-  str = s; pri = 100; type=tpVar;
+  str = s; pri = 100; type = tpVar; jump = 0;
   if (s == ";") {
     pri = 0; type = tpStructure;
   } else if (s == ",") {
@@ -86,13 +84,6 @@ CMCElement::CMCElement(String s){
     if (s.Pos(".") > 0) { type = tpDouble; } else { type = tpInteger; }
   }
 }
-//---------------------------------------------------------------------------
-CMCElement::CMCElement(char *s){
-  CMCElement((String)s);
-}
-//---------------------------------------------------------------------------
-bool CMCElement::operator >(CMCElement e){ return pri > e.pri; }
-bool CMCElement::operator ==(CMCElement e){ return pri == e.pri; }
 //---------------------------------------------------------------------------
 class TEList {
   TList *L;
@@ -267,6 +258,8 @@ CMCElement TTokenizer::GetR()
     }
     if (s == "function" || s == "return") {
       return CMCElement(s, prElement, tpFunc);
+    } else if (s == "in" && !IsUnaryOpeExpected(last)) {
+      return CMCElement(CMO_In, 17, tpOpe);
     }
     return CMCElement(s, prElement, (Peek() == '(') ? tpFunc : tpVar);
   }
@@ -322,6 +315,10 @@ CMCElement TTokenizer::Get(){
     next = CMCEOF;
   }
 
+  if (last.type != tpVar) {
+    return last;
+  }
+
   if(last.str.LowerCase() == "true"){
     last = CMCElement("1", prElement, tpInteger);
   }else if(last.str.LowerCase() == "false"
@@ -355,9 +352,6 @@ CMCElement TTokenizer::Get(){
     last = CMCElement(IDRETRY, prElement, tpInteger);
   }else if(last.str == "IDYES"){
     last = CMCElement(IDYES, prElement, tpInteger);
-
-  }else if(last.type == tpVar && last.str.Length()>0 && last.str[1] == ':'){
-    throw CMCException("変数名が不正です：" + last.str);
   }
 
   return last;
@@ -379,9 +373,13 @@ private:
   std::map<String, String> ImportedFunctions;
   TStringList *Modules;
   TStringList *Variables;
+  TStringList *Constants;
+  std::vector<__int64> *Breaks;
+  std::vector<__int64> *Continues;
   int DummyFunctionName;
 
   void Output(CMCElement e);
+  int OutputPositionPlaceholder();
   void Push(CMCElement e, TEList *L);
   void PushAll(TEList *L);
   void GetIf();
@@ -399,12 +397,19 @@ private:
   bool GetSentence(char EOS, bool allowBlock = true, char *nHikisu = NULL);
   void GetBlock();
 
+  bool IsKnownVariable(const CMCElement& e) const {
+    return e.isSystemVar() || Variables->IndexOf(e.str) >= 0;
+  }
+
 public:
-  TStrings *import;
+  TStringList *import;
 
   bool Compile(String source, String filePath, String libName,
                TStringList *modules, bool showMessage);
-  TCompiler() : DummyFunctionName(0), import(new TStringList) {}
+  TCompiler() : Breaks(NULL), Continues(NULL), DummyFunctionName(0) {
+    import = new TStringList;
+    import->CaseSensitive = true;
+  }
   ~TCompiler() { delete import; }
 };
 //---------------------------------------------------------------------------
@@ -412,17 +417,13 @@ void TCompiler::GetIf()
 {
   lex->Get(); // '('
   GetValues(')');
-  fout->Write("i",1);
-  int bp1fr = fout->Position;
-  fout->Seek(INT_SIZE, soFromCurrent);
+  int bp1fr = OutputPositionPlaceholder();
   fout->Write("-?",2);
   GetSentence(';');
 
   if(lex->GetNext().str == "else"){
     lex->Get(); // else
-    fout->Write("i",1);
-    int bp2fr = fout->Position;
-    fout->Seek(INT_SIZE, soFromCurrent);
+    int bp2fr = OutputPositionPlaceholder();
     fout->Write("-g",2);
 
     int bp1to = fout->Position;
@@ -446,32 +447,57 @@ void TCompiler::GetIf()
 //---------------------------------------------------------------------------
 void TCompiler::GetWhile()
 {
+  std::vector<__int64> *originalBreaks = Breaks;
+  std::vector<__int64> breaks;
+  Breaks = &breaks;
+
+  std::vector<__int64> *originalContinues = Continues;
+  std::vector<__int64> continues;
+  Continues = &continues;
+
   lex->Get(); // '('
   int bp1to = fout->Position;
   GetValues(')');
-  fout->Write("i",1);
-  int bp2fr = fout->Position;
-  fout->Seek(INT_SIZE, soFromCurrent);
+  breaks.push_back(OutputPositionPlaceholder());
   fout->Write("-?",2);
   GetSentence(';');
   fout->Write("i",1);
   fout->Write(&bp1to, INT_SIZE);
   fout->Write("-g",2);
   int bp2to = fout->Position;
-  fout->Position = bp2fr;
-  fout->Write(&bp2to, INT_SIZE);
+
+  for (std::vector<__int64>::iterator p = breaks.begin();
+       p != breaks.end(); ++p) {
+    fout->Position = *p;
+    fout->Write(&bp2to, INT_SIZE);
+  }
+  Breaks = originalBreaks;
+
+  for (std::vector<__int64>::iterator p = continues.begin();
+       p != continues.end(); ++p) {
+    fout->Position = *p;
+    fout->Write(&bp1to, INT_SIZE);
+  }
+  Continues = originalContinues;
+
   fout->Position = bp2to;
 }
 //---------------------------------------------------------------------------
 void TCompiler::GetFor()
 {
+  std::vector<__int64> *originalBreaks = Breaks;
+  std::vector<__int64> breaks;
+  Breaks = &breaks;
+
+  std::vector<__int64> *originalContinues = Continues;
+  std::vector<__int64> continues;
+  Continues = &continues;
+
   lex->Get(); // '('
   GetValues(';'); // 初期設定部
   int bp1to = fout->Position; // ここに戻ってループ
   GetValues(';'); // 条件部
-  fout->Write("i",1);
-  int bp2fr = fout->Position; // ループから外へ
-  fout->Seek(INT_SIZE, soFromCurrent);
+  breaks.push_back(OutputPositionPlaceholder());
   fout->Write("-?",2);
 
   TStream *fs = fout;
@@ -481,6 +507,7 @@ void TCompiler::GetFor()
   fout = fs;
 
   GetSentence(';'); // ループ本体
+  int bp3to = fout->Position; // Continue
   fout->CopyFrom(ms, 0);
   delete ms;
 
@@ -488,8 +515,21 @@ void TCompiler::GetFor()
   fout->Write(&bp1to, INT_SIZE);
   fout->Write("-g",2);
   int bp2to = fout->Position;
-  fout->Position = bp2fr;
-  fout->Write(&bp2to, INT_SIZE);
+
+  for (std::vector<__int64>::iterator p = breaks.begin();
+       p != breaks.end(); ++p) {
+    fout->Position = *p;
+    fout->Write(&bp2to, INT_SIZE);
+  }
+  Breaks = originalBreaks;
+
+  for (std::vector<__int64>::iterator p = continues.begin();
+       p != continues.end(); ++p) {
+    fout->Position = *p;
+    fout->Write(&bp3to, INT_SIZE);
+  }
+  Continues = originalContinues;
+
   fout->Position = bp2to;
 }
 //---------------------------------------------------------------------------
@@ -511,9 +551,8 @@ void TCompiler::GetBasicFor()
 
   Output(evar);
   GetValues(')');     // 最大値
-  fout->Write("-Li",3); // "-L" は "<="
-  int bp2fr = fout->Position; // ループから外へ
-  fout->Seek(INT_SIZE, soFromCurrent);
+  fout->Write("-L", 2); // "-L" は "<="
+  int bp2fr = OutputPositionPlaceholder(); // ループから外へ
   fout->Write("-?",2);
 
   GetSentence(';');     // ループ本体
@@ -532,6 +571,7 @@ String TCompiler::GetFunction(bool isMethod)
 {
   TStream *orgFOut = fout;
   TStringList* orgVariables = Variables;
+  TStringList* orgConstants = Constants;
 
   String functionName = lex->Get().str;
   if (functionName == "(") {
@@ -542,8 +582,12 @@ String TCompiler::GetFunction(bool isMethod)
   ImportedFunctions[functionName] = InName + "\n" + functionName;
 
   Variables = new TStringList();
+  Variables->CaseSensitive = true;
+  Constants = new TStringList();
+  Constants->CaseSensitive = true;
   if (isMethod) {
     Variables->Add("this");
+    Constants->Add("this");
   }
 
   fout = new TMemoryStream();
@@ -556,7 +600,7 @@ String TCompiler::GetFunction(bool isMethod)
       if (e.type != tpVar) {
         throw CMCException("引数名が不正です：" + e.str);
       }
-      if (Variables->IndexOf(e.str) >= 0) {
+      if (IsKnownVariable(e)) {
         throw CMCException("引数名がすでに使用されています：" + e.str);
       }
       Variables->Add(e.str);
@@ -577,8 +621,10 @@ String TCompiler::GetFunction(bool isMethod)
   if(lex->GetNext().str == ";"){
     delete fout;
     delete Variables;
+    delete Constants;
     fout = orgFOut;
     Variables = orgVariables;
+    Constants = orgConstants;
     return outName;
   }else if(lex->GetNext().str == "="){
     lex->Get();
@@ -604,8 +650,10 @@ String TCompiler::GetFunction(bool isMethod)
   }
 
   delete Variables;
+  delete Constants;
   fout = orgFOut;
   Variables = orgVariables;
+  Constants = orgConstants;
   return outName;
 }
 //---------------------------------------------------------------------------
@@ -636,13 +684,21 @@ void TCompiler::GetCell()
 //---------------------------------------------------------------------------
 void TCompiler::Output(CMCElement e)
 {
-  if(e.type == tpComment || e.type == tpStructure) return;
-    if (e.isSystemVar()) {
-      fout->Write("!", 1);
-    } else {
-      fout->Write(&(e.type), 1);
+  if (e.type == tpStructure) {
+    if (e.jump != 0) {
+      int current = fout->Position;
+      fout->Position = e.jump;
+      fout->Write(&current, INT_SIZE);
+      fout->Position = current;
     }
-    switch(e.type){
+    return;
+  }
+  if (e.isSystemVar()) {
+    fout->Write("!", 1);
+  } else {
+    fout->Write(&(e.type), 1);
+  }
+  switch(e.type){
     case '$': case '*': case '~': {
       int iL = e.str.Length();
       if(iL > 255){
@@ -680,12 +736,21 @@ void TCompiler::Output(CMCElement e)
   }
 }
 //---------------------------------------------------------------------------
+int TCompiler::OutputPositionPlaceholder()
+{
+  fout->Write("i", 1);
+  int position = fout->Position;
+  fout->Seek(INT_SIZE, soFromCurrent);
+  return position;
+}
+//---------------------------------------------------------------------------
 void TCompiler::Push(CMCElement e, TEList *L)
 {
   if(e.iseof()) return;
   while (L->size() > 0) {
-    if (L->back() > e || (L->back() == e && e.str != "P")) {
-      Output(L->back());
+    const CMCElement& b = L->back();
+    if (b.pri > e.pri || (b.pri == e.pri && b.jump == 0)) {
+      Output(b);
       L->pop_back();
     } else {
       break;
@@ -939,17 +1004,8 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         }
         Push(e, &ls);
       }
-    }else if(e.str == "::") {
-      CMCElement f = lex->Get();
-      if (lex->GetNext().str != "(") {
-        throw CMCException("関数呼び出しには () が必要です：" + f.str);
-      }
-      lex->Get(); // "("
-      char H;
-      GetValues(')', &H);
-      Push(CMCElement((String)H + f.str, prElement, tpFunc), &ls);
     }else if(e.type == tpVar) {
-      bool isUndefined = Variables->IndexOf(e.str) < 0 && !e.isSystemVar();
+      bool isUndefined = !IsKnownVariable(e);
       if (ls.size() > 0 && ls.back().str == ".") {
         Push(CMCElement(e.str, prElement, tpString), &ls);
       } else if (lex->GetNext().str == "." && isUndefined) {
@@ -967,18 +1023,34 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         }
         String internalName = (String)H + "$" + libName + "\n" + f.str;
         Push(CMCElement(internalName, prElement, tpFunc), &ls);
-      } else if (e.str == "var" && lex->GetNext().type == tpVar) {
-         e = lex->Get();
-         String next = lex->GetNext().str;
-         if (next == "=") {
-           Variables->Add(e.str);
-           Push(e, &ls);
-         } else if (next == ";") {
-           // Ignore.
-         } else {
-            throw CMCException(
-                "変数宣言が不正です。「=」もしくは「;」が必要です：" + next);
-         }
+      } else if ((e.str == "const" || e.str == "let" || e.str == "var") &&
+                 lex->GetNext().type == tpVar) {
+        bool isConst = (e.str == "const");
+        e = lex->Get();
+        if (IsKnownVariable(e)) {
+          throw CMCException("変数名がすでに使用されています：" + e.str);
+        } else if (isConst && lex->GetNext().str != "=") {
+          throw CMCException(
+              "定数宣言が不正です。「=」で初期値を代入してください：" + e.str);
+        }
+        Variables->Add(e.str);
+        if (isConst) {
+          Constants->Add(e.str);
+        }
+        Push(e, &ls);
+      } else if (e.str == "break" && firstloop && lex->GetNext().str == ";") {
+        if (!Breaks) {
+          throw CMCException("break はループ内でのみ使用できます。");
+        }
+        Breaks->push_back(OutputPositionPlaceholder());
+        fout->Write("-g", 2);
+      } else if (e.str == "continue" && firstloop
+                 && lex->GetNext().str == ";") {
+        if (!Continues) {
+          throw CMCException("continue はループ内でのみ使用できます。");
+        }
+        Continues->push_back(OutputPositionPlaceholder());
+        fout->Write("-g", 2);
       } else if (e.str == "class" && lex->GetNext().type == tpVar) {
         GetClass();
       } else if (e.str == "import" && lex->GetNext().str == "{") {
@@ -993,7 +1065,29 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
             throw CMCException("値が代入されていない変数です：" + e.str);
           }
           Variables->Add(e.str);
+        } else if (lex->GetNext().str == "=" &&
+                   Constants->IndexOf(e.str) >= 0) {
+          throw CMCException("定数への再代入はできません：" + e.str);
         }
+        Push(e, &ls);
+      }
+    } else if (e.type == tpOpe) {
+      if (e.str == "::") {
+        CMCElement f = lex->Get();
+        if (lex->GetNext().str != "(") {
+          throw CMCException("関数呼び出しには () が必要です：" + f.str);
+        }
+        lex->Get(); // "("
+        char H;
+        GetValues(')', &H);
+        Push(CMCElement((String)H + f.str, prElement, tpFunc), &ls);
+      } else if (e.str == "&&" || e.str == "||" || e.str == "&" ||
+                 e.str == "|") {
+        Push(CMCElement("", e.pri, tpStructure), &ls);
+        int jump = OutputPositionPlaceholder();
+        Output(e);
+        Push(CMCElement("", e.pri, tpStructure, jump), &ls);
+      } else {
         Push(e, &ls);
       }
     } else{
@@ -1018,6 +1112,9 @@ bool TCompiler::Compile(String string, String filePath, String libName,
   Modules = modules;
   Modules->AddObject(libName, fout);
   Variables = new TStringList();
+  Variables->CaseSensitive = true;
+  Constants = new TStringList();
+  Constants->CaseSensitive = true;
   // Ok to use these pre-defined variables.
   Variables->Add("x");
   Variables->Add("y");
@@ -1077,7 +1174,7 @@ bool MacroCompile(String *source, String name, TStringList *macroDirs,
     String libFileName = "";
     TStreamReader *libReader = NULL;
     try{
-      if (libName.Pos(":") > 0) {
+      if (libName.Pos(":") > 0 || libName.SubString(1, 1) == "\\") {
         libFileName = libName;
       } else {
         for (int j = 0; j < macroDirs->Count; j++) {

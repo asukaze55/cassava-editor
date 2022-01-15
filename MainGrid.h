@@ -8,6 +8,8 @@
 #include "EncodedWriter.h"
 #include "TypeList.h"
 //---------------------------------------------------------------------------
+#define CASSAVA_TITLE TEXT("Cassava Editor")
+//---------------------------------------------------------------------------
 typedef void __fastcall (__closure *TDropCsvFiles)
     (System::TObject *Sender, int iFiles, System::String *DropFileNames);
 //---------------------------------------------------------------------------
@@ -32,24 +34,8 @@ private:
       return (ARow>=Selection.Top  && ARow<=Selection.Bottom &&
           ACol>=Selection.Left && ACol<=Selection.Right);
     }
-    bool IsRowSelected(int ARow) {
-      return (ARow>=Selection.Top && ARow<=Selection.Bottom &&
-          FixedCols>=Selection.Left && ColCount-1<=Selection.Right);
-    }
-    bool IsColSelected(int ACol) {
-      return (FixedRows>=Selection.Top && RowCount-1<=Selection.Bottom &&
-          ACol>=Selection.Left && ACol<=Selection.Right);
-    }
-    int GetSelLeft() {
-      if(Selection.Right-Selection.Left+1 == ColCount-FixedCols)
-      { return (ShowRowCounter ? 1 : 0); }
-      return (Selection.Left);
-    }
-    int GetSelTop() {
-      if(Selection.Bottom-Selection.Top+1 == RowCount-FixedRows)
-      { return (ShowColCounter ? 1 : 0); }
-      return (Selection.Top);
-    }
+    int GetSelLeft() { return Selection.Left; }
+    int GetSelTop() { return Selection.Top; }
 
     int GetDataLeft(){ return (ShowRowCounter ? 1 : 0); }
     int GetDataTop() { return (ShowColCounter ? 1 : 0); }
@@ -99,6 +85,8 @@ private:
     void ShowAllColumn();
 
     void (__closure *OnFileOpenThreadTerminate)(System::TObject* Sender);
+
+    TStrings *LastMatch;
 
 protected:
     void PasteCSV(TStrings *List , int Left=1 , int Top=1 , int Way=2 ,
@@ -186,7 +174,11 @@ public:
     void SaveToFile(String FileName, TTypeOption *Format, bool SetModifiedFalse=true);
     void CopyToClipboard(bool Cut = false);
     void CutToClipboard();
-    void PasteFromClipboard();
+#define PASTE_OPTION_UNKNOWN -1
+#define PASTE_OPTION_OVERWRITE 2
+#define PASTE_OPTION_INSERT_ROW 11
+#define PASTE_OPTION_INSERT_COL 12
+    void PasteFromClipboard(int Way);
     bool SetCsv(TStringList *Dest, String Src);
     void QuotedDataToStrings(TStrings *Lines, String Text, TTypeOption *Format);
     TTypeList TypeList;
@@ -280,20 +272,34 @@ public:
                        bool Wrap, bool MeasureOnly=false);
 
     void SelectRow(long Index){
-      SetSelection(ColCount-1, FixedCols, Index, Index);
-    };
+      SetSelection(FixedCols, FDataRight, Index, Index);
+    }
     void SelectColumn(long Index){
-      SetSelection(Index, Index, RowCount-1, FixedRows);
-    };
+      SetSelection(Index, Index, FixedRows, FDataBottom);
+    }
     void SelectRows(long Top, long Bottom){
-      SetSelection(ColCount-1, FixedCols, Top, Bottom);
-    };
+      SetSelection(FixedCols, FDataRight, Top, Bottom);
+    }
     void SelectCols(long Left, long Right){
-      SetSelection(Left, Right, RowCount-1, FixedRows);
-    };
+      SetSelection(Left, Right, FixedRows, FDataBottom);
+    }
     void SelectAll(){
-      SetSelection(ColCount-1, FixedCols, RowCount-1, FixedRows);
-    };
+      SetSelection(FixedCols, FDataRight, FixedRows, FDataBottom);
+    }
+    bool IsRowSelected() {
+      return drgCol < FixedCols;
+    }
+    bool IsRowSelected(int ARow) {
+      return FixedCols >= Selection.Left && FDataRight <= Selection.Right &&
+          ARow >= Selection.Top && ARow <= Selection.Bottom;
+    }
+    bool IsColSelected() {
+      return drgRow < FixedRows;
+    }
+    bool IsColSelected(int ACol) {
+      return FixedRows >= Selection.Top && FDataBottom <= Selection.Bottom &&
+          ACol >= Selection.Left && ACol <= Selection.Right;
+    }
 
     bool Find(String FindText, int Range, bool Case, bool Regex, bool Word,
               bool Back);

@@ -25,8 +25,8 @@ WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
   {
     Application->Initialize();
     Application->HelpFile = "";
-    Application->Title = "Cassava";
-    Application->CreateForm(__classid(TfmMain), &fmMain);
+    Application->Title = "Cassava Editor";
+         Application->CreateForm(__classid(TfmMain), &fmMain);
          Application->CreateForm(__classid(TfmFind), &fmFind);
          Application->CreateForm(__classid(TfmSort), &fmSort);
          Application->CreateForm(__classid(TfmPasteDialog), &fmPasteDialog);
