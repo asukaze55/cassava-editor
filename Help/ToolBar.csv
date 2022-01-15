@@ -1,0 +1,9 @@
+(Cassava-ToolBarSetting),,
+#1,,
+#2,,
+====,,
+#Sample,sample.bmp,
+1,"Hello, World","MessageBox(""Hello, World!"");"
+0,カレンダー,Calendar.cms
+,-,
+2,マクロ編集,MacroOpenFolder

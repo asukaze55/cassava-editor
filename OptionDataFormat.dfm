@@ -11,7 +11,6 @@ object frOptionDataFormat: TfrOptionDataFormat
     Width = 129
     Height = 21
     Style = csDropDownList
-    ItemHeight = 13
     ItemIndex = 0
     TabOrder = 0
     Text = 'Default'

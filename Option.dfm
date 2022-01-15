@@ -103,9 +103,11 @@ object fmOption: TfmOption
       Width = 97
       Height = 27
       Anchors = [akRight, akBottom]
+      DoubleBuffered = True
+      Kind = bkOK
+      ParentDoubleBuffered = False
       TabOrder = 0
       OnClick = btnOKClick
-      Kind = bkOK
     end
     object btnCancel: TBitBtn
       Left = 427
@@ -113,8 +115,10 @@ object fmOption: TfmOption
       Width = 95
       Height = 27
       Anchors = [akRight, akBottom]
-      TabOrder = 1
+      DoubleBuffered = True
       Kind = bkCancel
+      ParentDoubleBuffered = False
+      TabOrder = 1
     end
   end
 end

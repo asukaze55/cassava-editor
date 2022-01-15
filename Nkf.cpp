@@ -10,11 +10,11 @@
 //---------------------------------------------------------------------------
 #define min(x,y) ((x) < (y) ? (x) : (y))
 //---------------------------------------------------------------------------
-HINSTANCE LoadDll(const char *DllName, bool warn)
+HINSTANCE LoadDll(const TCHAR *DllName, bool warn)
 {
   HINSTANCE inst = ::LoadLibrary(DllName);
   if(inst) return inst;
-  if(warn){ ::MessageBoxA(NULL, DllName, "DLL Not Found", 0); }
+  if(warn){ ::MessageBox(NULL, DllName, TEXT("DLL Not Found"), 0); }
   return NULL;
 }
 //---------------------------------------------------------------------------
@@ -28,7 +28,7 @@ void *GetProc(HINSTANCE Dll, const char *ProcName, bool warn)
 //---------------------------------------------------------------------------
 TNkf::TNkf()
 {
-  dll = LoadDll("nkf32.dll", false);
+  dll = LoadDll(TEXT("nkf32.dll"), false);
   if(dll){
     setopt = (funcSetNkfOption *)GetProc(dll, "SetNkfOption", false);
     conv = (funcNkfConvertSafe *)GetProc(dll, "NkfConvertSafe", false);
@@ -64,7 +64,7 @@ int TNkf::Convert(LPSTR outStr,DWORD nOutBufferLength, LPDWORD lpBytesReturned,
 int NkfConvertSafe(LPSTR outStr,DWORD nOutBufferLength, LPDWORD lpBytesReturned, LPCSTR inStr,DWORD nInBufferLength, LPCSTR optStr)
 {
   int charcode = CHARCODE_SJIS;
-  HINSTANCE dll = LoadDll("nkf32.dll", false);
+  HINSTANCE dll = LoadDll(TEXT("nkf32.dll"), false);
   if(dll){
     funcSetNkfOption *setopt = (funcSetNkfOption *)GetProc(dll, "SetNkfOption", false);
     funcNkfConvertSafe *conv = (funcNkfConvertSafe *)GetProc(dll, "NkfConvertSafe", false);

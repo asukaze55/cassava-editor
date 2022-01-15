@@ -65,11 +65,6 @@
       チェックをはずした場合、1つのセル全体を選択して左カーソルキーを押すと
       左のセルに移動します（セル内を移動するにはEnterキーかF2キーを押してください）。</li>
   </ul>
-<h3>マウスホイールでカーソルを移動する</h3>
-  <ul>
-  <li>マウスホイールでカーソルを上下に移動します。
-      チェックをはずした場合、カーソル位置を変えずにスクロールします。</li>
-  </ul>
 <h3>単一セル選択時はすぐに編集モードに入る</h3>
   <ul>
   <li>クリックやカーソル移動で単一セルのみを選択した場合、領域選択モードではなく編集モードに入ります。
@@ -86,6 +81,22 @@
   <li>「表示の更新」や「全ての列を画面内に表示」での列幅調整時に、
       全ての行のテキストの長さを反映して列幅を決定します。
       チェックをはずした場合、その時点で画面に表示されている範囲のみが反映されます。</li>
+  </ul>
+<h3>マウスホイール時の動作</h3>
+  <ul>
+  <li>マウスホイールでカーソルを移動するかスクロールするかを指定します。</li>
+  </ul>
+  <dl>
+  <dt>画面のみスクロール</dt>
+  <dd>論理的なカーソル位置を動かさずにスクロールします。</dd>
+  <dt>カーソルを移動</dt>
+  <dd>カーソルを移動し、カーソルが画面外に移動するときのみスクロールします。</dd>
+  <dt>カーソル表示位置を固定</dt>
+  <dd>画面上のカーソル位置を動かさずにスクロールします。</dd>
+  </dl>
+<h3>マウスホイールの移動行数</h3>
+  <ul>
+  <li>1 回のマウスホイール移動する行数を設定します。</li>
   </ul>
 <h3>指定回数のループでマクロを強制終了する</h3>
   <ul>
@@ -116,7 +127,8 @@
         <li class="Sel">動作</li>
         <li><a href="backupoption.html" title="[バックアップ]オプション">バックアップ</a></li>
         <li><a href="applioption.html" title="[外部アプリ連携]オプション">外部アプリ連携</a></li>
-        <li><a href="coloroption.html" title="[フォント・色]オプション">フォント・色</a></li>
+        <li><a href="viewoption.html" title="[表示]オプション">表示</a></li>
+        <li><a href="coloroption.html" title="[色]オプション">色</a></li>
       </ul>
     </li>
     <li><a href="helpmenu.html" title="[ヘルプ]メニュー">ヘルプ</a></li>
@@ -126,6 +138,7 @@
   <ul class="MainMenu">
     <li><a href="macroref.html">リファレンス</a></li>
   </ul>
+<div class="MainMenu"><a href="toolbar.html">ツールバー</a></div>
 <div class="MainMenu"><a href="letter.html">はがき印刷</a></div>
 <div class="MainMenu"><a href="contact.html">著作権・連絡先</a></div>
 
@@ -134,7 +147,7 @@
 <!-- SIGN -->
 <br style="clear: both;" />
 <address>
-  Copyright (C) 2000-2007 asukaze, Some Rights Reserved.<br />
+  Copyright (C) 2000-2010 asukaze, Some Rights Reserved.<br />
   mail (at) asukaze.net
 </address>
 <!-- ==== -->

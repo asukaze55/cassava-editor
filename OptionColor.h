@@ -13,34 +13,27 @@
 class TfrOptionColor : public TFrame
 {
 __published:	// IDE 管理のコンポーネント
-	TButton *btnFont;
-	TStaticText *stFont;
-	TLabel *lblFgColor;
-	TLabel *lblBgColor;
-	TLabel *lblFixBgColor;
-	TLabel *lblCalcFgColor;
-	TLabel *lblCalcBgColor;
-	TLabel *lblCalcErrorFgColor;
-	TLabel *lblCalcErrorBgColor;
-	TLabel *lblFixFgColor;
-	TColorBox *cbFgColor;
-	TColorBox *cbBgColor;
-	TColorBox *cbFixFgColor;
-	TColorBox *cbFixBgColor;
-	TColorBox *cbCalcFgColor;
-	TColorBox *cbCalcBgColor;
-	TColorBox *cbCalcErrorFgColor;
-	TColorBox *cbCalcErrorBgColor;
-  TLabel *lblDummyBgColor;
-  TColorBox *cbDummyBgColor;
-  TLabel *lblLineMargin;
-  TEdit *edLineMargin;
-  TUpDown *udLineMargin;
-  TLabel *lblLineMarginPt;
-  TCheckBox *cbNoMarginInCellLines;
-  TLabel *lblUrlColor;
-  TColorBox *cbUrlColor;
-	void __fastcall btnFontClick(TObject *Sender);
+    TGroupBox *gbColor;
+    TLabel *lblFgColor;
+    TLabel *lblBgColor;
+    TLabel *lblFixBgColor;
+    TLabel *lblCalcFgColor;
+    TLabel *lblCalcBgColor;
+    TLabel *lblCalcErrorFgColor;
+    TLabel *lblCalcErrorBgColor;
+    TLabel *lblFixFgColor;
+    TLabel *lblDummyBgColor;
+    TLabel *lblUrlColor;
+    TColorBox *cbFgColor;
+    TColorBox *cbBgColor;
+    TColorBox *cbFixFgColor;
+    TColorBox *cbFixBgColor;
+    TColorBox *cbCalcFgColor;
+    TColorBox *cbCalcBgColor;
+    TColorBox *cbCalcErrorFgColor;
+    TColorBox *cbCalcErrorBgColor;
+    TColorBox *cbDummyBgColor;
+    TColorBox *cbUrlColor;
 	void __fastcall cbFgColorChange(TObject *Sender);
 	void __fastcall cbBgColorChange(TObject *Sender);
 private:	// ユーザー宣言

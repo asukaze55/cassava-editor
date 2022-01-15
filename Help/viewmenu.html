@@ -29,6 +29,9 @@
 
 <p>
 表示メニューでは、表示方法の変更ができます。
+以前のバージョンで表示メニューにあった設定項目の一部はオプションダイアログ内の
+<a href="viewoption.html">表示オプション</a>
+に移動しているので注意してください。
 </p>
 
 <h2>各メニューの説明</h2>
@@ -52,22 +55,11 @@
   <ul>
   <li>Cassavaウィンドウを最前面表示します。</li>
   </ul>
-<h3>長いセルを折り返して表示</h3>
-  <ul>
-  <li>データがセルの幅におさまらない場合、セル内で折り返して表示します。</li>
-  </ul>
-<h3>数字を右寄せ</h3>
-  <ul>
-  <li>数字のセルを右寄せで表示します。</li>
-  </ul>
-<h3>数字を３桁区切りで表示</h3>
-  <ul>
-  <li>数字のセルを「123,456,789」のように3桁区切りで表示します。</li>
-  </ul>
 <h3>セル内計算式を処理</h3>
   <ul>
   <li>「=」記号で始まるセルの内容をCassavaマクロの式とみなし、計算結果を表示します。</li>
   <li>例えば、セルの内容が「=sum(1,1,1,3)」であれば、1列目の1行目から3行目までの値の合計を表示します。</li>
+  <li>セル内計算式内では、x と y でそのセルの列番号と行番号を取得できます。</li>
   <li>範囲選択状態でコピー・切り取りを実行すると、計算結果がクリップボードに送られます。</li>
   </ul>
 <h3>ツールバー</h3>
@@ -116,7 +108,8 @@
         <li><a href="behavioroption.html" title="[動作]オプション">動作</a></li>
         <li><a href="backupoption.html" title="[バックアップ]オプション">バックアップ</a></li>
         <li><a href="applioption.html" title="[外部アプリ連携]オプション">外部アプリ連携</a></li>
-        <li><a href="coloroption.html" title="[フォント・色]オプション">フォント・色</a></li>
+        <li><a href="viewoption.html" title="[表示]オプション">表示</a></li>
+        <li><a href="coloroption.html" title="[色]オプション">色</a></li>
       </ul>
     </li>
     <li><a href="helpmenu.html" title="[ヘルプ]メニュー">ヘルプ</a></li>
@@ -126,6 +119,7 @@
   <ul class="MainMenu">
     <li><a href="macroref.html">リファレンス</a></li>
   </ul>
+<div class="MainMenu"><a href="toolbar.html">ツールバー</a></div>
 <div class="MainMenu"><a href="letter.html">はがき印刷</a></div>
 <div class="MainMenu"><a href="contact.html">著作権・連絡先</a></div>
 
@@ -134,7 +128,7 @@
 <!-- SIGN -->
 <br style="clear: both;" />
 <address>
-  Copyright (C) 2000-2007 asukaze, Some Rights Reserved.<br />
+  Copyright (C) 2000-2010 asukaze, Some Rights Reserved.<br />
   mail (at) asukaze.net
 </address>
 <!-- ==== -->

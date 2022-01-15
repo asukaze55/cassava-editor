@@ -17,15 +17,15 @@ __fastcall TfrOptionBehavior::TfrOptionBehavior(TComponent* Owner)
 //---------------------------------------------------------------------------
 void TfrOptionBehavior::RestoreFromMainForm()
 {
-  Font = fmMain->Font;
-
   cbDragMove->ItemIndex = (fmMain->MainGrid->DragMove==true) ? 0 : 1;
   cbEnterMove->ItemIndex = fmMain->MainGrid->EnterMove;
   cbLeftArrowInCell->Checked = fmMain->MainGrid->LeftArrowInCell;
-  cbWheelMoveCursol->Checked = fmMain->MainGrid->WheelMoveCursol;
   cbAlwaysShowEditor->Checked = fmMain->MainGrid->AlwaysShowEditor;
   cbSortAll->Checked = fmMain->SortAll;
   cbCalcWidthForAllRow->Checked = fmMain->MainGrid->CalcWidthForAllRow;
+
+  cbWheelMoveCursol->ItemIndex = fmMain->MainGrid->WheelMoveCursol;
+  udWheelScrollStep->Position = fmMain->MainGrid->WheelScrollStep;
 
   cbStopMacro->Checked = (fmMain->StopMacroCount > 0);
   seStopMacroCount->Text = AnsiString(cbStopMacro->Checked ? fmMain->StopMacroCount : 100000);
@@ -37,10 +37,12 @@ void TfrOptionBehavior::StoreToMainForm()
   fmMain->MainGrid->DragMove = (cbDragMove->ItemIndex == 0);
   fmMain->MainGrid->EnterMove = cbEnterMove->ItemIndex;
   fmMain->MainGrid->LeftArrowInCell = cbLeftArrowInCell->Checked;
-  fmMain->MainGrid->WheelMoveCursol = cbWheelMoveCursol->Checked;
   fmMain->MainGrid->AlwaysShowEditor = cbAlwaysShowEditor->Checked;
   fmMain->SortAll = cbSortAll->Checked;
   fmMain->MainGrid->CalcWidthForAllRow = cbCalcWidthForAllRow->Checked;
+
+  fmMain->MainGrid->WheelMoveCursol = cbWheelMoveCursol->ItemIndex;
+  fmMain->MainGrid->WheelScrollStep = udWheelScrollStep->Position;
 
   if(cbStopMacro->Checked){
     fmMain->StopMacroCount = seStopMacroCount->Text.ToIntDef(0);

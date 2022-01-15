@@ -13,8 +13,8 @@ object frOptionLaunch: TfrOptionLaunch
     Caption = #22806#37096#12450#12503#12522#12465#12540#12471#12519#12531
     TabOrder = 0
     object sbRefer0: TSpeedButton
-      Left = 320
-      Top = 24
+      Left = 302
+      Top = 29
       Width = 25
       Height = 25
       Glyph.Data = {
@@ -35,7 +35,7 @@ object frOptionLaunch: TfrOptionLaunch
     end
     object sbRefer1: TSpeedButton
       Tag = 1
-      Left = 320
+      Left = 302
       Top = 56
       Width = 25
       Height = 25
@@ -57,8 +57,8 @@ object frOptionLaunch: TfrOptionLaunch
     end
     object sbRefer2: TSpeedButton
       Tag = 2
-      Left = 320
-      Top = 88
+      Left = 302
+      Top = 83
       Width = 25
       Height = 25
       Glyph.Data = {
@@ -77,59 +77,69 @@ object frOptionLaunch: TfrOptionLaunch
       NumGlyphs = 2
       OnClick = sbReferClick
     end
+    object Label2: TLabel
+      Left = 318
+      Top = 114
+      Width = 24
+      Height = 13
+      Hint = #22806#37096#12450#12503#12522#12465#12540#12471#12519#12531#36215#21205#26178#12395' Cassava Editor '#12434#32066#20102#12377#12427
+      Caption = #32066#20102
+      ParentShowHint = False
+      ShowHint = True
+    end
     object edLaunchName1: TEdit
       Tag = 1
       Left = 8
-      Top = 56
+      Top = 58
+      Width = 105
+      Height = 21
+      Enabled = False
+      TabOrder = 3
+      Text = #26410#35373#23450
+    end
+    object edLaunchName0: TEdit
+      Left = 8
+      Top = 31
       Width = 105
       Height = 21
       Enabled = False
       TabOrder = 0
       Text = #26410#35373#23450
     end
-    object edLaunchName0: TEdit
-      Left = 8
-      Top = 24
-      Width = 105
-      Height = 21
-      Enabled = False
-      TabOrder = 1
-      Text = #26410#35373#23450
-    end
     object edLaunch0: TEdit
       Left = 112
-      Top = 24
-      Width = 201
+      Top = 31
+      Width = 193
       Height = 21
-      TabOrder = 2
+      TabOrder = 1
       OnChange = edLaunchChange
     end
     object edLaunch1: TEdit
       Tag = 1
       Left = 112
-      Top = 56
-      Width = 201
+      Top = 58
+      Width = 193
       Height = 21
-      TabOrder = 3
+      TabOrder = 4
       OnChange = edLaunchChange
     end
     object edLaunch2: TEdit
       Tag = 2
       Left = 112
-      Top = 88
-      Width = 201
+      Top = 85
+      Width = 193
       Height = 21
-      TabOrder = 4
+      TabOrder = 7
       OnChange = edLaunchChange
     end
     object edLaunchName2: TEdit
       Tag = 2
       Left = 8
-      Top = 88
+      Top = 85
       Width = 105
       Height = 21
       Enabled = False
-      TabOrder = 5
+      TabOrder = 6
       Text = #26410#35373#23450
     end
     object btnKanrenR: TBitBtn
@@ -138,15 +148,47 @@ object frOptionLaunch: TfrOptionLaunch
       Width = 193
       Height = 21
       Caption = #12501#12449#12452#12523#12398#21491#12463#12522#12483#12463#12395#38306#36899#20184#12369#12427
+      DoubleBuffered = True
       Enabled = False
       Font.Charset = SHIFTJIS_CHARSET
       Font.Color = clWindowText
       Font.Height = -13
       Font.Name = #65325#65331' '#65328#12468#12471#12483#12463
       Font.Style = []
+      ParentDoubleBuffered = False
       ParentFont = False
-      TabOrder = 6
+      TabOrder = 9
       OnClick = btnKanrenRClick
+    end
+    object cbClose0: TCheckBox
+      Left = 333
+      Top = 33
+      Width = 17
+      Height = 17
+      Hint = #22806#37096#12450#12503#12522#12465#12540#12471#12519#12531#36215#21205#26178#12395' Cassava Editor '#12434#32066#20102#12377#12427
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 2
+    end
+    object cbClose1: TCheckBox
+      Left = 333
+      Top = 60
+      Width = 17
+      Height = 17
+      Hint = #22806#37096#12450#12503#12522#12465#12540#12471#12519#12531#36215#21205#26178#12395' Cassava Editor '#12434#32066#20102#12377#12427
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 5
+    end
+    object cbClose2: TCheckBox
+      Left = 333
+      Top = 87
+      Width = 17
+      Height = 17
+      Hint = #22806#37096#12450#12503#12522#12465#12540#12471#12519#12531#36215#21205#26178#12395' Cassava Editor '#12434#32066#20102#12377#12427
+      ParentShowHint = False
+      ShowHint = True
+      TabOrder = 8
     end
   end
   object gbBrowser: TGroupBox
@@ -158,8 +200,8 @@ object frOptionLaunch: TfrOptionLaunch
     TabOrder = 1
     object sbRefer3: TSpeedButton
       Tag = 3
-      Left = 320
-      Top = 24
+      Left = 302
+      Top = 18
       Width = 25
       Height = 25
       Glyph.Data = {
@@ -179,15 +221,15 @@ object frOptionLaunch: TfrOptionLaunch
       OnClick = sbReferClick
     end
     object Label16: TLabel
-      Left = 24
-      Top = 28
+      Left = 16
+      Top = 24
       Width = 64
       Height = 13
       Caption = 'Web'#12502#12521#12454#12470#65306
     end
     object edBrowser: TEdit
-      Left = 112
-      Top = 24
+      Left = 104
+      Top = 21
       Width = 201
       Height = 21
       Hint = #12300'.html'#12301#12395#38306#36899#20184#12369#12425#12428#12383#12502#12521#12454#12470#12434#20351#29992#12377#12427#22580#21512#12289#31354#27396#12395#12375#12390#12362#12356#12390#12367#12384#12373#12356#12290
@@ -196,14 +238,14 @@ object frOptionLaunch: TfrOptionLaunch
       TabOrder = 0
     end
     object rgUseURL: TRadioGroup
-      Left = 16
-      Top = 56
-      Width = 329
+      Left = 8
+      Top = 47
+      Width = 337
       Height = 81
       Caption = 'URL'#12487#12540#12479
       ItemIndex = 1
       Items.Strings = (
-        #12510#12454#12473#12363#12425#12502#12521#12454#12470#12434#36215#21205#12375#12394#12356
+        #12463#12522#12483#12463#12391#12502#12521#12454#12470#12434#36215#21205#12375#12394#12356
         #12480#12502#12523#12463#12522#12483#12463#12391#12502#12521#12454#12470#12434#36215#21205#12377#12427
         #12471#12531#12464#12523#12463#12522#12483#12463#12391#12502#12521#12454#12470#12434#36215#21205#12377#12427)
       TabOrder = 1

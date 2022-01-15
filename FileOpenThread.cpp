@@ -3,6 +3,7 @@
 #pragma hdrstop
 
 #include "FileOpenThread.h"
+#include "CsvReader.h"
 #pragma package(smart_init)
 //---------------------------------------------------------------------------
 // 注意：異なるスレッドが所有する VCL のメソッド/関数/プロパティを
@@ -25,134 +26,6 @@
 //       更できます。
 //
 //      Synchronize(&UpdateCaption);
-//---------------------------------------------------------------------------
-#define NEXT_TYPE_HAS_MORE_CELL 0x01
-#define NEXT_TYPE_HAS_MORE_ROW  0x02
-#define NEXT_TYPE_END_OF_FILE   0x04
-#define DELIMITER_TYPE_NONE     0x00
-#define DELIMITER_TYPE_WEAK     0x01
-#define DELIMITER_TYPE_STRONG   0x03
-//---------------------------------------------------------------------------
-class CsvReader
-{
-private:
-  TTypeOption *typeOption;
-  char *buf;
-  char *last;
-  char *pos;
-  int delimiterType;
-public:
-  CsvReader(TTypeOption *, char*, unsigned long);
-  ~CsvReader();
-  int GetNextType();
-  AnsiString Next();
-};
-//---------------------------------------------------------------------------
-CsvReader::CsvReader(TTypeOption *_typeOption, char *_buf, unsigned long _len)
-  : typeOption(_typeOption), buf(_buf), last(_buf + _len),
-    pos(_buf), delimiterType(DELIMITER_TYPE_STRONG)
-{
-}
-//---------------------------------------------------------------------------
-CsvReader::~CsvReader()
-{
-}
-//---------------------------------------------------------------------------
-int CsvReader::GetNextType()
-{
-  if(delimiterType == DELIMITER_TYPE_WEAK){
-    while(pos < last && typeOption->WeakSepChars.AnsiPos(*pos) > 0){
-      pos++;
-    }
-  }
-  if(pos < last) {
-    if(*pos == '\r' || *pos == '\n'){
-      if(delimiterType == DELIMITER_TYPE_STRONG){
-        return NEXT_TYPE_HAS_MORE_CELL;
-      }else{
-        return NEXT_TYPE_HAS_MORE_ROW;
-      }
-    } else {
-    return NEXT_TYPE_HAS_MORE_CELL;
-    }
-  } else {
-    return NEXT_TYPE_END_OF_FILE;
-  }
-}
-//---------------------------------------------------------------------------
-AnsiString CsvReader::Next()
-{
-  if(delimiterType == DELIMITER_TYPE_WEAK){
-    // 改行の次へ進める。改行の情報は GetNextType で取る。
-    if (*pos == '\r') { pos++; delimiterType = DELIMITER_TYPE_STRONG; }
-    if (*pos == '\n') { pos++; delimiterType = DELIMITER_TYPE_STRONG; }
-  }
-
-  bool quoted = false;
-  char *cellstart = pos;
-  char *cellend = pos;
-
-  for (;pos < last; pos++, cellend++) {
-    char ch = *pos;
-    if (!quoted) {
-      if (ch == '\r' || ch == '\n') {
-        // 改行
-        delimiterType = DELIMITER_TYPE_WEAK;
-        return AnsiString(cellstart, cellend - cellstart);
-      } else if (typeOption->SepChars.AnsiPos(ch) > 0) {
-        // 強区切り
-        if (delimiterType != DELIMITER_TYPE_WEAK) {
-          pos++;
-          delimiterType = DELIMITER_TYPE_STRONG;
-          return AnsiString(cellstart, cellend - cellstart);
-        }
-        delimiterType = DELIMITER_TYPE_STRONG;
-        cellstart = pos + 1;
-      } else if (typeOption->WeakSepChars.AnsiPos(ch) > 0) {
-        // 弱区切り
-        if (delimiterType == DELIMITER_TYPE_NONE) {
-          pos++;
-          delimiterType = DELIMITER_TYPE_WEAK;
-          return AnsiString(cellstart, cellend - cellstart);
-        }
-        delimiterType = DELIMITER_TYPE_WEAK;
-        cellstart = pos + 1;
-      } else if (typeOption->UseQuote()
-                 && typeOption->QuoteChars.AnsiPos(ch) > 0
-                 && delimiterType != DELIMITER_TYPE_NONE) {
-        // クオート
-        quoted = true;
-        delimiterType = DELIMITER_TYPE_NONE;
-        cellstart = pos + 1;
-      } else {
-        // コンテンツ
-        delimiterType = DELIMITER_TYPE_NONE;
-      }
-    } else { // Quoted
-      if (typeOption->UseQuote() && typeOption->QuoteChars.AnsiPos(ch) > 0) {
-        if (pos + 1 < last && *(pos + 1) == ch) {
-          pos++;
-          *cellend = *pos;
-        } else {
-          pos++;
-          delimiterType = DELIMITER_TYPE_WEAK;
-          return AnsiString(cellstart, cellend - cellstart);
-        }
-      } else {
-        // コンテンツ
-        delimiterType = DELIMITER_TYPE_NONE;
-        if(cellend < pos){
-          *cellend = *pos;
-        }
-      }
-    }
-  }
-
-  if (cellstart < cellend) {
-    return AnsiString(cellstart, cellend - cellstart);
-  }
-  return "";
-}
 //---------------------------------------------------------------------------
 class FileOpenThread : public TThread
 {
@@ -263,14 +136,15 @@ void __fastcall FileOpenThread::Execute()
   TTypeOption *typeOption = Grid->TypeOption;
   int dt = Grid->DataTop;
   int dl = Grid->DataLeft;
-  CsvReader *reader;
+  AnsiString data;
   if(buf[0]=='\xFF' && buf[1]=='\xFE'){
-    reader = new CsvReader(typeOption, buf+2, len-2);
+    data = AnsiString(buf+2, len-2);
   }else if(buf[0]=='\xFF'){
-    reader = new CsvReader(typeOption, buf+1, len-1);
+    data = AnsiString(buf+1, len-1);
   }else{
-    reader = new CsvReader(typeOption, buf, len);
+    data = AnsiString(buf, len);
   }
+  CsvReader *reader = new CsvReader(typeOption, data);
 
   y = dt;
   x = dl;

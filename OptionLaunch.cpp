@@ -16,14 +16,15 @@ __fastcall TfrOptionLaunch::TfrOptionLaunch(TComponent* Owner)
 //---------------------------------------------------------------------------
 void TfrOptionLaunch::RestoreFromMainForm()
 {
-  Font = fmMain->Font;
-
   edLaunch0->Text     = fmMain->mnAppli0->Hint;
   edLaunchName0->Text = fmMain->mnAppli0->Caption.c_str() + 4;
+  cbClose0->Checked   = fmMain->mnAppli0->Tag;
   edLaunch1->Text     = fmMain->mnAppli1->Hint;
   edLaunchName1->Text = fmMain->mnAppli1->Caption.c_str() + 4;
+  cbClose1->Checked   = fmMain->mnAppli1->Tag;
   edLaunch2->Text     = fmMain->mnAppli2->Hint;
   edLaunchName2->Text = fmMain->mnAppli2->Caption.c_str() + 4;
+  cbClose2->Checked   = fmMain->mnAppli2->Tag;
 
   edBrowser->Text     = fmMain->MainGrid->BrowserFileName;
   rgUseURL->ItemIndex = fmMain->MainGrid->DblClickOpenURL;
@@ -31,14 +32,17 @@ void TfrOptionLaunch::RestoreFromMainForm()
 //---------------------------------------------------------------------------
 void TfrOptionLaunch::StoreToMainForm()
 {
-  fmMain->mnAppli0->Caption = (AnsiString)"&0: " + edLaunchName0->Text;
+  fmMain->mnAppli0->Caption = (String)"&0: " + edLaunchName0->Text;
   fmMain->mnAppli0->Hint    = edLaunch0->Text;
+  fmMain->mnAppli0->Tag     = cbClose0->Checked;
   fmMain->mnAppli0->Enabled = (edLaunch0->Text != "");
-  fmMain->mnAppli1->Caption = (AnsiString)"&1: " + edLaunchName1->Text;
+  fmMain->mnAppli1->Caption = (String)"&1: " + edLaunchName1->Text;
   fmMain->mnAppli1->Hint    = edLaunch1->Text;
+  fmMain->mnAppli1->Tag     = cbClose1->Checked;
   fmMain->mnAppli1->Enabled = (edLaunch1->Text != "");
-  fmMain->mnAppli2->Caption = (AnsiString)"&2: " + edLaunchName2->Text;
+  fmMain->mnAppli2->Caption = (String)"&2: " + edLaunchName2->Text;
   fmMain->mnAppli2->Hint    = edLaunch2->Text;
+  fmMain->mnAppli2->Tag     = cbClose2->Checked;
   fmMain->mnAppli2->Enabled = (edLaunch2->Text != "");
 
   fmMain->MainGrid->BrowserFileName = edBrowser->Text;
@@ -85,21 +89,21 @@ void __fastcall TfrOptionLaunch::sbReferClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 void TfrOptionLaunch::SetKanrenLaunch(TRegistry *Reg,
-        AnsiString CassavaType)
+        String CassavaType)
 {
   if(Reg->OpenKey("\\Software\\Classes\\" + CassavaType, false)){
-    if(Application->MessageBox("関連付けを設定します",
+    if(Application->MessageBox(TEXT("関連付けを設定します"),
         CassavaType.c_str(), MB_OKCANCEL)==IDOK){
       Reg->DeleteKey("\\Software\\Classes\\" + CassavaType + "\\shell");
       Reg->OpenKey("\\Software\\Classes\\" + CassavaType + "\\shell", true);
       Reg->OpenKey("open", true);
       Reg->WriteString("", "Cassava Editor で開く");
       Reg->OpenKey("command",true);
-      Reg->WriteString("", (AnsiString)'\"'+ParamStr(0)+"\" \"%1\"");
+      Reg->WriteString("", (String)'\"'+ParamStr(0)+"\" \"%1\"");
       Reg->CloseKey();
 
       for(int i=0; i<3; i++){
-        AnsiString Nm, Lc;
+        String Nm, Lc;
         switch(i){
           case 0: Nm = edLaunchName0->Text; Lc = edLaunch0->Text; break;
           case 1: Nm = edLaunchName1->Text; Lc = edLaunch1->Text; break;
@@ -109,7 +113,7 @@ void TfrOptionLaunch::SetKanrenLaunch(TRegistry *Reg,
           Reg->OpenKey("\\Software\\Classes\\" + CassavaType + "\\shell", true);
           Reg->OpenKey(Nm, true);
           Reg->OpenKey("command", true);
-          Reg->WriteString("", (AnsiString)'\"'+Lc+"\" \"%1\"");
+          Reg->WriteString("", (String)'\"'+Lc+"\" \"%1\"");
         }
       }
       Reg->CloseKey();

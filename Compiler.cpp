@@ -348,7 +348,6 @@ private:
   void GetFunction();
   void GetReturn();
   void GetCell();
-  void GetSwap();
   bool GetSentence(char EOS, char *nHikisu = NULL);
   void GetBlock();
 
@@ -562,36 +561,6 @@ void TCompiler::GetCell()
   }
 }
 //---------------------------------------------------------------------------
-void TCompiler::GetSwap()
-{
-  lex->Get();                    // '('
-  TStream *fs = fout;
-  TStream *ms1 = new TMemoryStream();
-  fout = ms1;
-  GetSentence(',');
-  TStream *ms2 = new TMemoryStream();
-  fout = ms2;
-  GetSentence(')');
-  if(lex->Get().str != ";"){
-    delete ms1;
-    delete ms2;
-    throw CMCException("; が必要です。");
-  }
-
-  fout = fs;
-  fout->Write("~\x02$_",4);
-  fout->CopyFrom(ms1, 0);
-  fout->Write("-=",2);
-  fout->CopyFrom(ms1, 0);
-  fout->CopyFrom(ms2, 0);
-  fout->Write("-=",2);
-  fout->CopyFrom(ms2, 0);
-  fout->Write("~\x02$_-=",6);
-
-  delete ms1;
-  delete ms2;
-}
-//---------------------------------------------------------------------------
 void TCompiler::Output(CMCElement e)
 {
   if(e.type == tpComment || e.type == tpStructure) return;
@@ -706,7 +675,7 @@ bool TCompiler::GetSentence(char EOS, char *nHikisu)
       }
     }else if(e.type == tpFunc){
       if(AnsiPos("/" + e.str + "/",
-                 "/if/while/for/For/swap/function/return/") > 0) {
+                 "/if/while/for/For/function/return/") > 0) {
         if(!firstloop){
           throw CMCException(e.str + " の前に ; が必要です。");
         }
@@ -714,7 +683,6 @@ bool TCompiler::GetSentence(char EOS, char *nHikisu)
         else if(e.str == "while")    { GetWhile();    }
         else if(e.str == "for")      { GetFor();      }
         else if(e.str == "For")      { GetBasicFor(); }
-        else if(e.str == "swap")     { GetSwap();     }
         else if(e.str == "function") { GetFunction(); }
         else if(e.str == "return")   { GetReturn();   }
         return true;
@@ -777,16 +745,16 @@ bool TCompiler::Compile(TStream *stream,
     GetBlock();
   }catch(CMCException e){
     if(showMessage){
-      AnsiString str = inpath + inname + ext
-        + (AnsiString)"\nL" + lex->y + "\tC" + lex->x + "\n" + e.Message;
-      Application->MessageBox(str.c_str(), "Cassava Macro Compiler", 0);
-    }
-    Fail = true;
+	  String str = inpath + inname + ext
+		+ (AnsiString)"\nL" + lex->y + "\tC" + lex->x + "\n" + e.Message;
+	  Application->MessageBox(str.c_str(), TEXT("Cassava Macro Compiler"), 0);
+	}
+	Fail = true;
   }catch(Exception *e){
-    if(showMessage){
-      AnsiString str = inpath + inname + ext
+	if(showMessage){
+      String str = inpath + inname + ext
         + (AnsiString)"\nL" + lex->y + "\tC" + lex->x + "\n" + e->Message;
-      Application->MessageBox(str.c_str(), "Cassava Macro Compiler", 0);
+      Application->MessageBox(str.c_str(), TEXT("Cassava Macro Compiler"), 0);
     }
     Fail = true;
   }
@@ -822,15 +790,15 @@ bool MacroCompile(TStream *stream, TStringList *inpaths,
         OK = Cmp.Compile(libstream, inpath, libname, ext, modules, showMessage);
       }else{
         if(showMessage){
-          AnsiString str = libname + ext + "\nファイルが見つかりません。";
-          Application->MessageBox(str.c_str(), "Cassava Macro Compiler", 0);
+          String str = libname + ext + "\nファイルが見つかりません。";
+          Application->MessageBox(str.c_str(), TEXT("Cassava Macro Compiler"), 0);
         }
         OK = false;
       }
     }catch(Exception *e){
       if(showMessage){
-        AnsiString str = libFileName + "\n" + e->Message;
-        Application->MessageBox(str.c_str(), "Cassava Macro Compiler", 0);
+        String str = libFileName + "\n" + e->Message;
+        Application->MessageBox(str.c_str(), TEXT("Cassava Macro Compiler"), 0);
       }
       OK = false;
     }
@@ -846,15 +814,15 @@ bool MacroCompile(AnsiString infile, TStringList *inpaths,
   bool OK;
   try{
     stream = new TFileStream(infile, fmOpenRead | fmShareDenyWrite);
-    AnsiString inpath = ExtractFilePath(infile);
-    if(*(inpath.AnsiLastChar()) != '\\') inpath += "\\";
-    AnsiString inname = ChangeFileExt(ExtractFileName(infile),"");
-    AnsiString ext  = ExtractFileExt(infile);
-    OK = MacroCompile(stream, inpaths, inpath, inname, ext, modules, showMessage);
+    String inpath = ExtractFilePath(infile);
+	if(*(inpath.LastChar()) != '\\') inpath += "\\";
+	String inname = ChangeFileExt(ExtractFileName(infile),"");
+	String ext  = ExtractFileExt(infile);
+	OK = MacroCompile(stream, inpaths, inpath, inname, ext, modules, showMessage);
   }catch(Exception *e){
-    if(showMessage){
-      AnsiString str = infile + "\n" + e->Message;
-      Application->MessageBox(str.c_str(), "Cassava Macro Compiler", 0);
+	if(showMessage){
+	  String str = infile + "\n" + e->Message;
+      Application->MessageBox(str.c_str(), TEXT("Cassava Macro Compiler"), 0);
     }
     OK = false;
   }

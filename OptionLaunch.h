@@ -32,11 +32,15 @@ __published:	// IDE 管理のコンポーネント
 	TEdit *edBrowser;
 	TRadioGroup *rgUseURL;
 	TOpenDialog *dlgOpen;
+	TCheckBox *cbClose0;
+	TCheckBox *cbClose1;
+	TCheckBox *cbClose2;
+	TLabel *Label2;
 	void __fastcall edLaunchChange(TObject *Sender);
 	void __fastcall sbReferClick(TObject *Sender);
 	void __fastcall btnKanrenRClick(TObject *Sender);
 private:	// ユーザー宣言
-  void SetKanrenLaunch(TRegistry *Reg, AnsiString CassavaType);
+  void SetKanrenLaunch(TRegistry *Reg, String CassavaType);
 public:		// ユーザー宣言
 	__fastcall TfrOptionLaunch(TComponent* Owner);
 	void RestoreFromMainForm();

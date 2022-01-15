@@ -18,6 +18,7 @@
 #include <ComCtrls.hpp>
 #include <ToolWin.hpp>
 #include <ImgList.hpp>
+#include <ActnList.hpp>
 //---------------------------------------------------------------------------
 class TfmMain : public TForm
 {
@@ -29,7 +30,6 @@ __published:	// IDE 管理のコンポーネント
   TMenuItem *mnN2;
   TMenuItem *mnEnd;
   TMenuItem *mnNew;
-  TBevel *bvlToolBar;
   TMenuItem *mnSaveAs;
   TOpenDialog *dlgOpen;
   TSaveDialog *dlgSave;
@@ -151,7 +151,6 @@ __published:	// IDE 管理のコンポーネント
   TTimer *tmAutoSaver;
   TMenuItem *mnMacro;
   TMenuItem *mnN15;
-  TMenuItem *mnNumAlignRight;
   TMenuItem *mnExport;
   TMenuItem *mnPasteFormat;
   TMenuItem *mnPasteFormatDefault;
@@ -172,70 +171,21 @@ __published:	// IDE 管理のコンポーネント
   TMenuItem *mnReloadCodeJIS;
   TMenuItem *mnReloadCodeUnicode;
   TMenuItem *mnReloadCodeUTF8;
-  TMenuItem *mnNum3;
   TMenuItem *mnPasteOption5;
   TMenuItem *mnNewLine;
   TMenuItem *mnReloadCodeUTF16BE;
-  TCoolBar *CoolBar;
-  TToolBar *tbarNormal;
-  TToolButton *tsbNew;
-  TToolButton *tsbOpen;
-  TToolButton *tsbSave;
-  TToolButton *ToolButton4;
-  TToolButton *tsbCut;
-  TToolButton *tsbCopy;
-  TToolButton *tsbPaste;
-  TToolButton *ToolButton8;
-  TToolButton *tsbUndo;
-  TToolButton *tsbRedo;
-  TToolBar *tbarAdditional;
-  TToolButton *tsbSort;
-  TToolButton *ToolButton12;
-  TToolButton *tsbInsRow;
-  TToolButton *tsbInsCol;
-  TToolButton *tsbCutRow;
-  TToolButton *tsbCutCol;
-  TToolButton *ToolButton17;
-  TToolButton *tsbFind;
-  TToolButton *ToolButton19;
-  TToolButton *tsbRefresh;
-  TToolButton *tsbShowAllColumn;
-  TToolButton *tsbFont;
-  TToolButton *ToolButton23;
-  TToolButton *tsbFixUpLeft;
-  TToolButton *tsbFixFirstRow;
-  TToolButton *tsbFixFirstCol;
   TImageList *imlMenu;
   TPopupMenu *PopMenuOpen;
   TMenuItem *mnFindBack;
   TMenuItem *mnCopyFormat;
   TMenuItem *mnCopyFormatDefault;
   TMenuItem *mnpCopyFormat;
-  TToolButton *sbCalcExpression;
-  TMenuItem *mnWordWrap;
   TMenuItem *mnCalcExpression;
   TMenuItem *mnN16;
   TMenuItem *mnMacroOpenUserFolder;
   TMenuItem *mnQuickFind;
   TStatusBar *StatusBar;
   TPanel *MainPanel;
-  TGroupBox *gbxSort;
-  TLabel *Label4;
-  TLabel *Label5;
-  TButton *btnSort;
-  TButton *btnSortCancel;
-  TRadioGroup *rgSortDirection;
-  TCheckBox *cbNumSort;
-  TEdit *seSortLeft;
-  TUpDown *udSortLeft;
-  TUpDown *udSortTop;
-  TEdit *seSortTop;
-  TUpDown *udSortRight;
-  TEdit *seSortRight;
-  TUpDown *udSortBottom;
-  TEdit *seSortBottom;
-  TUpDown *udSortCol;
-  TEdit *seSortCol;
   TPanel *pnlSearch;
   TSpeedButton *btnNext;
   TSpeedButton *btnPrevious;
@@ -245,22 +195,57 @@ __published:	// IDE 管理のコンポーネント
   TEdit *edFindText;
   TMenuItem *mnShowStatusbar;
   TImageList *imlNormal;
+    TControlBar *CoolBar;
+    TToolBar *tbarAdditional;
+    TToolButton *tsbSort;
+    TToolButton *ToolButton12;
+    TToolButton *tsbInsRow;
+    TToolButton *tsbInsCol;
+    TToolButton *tsbCutRow;
+    TToolButton *tsbCutCol;
+    TToolButton *ToolButton17;
+    TToolButton *tsbFind;
+    TToolButton *ToolButton19;
+    TToolButton *tsbRefresh;
+    TToolButton *tsbShowAllColumn;
+    TToolButton *tsbFont;
+    TToolButton *sbCalcExpression;
+    TToolButton *ToolButton23;
+    TToolButton *tsbFixUpLeft;
+    TToolButton *tsbFixFirstRow;
+    TToolButton *tsbFixFirstCol;
+    TToolBar *tbarNormal;
+    TToolButton *tsbNew;
+    TToolButton *tsbOpen;
+    TToolButton *tsbSave;
+    TToolButton *ToolButton4;
+    TToolButton *tsbCut;
+    TToolButton *tsbCopy;
+    TToolButton *tsbPaste;
+    TToolButton *ToolButton8;
+    TToolButton *tsbUndo;
+    TToolButton *tsbRedo;
+    TMenuItem *mnCheckUpdate;
+    TMenuItem *mnMacroTerminate;
+    TActionList *ActionList;
+    TAction *acMacroTerminate;
+    TAction *acSave;
+    TAction *acUndo;
+    TAction *acRedo;
+    TAction *acCut;
+    TAction *acCopy;
+    TAction *acPaste;
   void __fastcall mnNewClick(TObject *Sender);
   void __fastcall mnOpenClick(TObject *Sender);
   void __fastcall mnEndClick(TObject *Sender);
-  void __fastcall mnSaveClick(TObject *Sender);
   void __fastcall mnSaveAsClick(TObject *Sender);
   void __fastcall mnInsRowClick(TObject *Sender);
   void __fastcall mnCutRowClick(TObject *Sender);
   void __fastcall mnInsColClick(TObject *Sender);
   void __fastcall mnCutColClick(TObject *Sender);
   void __fastcall mnSelectAllClick(TObject *Sender);
-  void __fastcall mnCopyClick(TObject *Sender);
-  void __fastcall mnPasteClick(TObject *Sender);
   void __fastcall mnRefreshClick(TObject *Sender);
   void __fastcall mnFontClick(TObject *Sender);
-  void __fastcall mnEditClick(TObject *Sender);
-  void __fastcall mnCutClick(TObject *Sender);
   void __fastcall mnAboutClick(TObject *Sender);
   void __fastcall mnEnterClick(TObject *Sender);
   void __fastcall mnConnectCellClick(TObject *Sender);
@@ -274,7 +259,6 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall mnFindClick(TObject *Sender);
   void __fastcall mnFindNextClick(TObject *Sender);
   void __fastcall sbFindClick(TObject *Sender);
-  void __fastcall mnUndoClick(TObject *Sender);
   void __fastcall PopMenuPopup(TObject *Sender);
   void __fastcall mnOpenCellFileClick(TObject *Sender);
   void __fastcall mnPasteOptionsClick(TObject *Sender);
@@ -290,11 +274,7 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall mnKeyClick(TObject *Sender);
   void __fastcall mnFixUpLeftClick(TObject *Sender);
   void __fastcall mnUnFixClick(TObject *Sender);
-  void __fastcall btnSortCancelClick(TObject *Sender);
   void __fastcall mnSortClick(TObject *Sender);
-  void __fastcall seSortKeyPress(TObject *Sender, char &Key);
-  void __fastcall btnSortClick(TObject *Sender);
-  void __fastcall seSortChange(TObject *Sender);
   void __fastcall sbSortClick(TObject *Sender);
   void __fastcall mnKCodeClick(TObject *Sender);
   void __fastcall mnOpenHistorysClick(TObject *Sender);
@@ -309,12 +289,10 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall mnSequenceCClick(TObject *Sender);
   void __fastcall mnSequenceSClick(TObject *Sender);
   void __fastcall mnNewSizeClick(TObject *Sender);
-  void __fastcall mnRedoClick(TObject *Sender);
   void __fastcall mnpSortClick(TObject *Sender);
   void __fastcall tmAutoSaverTimer(TObject *Sender);
   void __fastcall mnMacroExecClick(TObject *Sender);
   void __fastcall mnMacroUserExecClick(TObject *Sender);
-  void __fastcall mnNumAlignRightClick(TObject *Sender);
   void __fastcall mnPasteFormatDefaultClick(TObject *Sender);
   void __fastcall mnMacroSearchClick(TObject *Sender);
   void __fastcall mnMacroOpenFolderClick(TObject *Sender);
@@ -323,15 +301,12 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall mnExportClick(TObject *Sender);
   void __fastcall mnTransKanaClick(TObject *Sender);
   void __fastcall mnReloadCodeClick(TObject *Sender);
-  void __fastcall mnNum3Click(TObject *Sender);
   void __fastcall mnNewLineClick(TObject *Sender);
   void __fastcall PopMenuOpenPopup(TObject *Sender);
   void __fastcall mnFindBackClick(TObject *Sender);
   void __fastcall mnCopyFormatDefaultClick(TObject *Sender);
-  void __fastcall mnWordWrapClick(TObject *Sender);
   void __fastcall mnCalcExpressionClick(TObject *Sender);
   bool __fastcall FormHelp(WORD Command, int Data, bool &CallHelp);
-  void __fastcall udSortClick(TObject *Sender, TUDBtnType Button);
   void __fastcall mnMacroOpenUserFolderClick(TObject *Sender);
   void __fastcall mnQuickFindClick(TObject *Sender);
   void __fastcall btnSearchCancelClick(TObject *Sender);
@@ -341,11 +316,26 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall btnPreviousClick(TObject *Sender);
   void __fastcall btnSearchOptionClick(TObject *Sender);
   void __fastcall mnShowStatusbarClick(TObject *Sender);
+    void __fastcall CoolBarResize(TObject *Sender);
+    void __fastcall mnCheckUpdateClick(TObject *Sender);
+    void __fastcall acMacroTerminateExecute(TObject *Sender);
+    void __fastcall acMacroTerminateUpdate(TObject *Sender);
+    void __fastcall acSaveExecute(TObject *Sender);
+    void __fastcall acUndoExecute(TObject *Sender);
+    void __fastcall acRedoExecute(TObject *Sender);
+    void __fastcall acUndoUpdate(TObject *Sender);
+    void __fastcall acRedoUpdate(TObject *Sender);
+    void __fastcall acCutExecute(TObject *Sender);
+    void __fastcall acCopyExecute(TObject *Sender);
+    void __fastcall acPasteExecute(TObject *Sender);
+    void __fastcall acCutUpdate(TObject *Sender);
+    void __fastcall acCopyUpdate(TObject *Sender);
+    void __fastcall acPasteUpdate(TObject *Sender);
 
 private:    // ユーザー宣言
   void UpdateKCode();
-  void OpenFile(AnsiString OpenFileName, int KCode=CHARCODE_AUTO,
-    void (__closure *OnTerminate)(System::TObject* Sender)=NULL);
+  void OpenFile(String OpenFileName, int KCode=CHARCODE_AUTO,
+	void (__closure *OnTerminate)(System::TObject* Sender)=NULL);
   void ExecStartupMacro(System::TObject* Sender);
   void SaveFile(TTypeOption *Format);
   void GetCheckedMenus(TStringList *list);
@@ -361,11 +351,13 @@ public:     // ユーザー宣言
   bool IfModifiedThenSave();
   void ReadIni();
   void WriteIni(bool PosSlide = false);
+  void ReadToolBar();
+  void __fastcall UserToolBarAction(TObject *Sender);
   void __fastcall MainGridChangeModified(TObject *Sender);
   void __fastcall MainGridDropFiles(TObject *Sender, int iFiles,
-                                    AnsiString *DropFileNames);
+									String *DropFileNames);
   void __fastcall MainGridKeyDown(System::TObject* Sender,
-                        Word &Key, Classes::TShiftState Shift);
+						Word &Key, Classes::TShiftState Shift);
   void __fastcall MainGridKeyUp(System::TObject* Sender,
                         Word &Key, Classes::TShiftState Shift);
   void __fastcall MainGridMouseMove(System::TObject* Sender,
@@ -376,20 +368,21 @@ public:     // ユーザー宣言
   void __fastcall ApplicationActivate(System::TObject* Sender);
   void __fastcall ApplicationHint(TObject *Sender);
 
-  AnsiString FileName;
-  AnsiString FullPath;
+  String FileName;
+  String FullPath;
   Preference *Pref;
-  int TimeStamp;
+  TDateTime TimeStamp;
   TStringList *History;
-  void SetHistory(AnsiString S);
+  void SetHistory(String S);
   void SetFilter();
-  AnsiString MakeId(AnsiString prefix, AnsiString caption, int i);
+  String MakeId(String prefix, String caption, int i);
   void SetCopyMenu(TMenuItem *Item);
   void SetPasteMenu(TMenuItem *Item);
   void SetGridFont(TFont *AFont);
 
-  void MacroExec(AnsiString CmsFile, TStream *io);
-  AnsiString GetCalculatedCell(AnsiString Str, int ACol, int ARow);
+  void MacroExec(String CmsFile, TStream *io);
+  void MacroScriptExec(String cmsname, String script);
+  String GetCalculatedCell(String Str, int ACol, int ARow);
 
   bool MakeNewWindow;
   bool TitleFullPath;
@@ -397,8 +390,8 @@ public:     // ユーザー宣言
   bool BackupOnSave;
   bool BackupOnTime;
   bool BackupOnOpen;
-  AnsiString BuFileNameS;
-  AnsiString BuFileNameT;
+  String BuFileNameS;
+  String BuFileNameT;
   bool DelBuSSaved;
   bool DelBuSExit;
   bool DelBuT;
@@ -411,12 +404,15 @@ public:     // ユーザー宣言
   bool CheckTimeStamp;
   int StopMacroCount;
   bool SortAll;
+  bool SortByNumber;
+  bool SortIgnoreCase;
+  bool SortIgnoreZenhan;
 
-  AnsiString PrintFontName;
+  String PrintFontName;
   int PrintFontSize;
   int PrintMargin[4];
 
-  AnsiString StatusbarCmsFile;
+  String StatusbarCmsFile;
   TStringList *StatusbarMacroCache;
   void UpdateStatusbar();
 };

@@ -19,14 +19,19 @@ __published:	// IDE 管理のコンポーネント
 	TComboBox *cbEnterMove;
 	TLabel *Label15;
 	TCheckBox *cbLeftArrowInCell;
-	TCheckBox *cbWheelMoveCursol;
 	TCheckBox *cbAlwaysShowEditor;
-  TGroupBox *GroupBox2;
+    TGroupBox *gbMacro;
   TLabel *Label17;
   TCheckBox *cbStopMacro;
   TEdit *seStopMacroCount;
   TCheckBox *cbSortAll;
   TCheckBox *cbCalcWidthForAllRow;
+    TGroupBox *gbWheel;
+    TLabel *Label1;
+    TEdit *edWheelScrollStep;
+    TUpDown *udWheelScrollStep;
+  TComboBox *cbWheelMoveCursol;
+  TLabel *Label2;
   void __fastcall cbStopMacroClick(TObject *Sender);
   void __fastcall cbStopMacroKeyUpDown(TObject *Sender, WORD &Key,
           TShiftState Shift);

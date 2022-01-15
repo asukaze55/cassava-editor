@@ -2,12 +2,14 @@
 #ifdef CssvMacro
 //---------------------------------------------------------------------------
 #include <map>
+#include <process.h>
 #pragma hdrstop
 #include "Macro.h"
 #include "MacroOpeCode.h"
 #include "MainForm.h"
 #include "EncodedStream.h"
 #include "MultiLineInputBox.h"
+#include "AutoOpen.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 using namespace std;
@@ -42,7 +44,6 @@ public:
   int X, Y;
   Element() : Type(etErr), Num(true), vl(0), st(""), macro(NULL) {};
   Element(double d, TMacro *m) : Type(etAtom), Num(true), vl(d), macro(m) {};
-  Element(WideString s, TMacro *m) : Type(etAtom), Num(false), st((AnsiString)s), macro(m) {};
   Element(AnsiString s, TMacro *m) : Type(etAtom), Num(false), st(s), macro(m) {};
   Element(AnsiString s, int t, TMacro *m) : Type(t), Num(false), st(s), macro(m) {};
   Element(AnsiString s, int t, bool nm, TMacro *m) : Type(t), Num(nm), st(s), macro(m) {};
@@ -86,6 +87,9 @@ public:
   int Type;
   MacroException(AnsiString Mes, int t = 0) : Message(Mes), Type(t) {}
 };
+//---------------------------------------------------------------------------
+static int RunningCount = 0;
+static bool RunningOk = true;
 //---------------------------------------------------------------------------
 void CsvGridGoTo(TCsvGrid *g, int x, int y){
   x += g->DataLeft - 1;
@@ -350,11 +354,18 @@ void TMacro::ExecFnc(AnsiString s){
       for(int i=0; i<count; i++){
         ope[i+count]->Sbst(*(ope[i]));
       }
+    }else if(s == "swap" && H == 2){
+      Element t0 = ((ope[0]->isNum() && ope[0]->Type != etCell)
+        ? Element(VAL0, this) : Element(STR0, this));
+      Element t1 = ((ope[1]->isNum() && ope[1]->Type != etCell)
+        ? Element(VAL1, this) : Element(STR1, this));
+      ope[0]->Sbst(t1);
+      ope[1]->Sbst(t0);
     }else if(s == "MessageBox"){
-      char *Text = (H >= 1) ? STR0.c_str() : "ブレークポイントです";
+      const char *Text = (H >= 1) ? STR0.c_str() : "ブレークポイントです";
       int Flag = (H >= 2) ? (ope[H-1]->Val()) : MB_OK;
-      char *Caption = (H >= 3) ? STR1.c_str() : "Cassava Macro";
-      Stack->Add(new Element(Application->MessageBox(Text, Caption, Flag), this));
+      const char *Caption = (H >= 3) ? STR1.c_str() : "Cassava Macro";
+      Stack->Add(new Element(::MessageBoxA(NULL, Text, Caption, Flag), this));
     }else if(s == "InputBox"){
       AnsiString Text = (H >= 1) ? STR0 : (AnsiString)"";
       AnsiString Def = (H >= 2) ? (ope[H-1]->Str()) : (AnsiString)"";
@@ -375,6 +386,8 @@ void TMacro::ExecFnc(AnsiString s){
       fmMain->MainGrid->DefaultRowHeight = VAL0;
     }else if(s == "SetRowHeight" && H == 2){
       fmMain->MainGrid->RowHeights[VAL0] = VAL1;
+    }else if(s == "AdjustRowHeight" && H == 1){
+      fmMain->MainGrid->SetHeight(VAL0);
     }else if(s == "GetColWidth" && H == 0){
       Stack->Add(new Element(fmMain->MainGrid->DefaultColWidth, this));
     }else if(s == "GetColWidth" && H == 1){
@@ -383,6 +396,8 @@ void TMacro::ExecFnc(AnsiString s){
       fmMain->MainGrid->DefaultColWidth = VAL0;
     }else if(s == "SetColWidth" && H == 2){
       fmMain->MainGrid->ColWidths[VAL0] = VAL1;
+    }else if(s == "AdjustColWidth" && H == 1){
+      fmMain->MainGrid->SetWidth(VAL0);
     }else if(s == "GetYear" && H == 0){
       unsigned short year, month, day;
       Date().DecodeDate(&year, &month, &day);
@@ -559,6 +574,40 @@ void TMacro::ExecFnc(AnsiString s){
       Stack->Add(new Element(((WideString)STR0).Pos(STR1), this));
     }else if(s == "posB" && H == 2){
       Stack->Add(new Element(STR0.AnsiPos(STR1), this));
+    }else if(s == "asc" && H == 1){
+      AnsiString str = STR0;
+      if(str == ""){
+        Stack->Add(new Element(0, this));
+      }else if(str.IsLeadByte(1)){
+        Stack->Add(new Element((unsigned char)(STR0[1]) * 256
+          + (unsigned char)(STR0[2]), this));
+      }else{
+        Stack->Add(new Element((unsigned char)(STR0[1]), this));
+      }
+    }else if(s == "ascW" && H == 1){
+      WideString str = STR0;
+      if(str == ""){
+        Stack->Add(new Element(0, this));
+      }else{
+        Stack->Add(new Element(str[1], this));
+      }
+    }else if(s == "chr" && H == 1){
+      int val = VAL0;
+      char buf[3];
+      if(val < 256){
+        buf[0] = val;
+        buf[1] = '\0';
+      }else{
+        buf[0] = val / 256;
+        buf[1] = val % 256;
+        buf[2] = '\0';
+      }
+      Stack->Add(new Element((AnsiString)buf, this));
+    }else if(s == "chrW" && H == 1){
+      wchar_t buf[2];
+      buf[0] = VAL0;
+      buf[1] = '\0';
+      Stack->Add(new Element((AnsiString)buf, this));
     }else if((s == "move" || s == "moveto") && H == 2){
       int c = VAL0;
       int r = VAL1;
@@ -599,6 +648,29 @@ void TMacro::ExecFnc(AnsiString s){
       int b = VAL3;
       double result = fmMain->MainGrid->GetAvr(l,t,r,b);
       Stack->Add(new Element(result, this));
+    }else if(s == "ShellOpen" && H == 1){
+      String FileName = STR0;
+      if(isUrl(FileName)){
+        fmMain->MainGrid->OpenURL(FileName);
+      }else{
+        AutoOpen(FileName);
+      }
+    }else if(s == "ShellOpen" && H > 1){
+      char **argv = new char*[H+1];
+      for(int i=0; i<H; i++){
+        argv[i] = ope[i]->Str().c_str();
+      }
+      argv[H] = NULL;
+      int result = spawnvp(P_NOWAITO, argv[0], argv);
+      delete[] argv;
+
+      if(result == -1){
+        if(errno == ENOENT){
+          throw MacroException(ope[0]->Str() + "\nファイルが見つかりません。");
+        }else{
+          throw MacroException(ope[0]->Str() + "\n実行に失敗しました。");
+        }
+      }
     }else{
       throw MacroException("定義されていない関数です:" + s + "/" + H);
     }
@@ -626,10 +698,12 @@ void TMacro::ExecOpe(char c){
       fs->Position = ope->Val();
       Clear(Stack);
       LoopCount++;
+      Application->ProcessMessages();
       if(MaxLoop > 0 && LoopCount > MaxLoop){
         throw MacroException((AnsiString)"ループ回数が" + MaxLoop +
               "に達しました。処理を中断します。");
       }
+      if(!RunningOk){ throw MacroException("中断しました"); }
     }
     else if(c == 'P') Stack->Add(new Element(ope->Points()));
 	else if(c == 'm') Stack->Add(new Element(-(ope->Val()), this));
@@ -790,7 +864,7 @@ Element *TMacro::Do(AnsiString FileName, TList *AStack, int x, int y){
       if(e.Type == ME_HIKISU){
         e.Message = "引数の数が足りません:" + e.Message;
       }
-      Application->MessageBox(e.Message.c_str(), "Cassava Macro Interpreter", 0);
+      ::MessageBoxA(NULL, e.Message.c_str(), "Cassava Macro Interpreter", 0);
     }
   }catch(Exception *e){
     if(IsCellMacro){
@@ -800,7 +874,8 @@ Element *TMacro::Do(AnsiString FileName, TList *AStack, int x, int y){
       Clear(Stack); delete Stack;
       throw e;
     }else{
-      Application->MessageBox(e->Message.c_str(), "Cassava Macro Interpreter", 0);
+	  Application->MessageBox(e->Message.c_str(),
+	                          TEXT("Cassava Macro Interpreter"), 0);
     }
   }
 
@@ -814,9 +889,17 @@ Element *TMacro::Do(AnsiString FileName, TList *AStack, int x, int y){
 AnsiString ExecMacro(AnsiString FileName, int MaxLoop, TStringList *Modules,
                      int x, int y, TStream *IO, bool IsCellMacro)
 {
+  if(!RunningOk){ return ""; }
+  if(!IsCellMacro){ RunningCount++; }
   randomize();
   TMacro mcr(IO, MaxLoop, Modules, IsCellMacro);
   Element *r = mcr.Do(FileName, NULL, x, y);
+  if(!IsCellMacro){
+    RunningCount--;
+    if(RunningCount == 0){
+      RunningOk = true;
+    }
+  }
 
   AnsiString ReturnValue = "";
   if(r){
@@ -824,6 +907,18 @@ AnsiString ExecMacro(AnsiString FileName, int MaxLoop, TStringList *Modules,
     delete r;
   }
   return ReturnValue;
+}
+//---------------------------------------------------------------------------
+void StopAllMacros()
+{
+  if(RunningCount > 0){
+    RunningOk = false;
+  }
+}
+//---------------------------------------------------------------------------
+int GetRunningMacroCount()
+{
+  return RunningCount;
 }
 //---------------------------------------------------------------------------
 #endif

@@ -34,6 +34,7 @@ public:   // ÉÜÅ[ÉUÅ[êÈåæ
   TTreeNode *tnBackUp;
   TTreeNode *tnLaunch;
   TTreeNode *tnBehavior;
+  TTreeNode *tnView;
   TTreeNode *tnColor;
 };
 //---------------------------------------------------------------------------

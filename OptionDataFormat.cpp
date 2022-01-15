@@ -18,8 +18,6 @@ __fastcall TfrOptionDataFormat::TfrOptionDataFormat(TComponent* Owner)
 //---------------------------------------------------------------------------
 void TfrOptionDataFormat::RestoreFromMainForm()
 {
-  Font = fmMain->Font;
-
   Renaming = true;
   TypeList = fmMain->MainGrid->TypeList;
   cbType->Items->Clear();

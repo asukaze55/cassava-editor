@@ -2,6 +2,7 @@
 #include <vcl\vcl.h>
 #include <vcl\printers.hpp>
 #include <vcl\inifiles.hpp>
+#include <tchar.h>
 #pragma hdrstop
 
 #include "Letter.h"
@@ -300,7 +301,7 @@ for(int ibox=0; ibox<2; ibox++){
       lf.lfEscapement = -90 * 10;
       lf.lfOrientation = -90 * 10;
       lf.lfCharSet = DEFAULT_CHARSET;
-      strcpy(lf.lfFaceName, Canvas->Font->Name.c_str());
+      _tcscpy(lf.lfFaceName, Canvas->Font->Name.c_str());
       Canvas->Font->Handle = CreateFontIndirect(&lf);
       int HWidth = Canvas->TextHeight(Box[ibox][Who][i]) / 2;
       Canvas->TextOut((BoxMiddle + PX)*mmPt + HWidth, PCY, Box[ibox][Who][i]);

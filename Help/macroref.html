@@ -41,13 +41,13 @@
 <table border="1" summary="マクロリファレンス">
 
 	<tr>
-		<th class="markupC">変数</th>
-		<th class="markupC">関数</th>
-		<th class="markupC">flag・戻り値</th>
-		<th class="markupC">特別</th>
-		<th class="markupC">文法・構文</th>
-		<th class="markupC">説明</th>
-		<th class="markupC">Cassava Ver</th>
+		<td class="markupC">変数</td>
+		<td class="markupC">関数</td>
+		<td class="markupC">flag・戻り値</td>
+		<td class="markupC">特別</td>
+		<td class="markupC">文法・構文</td>
+		<td class="markupC">説明</td>
+		<td class="markupC">Cassava Ver</td>
 	</tr>
 
 	<tr>
@@ -252,6 +252,16 @@
 
 	<tr>
 		<td class="markupE">-</td>
+		<td class="markupE">AdjustRowHeight</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>AdjustRowHeight(y);</td>
+		<td>y 行目の高さをセル内容に合わせて最適化します。</td>
+		<td>1.7.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
 		<td class="markupE">SetColWidth</td>
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
@@ -268,6 +278,16 @@
 		<td>SetColWidth(w);</td>
 		<td>全ての列の幅を w に設定します。</td>
 		<td>-</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">AdjustColWidth</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>AdjustColWidth(x);</td>
+		<td>x 列目の幅をセル内容に合わせて最適化します。</td>
+		<td>1.7.0</td>
 	</tr>
 
 	<tr>
@@ -318,6 +338,26 @@
 		<td>SetFontSize(x);</td>
 		<td>フォントサイズを x に変更します。</td>
 		<td>1.6.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">ShellOpen</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>ShellOpen(filename);</td>
+		<td>指定されたファイルを関連付けられたアプリケーションで開きます。</td>
+		<td>1.7.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">ShellOpen</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>ShellOpen(appname, filename);</td>
+		<td>filename をパラメータとして appname で指定したアプリケーションを実行します。</td>
+		<td>1.7.0</td>
 	</tr>
 
 	<tr>
@@ -468,6 +508,46 @@
 		<td>replace(str1,str2,str3)</td>
 		<td>str1 中の atr2 を全て str3 に置換した文字列を返します。元の str1 は変化しません。</td>
 		<td>1.24d</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">asc</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>asc(str)</td>
+		<td>Shift_JIS で str の 1 文字目のコードポイントを返します。</td>
+		<td>1.7.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">ascW</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>ascW(str)</td>
+		<td>Unicode で str の 1 文字目のコードポイントを返します。</td>
+		<td>1.7.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">chr</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>chr(x)</td>
+		<td>Shift_JIS のコードポイントが x である文字を返します。</td>
+		<td>1.7.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">chrW</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>chrW(x)</td>
+		<td>Unicode のコードポイントが x である文字を返します。</td>
+		<td>1.7.0</td>
 	</tr>
 
 	<tr>
@@ -1362,36 +1442,6 @@
 
 	<tr>
 		<td class="markupE">-</td>
-		<td class="markupE">WordWrap</td>
-		<td class="markupE">-</td>
-		<td class="markupE">-</td>
-		<td>WordWrap();</td>
-		<td>長いセルを折り返して表示</td>
-		<td>-</td>
-	</tr>
-
-	<tr>
-		<td class="markupE">-</td>
-		<td class="markupE">NumAlignRight</td>
-		<td class="markupE">-</td>
-		<td class="markupE">-</td>
-		<td>NumAlignRight();</td>
-		<td>数字を右寄せの切り替え</td>
-		<td>-</td>
-	</tr>
-
-	<tr>
-		<td class="markupE">-</td>
-		<td class="markupE">Num3</td>
-		<td class="markupE">-</td>
-		<td class="markupE">-</td>
-		<td>Num3();</td>
-		<td>数字を３桁区切り表示</td>
-		<td>-</td>
-	</tr>
-
-	<tr>
-		<td class="markupE">-</td>
 		<td class="markupE">CalcExpression</td>
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
@@ -1592,6 +1642,16 @@
 
 	<tr>
 		<td class="markupE">-</td>
+		<td class="markupE">MacroOpenUserFolder</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>MacroOpenUserFolder();</td>
+		<td>ユーザーマクロフォルダを開く</td>
+		<td>1.6.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
 		<td class="markupE">MacroOpenFolder</td>
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
@@ -1612,12 +1672,32 @@
 
 	<tr>
 		<td class="markupE">-</td>
+		<td class="markupE">MacroTerminate</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>MacroTerminate();</td>
+		<td>マクロの実行を中断</td>
+		<td>1.7.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
 		<td class="markupE">Contents</td>
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Contents();</td>
 		<td>ヘルプを開く</td>
 		<td>-</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">CheckUpdate</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>CheckUpdate();</td>
+		<td>Cassava の更新を確認</td>
+		<td>1.7.0</td>
 	</tr>
 
 	<tr>
@@ -1815,7 +1895,8 @@
         <li><a href="behavioroption.html" title="[動作]オプション">動作</a></li>
         <li><a href="backupoption.html" title="[バックアップ]オプション">バックアップ</a></li>
         <li><a href="applioption.html" title="[外部アプリ連携]オプション">外部アプリ連携</a></li>
-        <li><a href="coloroption.html" title="[フォント・色]オプション">フォント・色</a></li>
+        <li><a href="viewoption.html" title="[表示]オプション">表示</a></li>
+        <li><a href="coloroption.html" title="[色]オプション">色</a></li>
       </ul>
     </li>
     <li><a href="helpmenu.html" title="[ヘルプ]メニュー">ヘルプ</a></li>
@@ -1825,6 +1906,7 @@
   <ul class="MainMenu">
     <li class="Sel">リファレンス</li>
   </ul>
+<div class="MainMenu"><a href="toolbar.html">ツールバー</a></div>
 <div class="MainMenu"><a href="letter.html">はがき印刷</a></div>
 <div class="MainMenu"><a href="contact.html">著作権・連絡先</a></div>
 
@@ -1837,7 +1919,7 @@
   2003.11.29.<br />
 </address>
 <address>
-  Copyright (C) 2007 asukaze, Some Rights Reserved.<br />
+  Copyright (C) 2007-2010 asukaze, Some Rights Reserved.<br />
   mail (at) asukaze.net<br />
 </address>
 <!-- ==== -->

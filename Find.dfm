@@ -20,7 +20,7 @@ object fmFind: TfmFind
     Width = 105
     Height = 25
     Caption = #20808#38957#12363#12425#26908#32034'(&O)'
-    TabOrder = 1
+    TabOrder = 3
     OnClick = btnSearchFromTopClick
   end
   object btnNext: TButton
@@ -30,7 +30,7 @@ object fmFind: TfmFind
     Height = 25
     Caption = #27425#12434#26908#32034
     Default = True
-    TabOrder = 2
+    TabOrder = 4
     OnClick = btnNextClick
   end
   object btnReplace: TButton
@@ -39,7 +39,7 @@ object fmFind: TfmFind
     Width = 105
     Height = 25
     Caption = #32622#25563#12375#12390#27425#12395'(&X)'
-    TabOrder = 3
+    TabOrder = 5
     OnClick = btnReplaceClick
   end
   object btnAllReplace: TButton
@@ -48,7 +48,7 @@ object fmFind: TfmFind
     Width = 105
     Height = 25
     Caption = #20840#12390#32622#25563'(&A)'
-    TabOrder = 4
+    TabOrder = 6
     OnClick = btnAllReplaceClick
   end
   object btnCancel: TButton
@@ -58,7 +58,7 @@ object fmFind: TfmFind
     Height = 25
     Cancel = True
     Caption = #12461#12515#12531#12475#12523
-    TabOrder = 5
+    TabOrder = 7
     OnClick = btnCancelClick
   end
   object PageControl: TPageControl
@@ -71,7 +71,6 @@ object fmFind: TfmFind
     OnChange = PageControlChange
     object tsTextSearch: TTabSheet
       Caption = #25991#23383#21015#26908#32034'(&T)'
-      ExplicitHeight = 117
       object Label1: TLabel
         Left = 8
         Top = 20
@@ -108,7 +107,7 @@ object fmFind: TfmFind
         Width = 241
         Height = 17
         Caption = #12527#12540#12489#26908#32034#65288#12475#12523#20840#20307#12392#12398#27604#36611#65289'(&W)'
-        TabOrder = 2
+        TabOrder = 3
       end
       object cbRegex: TCheckBox
         Left = 3
@@ -116,7 +115,7 @@ object fmFind: TfmFind
         Width = 241
         Height = 17
         Caption = #27491#35215#34920#29694#26908#32034'(&E)'
-        TabOrder = 3
+        TabOrder = 4
       end
       object cbCase: TCheckBox
         Left = 3
@@ -126,13 +125,12 @@ object fmFind: TfmFind
         Caption = #22823#25991#23383#12392#23567#25991#23383#12434#21306#21029'(&C)'
         Checked = True
         State = cbChecked
-        TabOrder = 4
+        TabOrder = 2
       end
     end
     object tsNumSearch: TTabSheet
       Caption = #25968#20516#26908#32034'(&V)'
       ImageIndex = 1
-      ExplicitHeight = 117
       object Label3: TLabel
         Left = 152
         Top = 52
@@ -176,7 +174,7 @@ object fmFind: TfmFind
       #29694#22312#12398#34892
       #29694#22312#12398#21015
       #20840#20307)
-    TabOrder = 6
+    TabOrder = 1
   end
   object rgDirection: TRadioGroup
     Left = 96
@@ -189,6 +187,6 @@ object fmFind: TfmFind
     Items.Strings = (
       #24038#12539#19978#12408
       #21491#12539#19979#12408)
-    TabOrder = 7
+    TabOrder = 2
   end
 end

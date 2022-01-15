@@ -81,7 +81,6 @@ public:		// ÉÜÅ[ÉUÅ[êÈåæ
         void MenuUpDate();
         bool SaveKey(AnsiString FileName);
         bool LoadKey(AnsiString FileName);
-        bool LoadKeyBin(AnsiString FileName);
         TMenuShortCut *NowMSC;
 };
 //---------------------------------------------------------------------------

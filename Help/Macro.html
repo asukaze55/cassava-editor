@@ -196,10 +196,14 @@ cell(x,y) = val;
 <dd>y 行目の高さを h に設定します。</dd>
 <dt><code>SetRowHeight(h);</code></dt>
 <dd>全ての行の高さを h に設定します。</dd>
+<dt><code>AdjustRowHeight(y);</code></dt>
+<dd>y 行目の高さをセル内容に合わせて最適化します。</dd>
 <dt><code>SetColWidth(x,w);</code></dt>
 <dd>x 列目の幅を w に設定します。</dd>
 <dt><code>SetColWidth(w);</code></dt>
 <dd>全ての列の幅を w に設定します。</dd>
+<dt><code>AdjustColWidth(x);</code></dt>
+<dd>x 列目の幅をセル内容に合わせて最適化します。</dd>
 <dt><code>SaveIniSetting();</code></dt>
 <dd>現在の Cassava の状態を設定ファイルに保存します。</dd>
 <dt><code>LoadIniSetting();</code></dt>
@@ -211,6 +215,10 @@ cell(x,y) = val;
 <dd>フォントを str に変更します。</dd>
 <dt><code>SetFontSize(x);</code></dt>
 <dd>フォントサイズを x に変更します。</dd>
+<dt><code>ShellOpen(filename);</code></dt>
+<dd>指定されたファイルを関連付けられたアプリケーションで開きます。</dd>
+<dt><code>ShellOpen(appname, filename);</code></dt>
+<dd>filename をパラメータとして appname で指定したアプリケーションを実行します。</dd>
 </dl>
 
 <h3>関数</h3>
@@ -260,6 +268,14 @@ cell(x,y) = val;
 <dt><code>replace(str1,str2,str3)</code></dt>
 <dd>str1 中の str2 を全て str3 に置換した文字列を返します。
     元の str1 は変化しません。</dd>
+<dt><code>asc(str)</code></dt>
+<dd>Shift_JIS で str の 1 文字目のコードポイントを返します。</dd>
+<dt><code>ascW(str)</code></dt>
+<dd>Unicode で str の 1 文字目のコードポイントを返します。</dd>
+<dt><code>chr(x)</code></dt>
+<dd>Shift_JIS のコードポイントが x である文字を返します。</dd>
+<dt><code>chrW(x)</code></dt>
+<dd>Unicode のコードポイントが x である文字を返します。</dd>
 <dt><code>sum(l,t,r,b)</code></dt>
 <dd>t行l列からb行r列までの範囲の数値データの合計値を返します。</dd>
 <dt><code>avr(l,t,r,b)</code></dt>
@@ -586,7 +602,8 @@ init 関数内の初期化コードは Cassava 起動時に一度だけ実行されます。
         <li><a href="behavioroption.html" title="[動作]オプション">動作</a></li>
         <li><a href="backupoption.html" title="[バックアップ]オプション">バックアップ</a></li>
         <li><a href="applioption.html" title="[外部アプリ連携]オプション">外部アプリ連携</a></li>
-        <li><a href="coloroption.html" title="[フォント・色]オプション">フォント・色</a></li>
+        <li><a href="viewoption.html" title="[表示]オプション">表示</a></li>
+        <li><a href="coloroption.html" title="[色]オプション">色</a></li>
       </ul>
     </li>
     <li><a href="helpmenu.html" title="[ヘルプ]メニュー">ヘルプ</a></li>
@@ -596,6 +613,7 @@ init 関数内の初期化コードは Cassava 起動時に一度だけ実行されます。
   <ul class="MainMenu">
     <li><a href="macroref.html">リファレンス</a></li>
   </ul>
+<div class="MainMenu"><a href="toolbar.html">ツールバー</a></div>
 <div class="MainMenu"><a href="letter.html">はがき印刷</a></div>
 <div class="MainMenu"><a href="contact.html">著作権・連絡先</a></div>
 
@@ -604,7 +622,7 @@ init 関数内の初期化コードは Cassava 起動時に一度だけ実行されます。
 <!-- SIGN -->
 <br style="clear: both;" />
 <address>
-  Copyright (C) 2000-2007 asukaze, Some Rights Reserved.<br />
+  Copyright (C) 2000-2010 asukaze, Some Rights Reserved.<br />
   mail (at) asukaze.net
 </address>
 <!-- ==== -->

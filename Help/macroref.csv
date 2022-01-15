@@ -19,13 +19,17 @@ SelBottom[E],-[E],-[E],-[E],-,選択範囲の下端の Y 座標,-
 -[E],mid[E],-[E],-[E],"mid(str1,x,y) = str2;",文字列 str1 の x 文字目から y 文字を str2 に置き換えます。 最初の文字のインデックスは 1 です。 全角文字を1文字と数えます。,1.4.0
 -[E],SetRowHeight[E],-[E],-[E],"SetRowHeight(y,h);",y 行目の高さを h に設定します。,-
 -[E],SetRowHeight[E],-[E],-[E],SetRowHeight(h);,全ての行の高さを h に設定します。,-
+-[E],AdjustRowHeight[E],-[E],-[E],AdjustRowHeight(y);,y 行目の高さをセル内容に合わせて最適化します。,1.7.0
 -[E],SetColWidth[E],-[E],-[E],"SetColWidth(x,w);",x 列目の幅を w に設定します。,-
 -[E],SetColWidth[E],-[E],-[E],SetColWidth(w);,全ての列の幅を w に設定します。,-
+-[E],AdjustColWidth[E],-[E],-[E],AdjustColWidth(x);,x 列目の幅をセル内容に合わせて最適化します。,1.7.0
 -[E],SaveIniSetting[E],-[E],-[E],SaveIniSetting();,現在の Cassava の状態を設定ファイルに保存します。,1.6.0
 -[E],LoadIniSetting[E],-[E],-[E],LoadIniSetting();,前回保存した設定ファイルを読み込み、Cassava の状態を元に戻します。,1.6.0
 -[E],SetIniSetting[E],-[E],-[E],"SetIniSetting(sec,key,val);",保存されている設定ファイルを更新し、sec セクションの key キーの値を val にします。 この変更は LoadIniSetting() 実行まで反映されません。,1.6.0
 -[E],SetFontName[E],-[E],-[E],SetFontName(str);,フォントを str に変更します。,1.6.0
 -[E],SetFontSize[E],-[E],-[E],SetFontSize(x);,フォントサイズを x に変更します。,1.6.0
+-[E],ShellOpen[E],-[E],-[E],ShellOpen(filename);,指定されたファイルを関連付けられたアプリケーションで開きます。,1.7.0
+-[E],ShellOpen[E],-[E],-[E],"ShellOpen(appname, filename);",filename をパラメータとして appname で指定したアプリケーションを実行します。,1.7.0
 -[E],cell[E],-[E],-[E],"[x,y] / cell(x,y)","(x,y) のセルの内容です。読み書きともにできます。",-
 -[E],int[E],-[E],-[E],int(x),xの値を0方向に丸めた数値を返します。 intの返す値に対して「+」演算子を適用すると加算となります。,1.5.0
 -[E],double[E],-[E],-[E],double(x),xと同じ値の数値を返します。(x - 0)と同じ効果です。 doubleの返す値に対して「+」演算子を適用すると加算となります。,1.5.0
@@ -41,6 +45,10 @@ SelBottom[E],-[E],-[E],-[E],-,選択範囲の下端の Y 座標,-
 -[E],pos[E],-[E],-[E],"pos(str1,str2)",str1 中の str2 の位置を返します。 最初の文字のインデックスは 1 です。 str2 が str1 に含まれなかった場合、 0 が返されます。 全角文字を1文字と数えます。,1.5.0
 -[E],posB[E],-[E],-[E],"posB(str1,str2)",str1 中の str2 の位置を返します。 最初の文字のインデックスは 1 です。 str2 が str1 に含まれなかった場合、 0 が返されます。 全角文字を2文字と数えます。,1.5.0
 -[E],replace[E],-[E],-[E],"replace(str1,str2,str3)",str1 中の atr2 を全て str3 に置換した文字列を返します。元の str1 は変化しません。,1.24d
+-[E],asc[E],-[E],-[E],asc(str),Shift_JIS で str の 1 文字目のコードポイントを返します。,1.7.0
+-[E],ascW[E],-[E],-[E],ascW(str),Unicode で str の 1 文字目のコードポイントを返します。,1.7.0
+-[E],chr[E],-[E],-[E],chr(x),Shift_JIS のコードポイントが x である文字を返します。,1.7.0
+-[E],chrW[E],-[E],-[E],chrW(x),Unicode のコードポイントが x である文字を返します。,1.7.0
 -[E],sum[E],-[E],-[E],"sum(l,t,r,b)",t行l列からb行r列までの範囲の数値データの合計値を返します。,1.5.0
 -[E],avr[E],-[E],-[E],"avr(l,t,r,b)",t行l列からb行r列までの範囲の数値データの平均値を返します。,1.5.0
 -[E],random[E],-[E],-[E],random(x),0以上x未満のランダムな整数値を返します。,1.26
@@ -130,9 +138,6 @@ SelBottom[E],-[E],-[E],-[E],-,選択範囲の下端の Y 座標,-
 -[E],ShowAllColumn[E],-[E],-[E],ShowAllColumn();,全ての列を画面内に表示,-
 -[E],Font[E],-[E],-[E],Font();,フォント,-
 -[E],StayOnTop[E],-[E],-[E],StayOnTop();,常に最前面に表示の切り替え,-
--[E],WordWrap[E],-[E],-[E],WordWrap();,長いセルを折り返して表示,-
--[E],NumAlignRight[E],-[E],-[E],NumAlignRight();,数字を右寄せの切り替え,-
--[E],Num3[E],-[E],-[E],Num3();,数字を３桁区切り表示,-
 -[E],CalcExpression[E],-[E],-[E],CalcExpression();,セル内計算式を処理,1.5.0
 -[E],ShowToolbar[E],-[E],-[E],ShowToolbar();,ツールバーの表示の切り替え,-
 -[E],ShowStatusbar[E],-[E],-[E],ShowStatusbar();,ステータスバーの表示の切り替え,1.6.0
@@ -153,9 +158,12 @@ SelBottom[E],-[E],-[E],-[E],-,選択範囲の下端の Y 座標,-
 -[E],Cr[E],-[E],-[E],Cr();,セーブ時改行コードを「CR」に設定,-
 -[E],Applin[E],-[E],-[E],Applin(); (最後の n は 0 ～ 2 の数字),外部アプリケーション ( 0 : アプリ 0 / 1 : アプリ 1 / 2 : アプリ 2),-
 -[E],MacroSearch[E],-[E],-[E],MacroSearch();,マクロの検索,-
+-[E],MacroOpenUserFolder[E],-[E],-[E],MacroOpenUserFolder();,ユーザーマクロフォルダを開く,1.6.0
 -[E],MacroOpenFolder[E],-[E],-[E],MacroOpenFolder();,マクロフォルダを開く,-
 -[E],MacroExecute[E],-[E],-[E],MacroExecute();,指定したマクロを実行,-
+-[E],MacroTerminate[E],-[E],-[E],MacroTerminate();,マクロの実行を中断,1.7.0
 -[E],Contents[E],-[E],-[E],Contents();,ヘルプを開く,-
+-[E],CheckUpdate[E],-[E],-[E],CheckUpdate();,Cassava の更新を確認,1.7.0
 -[E],About[E],-[E],-[E],About();,Cassava のバージョン情報を表示,-
 -[E],-[E],-[E],if[E],"if(条件){[CR+LF]
 [NBSP][NBSP]ブロック;[CR+LF]

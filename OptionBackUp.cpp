@@ -17,8 +17,6 @@ __fastcall TfrOptionBackUp::TfrOptionBackUp(TComponent* Owner)
 //---------------------------------------------------------------------------
 void TfrOptionBackUp::RestoreFromMainForm()
 {
-  Font = fmMain->Font;
-
   cbBackupOnSave->Checked = fmMain->BackupOnSave;
   cbBackupOnTime->Checked = fmMain->BackupOnTime;
   cbBackupOnOpen->Checked = fmMain->BackupOnOpen;

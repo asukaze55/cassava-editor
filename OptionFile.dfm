@@ -33,7 +33,6 @@ object frOptionFile: TfrOptionFile
       Width = 214
       Height = 21
       Style = csDropDownList
-      ItemHeight = 13
       ItemIndex = 0
       TabOrder = 0
       Text = #12525#12483#12463#12375#12394#12356

@@ -165,7 +165,7 @@ void __fastcall TfmKey::tvMenuChanging(TObject *Sender, TTreeNode *Node,
              (ShortCutToText(NowMSC->MShortCut) + " は、「" +
              MSC->MenuItem->Caption +
              "」ですでに設定されています。").c_str(),
-             "Cassava",
+             TEXT("Cassava"),
              MB_OKCANCEL) == IDCANCEL){
           AllowChange = false;
         }
@@ -240,9 +240,9 @@ void __fastcall TfmKey::btnSaveClick(TObject *Sender)
     AnsiString KeyFileName = dlgSave->FileName;
     if(ExtractFileExt(KeyFileName) == "") KeyFileName += ".csv";
     if(SaveKey(KeyFileName))
-      Application->MessageBox("保存しました","Cassava",0);
-    else
-      Application->MessageBox("保存に失敗しました","Cassava",0);
+	  Application->MessageBox(TEXT("保存しました"), TEXT("Cassava"),0);
+	else
+      Application->MessageBox(TEXT("保存に失敗しました"), TEXT("Cassava"),0);
   }
 }
 //---------------------------------------------------------------------------
@@ -253,9 +253,9 @@ void __fastcall TfmKey::btnOpenClick(TObject *Sender)
     AnsiString KeyFileName = dlgOpen->FileName;
     if(ExtractFileExt(KeyFileName) == "") KeyFileName += ".csv";
     if(LoadKey(KeyFileName))
-      Application->MessageBox("ファイルを読み込みました","Cassava",0);
-    else
-      Application->MessageBox("読み込みに失敗しました","Cassava",0);
+	  Application->MessageBox(TEXT("ファイルを読み込みました"), TEXT("Cassava"),0);
+	else
+	  Application->MessageBox(TEXT("読み込みに失敗しました"), TEXT("Cassava"),0);
   }
 }
 //---------------------------------------------------------------------------
@@ -295,9 +295,6 @@ bool TfmKey::SaveKey(AnsiString FileName)
 //---------------------------------------------------------------------------
 bool TfmKey::LoadKey(AnsiString FileName)
 {
-  if(ExtractFileExt(FileName).LowerCase() == ".dat")
-    return LoadKeyBin(FileName);
-
   TStringList *File = new TStringList;
   TStringList *OneRow = new TStringList;
   try{
@@ -329,33 +326,6 @@ bool TfmKey::LoadKey(AnsiString FileName)
   delete File;
   delete OneRow;
   return true;
-}
-//---------------------------------------------------------------------------
-bool TfmKey::LoadKeyBin(AnsiString FileName)
-{
-  try{
-
-  TFileStream *FS = new TFileStream(FileName, fmOpenRead | fmShareDenyWrite);
-
-  char Buf[13];
-  int Count;
-  FS->Read(Buf, 12);
-  FS->Read(&Count, sizeof(int));
-  if((AnsiString)Buf != "Cassava-Key" || Count != tvMenu->Items->Count)
-  { delete FS; return false; }
-
-  for(int i=0; i<Count; i++){
-    if(tvMenu->Items->Item[i]->Data){
-      TShortCut SC;
-      FS->Read(&SC, sizeof(TShortCut));
-      static_cast<TMenuShortCut*>(tvMenu->Items->Item[i]->Data)->MShortCut = SC;
-    }
-  }
-
-  delete FS;
-  return true;
-
-  } catch(...) { return false; }
 }
 //---------------------------------------------------------------------------
 

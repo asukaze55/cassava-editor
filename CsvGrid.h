@@ -7,39 +7,16 @@
 #include <vcl\Classes.hpp>
 #include <vcl\Forms.hpp>
 #include <vcl\Grids.hpp>
-#include "TypeOption.h"
+#include "TypeList.h"
 #include "Nkf.h"
 //---------------------------------------------------------------------------
-typedef struct { double Num; void *Data; int Row; } DoubleData;
-
-int __fastcall CompareDoubleData(void *a, void *b) {
-  DoubleData *dda = static_cast<DoubleData*>(a);
-  DoubleData *ddb = static_cast<DoubleData*>(b);
-  if(dda->Num == ddb->Num){
-    if(dda->Row == ddb->Row) return 0;
-    return ((dda->Row < ddb->Row) ? -1 : 1);
-  }else return ((dda->Num < ddb->Num) ? -1 : 1);
-}
-//---------------------------------------------------------------------------
-typedef struct { AnsiString Str; void *Data; int Row; } StringData;
-
-int __fastcall CompareOrderedString(void *a, void *b) {
-  StringData *osa = static_cast<StringData*>(a);
-  StringData *osb = static_cast<StringData*>(b);
-  if(osa->Str == osb->Str){
-    if(osa->Row == osb->Row) return 0;
-    return ((osa->Row < osb->Row) ? -1 : 1);
-  }else return ((osa->Str < osb->Str) ? -1 : 1);
-}
-//---------------------------------------------------------------------------
 typedef void __fastcall (__closure *TDropCsvFiles)
-    (System::TObject *Sender, int iFiles, System::AnsiString *DropFileNames);
+    (System::TObject *Sender, int iFiles, System::String *DropFileNames);
 //---------------------------------------------------------------------------
 class TCsvGrid : public TStringGrid
 {
 private:
     int drgRow , drgCol;
-    bool Dragging;
     int ColToResize;
     int RowToResize;
     int OldWidthHeight;
@@ -80,11 +57,11 @@ private:
     int FDataRight, FDataBottom;
     TObject *EOFMarker;
 
-    int FLineMargin;
-    void SetLineMargin(int Value);
+    int FTBMargin;
+    void SetTBMargin(int Value);
 
-    AnsiString GetACells(int ACol, int ARow);
-    void SetACells(int ACol, int ARow, AnsiString Val);
+	String GetACells(int ACol, int ARow);
+    void SetACells(int ACol, int ARow, String Val);
 
     double SelectSum(int *Count);
     bool FDragMove;
@@ -105,10 +82,10 @@ private:
     void ErrorCalcLoop();
 
     TStrings *UndoMacro;
-    AnsiString *UndoCsv;
-    int UndoCsvWidth, UndoCsvHeight;
-    TStrings *RedoMacro;
-    AnsiString *RedoCsv;
+	String *UndoCsv;
+	int UndoCsvWidth, UndoCsvHeight;
+	TStrings *RedoMacro;
+    String *RedoCsv;
     int RedoCsvWidth, RedoCsvHeight;
     void SetUndoMacro(bool inRedo=false);
     void SetRedoMacro();
@@ -118,8 +95,8 @@ private:
     bool FDragDropAccept;
     void __fastcall SetDragDropAccept(bool Accept);
 
-    int TextWidth(TCanvas *cnvs, AnsiString str);
-    TRect DrawTextRect(TCanvas *Canvas, TRect Rect, AnsiString Str,
+	int TextWidth(TCanvas *cnvs, String str);
+    TRect DrawTextRect(TCanvas *Canvas, TRect Rect, String Str,
                        bool Wrap, bool MeasureOnly=false);
 
     void (__closure *OnFileOpenThreadTerminate)(System::TObject* Sender);
@@ -127,7 +104,7 @@ private:
 protected:
     void PasteCSV(TStrings *List , int Left=1 , int Top=1 , int Way=2 ,
         int ClipCols=0 , int ClipRows=0);
-    AnsiString StringsToCSV(TStrings* Data, TTypeOption *Format);
+    String StringsToCSV(TStrings* Data, TTypeOption *Format);
     void WriteGrid(TStream *Stream, TTypeOption *Format);
     DYNAMIC void __fastcall MouseDown(Controls::TMouseButton Button,
         Classes::TShiftState Shift, int X, int Y);
@@ -136,7 +113,8 @@ protected:
         Classes::TShiftState Shift, int X, int Y);
     DYNAMIC void __fastcall DblClick(void);
     DYNAMIC void __fastcall KeyDown(Word &Key, Classes::TShiftState Shift);
-    DYNAMIC void __fastcall KeyPress(char &Key);
+    TInplaceEdit* __fastcall CreateEditor();
+    DYNAMIC void __fastcall SetEditText(int ACol, int ARow, String Value);
     DYNAMIC void __fastcall RowMoved(int FromIndex, int ToIndex);
     DYNAMIC void __fastcall ColumnMoved(int FromIndex, int ToIndex);
     void __fastcall DrawCell(int ACol, int ARow,
@@ -162,12 +140,11 @@ __published:
     __property TDropCsvFiles OnDropFiles = {read=FOnDropFiles,write=FOnDropFiles};
 
 public:
+    bool Dragging;
+
     __property bool RangeSelect = {read=GetRangeSelect};
     __property bool Modified = {read=FModified, write=SetModified};
-    void __fastcall ShowEditor(){
-      TStringGrid::ShowEditor();
-      InplaceEditor->Brush->Color = Color;
-    }
+    void __fastcall ShowEditor();
     __property bool Selected[int ACol][int ARow] = {read=GetSelected};
     void SetSelection(long Left, long Right, long Top, long Bottom);
     __property int SelLeft = {read=GetSelLeft};
@@ -180,11 +157,12 @@ public:
     __property bool DragDrogAccept = {read=FDragDropAccept,
                                       write=SetDragDropAccept};
 
-    __property int LineMargin = {read=FLineMargin, write=SetLineMargin};
+    __property int TBMargin = {read=FTBMargin, write=SetTBMargin};
+    int LRMargin;
     int CellLineMargin;
     void UpdateDefaultRowHeight();
 
-    __property AnsiString ACells[int ACol][int ARow]
+    __property String ACells[int ACol][int ARow]
       = {read=GetACells, write=SetACells};
 
     __fastcall TCsvGrid(TComponent* Owner);
@@ -205,12 +183,12 @@ public:
     void UpdateDataRightBottom(int modx, int mody, bool updateTableSize=true);
     void UpdateEOFMarker(int oldRight, int oldBottom);
     void SetDataRightBottom(int rx, int by, bool updateTableSize=true);
-    void SaveToFile(AnsiString FileName, TTypeOption *Format, bool SetModifiedFalse=true);
+    void SaveToFile(String FileName, TTypeOption *Format, bool SetModifiedFalse=true);
     void CopyToClipboard(bool Cut = false);
     void CutToClipboard();
     void PasteFromClipboard();
-    bool SetCsv(TStringList *Dest, AnsiString Src);
-    void QuotedDataToStrings(TStrings *Lines, AnsiString Text, TTypeOption *Format);
+    bool SetCsv(TStringList *Dest, String Src);
+    void QuotedDataToStrings(TStrings *Lines, String Text, TTypeOption *Format);
     TTypeList TypeList;
     int TypeIndex;
     TTypeOption *TypeOption;
@@ -226,7 +204,7 @@ public:
 #define cssv_taNumRight 1
     int TextAlignment;
     bool AlwaysShowEditor;
-    bool WheelMoveCursol;
+    int WheelMoveCursol;
     int WheelScrollStep;
     int EnterMove;
 #define cssv_EnterNone 0
@@ -240,23 +218,24 @@ public:
     int DblClickOpenURL;
     bool ShowURLBlue;
     bool WordWrap;
-    AnsiString BrowserFileName;
-    void OpenURL(AnsiString FileName);
+	String BrowserFileName;
+    void OpenURL(String FileName);
 
     int DefaultViewMode;
 #define cssv_viewallcolumn 0
 #define cssv_viewalltext   1
     int NumberComma;
+    int DecimalDigits;
     int MinColWidth;
     bool CalcWidthForAllRow;
 
     __property bool ExecCellMacro
         = {read=FExecCellMacro, write=SetExecCellMacro};
 
-    bool IsNumber(AnsiString Str);
+    bool IsNumber(String Str);
     bool IsNumberAtACell(int X, int Y){ return IsNumber(GetACells(X,Y)); };
-    void Sort(int SLeft, int STop, int SRight, int SBottom,
-              int SCol, bool Shoujun, bool NumSort);
+    void Sort(int SLeft, int STop, int SRight, int SBottom, int SCol,
+              bool Shoujun, bool NumSort, bool IgnoreCase, bool IgnoreZenhan);
     double GetSum(int l, int t, int r, int b, int *Count=NULL);
     double GetAvr(int l, int t, int r, int b);
     void CopySum();
@@ -280,15 +259,17 @@ public:
     void DeleteCell_Left();
     void DeleteCell_Up();
     void TransChar(int Type);
+    String TransChar(String Str, int Type);
     void TransKana(int Type);
+    String TransKana(String Str, int Type);
     void Sequence(bool Inc);
 
 #define CALC_NOTEXPR '\x01'
 #define CALC_OK '\x02'
 #define CALC_NG '\x04'
 #define CALC_LOOP '\x0c'
-    AnsiString GetCalculatedCell(int ACol, int ARow);
-    AnsiString (__closure *OnGetCalculatedCell)(AnsiString Str, int ACol, int ARow);
+	String GetCalculatedCell(int ACol, int ARow);
+    String (__closure *OnGetCalculatedCell)(String Str, int ACol, int ARow);
 
     void SelectRow(long Index){
       SetSelection(ColCount-1, FixedCols, Index, Index);
@@ -306,11 +287,11 @@ public:
       SetSelection(ColCount-1, FixedCols, RowCount-1, FixedRows);
     };
 
-    bool Find(AnsiString FindText,
-            int Range, bool Case, bool Regex, bool Word, bool Back);
-    bool Replace(AnsiString FindText , AnsiString ReplaceText,
-            int Range, bool Case, bool Regex, bool Word, bool Back);
-    void AllReplace(AnsiString FindText , AnsiString ReplaceText,
+	bool Find(String FindText,
+			int Range, bool Case, bool Regex, bool Word, bool Back);
+	bool Replace(String FindText , String ReplaceText,
+			int Range, bool Case, bool Regex, bool Word, bool Back);
+    void AllReplace(String FindText , String ReplaceText,
             int Range, bool Case, bool Regex, bool Word, bool Back);
     bool NumFind(double *Min, double *Max, int Range, bool Back);
 
@@ -336,7 +317,7 @@ public:
     void __fastcall MouseWheelDown(System::TObject* Sender,
       Classes::TShiftState Shift, const Types::TPoint &MousePos, bool &Handled);
 
-    bool LoadFromFile(AnsiString FileName, int KCode=CHARCODE_AUTO,
+    bool LoadFromFile(String FileName, int KCode=CHARCODE_AUTO,
       void (__closure *OnTerminate)(System::TObject* Sender)=NULL);
     TThread *FileOpenThread;
     void __fastcall FileOpenThreadTerminate(System::TObject* Sender);

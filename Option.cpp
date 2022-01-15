@@ -9,6 +9,7 @@
 #include "OptionBackUp.h"
 #include "OptionLaunch.h"
 #include "OptionBehavior.h"
+#include "OptionView.h"
 #include "OptionColor.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
@@ -35,6 +36,8 @@ void __fastcall TfmOption::FormShow(TObject *Sender)
     frOptionLaunch->Parent = pnlOption;
     frOptionBehavior->Visible = false;
     frOptionBehavior->Parent = pnlOption;
+    frOptionView->Visible = false;
+    frOptionView->Parent = pnlOption;
     frOptionColor->Visible = false;
     frOptionColor->Parent = pnlOption;
     tnDataFormat = items->Add(NULL, "データ形式");
@@ -42,27 +45,17 @@ void __fastcall TfmOption::FormShow(TObject *Sender)
     tnBehavior = items->Add(NULL, "動作");
     tnBackUp = items->Add(NULL, "バックアップ");
     tnLaunch = items->Add(NULL, "外部アプリ連携");
-    tnColor = items->Add(NULL, "フォント・色");
+    tnView = items->Add(NULL, "表示");
+    tnColor = items->Add(NULL, "色");
   }
 
-  Font = fmMain->Font;
-  lblHeader->Font->Size = Font->Size;
   frOptionDataFormat->RestoreFromMainForm();
   frOptionBackUp->RestoreFromMainForm();
   frOptionLaunch->RestoreFromMainForm();
   frOptionBehavior->RestoreFromMainForm();
+  frOptionView->RestoreFromMainForm();
   frOptionColor->RestoreFromMainForm();
   frOptionFile->RestoreFromMainForm();
-
-  int sizeDiff;
-  sizeDiff = frOptionDataFormat->Width - pnlOption->Width;
-  if(sizeDiff > 0){
-    Width += sizeDiff;
-  }
-  sizeDiff = frOptionDataFormat->Height - pnlOption->Height;
-  if(sizeDiff > 0){
-    Height += sizeDiff;
-  }
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmOption::tvCategoryChange(TObject *Sender, TTreeNode *Node)
@@ -81,6 +74,8 @@ void __fastcall TfmOption::tvCategoryChange(TObject *Sender, TTreeNode *Node)
     Show = frOptionLaunch;
   }else if(Node == tnBehavior){
     Show = frOptionBehavior;
+  }else if(Node == tnView){
+    Show = frOptionView;
   }else if(Node == tnColor){
     Show = frOptionColor;
   }else if(Node == tnFile){
@@ -90,6 +85,7 @@ void __fastcall TfmOption::tvCategoryChange(TObject *Sender, TTreeNode *Node)
   frOptionBackUp->Visible = (Show == frOptionBackUp);
   frOptionLaunch->Visible = (Show == frOptionLaunch);
   frOptionBehavior->Visible = (Show == frOptionBehavior);
+  frOptionView->Visible = (Show == frOptionView);
   frOptionColor->Visible = (Show == frOptionColor);
   frOptionFile->Visible = (Show == frOptionFile);
 
@@ -105,8 +101,8 @@ void __fastcall TfmOption::btnOKClick(TObject *Sender)
     return;
   }else if(Ascii2Ctrl(frOptionDataFormat->edDefSepChar->Text).Length() != 1){
     Application->MessageBox(
-      "標準区切り文字は１文字にしてください。",
-      "Cassava Option", MB_ICONWARNING);
+	  TEXT("標準区切り文字は１文字にしてください。"),
+      TEXT("Cassava Option"), MB_ICONWARNING);
     ModalResult = mrNone;
     return;
   }
@@ -115,6 +111,7 @@ void __fastcall TfmOption::btnOKClick(TObject *Sender)
   frOptionBackUp->StoreToMainForm();
   frOptionLaunch->StoreToMainForm();
   frOptionBehavior->StoreToMainForm();
+  frOptionView->StoreToMainForm();
   frOptionColor->StoreToMainForm();
   frOptionFile->StoreToMainForm();
 }
