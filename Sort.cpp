@@ -43,13 +43,10 @@ void __fastcall TfmSort::btnSortClick(TObject *Sender)
   if(r >= fmMain->MainGrid->ColCount) {
     r = fmMain->MainGrid->ColCount - 1;
   }
-  fmMain->MainGrid->SetUndoCsv();
-  fmMain->MainGrid->UndoSetLock++;
   fmMain->MainGrid->Invalidate();
   fmMain->MainGrid->Sort(l,t,r,b,c,d, cbNumSort->Checked,
     !(cbCaseSensitive->Checked), !(cbZenhanSensitive->Checked));
   fmMain->MainGrid->Repaint();
-  fmMain->MainGrid->UndoSetLock--;
 
   fmMain->MainGrid->SetFocus();
   fmMain->MainGrid->Invalidate();

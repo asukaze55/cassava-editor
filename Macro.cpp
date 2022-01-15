@@ -1,6 +1,5 @@
 //---------------------------------------------------------------------------
-#ifdef CssvMacro
-//---------------------------------------------------------------------------
+#include <boost\regex.hpp>
 #include <cmath>
 #include <dialogs.hpp>
 #include <map>
@@ -116,6 +115,7 @@ private:
   void ExecOpe(char c);
   void ExecMethod(String name, int H, const std::vector<Element>& ope,
                   bool isLambda);
+  void ExecPrimitiveMethod(String s, int H, const std::vector<Element>& ope);
   void ExecFnc(String s);
   std::vector<Element> Stack;
   int LoopCount;
@@ -238,6 +238,9 @@ String Element::Str() const
     std::map<String, Element>& vars = env->GetObject(vl)->Vars;
     for (std::map<String, Element>::iterator it = vars.begin();
          it != vars.end(); it++) {
+      if (it->second.Type == etErr) {
+        continue;
+      }
       if (it != vars.begin()) {
         s += ", ";
       }
@@ -303,15 +306,25 @@ void Element::Sbst(const Element &e)
     } else if(st == "Row") {
       CsvGridGoTo(g, MGCol, v);
     } else if(st == "Right") {
+      int newRight = AXtoRX(v);
+      int currentRight = g->DataRight;
+      if (newRight < currentRight) {
+        g->DeleteColumn(newRight + 1, currentRight);
+      } else if (newRight > currentRight) {
+        g->InsertColumn(currentRight + 1, newRight);
+      }
       if (MGCol > v) { CsvGridGoTo(g, v, MGRow); }
-      int dataRight = v + g->DataLeft - 1;
-      g->ChangeColCount(dataRight + 1);
-      g->SetDataRightBottom(dataRight, g->DataBottom, true);
+      g->ChangeColCount(newRight + 2);
     } else if(st == "Bottom") {
+      int newBottom = AYtoRY(v);
+      int currentBottom = g->DataBottom;
+      if (newBottom < currentBottom) {
+        g->DeleteRow(newBottom + 1, currentBottom);
+      } else if (newBottom > currentBottom) {
+        g->InsertRow(currentBottom + 1, newBottom);
+      }
       if (MGRow > v) { CsvGridGoTo(g, MGCol, v); }
-      int dataBottom = v + g->DataTop - 1;
-      g->ChangeRowCount(dataBottom + 1);
-      g->SetDataRightBottom(g->DataRight, dataBottom, true);
+      g->ChangeRowCount(newBottom + 2);
     } else {
       TGridRect Sel = g->Selection;
       if(st == "SelLeft") {
@@ -387,13 +400,22 @@ void TMacro::ExecMethod(String name, int H, const std::vector<Element>& ope,
   Element obj = ope[0].Value();
   String objName = (ope[0].Type == etVar ? ope[0].Name() : ope[0].Str());
   if (!isLambda && obj.Type != etObject) {
-    throw MacroException("「.」の左がオブジェクトではありません：" + objName);
+    ExecPrimitiveMethod(name, H, ope);
+    return;
   }
   Element funcPtr = obj.Type != etObject ? obj
                   : Element(name, etVar, env.GetObject(obj.Val()));
-  while (funcPtr.Value().Type == etObject) {
-    obj = funcPtr.Value();
-    funcPtr = Element("", etVar, env.GetObject(obj.Val()));
+  try {
+    while (funcPtr.Value().Type == etObject) {
+      obj = funcPtr.Value();
+      funcPtr = Element("", etVar, env.GetObject(obj.Val()));
+    }
+  } catch (...) {
+    if (name == "toString") {
+      Stack.push_back(Element(obj.Str()));
+      return;
+    }
+    throw;
   }
   String funcName = funcPtr.Str();
   try {
@@ -403,17 +425,32 @@ void TMacro::ExecMethod(String name, int H, const std::vector<Element>& ope,
         ? "関数オブジェクトではありません：" + objName
         : "メソッドではありません：" + objName + "." + name);
   }
-  int funcArity = funcName.SubString(funcName.LastDelimiter("/") + 1,
-                                     funcName.Length()).ToIntDef(0);
-  if (funcArity != H - 1) {
+  int slash = funcName.LastDelimiter("/");
+  bool isVarArg = (funcName[slash + 1] == '+');
+  int funcArity = funcName.SubString(slash + 1, funcName.Length()).ToIntDef(0);
+  if (!isVarArg && funcArity != H - 1) {
     throw MacroException("引数の数が一致しません。\n"
         + (isLambda ? objName : name) + "/" + funcArity + " に引数が "
         + (H - 1) + " 個渡されています。");
+  } else if (isVarArg && funcArity > H - 1) {
+    throw MacroException("引数の数が一致しません。\n"
+        + (isLambda ? objName : name) + " には引数が " + funcArity
+        + " 個以上必要です。");
   }
 
   std::vector<Element> argStack;
-  for (int i = 1; i < H; i++) {
+  for (int i = 1; i <= funcArity; i++) {
     argStack.push_back(Element(ope[i].Value()));
+  }
+  if (isVarArg) {
+    TEnvironment *varArg = new TEnvironment(env.IsCellMacro, env.GetGlobal());
+    for (int i = funcArity + 1; i < H; i++) {
+      varArg->Vars[(String)(i - funcArity - 1)] = Element(ope[i].Value());
+    }
+    varArg->Vars["length"] = Element(H - funcArity - 1);
+    std::vector<TEnvironment*> *objects = env.GetObjects();
+    argStack.push_back(Element(objects->size(), "", etObject, env.GetGlobal()));
+    objects->push_back(varArg);
   }
   int ml = (MaxLoop > 0) ? MaxLoop-LoopCount : 0;
   TMacro mcr(fs_io, ml, modules, env.CreateSubEnvironment());
@@ -424,6 +461,150 @@ void TMacro::ExecMethod(String name, int H, const std::vector<Element>& ope,
     Stack.push_back(Element(isLambda
         ? "関数オブジェクトが値を返しません：" + objName
         : "メソッドは値を返しません：" + name + "/" + (H - 1), etErr, NULL));
+  }
+}
+//---------------------------------------------------------------------------
+void TMacro::ExecPrimitiveMethod(String s, int H,
+                                 const std::vector<Element>& ope)
+{
+  if (s == "endsWith" && (H == 2 || H == 3)) {
+    String target = STR0;
+    String search = STR1;
+    int length = (H > 2 ? VAL2 : target.Length());
+    Stack.push_back(Element(target.SubString(
+        length - search.Length() + 1, search.Length()) == search ? 1 : 0));
+  } else if (s == "includes" && (H == 2 || H == 3)) {
+    String target = STR0;
+    String search = STR1;
+    int from = (H > 2 ? VAL2 : 0);
+    if (search == "") {
+      Stack.push_back(Element(1));
+      return;
+    }
+    int pos = target.SubString(from + 1, target.Length() - from).Pos(search);
+    Stack.push_back(Element(pos > 0 ? 1 : 0));
+  } else if (s == "indexOf" && (H == 2 || H == 3)) {
+    String target = STR0;
+    String search = STR1;
+    int from = (H > 2 ? VAL2 : 0);
+    if (from < 0) {
+      from = 0;
+    }
+    if (search == "") {
+      Stack.push_back(Element(min(from, target.Length())));
+      return;
+    }
+    int pos = target.SubString(from + 1, target.Length() - from).Pos(search);
+    if (pos == 0) {
+      Stack.push_back(Element(-1));
+      return;
+    }
+    Stack.push_back(Element(pos + from - 1));
+  } else if (s == "lastIndexOf" && (H == 2 || H == 3)) {
+    String target = STR0;
+    String search = STR1;
+    int from = (H > 2 ? VAL2 : target.Length());
+    if (from < 0) {
+      from = 0;
+    }
+    if (search == "") {
+      Stack.push_back(Element(min(from, target.Length())));
+      return;
+    }
+    int lastPos = 0;
+    while (true) {
+      int pos =
+          target.SubString(lastPos + 1, target.Length() - lastPos).Pos(search);
+      if (pos == 0 || pos > from - lastPos + 1) {
+        break;
+      }
+      lastPos += pos;
+    }
+    Stack.push_back(Element(lastPos - 1));
+  } else if (s == "padEnd" && (H == 2 || H == 3)) {
+    String target = STR0;
+    int length = VAL1;
+    String pad = (H > 2 ? STR2 : (String)" ");
+    if (target.Length() >= length) {
+      Stack.push_back(Element(target));
+      return;
+    }
+    while (target.Length() < length) {
+      target += pad;
+    }
+    Stack.push_back(Element(target.SubString(1, length)));
+  } else if (s == "padStart" && (H == 2 || H == 3)) {
+    String target = STR0;
+    int length = VAL1;
+    String pad = (H > 2 ? STR2 : (String)" ");
+    if (target.Length() >= length) {
+      Stack.push_back(Element(target));
+      return;
+    }
+    int lengthToPad = length - target.Length();
+    String prefix = "";
+    while (lengthToPad >= pad.Length()) {
+      prefix += pad;
+      lengthToPad -= pad.Length();
+    }
+    Stack.push_back(Element(prefix + pad.SubString(1, lengthToPad) + target));
+  } else if (s == "repeat" && H == 2) {
+    String target = STR0;
+    String result = "";
+    int count = VAL1;
+    for (int i = 0; i < count; i++) {
+      result += target;
+    }
+    Stack.push_back(Element(result));
+  } else if (s == "replaceAll" && H == 3) {
+    Stack.push_back(Element(fmMain->MainGrid->ReplaceAll(STR0, STR1, STR2,
+        /* ignoreCase= */ false, /* regex= */ false, /* Word= */ false)));
+  } else if (s == "search" && H == 2) {
+    wchar_t *target = STR0.c_str();
+    boost::wcmatch match;
+    if (boost::regex_search(target, match, boost::wregex(STR1.c_str()))) {
+      Stack.push_back(Element(match[0].first - target));
+    } else {
+      Stack.push_back(Element(-1));
+    }
+  } else if (s == "startsWith" && (H == 2 || H == 3)) {
+    String search = STR1;
+    int position = (H > 2 ? VAL2 : 0);
+    Stack.push_back(Element(
+        STR0.SubString(position + 1, search.Length()) == search ? 1 : 0));
+  } else if (s == "substring" && (H == 2 || H == 3)) {
+    String target = STR0;
+    int arg1 = VAL1;
+    int arg2 = (H > 2 ? VAL2 : target.Length());
+    int start = min(arg1, arg2);
+    if (start < 0) {
+      start = 0;
+    }
+    if (start > target.Length()) {
+      start = target.Length();
+    }
+    int end = max(arg1, arg2);
+    if (end < 0) {
+      end = 0;
+    }
+    if (end > target.Length()) {
+      end = target.Length();
+    }
+    Stack.push_back(Element(target.SubString(start + 1, end - start)));
+  } else if (s == "toLowerCase" && H == 1) {
+    Stack.push_back(Element(STR0.LowerCase()));
+  } else if (s == "toString" && H == 1) {
+    Stack.push_back(Element(STR0));
+  } else if (s == "toUpperCase" && H == 1) {
+    Stack.push_back(Element(STR0.UpperCase()));
+  } else if (s == "trim" && H == 1) {
+    Stack.push_back(Element(STR0.Trim()));
+  } else if (s == "trimEnd" && H == 1) {
+    Stack.push_back(Element(STR0.TrimRight()));
+  } else if (s == "trimStart" && H == 1) {
+    Stack.push_back(Element(STR0.TrimLeft()));
+  } else {
+    throw MacroException("定義されていないメソッドです：" + s + "/" + (H - 1));
   }
 }
 //---------------------------------------------------------------------------
@@ -457,22 +638,50 @@ void TMacro::ExecFnc(String s)
     H--;
     ope.erase(ope.begin());
   }
-    if(s[1] == '$') {
-      s.Delete(1,1);
-      std::vector<Element> argStack;
+
+  if(s[1] == '$') {
+    s.Delete(1,1);
+    int ml = ((MaxLoop > 0) ? MaxLoop-LoopCount : 0);
+    TMacro mcr(fs_io, ml, modules, env.CreateSubEnvironment());
+    String funcName;
+    std::vector<Element> argStack;
+    if (modules->IndexOf(s + "/" + H) >= 0) {
       for (int i = 0; i < H; i++) {
         argStack.push_back(Element(ope[i].Value()));
       }
-      int ml = ((MaxLoop > 0) ? MaxLoop-LoopCount : 0);
-      TMacro mcr(fs_io, ml, modules, env.CreateSubEnvironment());
-      const Element &r = mcr.Do(s + "/" + H, argStack);
-      if (r.Type != etErr) {
-        Stack.push_back(r);
-      } else {
-        Stack.push_back(
-            Element("関数は値を返しません：" + s + "/" + H, etErr, NULL));
+      funcName = s + "/" + H;
+    } else {
+      int normalArgs;
+      for (normalArgs = H; normalArgs >= 0; normalArgs--) {
+        if (modules->IndexOf(s + "/+" + normalArgs) >= 0) {
+          funcName = s + "/+" + normalArgs;
+          break;
+        }
       }
-    }else if(s == "{}") {
+      if (normalArgs < 0) {
+        throw MacroException(s + "/" + H + "\nユーザー関数が見つかりません。");
+      }
+      for (int i = 0; i < normalArgs; i++) {
+        argStack.push_back(Element(ope[i].Value()));
+      }
+      TEnvironment *varArg = new TEnvironment(env.IsCellMacro, env.GetGlobal());
+      for (int i = normalArgs; i < H; i++) {
+        varArg->Vars[(String)(i - normalArgs)] = Element(ope[i].Value());
+      }
+      varArg->Vars["length"] = Element(H - normalArgs);
+      std::vector<TEnvironment*> *objects = env.GetObjects();
+      argStack.push_back(
+          Element(objects->size(), "", etObject, env.GetGlobal()));
+      objects->push_back(varArg);
+    }
+    const Element &r = mcr.Do(funcName, argStack);
+    if (r.Type != etErr) {
+      Stack.push_back(r);
+    } else {
+      Stack.push_back(
+          Element("関数は値を返しません：" + s + "/" + H, etErr, NULL));
+    }
+  }else if(s == "{}") {
       std::vector<TEnvironment*> *objects = env.GetObjects();
       Stack.push_back(Element(objects->size(), "", etObject, env.GetGlobal()));
       objects->push_back(new TEnvironment(env.IsCellMacro, env.GetGlobal()));
@@ -490,10 +699,8 @@ void TMacro::ExecFnc(String s)
         ope[i+count].Sbst(ope[i]);
       }
     }else if(s == "swap" && H == 2){
-      Element t0 = ((ope[0].isNum() && ope[0].Type != etCell)
-        ? Element(VAL0) : Element(STR0));
-      Element t1 = ((ope[1].isNum() && ope[1].Type != etCell)
-        ? Element(VAL1) : Element(STR1));
+      Element t0 = ope[0].Value();
+      Element t1 = ope[1].Value();
       ope[0].Sbst(t1);
       ope[1].Sbst(t0);
     }else if(s == "MessageBox"){
@@ -582,6 +789,8 @@ void TMacro::ExecFnc(String s)
       Stack.push_back(Element(Path));
     }else if(s == "GetFileName" && H == 0){
       Stack.push_back(Element(ExtractFileName(fmMain->FileName)));
+    }else if(s == "GetSettingPath" && H == 0){
+      Stack.push_back(Element(fmMain->Pref->Path));
     }else if(s == "GetStatusBarCount" && H == 0){
       Stack.push_back(Element(fmMain->StatusBar->Panels->Count - 1));
     }else if(s == "SetStatusBarCount" && H == 1){
@@ -664,6 +873,12 @@ void TMacro::ExecFnc(String s)
         if(s == "writeln"){ CsvGridGoTo(fmMain->MainGrid, 1, wy+1); }
         else{ CsvGridGoTo(fmMain->MainGrid, wx, wy); }
       }
+    }else if(s == "StartMacroRecording" && H == 0) {
+      fmMain->MainGrid->UndoList->StartMacroRecording();
+    }else if(s == "StopMacroRecording" && H == 0) {
+      fmMain->MainGrid->UndoList->StopMacroRecording();
+    }else if(s == "GetRecordedMacro" && H == 0) {
+      Stack.push_back(Element(fmMain->MainGrid->UndoList->GetRecordedMacro()));
     }else if(H == 0){
       TMenuItem *menu = NULL;
       if (!env.IsCellMacro) {
@@ -710,6 +925,20 @@ void TMacro::ExecFnc(String s)
       Stack.push_back(Element(cos(VAL0)));
     }else if(s == "tan" && H == 1){
       Stack.push_back(Element(tan(VAL0)));
+    } else if (s == "asin" && H == 1) {
+      Stack.push_back(Element(asin(VAL0)));
+    } else if (s == "acos" && H == 1) {
+      Stack.push_back(Element(acos(VAL0)));
+    } else if (s == "atan" && H == 1) {
+      Stack.push_back(Element(atan(VAL0)));
+    } else if (s == "atan2" && H == 2) {
+      double y = VAL0;
+      double x = VAL1;
+      if (x == 0 && y == 0) {
+        Stack.push_back(Element(0));
+      } else {
+        Stack.push_back(Element(atan2(VAL0, VAL1)));
+      }
     }else if(s == "pow" && H == 2){
       Stack.push_back(Element(pow(VAL0, VAL1)));
     }else if(s == "len" && H == 1){
@@ -732,6 +961,12 @@ void TMacro::ExecFnc(String s)
       int left = VAL0;
       int right = (H > 1 ? VAL1 : left);
       fmMain->MainGrid->DeleteColumn(AXtoRX(left), AXtoRX(right));
+    }else if(s == "MoveRow" && H == 2) {
+      fmMain->MainGrid->MoveRow(AYtoRY(VAL0), AYtoRY(VAL1));
+    }else if(s == "MoveCol" && H == 2) {
+      fmMain->MainGrid->MoveColumn(AXtoRX(VAL0), AXtoRX(VAL1));
+    }else if(s == "Paste" && H == 1) {
+      fmMain->MainGrid->PasteFromClipboard(VAL0);
     }else if(s == "random" && H == 1){
       Stack.push_back(Element(random(VAL0)));
     }else if(s == "cell" && H == 2){
@@ -838,6 +1073,9 @@ void TMacro::ExecFnc(String s)
         }
       }
     }else if(s == "Open" && H == 1){
+      if (env.IsCellMacro) {
+        throw MacroException("Cell Macro can't open files.", ME_SECURITY);
+      }
       String filename = STR0;
       fmMain->MainGridDropFiles(NULL, 1, &filename);
       while (fmMain->MainGrid->FileOpenThread) {
@@ -845,25 +1083,45 @@ void TMacro::ExecFnc(String s)
         Application->ProcessMessages();
       }
     }else if(s == "SaveAs" && (H == 1 || H == 2)){
-      TTypeOption *format = NULL;
-      if(H == 1){
-        format = fmMain->MainGrid->TypeOption;
-      }else{
+      if (env.IsCellMacro) {
+        throw MacroException("Cell Macro can't write to files.", ME_SECURITY);
+      }
+      int typeIndex = -1;
+      if (H == 1) {
+        typeIndex = fmMain->MainGrid->TypeIndex;
+      } else {
         int count = fmMain->MainGrid->TypeList.Count;
-        for(int i=0; i<count; i++){
-          TTypeOption *p = fmMain->MainGrid->TypeList.Items(i);
-          if(p->Name == STR1){
-            format = p;
+        for (int i = 0; i < count; i++) {
+          if (fmMain->MainGrid->TypeList.Items(i)->Name == STR1) {
+            typeIndex = i;
             break;
           }
         }
-        if(!format) {
+        if (typeIndex < 0) {
           throw MacroException("保存形式が不明です:" + STR1);
         }
       }
-      fmMain->MainGrid->SaveToFile(STR0, format);
+      fmMain->SaveAs(STR0, typeIndex);
     }else if(s == "Export" && H == 2){
+      if (env.IsCellMacro) {
+        throw MacroException("Cell Macro can't write to files.", ME_SECURITY);
+      }
       fmMain->Export(STR0, STR1);
+    }else if(s == "FileExists" && H == 1) {
+      Stack.push_back(Element(FileExists(STR0) ? 1 : 0));
+    }else if(s == "WriteToFile" && H == 2) {
+      if (env.IsCellMacro) {
+        throw MacroException("Cell Macro can't write to files.", ME_SECURITY);
+      }
+      String fileName = STR1;
+      String dirName = ExtractFilePath(fileName);
+      if(!DirectoryExists(dirName)){
+        ForceDirectories(dirName);
+      }
+      TFileStream *fs = new TFileStream(fileName, fmCreate | fmShareDenyWrite);
+      DynamicArray<System::Byte> array = TEncoding::UTF8->GetBytes(STR0);
+      fs->Write(&(array[0]), array.Length);
+      delete fs;
     }else if(s == "Sort" && H >= 1 && H <= 9) {
       int left = AXtoRX(VAL0);
       int top = AYtoRY(H > 1 ? VAL1 : 1);
@@ -889,6 +1147,14 @@ void TMacro::ExecFnc(String s)
       int count = fmMain->MainGrid->ReplaceAll(
           find, replace, left, top, right, bottom, !ignoreCase, regex, word);
       Stack.push_back(Element(count));
+    }else if(s == "Select" && H == 4) {
+      int left = VAL0;
+      int top = VAL1;
+      int right = VAL2;
+      int bottom = VAL3;
+      fmMain->MainGrid->SetSelection(
+          AXtoRX(min(left, right)), AXtoRX(max(left, right)),
+          AYtoRY(min(top, bottom)), AYtoRY(max(top, bottom)));
     }else{
       throw MacroException(notFoundMessage);
     }
@@ -984,6 +1250,19 @@ void TMacro::ExecOpe(char c){
       }
     } else if (c == '.') {
       if (ope1.Value().Type != etObject) {
+        if (ope2.Str() == "length") {
+          Stack.push_back(Element(ope1.Str().Length()));
+          return;
+        } else if (ope2.isNum()) {
+          String target = ope1.Str();
+          int index = ope2.Val();
+          if (index >= 0 && index < target.Length()) {
+            Stack.push_back(Element(target.SubString(ope2.Val() + 1, 1)));
+          } else {
+            Stack.push_back(Element(""));
+          }
+          return;
+        }
         throw MacroException("「.」の左がオブジェクトではありません："
             + (ope1.Type == etVar ? ope1.Name() : ope1.Str()));
       }
@@ -1150,6 +1429,3 @@ int GetRunningMacroCount()
   return RunningCount;
 }
 //---------------------------------------------------------------------------
-#endif
-//---------------------------------------------------------------------------
-

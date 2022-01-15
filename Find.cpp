@@ -25,7 +25,9 @@ void __fastcall TfmFind::FormShow(TObject *Sender)
   }
   Left = left + 8;
   Top = top - 8;
-  edFindText->SetFocus();
+  if (PageControl->TabIndex == 0) {
+    edFindText->SetFocus();
+  }
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmFind::btnSearchFromTopClick(TObject *Sender)

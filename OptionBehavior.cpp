@@ -30,6 +30,7 @@ void TfrOptionBehavior::RestoreFromMainForm()
   seStopMacroCount->Text =
       String(cbStopMacro->Checked ? fmMain->StopMacroCount : 100000);
   seStopMacroCount->Enabled = cbStopMacro->Checked;
+  udUndoCount->Position = fmMain->MainGrid->UndoList->MaxCount;
 }
 //---------------------------------------------------------------------------
 void TfrOptionBehavior::StoreToMainForm()
@@ -48,6 +49,8 @@ void TfrOptionBehavior::StoreToMainForm()
   }else{
     fmMain->StopMacroCount = 0;
   }
+
+  fmMain->MainGrid->UndoList->MaxCount = udUndoCount->Position;
 }
 //---------------------------------------------------------------------------
 void __fastcall TfrOptionBehavior::cbStopMacroClick(TObject *Sender)

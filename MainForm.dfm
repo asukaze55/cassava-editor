@@ -506,29 +506,15 @@ object fmMain: TfmMain
         Caption = #25991#23383#12467#12540#12489#25351#23450#20877#35501#12415#36796#12415'(&D)'
         Enabled = False
         OnClick = mnCharCodeClick
-        object mnReloadCodeShiftJIS: TMenuItem
-          Caption = '&Shift-JIS'
-          GroupIndex = 1
-          RadioItem = True
-          OnClick = mnReloadCodeClick
-        end
-        object mnReloadCodeEUC: TMenuItem
-          Tag = 1
-          Caption = '&EUC'
-          GroupIndex = 1
-          RadioItem = True
-          OnClick = mnReloadCodeClick
-        end
-        object mnReloadCodeJIS: TMenuItem
-          Tag = 2
-          Caption = '&JIS'
-          GroupIndex = 1
-          RadioItem = True
-          OnClick = mnReloadCodeClick
-        end
         object mnReloadCodeUTF8: TMenuItem
           Tag = 3
           Caption = 'UTF-&8'
+          GroupIndex = 1
+          RadioItem = True
+          OnClick = mnReloadCodeClick
+        end
+        object mnReloadCodeShiftJIS: TMenuItem
+          Caption = '&Shift-JIS'
           GroupIndex = 1
           RadioItem = True
           OnClick = mnReloadCodeClick
@@ -543,6 +529,20 @@ object fmMain: TfmMain
         object mnReloadCodeUTF16BE: TMenuItem
           Tag = 5
           Caption = 'UTF-16&BE'
+          GroupIndex = 1
+          RadioItem = True
+          OnClick = mnReloadCodeClick
+        end
+        object mnReloadCodeEUC: TMenuItem
+          Tag = 1
+          Caption = '&EUC'
+          GroupIndex = 1
+          RadioItem = True
+          OnClick = mnReloadCodeClick
+        end
+        object mnReloadCodeJIS: TMenuItem
+          Tag = 2
+          Caption = '&JIS'
           GroupIndex = 1
           RadioItem = True
           OnClick = mnReloadCodeClick
@@ -566,30 +566,16 @@ object fmMain: TfmMain
       object mnCharCode: TMenuItem
         Caption = #20445#23384#26178#25991#23383#12467#12540#12489'(&C)'
         OnClick = mnCharCodeClick
-        object mnSjis: TMenuItem
-          Caption = '&Shift-JIS'
-          Checked = True
-          GroupIndex = 1
-          RadioItem = True
-          OnClick = mnKCodeClick
-        end
-        object mnEuc: TMenuItem
-          Tag = 1
-          Caption = '&EUC'
-          GroupIndex = 1
-          RadioItem = True
-          OnClick = mnKCodeClick
-        end
-        object mnJis: TMenuItem
-          Tag = 2
-          Caption = '&JIS'
-          GroupIndex = 1
-          RadioItem = True
-          OnClick = mnKCodeClick
-        end
         object mnUtf8: TMenuItem
           Tag = 3
           Caption = 'UTF-&8'
+          GroupIndex = 1
+          RadioItem = True
+          OnClick = mnKCodeClick
+        end
+        object mnSjis: TMenuItem
+          Caption = '&Shift-JIS'
+          Checked = True
           GroupIndex = 1
           RadioItem = True
           OnClick = mnKCodeClick
@@ -604,6 +590,20 @@ object fmMain: TfmMain
         object mnUtf16be: TMenuItem
           Tag = 5
           Caption = 'UTF-16&BE'
+          GroupIndex = 1
+          RadioItem = True
+          OnClick = mnKCodeClick
+        end
+        object mnEuc: TMenuItem
+          Tag = 1
+          Caption = '&EUC'
+          GroupIndex = 1
+          RadioItem = True
+          OnClick = mnKCodeClick
+        end
+        object mnJis: TMenuItem
+          Tag = 2
+          Caption = '&JIS'
           GroupIndex = 1
           RadioItem = True
           OnClick = mnKCodeClick
@@ -632,6 +632,15 @@ object fmMain: TfmMain
           GroupIndex = 2
           RadioItem = True
           OnClick = mnReturnCodeClick
+        end
+        object mnN17: TMenuItem
+          Caption = '-'
+          GroupIndex = 2
+        end
+        object mnBom: TMenuItem
+          Caption = 'BO&M '#20184#12365
+          GroupIndex = 3
+          OnClick = mnBomClick
         end
       end
       object mnN1: TMenuItem

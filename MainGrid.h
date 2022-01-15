@@ -7,6 +7,7 @@
 #include <Vcl.Grids.hpp>
 #include "EncodedWriter.h"
 #include "TypeList.h"
+#include "Undo.h"
 //---------------------------------------------------------------------------
 #define CASSAVA_TITLE TEXT("Cassava Editor")
 //---------------------------------------------------------------------------
@@ -41,6 +42,10 @@ private:
     int GetDataTop() { return (ShowColCounter ? 1 : 0); }
     int FDataRight, FDataBottom;
     TObject *EOFMarker;
+    void UpdateDataRight();
+    void UpdateDataBottom();
+    void UpdateDataRightBottom(int modx, int mody);
+    void UpdateEOFMarker(int oldRight, int oldBottom);
     bool HasDataInRange(int Left, int Right, int Top, int Bottom);
 
     int FTBMargin;
@@ -68,15 +73,7 @@ private:
     void ClearCalcCache();
     void ErrorCalcLoop();
 
-    TStrings *UndoMacro;
-	String *UndoCsv;
-	int UndoCsvWidth, UndoCsvHeight;
-	TStrings *RedoMacro;
-    String *RedoCsv;
-    int RedoCsvWidth, RedoCsvHeight;
-    void SetUndoMacro(bool inRedo=false);
-    void SetRedoMacro();
-    void ClearUndo();
+    TUndoList *FUndoList;
 
     TDropCsvFiles FOnDropFiles;
     bool FDragDropAccept;
@@ -106,8 +103,6 @@ protected:
     DYNAMIC void __fastcall KeyUp(Word &Key, Classes::TShiftState Shift);
     TInplaceEdit* __fastcall CreateEditor();
     DYNAMIC void __fastcall SetEditText(int ACol, int ARow, String Value);
-    DYNAMIC void __fastcall RowMoved(int FromIndex, int ToIndex);
-    DYNAMIC void __fastcall ColumnMoved(int FromIndex, int ToIndex);
     void __fastcall DrawCell(int ACol, int ARow,
         const TRect &ARect, TGridDrawState AState);
     void InsertCells_Right(long Left, long Right, long Top, long Bottom);
@@ -116,6 +111,8 @@ protected:
         bool UpdateWidth=false);
     void DeleteCells_Up(long Left, long Right, long Top, long Bottom,
         bool UpdateHeight=false);
+    DYNAMIC void __fastcall RowMoved(int FromIndex, int ToIndex);
+    DYNAMIC void __fastcall ColumnMoved(int FromIndex, int ToIndex);
 
     void __fastcall DropCsvFiles(TWMDropFiles inMsg);
     BEGIN_MESSAGE_MAP
@@ -167,10 +164,6 @@ public:
     void CompactWidth(int *Widths, int WindowSize, int Minimum,
                       TCanvas *Cnvs = NULL);
     void Cut();
-    void UpdateDataRight();
-    void UpdateDataBottom();
-    void UpdateDataRightBottom(int modx, int mody, bool updateTableSize=true);
-    void UpdateEOFMarker(int oldRight, int oldBottom);
     void SetDataRightBottom(int rx, int by, bool updateTableSize=true);
     void SaveToFile(String FileName, TTypeOption *Format, bool SetModifiedFalse=true);
     void CopyToClipboard(bool Cut = false);
@@ -190,6 +183,7 @@ public:
     bool CheckKanji;
     int DefaultCharCode;
     int KanjiCode;
+    bool AddBom;
 #define LFCR TEXT('\0')
     wchar_t ReturnCode;
     bool LeftArrowInCell;
@@ -234,6 +228,7 @@ public:
     void CopySum();
     void CopyAvr();
 
+    void SetCell(int X, int Y, String Value);
     void ChangeRowCount(int Count);
     void ChangeColCount(int Count);
     void InsertRow(int Top, int Bottom);
@@ -244,6 +239,8 @@ public:
     void __fastcall InsertColumn(int Index);
     void __fastcall DeleteRow(int ARow);
     void __fastcall DeleteColumn(int ACol);
+    void __fastcall MoveRow(int FromIndex, int ToIndex);
+    void __fastcall MoveColumn(int FromIndex, int ToIndex);
     void InsertEnter();
     void InsertNewLine();
     void ConnectCell();
@@ -318,13 +315,17 @@ public:
     __property bool ShowColCounter
                  = {read=FShowColCounter, write=SetShowColCounter};
 
+    __property TUndoList *UndoList = {read=FUndoList};
     void SetUndoCsv(bool inRedo=false);
-    bool CanUndo(){return(UndoMacro || UndoCsv);};
-    int UndoSetLock;
+    bool CanUndo() {
+      return UndoList->CanUndo();
+    }
     void Undo();
 
     void SetRedoCsv();
-    bool CanRedo(){return(RedoMacro || RedoCsv);};
+    bool CanRedo(){
+      return UndoList->CanRedo();
+    }
     void Redo();
 
     void __fastcall KeyDownSub(System::TObject* Sender,

@@ -1,6 +1,4 @@
 //---------------------------------------------------------------------------
-#ifdef CssvMacro
-//---------------------------------------------------------------------------
 #include <deque>
 #include <map>
 #include <vcl.h>
@@ -219,6 +217,9 @@ CMCElement TTokenizer::GetR()
       Read(&c);
       s += c;
       if(c == '.') IsDouble = true;
+    }
+    if (s == "...") {
+      return CMCElement(s, prElement, tpOpe);
     }
     return CMCElement(s, prElement, (IsDouble ? tpDouble : tpInteger));
   }
@@ -583,6 +584,7 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
     Constants->Add("this");
   }
 
+  bool varArg = false;
   fout = new TMemoryStream();
   wchar_t H = 0;
   if (paramName != "") {
@@ -594,6 +596,10 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
   } else {
     while (true) {
       CMCElement e = lex->Get();
+      if (e.str == "...") {
+        varArg = true;
+        e = lex->Get();
+      }
       if (e.type != tpVar) {
         throw CMCException("引数名が不正です：" + e.str);
       }
@@ -604,8 +610,11 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
       Output(e);
       H++;
       e = lex->Get();
-      if (e.str == ')') { break; }
-      if (e.str != ',') {
+      if (e.str == ')') {
+        break;
+      } else if (varArg) {
+        throw CMCException(") が必要です：" + e.str);
+      } else if (e.str != ',') {
         throw CMCException(", もしくは ) が必要です：" + e.str);
       }
     }
@@ -613,8 +622,8 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
   int argCount = H;
   H *= 2;
   bool funcEqual = false;
-  String outName = GetMacroModuleName(InName, functionName, argCount);
-
+  String outName = GetMacroModuleName(InName, functionName,
+                                      varArg ? argCount - 1 : argCount, varArg);
   if (functionType == LAMBDA) {
     CMCElement arrow = lex->Get();
     if (arrow.str != "=>") {
@@ -877,11 +886,11 @@ void TCompiler::GetClass()
   String outName;
   int p = constructor.LastDelimiter("/");
   if (p > 0) {
-    String argCount = constructor.SubString(p + 1, constructor.Length());
-    outName = GetMacroModuleName(InName, name, argCount);
+    outName = InName + "\n" + name
+        + constructor.SubString(p, constructor.Length());
     Output(CMCElement((String)'\0' + "(constructor)", prElement, tpFunc));
   } else {
-    outName = GetMacroModuleName(InName, name, 0);
+    outName = GetMacroModuleName(InName, name, 0, false);
   }
 
   fout->Write("-}",2);
@@ -963,6 +972,9 @@ bool IsLambda(TTokenizer *lex)
       return true;
     }
   }
+  if (next0.type == tpOpe && next0.str == "...") {
+    return true;
+  }
   return false;
 }
 //---------------------------------------------------------------------------
@@ -1039,7 +1051,8 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
       case '[':
         if (ls.size() > 0) {
           const CMCElement& prev = ls.back();
-          if (prev.type == tpVar || prev.type == tpFunc || prev.str == '[') {
+          if (prev.type == tpVar || prev.type == tpFunc ||
+              prev.type == tpString || prev.str == '[') {
             Push(e, &ls);
             GetObjectKey();
             break;
@@ -1158,9 +1171,15 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         Continues->push_back(OutputPositionPlaceholder());
         fout->Write("-g", 2);
       } else if (e.str == "class" && lex->GetNext().type == tpVar) {
+        if (!firstloop) {
+          throw CMCException(e.str + " 宣言の前に ; が必要です。");
+        }
         GetClass();
         return true;
       } else if (e.str == "import" && lex->GetNext().str == "{") {
+        if (!firstloop) {
+          throw CMCException(e.str + " 文の前に ; が必要です。");
+        }
         GetImport();
         return true;
       } else if (e.str == "new"
@@ -1352,11 +1371,9 @@ bool MacroCompile(String fileName, TStringList *macroDirs, TStringList *modules,
   return MacroCompile(NULL, fileName, macroDirs, modules, showMessage);
 }
 //---------------------------------------------------------------------------
-String GetMacroModuleName(String fileName, String funcName, String argCount)
+String GetMacroModuleName(String fileName, String funcName, String argCount,
+                          bool varArg)
 {
-  return fileName + "\n" + funcName + "/" + argCount;
+  return fileName + "\n" + funcName + (varArg ? "/+" : "/") + argCount;
 }
 //---------------------------------------------------------------------------
-#endif
-//---------------------------------------------------------------------------
-

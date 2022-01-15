@@ -10,8 +10,9 @@
 //   // e に対する処理
 // }
 //
-// Array オブジェクトに対しては concat, includes, indexOf, join, lastIndexOf, pop, push, reverse,
-// shift, slice, unshift のメソッドを使用できます。各メソッドの仕様は実装から推測してください。
+// Array オブジェクトに対しては concat, filter, findIndex, includes, indexOf, join, lastIndexOf,
+// map, pop, push, reverse, shift, slice, unshift のメソッドを使用できます。
+// 各メソッドの仕様は実装から推測してください。
 
 class Array {
   constructor() {
@@ -27,6 +28,25 @@ class Array {
       result.push(array[i]);
     }
     return result;
+  }
+
+  filter(callback) {
+    result = new Array();
+    for (i = 0; i < this.length; i++) {
+      if (callback(this[i])) {
+        result.push(this[i]);
+      }
+    }
+    return result;
+  }
+
+  findIndex(callback) {
+    for (i = 0; i < this.length; i++) {
+      if (callback(this[i])) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   includes(searchElement) {
@@ -60,6 +80,14 @@ class Array {
       }
     }
     return -1;
+  }
+
+  map(callback) {
+    result = new Array();
+    for (i = 0; i < this.length; i++) {
+      result.push(callback(this[i]));
+    }
+    return result;
   }
 
   pop() {
@@ -140,4 +168,16 @@ function split(str, separator) {
 
 function arrayInputBox(message) {
   return split(InputBoxMultiLine(message), "\n");
+}
+
+function arrayFrom(from) {
+  array = new Array();
+  for (i = 0; i < from.length; i++) {
+    array.push(from[i]);
+  }
+  return array;
+}
+
+function arrayOf(...args) {
+  return arrayFrom(args);
 }

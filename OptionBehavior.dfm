@@ -163,4 +163,38 @@ object frOptionBehavior: TfrOptionBehavior
         #12459#12540#12477#12523#34920#31034#20301#32622#12434#22266#23450)
     end
   end
+  object gbUndo: TGroupBox
+    Left = 3
+    Top = 317
+    Width = 354
+    Height = 52
+    Caption = #20803#12395#25147#12377
+    TabOrder = 7
+    object lblUndoCount: TLabel
+      Left = 14
+      Top = 24
+      Width = 112
+      Height = 13
+      Caption = #12300#20803#12395#25147#12377#12301#12398#35352#37682#22238#25968
+    end
+    object edUndoCount: TEdit
+      Left = 197
+      Top = 20
+      Width = 126
+      Height = 21
+      NumbersOnly = True
+      TabOrder = 0
+      Text = '100'
+    end
+    object udUndoCount: TUpDown
+      Left = 323
+      Top = 20
+      Width = 16
+      Height = 21
+      Associate = edUndoCount
+      Max = 2147483647
+      Position = 100
+      TabOrder = 1
+    end
+  end
 end

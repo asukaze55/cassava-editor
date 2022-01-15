@@ -96,9 +96,11 @@ void __fastcall FileOpenThread::Execute()
   TTypeOption *typeOption = Grid->TypeOption;
   int dl = Grid->DataLeft;
   if (Data.Length() > 0) {
-    if (Data[1] == TEXT('\xFEFF') || Data[1] == TEXT('\xFFFE')) {
+    bool bom = (Data[1] == TEXT('\xFEFF') || Data[1] == TEXT('\xFFFE'));
+    if (bom) {
       Data.Delete(1, 1);
     }
+    Grid->AddBom = bom;
   }
   CsvReader *reader = new CsvReader(typeOption, Data);
 

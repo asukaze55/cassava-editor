@@ -50,6 +50,18 @@ class FunctionsTest {
     assert.that(a).isEqualTo(2);
     assert.that(b).isEqualTo(1);
 
+    [1,2] = "012";
+    [2,1] = "021";
+    swap([1,2], [2,1]);
+    assert.that([1,2]).isEqualTo("021");
+    assert.that([2,1]).isEqualTo("012");
+
+    obj1 = {a: "obj1"};
+    obj2 = {a: "obj2"};
+    swap(obj1, obj2);
+    assert.that(obj1.a).isEqualTo("obj2");
+    assert.that(obj2.a).isEqualTo("obj1");
+
     InsertRow(1);
     assert.that([4,7]).isEqualTo(123);
 
@@ -190,7 +202,19 @@ class FunctionsTest {
     assert.that(sin(pi / 2)).isEqualTo(1);
     assert.that(cos(pi)).isEqualTo(-1);
     assert.that(tan(pi / 3)).isEqualTo(sqrt(3));
+    assert.that(asin(1)).isEqualTo(pi / 2);
+    assert.that(acos(-1)).isEqualTo(pi);
+    assert.that(atan(sqrt(3))).isEqualTo(pi / 3);
+    assert.that(atan2(0, 0)).isEqualTo(0);
+    assert.that(atan2(0, -1)).isEqualTo(pi);
     assert.that(pow(4, 2.5)).isEqualTo(32);
+
+    [6,6] = 6;
+    Select(2, 3, 4, 5);
+    assert.that(SelLeft).isEqualTo(2);
+    assert.that(SelTop).isEqualTo(3);
+    assert.that(SelRight).isEqualTo(4);
+    assert.that(SelBottom).isEqualTo(5);
 
     this.clear();
   }

@@ -1,0 +1,27 @@
+﻿title = "マクロの記録";
+
+recordedMacro = GetRecordedMacro();
+if (recordedMacro == "") {
+  StartMacroRecording();
+  MessageBox("マクロの記録を開始します。\n"
+      + "記録する操作をした後に再度 [マクロの記録] を実行してください。",
+      title, MB_OK);
+  return;
+}
+
+macroName = InputBox("マクロ名を入力してください。", title, "");
+if (macroName == "") {
+  return;
+}
+
+fileName = GetSettingPath() + "Macro\\" + macroName + ".cms";
+if (FileExists(fileName)) {
+  if (MessageBox(fileName + " は既に存在します。\n上書きしますか？",
+      title, MB_YESNO) == IDNO) {
+    return;
+  }
+}
+
+WriteToFile(recordedMacro, fileName);
+StopMacroRecording();
+MessageBox(fileName + " に保存しました。", title, MB_OK);

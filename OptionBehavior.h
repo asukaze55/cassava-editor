@@ -31,6 +31,10 @@ __published:	// IDE 管理のコンポーネント
     TUpDown *udWheelScrollStep;
   TComboBox *cbWheelMoveCursol;
     TLabel *lblWheelMoveCursol;
+  TGroupBox *gbUndo;
+  TLabel *lblUndoCount;
+  TEdit *edUndoCount;
+  TUpDown *udUndoCount;
   void __fastcall cbStopMacroClick(TObject *Sender);
   void __fastcall cbStopMacroKeyUpDown(TObject *Sender, WORD &Key,
           TShiftState Shift);

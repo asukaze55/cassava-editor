@@ -368,7 +368,7 @@ function 関数名(引数名1, 引数名2, ...) {
 <blockquote><pre><code>
 function mult(x, y){ return x * y; }
 
-MessageBox(mult(x,y));
+MessageBox(mult(x, y));
 </code></pre></blockquote>
 <p>
 関数を呼び出す部分は関数を定義した場所より下に置いてください。
@@ -384,6 +384,21 @@ return 文は関数の最後だけではなく任意の箇所で使用できま�
 ユーザー関数が優先的に使用されます。
 関数名の前に「::」記号をつけることで明示的に組み込み関数を使用できます。
 </p>
+<p>
+最後の引数の前に「...」記号をつけると可変長引数の関数を定義できます。
+この場合、「引数名.length」で引数の個数を、「引数名[i]」で i 番目の値を取得できます。
+</p>
+<blockquote><pre><code>
+function getSum(...args){
+  sum = 0;
+  for (i = 0; i &lt; args.length; i++) {
+    sum += args[i];
+  }
+  return sum;
+}
+
+MessageBox(getSum(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+</code></pre></blockquote>
 
 <h2 id="OBJECT">オブジェクト</h2>
 <p>
@@ -605,7 +620,7 @@ init 関数内の初期化コードは Cassava 起動時に一度だけ実行さ
 <!-- SIGN -->
 <br style="clear: both;" />
 <address>
-  Copyright (C) 2000-2020 asukaze, Some Rights Reserved.<br />
+  Copyright (C) 2000-2021 asukaze, Some Rights Reserved.<br />
   mail (at) asukaze.net
 </address>
 <!-- ==== -->

@@ -1,4 +1,4 @@
-import { Array, split } from "lib/Array.cms";
+import { Array, split, arrayOf, arrayFrom } from "lib/Array.cms";
 import { Assert } from "lib/Assert.cms";
 
 class ArrayTest {
@@ -13,6 +13,20 @@ class ArrayTest {
     assert.that(array1.join(":")).isEqualTo("a:b:c");
     assert.that(array2.join(":")).isEqualTo("d:e:f");
     assert.that(array3.join(":")).isEqualTo("a:b:c:d:e:f");
+  }
+
+  filter(assert) {
+    array = arrayOf("spray", "limit", "elite", "exuberant", "destruction", "present");
+    result = array.filter(word => word.length > 6);
+    assert.that(result.join(":")).isEqualTo("exuberant:destruction:present");
+    assert.that(array.join(":")).isEqualTo("spray:limit:elite:exuberant:destruction:present");
+  }
+
+  findIndex(assert) {
+    array = arrayOf(5, 12, 8);
+    assert.that(array.findIndex(e => e > 0)).isEqualTo(0);
+    assert.that(array.findIndex(e => e > 10)).isEqualTo(1);
+    assert.that(array.findIndex(e => e > 20)).isEqualTo(-1);
   }
 
   includes(assert) {
@@ -37,6 +51,13 @@ class ArrayTest {
     array = split("a,b,c,c", ",");
     assert.that(array.lastIndexOf("c")).isEqualTo(3);
     assert.that(array.lastIndexOf("d")).isEqualTo(-1);
+  }
+
+  map(assert) {
+    array = arrayOf(1, 4, 9, 16);
+    result = array.map(x => x * 2);
+    assert.that(result.join(":")).isEqualTo("2:8:18:32");
+    assert.that(array.join(":")).isEqualTo("1:4:9:16");
   }
 
   pop(assert) {
@@ -109,18 +130,33 @@ class ArrayTest {
     assert.that(array.join(":")).isEqualTo("c:b:a");
   }
 
+  arrayFrom(assert) {
+    array = arrayFrom({0: "a", 1: "b", length: 2});
+    assert.that(array.join(":")).isEqualTo("a:b");
+  }
+
+  arrayOf(assert) {
+    array = arrayOf("a", "b", "c");
+    assert.that(array.join(":")).isEqualTo("a:b:c");
+  }
+
   test(assert) {
     this.concat(assert);
+    this.filter(assert);
+    this.findIndex(assert);
     this.includes(assert);
     this.indexOf(assert);
     this.join(assert);
     this.lastIndexOf(assert);
+    this.map(assert);
     this.pop(assert);
     this.push(assert);
     this.reverse(assert);
     this.shift(assert);
     this.slice(assert);
     this.unshift(assert);
+    this.arrayFrom(assert);
+    this.arrayOf(assert);
   }
 }
 

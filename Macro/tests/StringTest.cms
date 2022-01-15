@@ -1,0 +1,102 @@
+import { Assert } from "lib/Assert.cms";
+
+class StringTest {
+  name() {
+    return "StringTest";
+  }
+
+  test(assert) {
+    question = "To be, or not to be, that is the question.";
+
+    assert.that(question.endsWith("question.")).isTrue();
+    assert.that(question.endsWith("to be")).isFalse();
+    assert.that(question.endsWith("to be", 19)).isTrue();
+
+    assert.that(question.includes("To be")).isTrue();
+    assert.that(question.includes("question")).isTrue();
+    assert.that(question.includes("nonexistent")).isFalse();
+    assert.that(question.includes("To be", 1)).isFalse();
+    assert.that(question.includes("TO BE")).isFalse();
+    assert.that(question.includes("")).isTrue();
+
+    assert.that("Cassava Editor".includes("Cassava")).isTrue();
+    assert.that("Cassava Editor".includes("Edit")).isTrue();
+    assert.that("Cassava Editor".includes("cassava")).isFalse();
+
+    assert.that("cat".length).isEqualTo(3);
+
+    assert.that("cat"[-1]).isEqualTo("");
+    assert.that("cat"[0]).isEqualTo("c");
+    assert.that("cat"[1]).isEqualTo("a");
+    assert.that("cat"[2]).isEqualTo("t");
+    assert.that("cat"[3]).isEqualTo("");
+
+    assert.that("Blue Whale".indexOf("Blue")).isEqualTo(0);
+    assert.that("Blue Whale".indexOf("Blute")).isEqualTo(-1);
+    assert.that("Blue Whale".indexOf("blue")).isEqualTo(-1);
+    assert.that("Blue Whale".indexOf("Whale", 0)).isEqualTo(5);
+    assert.that("Blue Whale".indexOf("Whale", 5)).isEqualTo(5);
+    assert.that("Blue Whale".indexOf("Whale", 7)).isEqualTo(-1);
+    assert.that("Blue Whale".indexOf("")).isEqualTo(0);
+    assert.that("Blue Whale".indexOf("", -1)).isEqualTo(0);
+    assert.that("Blue Whale".indexOf("", 9)).isEqualTo(9);
+    assert.that("Blue Whale".indexOf("", 10)).isEqualTo(10);
+    assert.that("Blue Whale".indexOf("", 11)).isEqualTo(10);
+
+    assert.that("Cassava".lastIndexOf("a")).isEqualTo(6);
+    assert.that("Cassava".lastIndexOf("a", 2)).isEqualTo(1);
+    assert.that("Cassava".lastIndexOf("a", 0)).isEqualTo(-1);
+    assert.that("Cassava".lastIndexOf("x")).isEqualTo(-1);
+    assert.that("Cassava".lastIndexOf("C", -5)).isEqualTo(0);
+    assert.that("Cassava".lastIndexOf("C", 0)).isEqualTo(0);
+    assert.that("Cassava".lastIndexOf("")).isEqualTo(7);
+    assert.that("Cassava".lastIndexOf("", 2)).isEqualTo(2);
+    assert.that("abab".lastIndexOf("ab", 2)).isEqualTo(2);
+
+    assert.that("abc".padEnd(10)).isEqualTo("abc       ");
+    assert.that("abc".padEnd(10, "foo")).isEqualTo("abcfoofoof");
+    assert.that("abc".padEnd(6, "123456")).isEqualTo("abc123");
+    assert.that("abc".padEnd(1)).isEqualTo("abc");
+
+    assert.that("abc".padStart(10)).isEqualTo("       abc");
+    assert.that("abc".padStart(10, "foo")).isEqualTo("foofoofabc");
+    assert.that("abc".padStart(6,"123465")).isEqualTo("123abc");
+    assert.that("abc".padStart(8, "0")).isEqualTo("00000abc");
+    assert.that("abc".padStart(1)).isEqualTo("abc");
+
+    assert.that("abc".repeat(0)).isEqualTo("");
+    assert.that("abc".repeat(3)).isEqualTo("abcabcabc");
+
+    assert.that("aabbcc".replaceAll("b", ".")).isEqualTo("aa..cc");
+
+    assert.that("hey Jude".search("[A-Z]")).isEqualTo(4);
+    assert.that("hey Jude".search("[.]")).isEqualTo(-1);
+
+    assert.that(question.startsWith("To be")).isTrue();
+    assert.that(question.startsWith("not to be")).isFalse();
+    assert.that(question.startsWith("not to be", 10)).isTrue();
+
+    assert.that("Cassava".substring(0, 1)).isEqualTo("C");
+    assert.that("Cassava".substring(1, 0)).isEqualTo("C");
+    assert.that("Cassava".substring(0, 6)).isEqualTo("Cassav");
+    assert.that("Cassava".substring(4)).isEqualTo("ava");
+    assert.that("Cassava".substring(4, 7)).isEqualTo("ava");
+    assert.that("Cassava".substring(7, 4)).isEqualTo("ava");
+    assert.that("Cassava".substring(0, 7)).isEqualTo("Cassava");
+    assert.that("Cassava".substring(0, 10)).isEqualTo("Cassava");
+    assert.that("Cassava".substring(-5, 2)).isEqualTo("Ca");
+    assert.that("Cassava".substring(-5, -2)).isEqualTo("");
+
+    assert.that("Cassava Editor".toLowerCase()).isEqualTo("cassava editor");
+    assert.that("1.00".toString()).isEqualTo("1.00");
+    assert.that("Cassava Editor".toUpperCase()).isEqualTo("CASSAVA EDITOR");
+
+    assert.that("   foo   ".trim()).isEqualTo("foo");
+    assert.that("   foo   ".trimEnd()).isEqualTo("   foo");
+    assert.that("   foo   ".trimStart()).isEqualTo("foo   ");
+  }
+}
+
+assert = new Assert();
+new StringTest().test(assert);
+assert.showResult();

@@ -371,6 +371,12 @@ String TfmLetter::Tate(String Str)
 //---------------------------------------------------------------------------
 void __fastcall TfmLetter::btnPrintClick(TObject *Sender)
 {
+  if (cbxFont->Text == "") {
+    Application->MessageBox(
+        TEXT("ƒtƒHƒ“ƒg‚ðŽw’è‚µ‚Ä‚­‚¾‚³‚¢B"), CASSAVA_TITLE, 0);
+    return;
+  }
+
   if (dlgPrinter->Execute()) {
     PrintOut();
   }
@@ -529,6 +535,18 @@ void TfmLetter::DataSetDefault()
   NameBottom[0] = 120;      NameBottom[1] = 129;
   NameMiddle[0] = 55;       NameMiddle[1] = 11;
   NameSize[0] = 10;         NameSize[1] = 6;
+
+  if (cbxFont->ItemIndex < 0) {
+    int bizUd = cbxFont->Items->IndexOf(L"@BIZ UDP–¾’© Medium");
+    if (bizUd >= 0) {
+      cbxFont->ItemIndex = bizUd;
+    } else {
+      int msp = cbxFont->Items->IndexOf(L"‚l‚r ‚o–¾’©");
+      if (msp >= 0) {
+        cbxFont->ItemIndex = msp;
+      }
+    }
+  }
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmLetter::btnHelpClick(TObject *Sender)

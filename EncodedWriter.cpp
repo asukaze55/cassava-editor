@@ -2,19 +2,21 @@
 #pragma hdrstop
 #include "EncodedWriter.h"
 //---------------------------------------------------------------------------
-EncodedWriter::EncodedWriter(TStream *s, int code)
-  : Stream(s), Bom(true)
+EncodedWriter::EncodedWriter(TStream *s, int code, bool bom)
+  : Stream(s), Bom(bom)
 {
   SetEncode(code);
 }
 //---------------------------------------------------------------------------
 void EncodedWriter::Write(String data)
 {
-  if(data.Length() > 0){
-    if(Bom){
-      if(Encoding == TEncoding::Unicode){
+  if (data.Length() > 0) {
+    if (Bom) {
+      if (Encoding == TEncoding::UTF8) {
+        Stream->Write("\xef\xbb\xbf", 3);
+      } else if (Encoding == TEncoding::Unicode) {
         Stream->Write("\xff\xfe", 2);
-      }else if(Encoding == TEncoding::BigEndianUnicode){
+      } else if (Encoding == TEncoding::BigEndianUnicode) {
         Stream->Write("\xfe\xff", 2);
       }
       Bom = false;

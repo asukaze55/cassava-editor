@@ -228,7 +228,6 @@
 <tr>
   <td>replace(str1, str2, str3, ignoreCase, regex)</td>
   <td>str1 中の str2 をすべて str3 に置換した文字列を返します。元の str1 は変化しません。ignoreCase と regex は真偽値のフラグで、順に「大文字と小文字を同一視」「正規表現検索」を表します。</td>
-</td>
   <td>2.2.0</td>
 </tr>
 <tr>
@@ -250,6 +249,141 @@
   <td>chrW(x)</td>
   <td>Unicode のコードポイントが x である文字を返します。</td>
   <td>1.7.0</td>
+</tr>
+<tr>
+  <td>str.length</td>
+  <td>文字列 str の長さを返します。全角文字を1文字と数えます。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str[x]</td>
+  <td>文字列 str の x 文字目のみを含む文字列を返します。最初の文字のインデックスは 0 です。全角文字を1文字と数えます。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str1.endsWith(str2)</td>
+  <td>文字列 str1 が str2 で終わるかを返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str1.endsWith(str2, x)</td>
+  <td>文字列 str1 の最初の x 文字が str2 で終わるかを返します。全角文字を1文字と数えます。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str1.includes(str2)</td>
+  <td>文字列 str1 内に str2 が含まれるかを返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str1.includes(str2, x)</td>
+  <td>文字列 str1 の x 文字目以降に str2 が含まれるかを返します。最初の文字のインデックスは 0 です。全角文字を1文字と数えます。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str1.indexOf(str2)</td>
+  <td>文字列 str1 中で str2 が最初に現れる位置を返します。 最初の文字のインデックスは 0 です。 str2 が現れなかった場合、 -1 が返されます。 全角文字を1文字と数えます。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str1.indexOf(str2, x)</td>
+  <td>文字列 str1 の x 文字目以降で str2 が最初に現れる位置を返します。 最初の文字のインデックスは 0 です。 str2 が現れなかった場合、 -1 が返されます。 全角文字を1文字と数えます。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str1.lastIndexOf(str2)</td>
+  <td>文字列 str1 中で str2 が最後に現れる位置を返します。 最初の文字のインデックスは 0 です。 str2 が現れなかった場合、 -1 が返されます。 全角文字を1文字と数えます。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str1.lastIndexOf(str2, x)</td>
+  <td>文字列 str1 の x 文字目までで str2 が最後に現れる位置を返します。 最初の文字のインデックスは 0 です。 str2 が現れなかった場合、 -1 が返されます。 全角文字を1文字と数えます。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str.padEnd(x)</td>
+  <td>文字列 str の長さが x になるように末尾に空白を追加した文字列を返します。全角文字を1文字と数えます。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str1.padEnd(x, str2)</td>
+  <td>文字列 str1 の長さが x になるように末尾に str2 を追加した文字列を返します。全角文字を1文字と数えます。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str.padStart(x)</td>
+  <td>文字列 str の長さが x になるように先頭に空白を追加した文字列を返します。全角文字を1文字と数えます。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str1.padStart(x, str2)</td>
+  <td>文字列 str1 の長さが x になるように先頭に str2 を追加した文字列を返します。全角文字を1文字と数えます。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str.repeat(x)</td>
+  <td>文字列 str を x 回繰り返した文字列を返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str1.replaceAll(str2, str3)</td>
+  <td>文字列 str1 中の str2 をすべて str3 に置換した文字列を返します。元の str1 は変化しません。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str1.search(str2)</td>
+  <td>str2 を正規表現として解釈し、文字列 str1 の中で最初にマッチする位置を返します。最初の文字のインデックスは 0 です。 マッチしなかった場合、 -1 が返されます。 全角文字を1文字と数えます。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str1.startsWith(str2)</td>
+  <td>文字列 str1 が str2 で始まるかを返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str1.startsWith(str2, x)</td>
+  <td>文字列 str1 の x 文字目以降が str2 で始まるかを返します。最初の文字のインデックスは 0 です。全角文字を1文字と数えます。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str.substring(x)</td>
+  <td>文字列 str の x 文字以降を切り出して返します。 最初の文字のインデックスは 0 です。 全角文字を1文字と数えます。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str.substring(x, y)</td>
+  <td>文字列 str の x 文字目から y 文字目までを切り出して返します。 最初の文字のインデックスは 0 です。 全角文字を1文字と数えます。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str.toLowerCase()</td>
+  <td>文字列 str を小文字に変換した文字列を返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str.toUpperCase()</td>
+  <td>文字列 str を大文字に変換した文字列を返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str.trim()</td>
+  <td>文字列 str から前後の空白文字を除いた文字列を返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str.trimEnd()</td>
+  <td>文字列 str から末尾の空白文字を除いた文字列を返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str.trimStart()</td>
+  <td>文字列 str から先頭の空白文字を除いた文字列を返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>x.toString()</td>
+  <td>x の文字列表現を返します。</td>
+  <td>2.3.0</td>
 </tr>
 <tr>
   <td>sum(l, t, r, b)</td>
@@ -285,6 +419,26 @@
   <td>tan(x)</td>
   <td>x のタンジェントを返します。</td>
   <td>1.9.0</td>
+</tr>
+<tr>
+  <td>asin(x)</td>
+  <td>x のアークサインを返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>acos(x)</td>
+  <td>x のアークコサインを返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>atan(x)</td>
+  <td>x のアークタンジェントを返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>atan2(y, x)</td>
+  <td>点 (0, 0) から点 (x, y) までの半直線と、正の x 軸の間の角度を返します。</td>
+  <td>2.3.0</td>
 </tr>
 <tr>
   <td>pow(x, y)</td>
@@ -377,6 +531,16 @@
   <td>2.0.0</td>
 </tr>
 <tr>
+  <td>MoveRow(y1, y2);</td>
+  <td>y1 行目を y2 行に移動します。</td>
+  <td>2.3.2</td>
+</tr>
+<tr>
+  <td>MoveCol(x1, x2);</td>
+  <td>x1 列目を x2 列に移動します。</td>
+  <td>2.3.2</td>
+</tr>
+<tr>
   <td>GetRowHeight(y)</td>
   <td>y 行目の高さを返します。y を省略すると標準の行の高さが返されます。</td>
   <td>-</td>
@@ -437,6 +601,11 @@
   <td>1.6.0</td>
 </tr>
 <tr>
+  <td>GetSettingPath()</td>
+  <td>設定ファイルの保存先フォルダの絶対パスを返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
   <td>GetFontName()</td>
   <td>現在設定されているフォント名を取得します。</td>
   <td>1.6.0</td>
@@ -487,9 +656,29 @@
   <td>1.8.0</td>
 </tr>
 <tr>
+  <td>FileExists(filename)</td>
+  <td>filename という名前のファイルが存在するかどうかを返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>WriteToFile(str, filename);</td>
+  <td>文字列 str をファイル filename に文字コード UTF-8 で書き込みます。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
   <td>Sort(l, t, r, b, x, dir, num, case, zenhan);</td>
   <td>t 行 l 列から b 行 r 列までの範囲を x 列でソートします。第六引数以降は真偽値のフラグで、順に「降順ソート」「数字のセルは数値の大小でソートする」「大文字と小文字を同一視する」「全角と半角を同一視する」を表します。</td>
   <td>1.9.0</td>
+</tr>
+<tr>
+  <td>Select(l, t, r, b);</td>
+  <td>t 行 l 列から b 行 r 列までの範囲を選択します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>Paste(x);</td>
+  <td>オプションを指定して貼り付けます。x は 0 以上 5 以下の整数で、PasteOption0() ～ PasteOption5() に対応します。</td>
+  <td>2.3.0</td>
 </tr>
 <tr>
   <td>ReplaceAll(str1, str2);</td>
@@ -660,6 +849,11 @@
   <td>Cr();</td>
   <td>セーブ時改行コードを「CR」に設定</td>
   <td>-</td>
+</tr>
+<tr>
+  <td>Bom();</td>
+  <td>セーブ時の BOM の有無を切り替え</td>
+  <td>2.3.0</td>
 </tr>
 <tr>
   <td>OpenCellFile();</td>
@@ -987,17 +1181,17 @@
   <td>-</td>
 </tr>
 <tr>
-  <td>SetStatusBarCount(x)</td>
+  <td>SetStatusBarCount(x);</td>
   <td>ステータスバー内の表示領域の個数を設定します。</td>
   <td>1.6.0</td>
 </tr>
 <tr>
-  <td>SetStatusBarText(x, str)</td>
+  <td>SetStatusBarText(x, str);</td>
   <td>x 番目の領域に str を表示します。</td>
   <td>1.6.0</td>
 </tr>
 <tr>
-  <td>SetStatusBarWidth(x, w)</td>
+  <td>SetStatusBarWidth(x, w);</td>
   <td>x 番目の領域の幅を w に設定します。デフォルト値は 50 です。</td>
   <td>1.6.0</td>
 </tr>
@@ -1015,6 +1209,21 @@
   <td>GetStatusBarWidth(x)</td>
   <td>x 番目の領域の幅を取得します。</td>
   <td>1.6.0</td>
+</tr>
+<tr>
+  <td>StartMacroRecording();</td>
+  <td>マクロの記録を開始します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>StopMacroRecording();</td>
+  <td>マクロの記録を終了します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>GetRecordedMacro()</td>
+  <td>記録中のマクロを取得します。StartMacroRecording() の呼び出し前や StopMacroRecording() の呼び出し後は空文字列を返します。</td>
+  <td>2.3.0</td>
 </tr>
 </table>
 
@@ -1068,7 +1277,7 @@
   2003.11.29.<br />
 </address>
 <address>
-  Copyright (C) 2007-2020 asukaze, Some Rights Reserved.<br />
+  Copyright (C) 2007-2021 asukaze, Some Rights Reserved.<br />
   mail (at) asukaze.net<br />
 </address>
 <!-- ==== -->

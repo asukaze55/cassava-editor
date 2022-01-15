@@ -18,7 +18,7 @@ private:
   TEncoding *Encoding;
   bool Bom;
 public:
-  EncodedWriter(TStream *s, int code);
+  EncodedWriter(TStream *s, int code, bool bom);
   void Write(String data);
   void SetEncode(int code);
 };

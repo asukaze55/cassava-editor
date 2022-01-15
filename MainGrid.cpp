@@ -13,6 +13,7 @@
 #include "EncodedWriter.h"
 #include "FileOpenThread.h"
 #include "EncodingDetector.h"
+#include "Compiler.h"
 #include "Macro.h"
 
 #define DataLeft (ShowRowCounter ? 1 : 0)
@@ -29,17 +30,17 @@
 //---------------------------------------------------------------------------
 static inline int min(int a, int b)
 {
-    return (a < b ? a : b);
+  return (a < b ? a : b);
 }
 //---------------------------------------------------------------------------
 static inline int max(int a, int b)
 {
-    return (a > b ? a : b);
+  return (a > b ? a : b);
 }
 //---------------------------------------------------------------------------
-static inline TMainGrid *ValidCtrCheck()
+static inline String boolToStr(bool value)
 {
-    return new TMainGrid(NULL);
+  return (value ? "true" : "false");
 }
 //---------------------------------------------------------------------------
 __fastcall TMainGrid::TMainGrid(TComponent* Owner)  //デフォルトの設定
@@ -60,7 +61,6 @@ __fastcall TMainGrid::TMainGrid(TComponent* Owner)  //デフォルトの設定
   DefWay = 2;
   FShowRowCounter = true;
   FShowColCounter = true;
-  UndoSetLock = 0;
   TextAlignment = cssv_taLeft;
   WheelMoveCursol = 0;
   SameCellClicking = false;
@@ -74,10 +74,11 @@ __fastcall TMainGrid::TMainGrid(TComponent* Owner)  //デフォルトの設定
   FileOpenThread = NULL;
   DefaultDrawing = false;
   LastMatch = new TStringList();
+  FUndoList = new TUndoList();
 }
 //---------------------------------------------------------------------------
 __fastcall TMainGrid::~TMainGrid(){
-  ClearUndo();
+  UndoList->Clear();
   if (CalculatedCellCache) { delete CalculatedCellCache; }
   if (FormattedCellCache) { delete FormattedCellCache; }
   if (UsingCellMacro) { delete UsingCellMacro; }
@@ -401,7 +402,6 @@ String TMainGrid::GetCellToDraw(int RX, int RY, int *CellType, bool *IsNum)
     str = RXtoAX(RX);
   }
 
-#ifdef CssvMacro
   if (ExecCellMacro && str.Length() > 0 && str[1] == '=') {
     String cstr = GetCalculatedCell(ax, ay);
     switch(cstr[1]){
@@ -420,7 +420,6 @@ String TMainGrid::GetCellToDraw(int RX, int RY, int *CellType, bool *IsNum)
     String fstr = GetFormattedCell(ax, ay);
     if (fstr != "") { str = fstr; }
   }
-#endif
 
   bool isNum = (TextAlignment == cssv_taNumRight
                    || DecimalDigits >= 0
@@ -472,8 +471,15 @@ void TMainGrid::SetACells(int ACol, int ARow, String Val){
   int ry = ARow+DataTop-1;
   if(ColCount <= rx) { ChangeColCount(rx + 1); }
   if(RowCount <= ry) { ChangeRowCount(ry + 1); }
-  Cells[rx][ry] = Val;
+  SetCell(rx, ry, Val);
   UpdateDataRightBottom(rx, ry);
+}
+//---------------------------------------------------------------------------
+void TMainGrid::SetCell(int X, int Y, String Value)
+{
+  UndoList->ChangeCell(RXtoAX(X), RYtoAY(Y), Cells[X][Y], Value,
+                       RXtoAX(DataRight), RYtoAY(DataBottom));
+  Cells[X][Y] = Value;
 }
 //---------------------------------------------------------------------------
 void TMainGrid::SetModified(bool Value)
@@ -499,7 +505,7 @@ void TMainGrid::Clear(int AColCount, int ARowCount, bool UpdateRightBottom)
   if(FixedRows >= ARowCount){ ARowCount = FixedRows + 1; }
   ChangeColCount(AColCount + 1);
   ChangeRowCount(ARowCount + 1);
-  ClearUndo();
+  UndoList->Clear();
   Modified = false;
   TypeIndex = 0;
   TypeOption = TypeList.DefItem();
@@ -801,7 +807,7 @@ void TMainGrid::UpdateDataBottom()
   FDataBottom = DataTop;
 }
 //---------------------------------------------------------------------------
-void TMainGrid::UpdateDataRightBottom(int modx, int mody, bool updateTableSize)
+void TMainGrid::UpdateDataRightBottom(int modx, int mody)
 {
   int oldRight = DataRight;
   int oldBottom = DataBottom;
@@ -812,11 +818,11 @@ void TMainGrid::UpdateDataRightBottom(int modx, int mody, bool updateTableSize)
     int cc = FDataRight + 2;
     if(cc <= modx){ cc = modx + 1; }
     if(cc <= Col){ cc = Col + 1; }
-    if(updateTableSize){ ChangeColCount(cc); }
+    ChangeColCount(cc);
     int rc = FDataBottom+2;
     if(rc <= mody){ rc = mody + 1; }
     if(rc <= Row){ rc = Row + 1; }
-    if(updateTableSize){ ChangeRowCount(rc); }
+    ChangeRowCount(rc);
   }else if(Cells[modx][mody] == ""){
     if(modx == oldRight){ UpdateDataRight(); }
     if(mody == oldBottom){ UpdateDataBottom(); }
@@ -826,14 +832,14 @@ void TMainGrid::UpdateDataRightBottom(int modx, int mody, bool updateTableSize)
       int cc = FDataRight + 2;
       if(cc <= modx){ cc = modx + 1; }
       if(cc <= Col){ cc = Col + 1; }
-      if(updateTableSize){ ChangeColCount(cc); }
+      ChangeColCount(cc);
     }
     if(mody > oldBottom){
       UpdateDataBottom();
       int rc = FDataBottom+2;
       if(rc <= mody){ rc = mody + 1; }
       if(rc <= Row){ rc = Row + 1; }
-      if(updateTableSize){ ChangeRowCount(rc); }
+      ChangeRowCount(rc);
     }
   }
 
@@ -1059,55 +1065,71 @@ void TMainGrid::PasteCSV(TStrings *List, int Left, int Top, int Way,
   //  3: 右挿入
   //  4: 下挿入
   //  5: テキストとしてセル内に
-  if (Way == 2) {
-    if (RowCount <= List->Count + Top) {
-      ChangeRowCount(List->Count + Top + 1);
-    }
-  } else if (Way == 3) {
-    if (RowCount <= ClipRows + Top) {
-      ChangeRowCount(ClipRows + Top + 1);
-    }
-    InsertCells_Right(Left, Left + ClipCols - 1, Top, Top + ClipRows - 1);
-  } else if (Way == 4) {
-    if (ColCount <= ClipCols + Left) {
-      ChangeColCount(ClipCols + Left + 1);
-    }
-    InsertCells_Down(Left, Left + ClipCols - 1, Top, Top + ClipRows - 1);
-  } else if (Way == 5) {
+  if (Way == 5) {
     ShowEditor();
     InplaceEditor->PasteFromClipboard();
     InplaceEditor->Text = TrimRight(InplaceEditor->Text);
     return;
   }
-  TStringList *OneRow = new TStringList;
-  int iEnd = List->Count;
+
+  int selBottom = Selection.Bottom;
+  int selRight = Selection.Right;
+  int iEnd = ClipRows;
   if (Way == 0) {
-    iEnd = min((int)Selection.Bottom - Top + 1, iEnd);
+    int bottom = min(selBottom, Top + ClipRows - 1);
+    if (DataBottom < bottom) {
+      InsertRow(DataBottom + 1, bottom);
+    }
+    int right = min(selRight, Left + ClipCols - 1);
+    if (DataRight < right) {
+      InsertColumn(DataRight + 1, right);
+    }
+    iEnd = bottom - Top + 1;
   } else if (Way == 1) {
-    iEnd = Selection.Bottom - Top + 1;
+    if (DataBottom < selBottom) {
+      InsertRow(DataBottom + 1, selBottom);
+    }
+    if (DataRight < selRight) {
+      InsertColumn(DataRight + 1, selRight);
+    }
+    iEnd = selBottom - Top + 1;
+  } else if (Way == 2) {
+    if (DataBottom < Top + ClipRows - 1) {
+      InsertRow(DataBottom + 1, Top + ClipRows - 1);
+    }
+    if (DataRight < Left + ClipCols - 1) {
+      InsertColumn(DataRight + 1, Left + ClipCols - 1);
+    }
+  } else if (Way == 3) {
+    if (DataBottom < Top + ClipRows - 1) {
+      InsertRow(DataBottom + 1, ClipRows + Top - 1);
+    }
+    InsertCells_Right(Left, Left + ClipCols - 1, Top, Top + ClipRows - 1);
+  } else if (Way == 4) {
+    if (DataRight < Left + ClipCols - 1) {
+      InsertColumn(DataRight + 1, Left + ClipCols - 1);
+    }
+    InsertCells_Down(Left, Left + ClipCols - 1, Top, Top + ClipRows - 1);
   }
+  TStringList *OneRow = new TStringList;
   for (int i = 0; i < iEnd; i++) {
     int ii = (Way == 1 && ClipRows > 0) ? i % ClipRows : i;
     SetCsv(OneRow, List->Strings[ii]);
-    if (Way > 1 && OneRow->Count + Left >= ColCount) {
-      ChangeColCount(OneRow->Count + Left + 1);
-    }
     int jEnd = OneRow->Count;
     if (Way == 0) {
-      jEnd = min((int)Selection.Right - Left + 1, jEnd);
+      jEnd = min(selRight - Left + 1, jEnd);
     } else if (Way == 1) {
-      jEnd = Selection.Right - Left + 1;
+      jEnd = selRight - Left + 1;
     }
     for (int j = 0; j < jEnd; j++) {
       int jj = (Way == 1 && ClipCols > 0) ? j % ClipCols : j;
       if (jj < OneRow->Count) {
-        Cells[j + Left][i + Top] = OneRow->Strings[jj];
+        SetCell(j + Left, i + Top, OneRow->Strings[jj]);
       }
     }
   }
   delete OneRow;
   Modified = true;
-  UpdateDataRightBottom(0,0);
 }
 //---------------------------------------------------------------------------
 bool TMainGrid::SetCsv(TStringList *Dest, String Src)
@@ -1168,7 +1190,7 @@ void TMainGrid::SaveToFile(String FileName, TTypeOption *Format,
                           bool SetModifiedFalse)
 {
   TFileStream *fs = new TFileStream(FileName, fmCreate | fmShareDenyWrite);
-  EncodedWriter *ew = new EncodedWriter(fs, KanjiCode);
+  EncodedWriter *ew = new EncodedWriter(fs, KanjiCode, AddBom);
 
   WriteGrid(ew, Format);
 
@@ -1272,12 +1294,18 @@ void TMainGrid::QuotedDataToStrings(TStrings *Lines, String Text, TTypeOption *F
 //---------------------------------------------------------------------------
 static void SetClipboard(String text) {
   TClipboard *clip = new TClipboard;
-  try {
-    clip->AsText = text;
-  } catch(...) {
-    clip->Close();
-    delete clip;
-    throw;
+  for (int i = 0;; i++) {
+    try {
+      clip->AsText = text;
+      break;
+    } catch (...) {
+      if (i >= 10) {
+        clip->Close();
+        delete clip;
+        throw;
+      }
+      Sleep(200);
+    }
   }
   clip->Close();
   delete clip;
@@ -1285,42 +1313,50 @@ static void SetClipboard(String text) {
 //---------------------------------------------------------------------------
 void TMainGrid::CopyToClipboard(bool Cut)
 {
-  if(Cut) SetUndoCsv();
-  if(! EditorMode)
-  {
-    int SLeft = SelLeft;
-    int STop = SelTop;
-    int SRight = Selection.Right;
-    int SBottom = Selection.Bottom;
-
-    TStringList *Data = new TStringList;
-    TStringList *OneLine = new TStringList;
-    for(int i = STop; i <= SBottom; i++)
-    {
-      OneLine->Clear();
-      for(int j = SLeft; j <= SRight; j++)
-      {
-		OneLine->Add(GetACells(RXtoAX(j), RYtoAY(i)));
-		  if(Cut == true) Cells[j][i] = "";
-      }
-      String ALine = StringsToCSV(OneLine, TypeOption);
-      // if(*(AnsiLastChar(ALine)) == ',') ALine += "\"\"";
-      Data->Add(ALine);
-	}
-	delete OneLine;
-	String Txt = Data->Text;
-    Txt.SetLength(Txt.Length()-2);
-    SetClipboard(Txt);
-    delete Data;
-  }
-  else
-  {
-    if(Cut == false)
-      InplaceEditor->CopyToClipboard();
-    else
+  if(EditorMode) {
+    if (Cut) {
       InplaceEditor->CutToClipboard();
+      Modified = true;
+    } else {
+      InplaceEditor->CopyToClipboard();
+    }
+    return;
   }
-  if(Cut) Modified = true;
+
+  UndoList->Push();
+
+  int SLeft = SelLeft;
+  int STop = SelTop;
+  int SRight = Selection.Right;
+  int SBottom = Selection.Bottom;
+
+  TStringList *Data = new TStringList;
+  TStringList *OneLine = new TStringList;
+  for (int i = STop; i <= SBottom; i++) {
+    OneLine->Clear();
+    for (int j = SLeft; j <= SRight; j++) {
+      OneLine->Add(GetACells(RXtoAX(j), RYtoAY(i)));
+      if (Cut) {
+        SetCell(j, i, "");
+      }
+    }
+    String ALine = StringsToCSV(OneLine, TypeOption);
+    Data->Add(ALine);
+  }
+  delete OneLine;
+  String Txt = Data->Text;
+  Txt.SetLength(Txt.Length()-2);
+  SetClipboard(Txt);
+  delete Data;
+
+  String select = (String)"Select(" + RXtoAX(SLeft) + ", " + RYtoAY(STop) +
+      ", " + RXtoAX(SRight) + ", " + RYtoAY(SBottom) + ");\n";
+  if(Cut) {
+    UndoList->PopWithRecordedMacro(select + "Cut();");
+    Modified = true;
+  } else {
+    UndoList->PopWithRecordedMacro(select + "Copy();");
+  }
 }
 //---------------------------------------------------------------------------
 void TMainGrid::CutToClipboard()
@@ -1357,7 +1393,6 @@ void TMainGrid::PasteFromClipboard(int Way)
   QuotedDataToStrings(Data, clipboardText, TypeOption);
   if(! EditorMode || Data->Count > 1)
   {
-    SetUndoCsv();
     int STop = SelTop;
     int SLeft = SelLeft;
     int SBottom = Selection.Bottom;
@@ -1394,6 +1429,8 @@ void TMainGrid::PasteFromClipboard(int Way)
         Way = PASTE_OPTION_OVERWRITE;
       }
     }
+
+    UndoList->Push();
     if (Way == PASTE_OPTION_INSERT_ROW) {
       InsertRow(STop, STop + ClipRowCount - 1);
       Way = PASTE_OPTION_OVERWRITE;
@@ -1401,7 +1438,12 @@ void TMainGrid::PasteFromClipboard(int Way)
       InsertColumn(SLeft, SLeft + ClipColCount - 1);
       Way = PASTE_OPTION_OVERWRITE;
     }
+    UndoList->Push();
     PasteCSV(Data, SLeft, STop, Way, ClipColCount, ClipRowCount);
+    UndoList->PopWithRecordedMacro((String)"Select(" + RXtoAX(SLeft) + ", " +
+        RYtoAY(STop) + ", " + RXtoAX(SRight) + ", " + RYtoAY(SBottom) +
+        ");\nPaste(" + Way + ");");
+    UndoList->Pop();
 
     if(Way <= 1){
       SetSelection(SLeft, SLeft + SelectColCount - 1,
@@ -1462,6 +1504,7 @@ int __fastcall CompareOrderedString(void *a, void *b) {
 void TMainGrid::Sort(int SLeft, int STop, int SRight, int SBottom, int SCol,
   bool Shoujun, bool NumSort, bool IgnoreCase, bool IgnoreZenhan)
 {
+  UndoList->Push();
   TList *StrList = new TList;
   TList *NumList = new TList;
 
@@ -1513,13 +1556,17 @@ void TMainGrid::Sort(int SLeft, int STop, int SRight, int SBottom, int SCol,
       delete sd;
     }
     for (int x = SLeft; x <= SRight; x++){
-      Cells[x][y] = list->Strings[x - SLeft];
+      SetCell(x, y, list->Strings[x - SLeft]);
     }
     delete list;
   }
 
   delete StrList;
   delete NumList;
+  UndoList->Pop((String)"Sort(" + RXtoAX(SLeft) + ", " + RYtoAY(STop) + ", "
+      + RXtoAX(SRight) + ", " + RYtoAY(SBottom) + ", " + RXtoAX(SCol) + ", "
+      + boolToStr(!Shoujun) + ", " + boolToStr(NumSort) + ", "
+      + boolToStr(IgnoreCase) + ", " + boolToStr(IgnoreZenhan) + ");");
   Modified = true;
 }
 //---------------------------------------------------------------------------
@@ -1695,11 +1742,15 @@ int Zenkaku2Hankaku(wchar_t wc, wchar_t *ans)
 //---------------------------------------------------------------------------
 void TMainGrid::TransChar(int Type)
 {
+  UndoList->Push();
   for(int i=SelLeft; i <= Selection.Right; i++){
     for(int j=SelTop; j <= Selection.Bottom; j++){
-      Cells[i][j] = TransChar(Cells[i][j], Type);
+      SetCell(i, j, TransChar(Cells[i][j], Type));
     }
   }
+  UndoList->Pop((String)"Select(" + RXtoAX(SelLeft) + ", " + RYtoAY(SelTop)
+      + ", " + RXtoAX(Selection.Right) + ", " + RYtoAY(Selection.Bottom)
+      + ");\nTransChar" + Type + "();");
   Modified = true;
 }
 //---------------------------------------------------------------------------
@@ -1741,11 +1792,15 @@ String TMainGrid::TransChar(String Str, int Type)
 //---------------------------------------------------------------------------
 void TMainGrid::TransKana(int Type)
 {
+  UndoList->Push();
   for(int i=SelLeft; i <= Selection.Right; i++){
     for(int j=SelTop; j <= Selection.Bottom; j++){
-      Cells[i][j] = TransKana(Cells[i][j], Type);
+      SetCell(i, j, TransKana(Cells[i][j], Type));
     }
   }
+  UndoList->Pop((String)"Select(" + RXtoAX(SelLeft) + ", " + RYtoAY(SelTop)
+      + ", " + RXtoAX(Selection.Right) + ", " + RYtoAY(Selection.Bottom)
+      + ");\nTransChar" + Type + "();");
   Modified = true;
 }
 //---------------------------------------------------------------------------
@@ -1785,11 +1840,24 @@ String TMainGrid::TransKana(String Str, int Type)
 //---------------------------------------------------------------------------
 void TMainGrid::Sequence(bool Inc)
 {
-  for(int x=SelLeft; x<=Selection.Right; x++){
+  int selLeft = Selection.Left;
+  int selRight = Selection.Right;
+  int selTop = Selection.Top;
+  int selBottom = Selection.Bottom;
+
+  UndoList->Push();
+  if (selBottom > DataBottom) {
+    UndoList->AddMacro(
+        (String)"DeleteRow(" + (DataBottom + 1) + ", " + selBottom + ");", "");
+    SetDataRightBottom(DataRight, selBottom, true);
+    SetSelection(selLeft, selRight, selTop, selBottom);
+  }
+
+  for (int x = selLeft; x <= selRight; x++) {
     int IncType = 0;
     double Increment = 1.0;
     double TopValue = 0.0;
-    String TopStr = Cells[x][SelTop];
+    String TopStr = Cells[x][selTop];
 
     if(Inc && TopStr != ""){
       char LastChar = *(TopStr.LastChar());
@@ -1800,18 +1868,20 @@ void TMainGrid::Sequence(bool Inc)
       }else if(IsNumber(TopStr)){
         IncType = 1;
         TopValue = TopStr.ToDouble();
-        String Snd = Cells[x][SelTop+1];
+        String Snd = Cells[x][selTop + 1];
         if(IsNumber(Snd)) Increment = Snd.ToDouble() - TopValue;
       }else if(LastChar>='0' && LastChar<='9'){
         IncType = 2;
       }
     }
-    for(int y=SelTop+1; y<=Selection.Bottom; y++){
+    for (int y = selTop + 1; y <= selBottom; y++) {
+      String value;
       switch(IncType){
         case 0:
-          Cells[x][y] = TopStr; break;
+          value = TopStr;
+          break;
         case 1:
-          Cells[x][y] = (String)(TopValue + Increment*(y-SelTop));
+          value = (String)(TopValue + Increment * (y - selTop));
           break;
         case 2:{
           int p = TopStr.Length();
@@ -1819,11 +1889,16 @@ void TMainGrid::Sequence(bool Inc)
           if(p==0) TopStr = (String)"1" + TopStr;
           else if(TopStr[p]>='0' && TopStr[p]<'9') TopStr[p]++;
           else TopStr.Insert("1",p+1);
-          Cells[x][y] = TopStr;
+          value = TopStr;
         } break;
       }
+      SetCell(x, y, value);
     }
   }
+
+  UndoList->Pop((String)"Select(" + RXtoAX(selLeft) + ", " + RYtoAY(selTop)
+      + ", " + RXtoAX(selRight) + ", " + RYtoAY(selBottom) + ");\nSequence"
+      + (Inc ? "S" : "C") + "();");
   Modified = true;
 }
 //---------------------------------------------------------------------------
@@ -1863,68 +1938,106 @@ void TMainGrid::ChangeColCount(int Count)
 //---------------------------------------------------------------------------
 void TMainGrid::InsertRow(int Top, int Bottom)
 {
-  SetUndoCsv();
-  UndoSetLock++;
-  if (RowCount < Top) { RowCount = Top; }
-  for(int y = Top; y <= Bottom; y++){
-    Rows[RowCount++]->Clear();
-    TStringGrid::MoveRow(RowCount-1, y);
+  if (Top == Bottom) {
+    int t = RYtoAY(Top);
+    UndoList->AddMacro((String)"DeleteRow(" + t + ");",
+                       (String)"InsertRow(" + t + ");");
+  } else {
+    int t = RYtoAY(Top);
+    int b = RYtoAY(Bottom);
+    UndoList->AddMacro((String)"DeleteRow(" + t + ", " + b + ");",
+                       (String)"InsertRow(" + t + ", " + b + ");");
   }
-  UndoSetLock--;
+  UndoList->Lock();
+  int addingRows = Bottom - Top + 1;
+  FDataBottom = max(FDataBottom + addingRows, Bottom);
+  int updatedRowCount = max(FDataBottom + 2, Row + addingRows+ 1);
+  if (RowCount < updatedRowCount) {
+    ChangeRowCount(updatedRowCount);
+  }
+  for(int y = Top; y <= Bottom; y++){
+    TStringGrid::MoveRow(RowCount - 1, y);
+  }
+  UndoList->Unlock();
   Modified = true;
-  UpdateDataRightBottom(0,0, false);
 }
 //---------------------------------------------------------------------------
 void TMainGrid::InsertColumn(int Left, int Right)
 {
-  SetUndoCsv();
-  UndoSetLock++;
-  if (ColCount < Left) { ColCount = Left; }
-  for(int x = Left; x <= Right; x++){
-    Cols[ColCount++]->Clear();
-    TStringGrid::MoveColumn(ColCount-1, x);
+  if (Left == Right) {
+    int l = RXtoAX(Left);
+    UndoList->AddMacro((String)"DeleteCol(" + l + ");",
+                       (String)"InsertCol(" + l + ");");
+  } else {
+    int l = RXtoAX(Left);
+    int r = RXtoAX(Right);
+    UndoList->AddMacro((String)"DeleteCol(" + l + ", " + r + ");",
+                       (String)"InsertCol(" + l + ", " + r + ");");
   }
-  UndoSetLock--;
+  UndoList->Lock();
+  int addingCols = Right - Left + 1;
+  FDataRight = max(FDataRight + addingCols, Right);
+  int updatdColCount = max(FDataRight + 2, Col + addingCols + 1);
+  if (ColCount < updatdColCount) {
+    ChangeColCount(updatdColCount);
+  }
+  for(int x = Left; x <= Right; x++){
+    TStringGrid::MoveColumn(ColCount - 1, x);
+  }
+  UndoList->Unlock();
   Modified = true;
-  UpdateDataRightBottom(0,0, false);
 }
 //---------------------------------------------------------------------------
 void TMainGrid::DeleteRow(int Top, int Bottom)
 {
-  if(Top == Bottom){ DeleteRow(Top); return; }
-  SetUndoCsv();
-  UndoSetLock++;
-  if(RangeSelect){ Col = FixedCols; }
-  if(RowCount <= FixedRows+1){
+  if (Top == Bottom) {
+    DeleteRow(Top);
     return;
-  }else if(Row >= Top && Row <= Bottom){
-    Row = Top;
-  }else if(Row > Bottom){
-    Row = Row - (Bottom - Top + 1);
   }
-  DeleteCells_Up(0, ColCount-1, Top, Bottom, true);
-  UndoSetLock--;
+  if (RowCount <= FixedRows + 1) {
+    return;
+  }
+  UndoList->Push();
+  if (RangeSelect) {
+    Col = FixedCols;
+  }
+  int delta = Bottom - Top + 1;
+  if (Row >= Top && Row <= Bottom) {
+    Row = Top;
+  } else if (Row > Bottom) {
+    Row = Row - delta;
+  }
+  DeleteCells_Up(0, ColCount - 1, Top, Bottom, true);
+  SetDataRightBottom(DataRight, DataBottom - delta, true);
+  UndoList->Pop(
+      (String)"DeleteRow(" + RYtoAY(Top) + ", " + RYtoAY(Bottom) + ");");
   Modified = true;
-  UpdateDataRightBottom(0,0);
 }
 //---------------------------------------------------------------------------
 void TMainGrid::DeleteColumn(int Left, int Right)
 {
-  if(Left == Right){ DeleteColumn(Left); return; }
-  SetUndoCsv();
-  UndoSetLock++;
-  if(RangeSelect){ Row = FixedRows; }
-  if(ColCount <= FixedCols+1){
+  if (Left == Right) {
+    DeleteColumn(Left);
     return;
-  }else if(Col >= Left && Col <= Right){
-    Col = Left;
-  }else if(Col > Right){
-    Col = Col - (Right - Left + 1);
   }
-  DeleteCells_Left(Left, Right, 0, RowCount-1, true);
-  UndoSetLock--;
+  if (ColCount <= FixedCols + 1) {
+    return;
+  }
+  UndoList->Push();
+  if (RangeSelect) {
+    Row = FixedRows;
+  }
+  int delta = Right - Left + 1;
+  if (Col >= Left && Col <= Right) {
+    Col = Left;
+  } else if (Col > Right) {
+    Col = Col - delta;
+  }
+  DeleteCells_Left(Left, Right, 0, RowCount - 1, true);
+  SetDataRightBottom(DataRight - delta, DataBottom, true);
+  UndoList->Pop(
+      (String)"DeleteCol(" + RXtoAX(Left) + ", " + RXtoAX(Right) + ");");
   Modified = true;
-  UpdateDataRightBottom(0,0);
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainGrid::InsertRow(int Index)
@@ -1939,38 +2052,60 @@ void __fastcall TMainGrid::InsertColumn(int Index)
 //---------------------------------------------------------------------------
 void __fastcall TMainGrid::DeleteRow(int ARow)
 {
-  if (ARow >= RowCount) { return; }
-  SetUndoCsv();
-  if(RangeSelect){ Col = FixedCols; }
-  if(RowCount <= FixedRows+1){
+  if (ARow >= RowCount || RowCount <= FixedRows + 1) {
     return;
-  }else if(Row == ARow){
-    if(ARow == RowCount-1){
+  }
+  UndoList->Push();
+  if (RangeSelect) {
+    Col = FixedCols;
+  }
+  if (Row == ARow) {
+    if(ARow == RowCount - 1){
       Rows[RowCount++]->Clear();
     }
     Row = ARow + 1;
   }
+  for (int x = DataLeft; x <= DataRight; x++) {
+    UndoList->ChangeCell(RXtoAX(x), RYtoAY(ARow), Cells[x][ARow], "",
+                         RXtoAX(DataRight), RYtoAY(DataBottom));
+  }
+  UndoList->AddMacro((String)"InsertRow(" + RYtoAY(ARow) + ");",
+                     (String)"DeleteRow(" + RYtoAY(ARow) + ");");
+  UndoList->Lock();
   TStringGrid::DeleteRow(ARow);
+  SetDataRightBottom(DataRight, DataBottom - 1, true);
+  UndoList->Unlock();
+  UndoList->Pop((String)"DeleteRow(" + RYtoAY(ARow) + ");");
   Modified = true;
-  UpdateDataRightBottom(0,0);
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainGrid::DeleteColumn(int ACol)
 {
-  if (ACol >= ColCount) { return; }
-  SetUndoCsv();
-  if(RangeSelect){ Row = FixedRows; }
-  if(ColCount <= FixedCols+1){
+  if (ACol >= ColCount || ColCount <= FixedCols + 1) {
     return;
-  }else if(Col == ACol){
+  }
+  UndoList->Push();
+  if (RangeSelect) {
+    Row = FixedRows;
+  }
+  if (Col == ACol) {
     if(ACol == ColCount-1){
       Cols[ColCount++]->Clear();
     }
     Col = ACol + 1;
   }
+  for (int y = DataTop; y <= DataBottom; y++) {
+    UndoList->ChangeCell(RXtoAX(ACol), RYtoAY(y), Cells[ACol][y], "",
+                         RXtoAX(DataRight), RYtoAY(DataBottom));
+  }
+  UndoList->AddMacro((String)"InsertCol(" + RXtoAX(ACol) + ");",
+                     (String)"DeleteCol(" + RXtoAX(ACol) + ");");
+  UndoList->Lock();
   TStringGrid::DeleteColumn(ACol);
+  SetDataRightBottom(DataRight - 1, DataBottom, true);
+  UndoList->Unlock();
+  UndoList->Pop((String)"DeleteCol(" + RXtoAX(ACol) + ");");
   Modified = true;
-  UpdateDataRightBottom(0,0);
 }
 //---------------------------------------------------------------------------
 void TMainGrid::InsertEnter()
@@ -1978,32 +2113,41 @@ void TMainGrid::InsertEnter()
   long X = SelLeft, Y = Selection.Top, L = DataLeft;
   int SelLen = Selection.Right - SelLeft;
 
-  SetUndoCsv();
-  InsertRow(Y+1);
-  bool OneCell = EditorMode;
-  if(OneCell){
+  bool OneCell = EditorMode && InplaceEditor->SelStart > 0;
+  if (X == 1 && !OneCell) {
+    InsertRow(Y);
+    return;
+  }
+  UndoList->Push();
+  InsertRow(Y + 1);
+  if (OneCell) {
     SelLen = InplaceEditor->SelLength;
-    Cells[L][Y+1] = InplaceEditor->Text.SubString
-		     (InplaceEditor->SelStart+1,InplaceEditor->Text.Length());
-    Cells[X][Y] = InplaceEditor->Text.SubString(1,InplaceEditor->SelStart);
-  }else{
-    Cells[L][Y+1] = Cells[X][Y];
-    Cells[X][Y] = "";
+    SetCell(L, Y + 1, InplaceEditor->Text.SubString(
+        InplaceEditor->SelStart + 1, InplaceEditor->Text.Length()));
+    SetCell(X, Y, InplaceEditor->Text.SubString(1, InplaceEditor->SelStart));
+  } else {
+    SetCell(L, Y + 1, Cells[X][Y]);
+    SetCell(X, Y, "");
   }
 
-  for(int i=1; i+X < ColCount; i++)
-  {
-    Cells[i+L][Y+1] = Cells[i+X][Y];
-    Cells[i+X][Y] = "";
+  for (int i = 1; i + X < ColCount; i++) {
+    SetCell(i + L, Y + 1, Cells[i + X][Y]);
+    SetCell(i + X, Y, "");
   }
-  if(OneCell){
-    Row=Y+1; Col=FixedCols;
-    if(SelLen>=0 && Col==DataLeft) InplaceEditor->SelLength = SelLen;
-  }else{
-    SetSelection(L, L+SelLen, Y+1, Y+1);
+  if (OneCell) {
+    Row = Y + 1;
+    Col = FixedCols;
+    if (SelLen >= 0 && Col == DataLeft) { InplaceEditor->SelLength = SelLen; }
+  } else {
+    SetSelection(L, L + SelLen, Y + 1, Y + 1);
+  }
+  if (OneCell || X > DataRight) {
+    UndoList->Pop();
+  } else {
+    UndoList->Pop((String)"Select(" + RXtoAX(X) + ", " + RYtoAY(Y) + ", "
+        + RXtoAX(X + SelLen) + ", " + RYtoAY(Y) + ");\nEnter();");
   }
   Modified = true;
-  UpdateDataRightBottom(0,0);
 }
 //---------------------------------------------------------------------------
 void TMainGrid::InsertNewLine()
@@ -2021,65 +2165,65 @@ void TMainGrid::InsertNewLine()
 //---------------------------------------------------------------------------
 void TMainGrid::ConnectCell()
 {
-  SetUndoCsv();
+  UndoList->Push();
+  int L = Selection.Left;
+  int T = Selection.Top;
+  int R = Selection.Right;
+  int B = Selection.Bottom;
   if(RangeSelect){
     String str = "";
-    for(int j=Selection.Top; j <= Selection.Bottom; j++){
-      for(int i=Selection.Left; i <= Selection.Right; i++){
+    for(int j = T; j <= B; j++){
+      for(int i = L; i <= R; i++){
         str += Cells[i][j];
-        Cells[i][j] = "";
+        SetCell(i, j, "");
       }
     }
-    Cells[Selection.Left][Selection.Top] = str;
+    Cells[L][T] = str;
   }else{
-    int C = SelLeft;
+    int C = Col;
     if(Row > DataBottom){ // ダミーセルは処理しない
       Row = DataBottom;
       Col = DataRight;
     }else if(Col > DataRight){
       Col = DataRight;
     }else if(C > FixedCols){ //カンマの削除
-      Cells[C-1][Row] = Cells[C-1][Row] + Cells[C][Row];
-      for(int i=C; i<ColCount-1; i++)
-        Cells[i][Row] = Cells[i+1][Row];
-      Cells[ColCount-1][Row] = "";
+      String str = Cells[C - 1][Row] + Cells[C][Row];
+      DeleteCells_Left(C, C, Row, Row, false);
+      SetCell(C - 1, Row, str);
       Col--;
     }else if(Row > FixedRows && Row <= DataBottom){ //リターンの削除
       int i, UpColCount, ThisColCount;
-      for(i=ColCount-1; i>=DataLeft && Cells[i][Row-1]==""; i--){} UpColCount = i+1;
-      for(i=ColCount-1; i>=DataLeft && Cells[i][Row]  ==""; i--){} ThisColCount = i+1;
-      if(UpColCount + ThisColCount  >= ColCount)  //列数が足りなければ増やす
-        ChangeColCount(UpColCount + ThisColCount + 1);
-      for(i=DataLeft; i<=ThisColCount; i++)
-        Cells[i+UpColCount-DataLeft][Row-1] = Cells[i][Row];
-      Row--; Col = (UpColCount>=FixedCols) ? UpColCount : FixedCols;
-      DeleteRow(Row+1);
+      for (i = ColCount - 1; i >= DataLeft && Cells[i][Row - 1] == ""; i--) {}
+      UpColCount = i - DataLeft + 1;
+      for (i = ColCount - 1; i >= DataLeft && Cells[i][Row] == ""; i--) {}
+      ThisColCount = i - DataLeft + 1;
+      //列数が足りなければ増やす
+      if (AXtoRX(UpColCount + ThisColCount) > DataRight) {
+        InsertColumn(DataRight + 1, AXtoRX(UpColCount + ThisColCount));
+      }
+      for (i = DataLeft; i <= AXtoRX(ThisColCount); i++) {
+        SetCell(i + UpColCount, Row - 1, Cells[i][Row]);
+      }
+      Row--;
+      Col = (UpColCount >= FixedCols) ? UpColCount + 1 : FixedCols;
+      DeleteRow(Row + 1);
     }
   }
+  UndoList->Pop((String)"Select(" + RXtoAX(L) + ", " + RYtoAY(T) + ", "
+      + RXtoAX(R) + ", " + RYtoAY(B) + ");\n" + "ConnectCell();");
   Modified = true;
-  UpdateDataRightBottom(0,0);
 }
 //---------------------------------------------------------------------------
 void TMainGrid::InsertCell_Right()
 {
-  SetUndoCsv();
-  if(RangeSelect)
-    InsertCells_Right(SelLeft, Selection.Right, SelTop, Selection.Bottom);
-  else
-    InsertCells_Right(Col,Col,Row,Row);
+  InsertCells_Right(SelLeft, Selection.Right, SelTop, Selection.Bottom);
   Modified = true;
-  UpdateDataRightBottom(0,0);
 }
 //---------------------------------------------------------------------------
 void TMainGrid::InsertCell_Down()
 {
-  SetUndoCsv();
-  if(RangeSelect)
-    InsertCells_Down(SelLeft, Selection.Right, SelTop, Selection.Bottom);
-  else
-    InsertCells_Down(Col,Col,Row,Row);
+  InsertCells_Down(SelLeft, Selection.Right, SelTop, Selection.Bottom);
   Modified = true;
-  UpdateDataRightBottom(0,0);
 }
 //---------------------------------------------------------------------------
 void TMainGrid::DeleteCell_Left()
@@ -2087,7 +2231,6 @@ void TMainGrid::DeleteCell_Left()
   if(Col > DataRight || Row > DataBottom){
     return;
   }
-  SetUndoCsv();
   if(RangeSelect){
     DeleteCells_Left(SelLeft, Selection.Right, SelTop, Selection.Bottom);
   }else{
@@ -2102,8 +2245,12 @@ void TMainGrid::DeleteCell_Left()
         Row++; Col = FixedCols; ConnectCell();
       }else{
         // 列の縮小を試みる
-        DeleteCells_Left(1,1,DataBottom+1,DataBottom+1);
-        FDataRight--;
+        for (int j = DataTop; j < RowCount; j++) {
+          if (Cells[FDataRight][j] != "") {
+            return;
+          }
+        }
+        DeleteColumn(FDataRight);
       }
     }else{
       // 現在の行内で左につめる
@@ -2116,63 +2263,113 @@ void TMainGrid::DeleteCell_Left()
 //---------------------------------------------------------------------------
 void TMainGrid::DeleteCell_Up()
 {
-  SetUndoCsv();
-  if(RangeSelect)
-    DeleteCells_Up(SelLeft, Selection.Right, SelTop,Selection.Bottom);
-  else
-    DeleteCells_Up(Col,Col,Row,Row);
-
+  DeleteCells_Up(SelLeft, Selection.Right, SelTop,Selection.Bottom);
   Modified = true;
   UpdateDataRightBottom(0,0);
 }
 //---------------------------------------------------------------------------
 void TMainGrid::InsertCells_Right(long Left, long Right, long Top, long Bottom)
 {
-  ChangeColCount(ColCount + Right - Left  + 1);
+  UndoList->Push();
+
+  int colsToAdd = Right - Left + 1;
+  for (int x = DataRight; colsToAdd > 0 && DataRight + colsToAdd > Right;
+       x--, colsToAdd--) {
+    bool dataExists = false;
+    for (int y = Top; y <= Bottom; y++) {
+      if (Cells[x][y] != "") {
+        dataExists = true;
+        break;
+      }
+    }
+    if (dataExists) {
+      break;
+    }
+  }
+  if (Right > DataRight + colsToAdd) {
+    colsToAdd = Right - DataRight;
+  }
+
+  if (colsToAdd > 0) {
+    InsertColumn(DataRight + 1, DataRight + colsToAdd);
+  }
+
   TStringList *Temp = new TStringList;
-  for(int i=Top; i<=Bottom; i++)
-  {
+  int iEnd = min(Bottom, DataBottom);
+  for (int i = Top; i <= iEnd; i++) {
     Temp->Assign(Rows[i]);
-    for(int j=Left; j<=Right; j++)
-    {
-      Temp->Insert(Left,"");
+    for (int j = Left; j <= Right; j++) {
+      Temp->Insert(Left, "");
       Temp->Delete(Temp->Count-1);
     }
     Rows[i]->Assign(Temp);
   }
   delete Temp;
   SetSelection(Left, Right, Top, Bottom);
-  UpdateDataRightBottom(0,0);
+
+  String select = (String)"Select(" + RXtoAX(Left) + ", " + RYtoAY(Top) + ", "
+      + RXtoAX(Right) + ", " + RYtoAY(Bottom) + ");\n";
+  UndoList->AddMacro(select + "DeleteCellLeft();",
+                     select + "InsertCellRight();");
+  UndoList->Pop();
 }
 //---------------------------------------------------------------------------
 void TMainGrid::InsertCells_Down(long Left, long Right, long Top, long Bottom)
 {
-  ChangeRowCount(RowCount + Bottom - Top + 1);
+  UndoList->Push();
+
+  int rowsToAdd = Bottom - Top + 1;
+  for (int y = DataBottom; rowsToAdd > 0 && DataBottom + rowsToAdd > Bottom;
+       y--, rowsToAdd--) {
+    bool dataExists = false;
+    for (int x = Left; x <= Right; x++) {
+      if (Cells[x][y] != "") {
+        dataExists = true;
+        break;
+      }
+    }
+    if (dataExists) {
+      break;
+    }
+  }
+  if (Bottom > DataBottom + rowsToAdd) {
+    rowsToAdd = Bottom - DataBottom;
+  }
+  if (rowsToAdd > 0) {
+    InsertRow(DataBottom + 1, DataBottom + rowsToAdd);
+  }
+
   TStringList *Temp = new TStringList;
-  for(int i=Left; i<=Right; i++)
-  {
+  int iEnd = min(Right, DataRight);
+  for (int i = Left; i <= iEnd; i++) {
     Temp->Assign(Cols[i]);
-    for(int j=Top; j<=Bottom; j++)
-    {
-      Temp->Insert(Top,"");
+    for(int j = Top; j <= Bottom; j++) {
+      Temp->Insert(Top, "");
       Temp->Delete(Temp->Count-1);
     }
     Cols[i]->Assign(Temp);
   }
   delete Temp;
   SetSelection(Left, Right, Top, Bottom);
-  UpdateDataRightBottom(0,0);
+
+  String select = (String)"Select(" + RXtoAX(Left) + ", " + RYtoAY(Top) + ", "
+      + RXtoAX(Right) + ", " + RYtoAY(Bottom) + ");\n";
+  UndoList->AddMacro(select + "DeleteCellUp();", select + "InsertCellDown();");
+  UndoList->Pop();
 }
 //---------------------------------------------------------------------------
 void TMainGrid::DeleteCells_Left(long Left, long Right, long Top, long Bottom,
         bool UpdateWidth)
 {
+  UndoList->Push();
   TStringList *Temp = new TStringList;
   for (int i = Top; i <= min(Bottom, RowCount - 1); i++) {
     Temp->Assign(Rows[i]);
     for (int j = Left; j <= min(Right, Temp->Count - 1); j++) {
       Temp->Delete(Left);
       Temp->Add("");
+      UndoList->ChangeCell(RXtoAX(j), RYtoAY(i), Cells[j][i], "",
+                           RXtoAX(DataRight), RYtoAY(DataBottom));
     }
     Rows[i]->Assign(Temp);
   }
@@ -2183,17 +2380,24 @@ void TMainGrid::DeleteCells_Left(long Left, long Right, long Top, long Bottom,
       ColWidths[j] = ColWidths[j + delta];
     }
   }
+  String select = (String)"Select(" + RXtoAX(Left) + ", " + RYtoAY(Top) + ", "
+      + RXtoAX(Right) + ", " + RYtoAY(Bottom) + ");\n";
+  UndoList->AddMacro(select + "InsertCellRight();", "");
+  UndoList->Pop(select + "DeleteCellLeft();");
 }
 //---------------------------------------------------------------------------
 void TMainGrid::DeleteCells_Up(long Left, long Right, long Top, long Bottom,
         bool UpdateHeight)
 {
+  UndoList->Push();
   TStringList *Temp = new TStringList;
   for (int i = Left; i <= min(Right, ColCount - 1); i++) {
     Temp->Assign(Cols[i]);
     for (int j = Top; j <= min(Bottom, Temp->Count - 1) ; j++) {
       Temp->Delete(Top);
       Temp->Add("");
+      UndoList->ChangeCell(RXtoAX(i), RYtoAY(j), Cells[i][j], "",
+                           RXtoAX(DataRight), RYtoAY(DataBottom));
     }
     Cols[i]->Assign(Temp);
   }
@@ -2204,6 +2408,10 @@ void TMainGrid::DeleteCells_Up(long Left, long Right, long Top, long Bottom,
       RowHeights[j] = RowHeights[j + delta];
     }
   }
+  String select = (String)"Select(" + RXtoAX(Left) + ", " + RYtoAY(Top) + ", "
+      + RXtoAX(Right) + ", " + RYtoAY(Bottom) + ");\n";
+  UndoList->AddMacro(select + "InsertCellDown();", "");
+  UndoList->Pop(select + "DeleteCellUp();");
 }
 //---------------------------------------------------------------------------
 //  選択
@@ -2215,10 +2423,12 @@ void TMainGrid::SetSelection(long Left, long Right, long Top, long Bottom)
   if(Top    < FixedRows) Top    = FixedRows;
   if(Bottom < FixedRows) Bottom = FixedRows;
 
-  if(Left   >= ColCount) Left   = ColCount-1;
-  if(Right  >= ColCount) Right  = ColCount-1;
-  if(Top    >= RowCount) Top    = RowCount-1;
-  if(Bottom >= RowCount) Bottom = RowCount-1;
+  if (Left >= ColCount || Right >= ColCount) {
+    ChangeColCount(max(Left, Right) + 2);
+  }
+  if (Top >= RowCount || Bottom >= RowCount) {
+    ChangeRowCount(max(Top, Bottom) + 2);
+  }
 
   if(Left==Right && Top==Bottom && AlwaysShowEditor){
     Options << goEditing << goAlwaysShowEditor;
@@ -2463,16 +2673,30 @@ void __fastcall TMainGrid::MouseUp(Controls::TMouseButton Button,
   }
 }
 //---------------------------------------------------------------------------
+void __fastcall TMainGrid::MoveRow(int FromIndex, int ToIndex)
+{
+  TStringGrid::MoveRow(FromIndex,ToIndex);
+}
+//---------------------------------------------------------------------------
 void __fastcall TMainGrid::RowMoved(int FromIndex, int ToIndex)
 {
-  SetUndoCsv();
+  UndoList->AddMacro(
+      (String)"MoveRow(" + RYtoAY(ToIndex) + ", " + RYtoAY(FromIndex) + ");",
+      (String)"MoveRow(" + RYtoAY(FromIndex) + ", " + RYtoAY(ToIndex) + ");");
   TStringGrid::RowMoved(FromIndex,ToIndex);
   Modified = true;
 }
 //---------------------------------------------------------------------------
+void __fastcall TMainGrid::MoveColumn(int FromIndex, int ToIndex)
+{
+  TStringGrid::MoveColumn(FromIndex,ToIndex);
+}
+//---------------------------------------------------------------------------
 void __fastcall TMainGrid::ColumnMoved(int FromIndex, int ToIndex)
 {
-  SetUndoCsv();
+  UndoList->AddMacro(
+      (String)"MoveCol(" + RXtoAX(ToIndex) + ", " + RXtoAX(FromIndex) + ");",
+      (String)"MoveCol(" + RXtoAX(FromIndex) + ", " + RXtoAX(ToIndex) + ");");
   TStringGrid::ColumnMoved(FromIndex,ToIndex);
   Modified = true;
 }
@@ -2674,11 +2898,38 @@ bool TMainGrid::Find(String FindText,
   if (FindText == "") {
     return false;
   }
+
+  bool isRangeSelected = RangeSelect;
+  if (isRangeSelected) {
+    TGridRect s = Selection;
+    if (Back) {
+      Col = s.Right;
+      Row = s.Bottom;
+      s.Left = s.Right;
+      s.Top = s.Bottom;
+    } else {
+      Col = s.Left;
+      Row = s.Top;
+      s.Right = s.Left;
+      s.Bottom = s.Top;
+    }
+    Selection = s;
+  }
+
   Options << goEditing << goAlwaysShowEditor;
   ShowEditor();
   TInplaceEdit *ipEd = InplaceEditor;
   if (!ipEd) {
     return false;
+  }
+
+  if (isRangeSelected) {
+    ipEd->SelLength = 0;
+    if (Back) {
+      ipEd->SelStart = ipEd->Text.Length();
+    } else {
+      ipEd->SelStart = 0;
+    }
   }
 
   String InCellText = "";
@@ -2833,6 +3084,7 @@ bool TMainGrid::Replace(String FindText , String ReplaceText,
 int TMainGrid::ReplaceAll(String FindText, String ReplaceText, int SLeft,
     int STop, int SRight, int SBottom, bool Case, bool Regex, bool Word)
 {
+  UndoList->Push();
   int count = 0;
   for (int y = STop; y <= SBottom; y++) {
     for (int x = SLeft; x <= SRight; x++) {
@@ -2840,17 +3092,24 @@ int TMainGrid::ReplaceAll(String FindText, String ReplaceText, int SLeft,
           StripCr(Cells[x][y]), StripCr(FindText), StripCr(ReplaceText),
           Case, Regex, Word));
       if (replacedText != Cells[x][y]) {
-        if (count == 0) {
-          SetUndoCsv();
-          UndoSetLock++;
-        }
-        Cells[x][y] = replacedText;
+        SetCell(x, y, replacedText);
         count++;
       }
     }
   }
+  String range = "";
+  if (SLeft != FixedCols || STop != FixedRows || SRight != DataRight ||
+      SBottom != DataBottom) {
+    range = (String)", " + RXtoAX(SLeft) + ", " + RYtoAY(STop) + ", " +
+        ((SLeft == FixedCols && SRight == DataRight)
+            ? (String)"Right" : (String)RXtoAX(SRight)) + ", " +
+        ((STop == FixedRows && SBottom == DataBottom)
+            ? (String)"Bottom" : (String)RYtoAY(SBottom));
+  }
+  UndoList->Pop((String)"ReplaceAll(\"" + EscapeMacroString(FindText) +
+      "\", \"" + EscapeMacroString(ReplaceText) + "\", " + boolToStr(!Case) +
+      ", " + boolToStr(Word) + ", " + boolToStr(Regex) + range + ");");
   if (count > 0) {
-    UndoSetLock--;
     Modified = true;
   }
   return count;
@@ -2949,10 +3208,13 @@ void __fastcall TMainGrid::KeyDown(Word &Key, Classes::TShiftState Shift)
 {
   if(Key == VK_DELETE && EditorMode == false)
   {
-    SetUndoCsv();
-    for(int i=SelTop; i<=Selection.Bottom; i++)
-      for(int j=SelLeft; j<= Selection.Right; j++)
-	      Cells[j][i] = "";
+    UndoList->Push();
+    for (int i = SelTop; i <= Selection.Bottom; i++) {
+      for (int j = SelLeft; j <= Selection.Right; j++) {
+        SetCell(j, i, "");
+      }
+    }
+    UndoList->Pop();
     Modified = true;
   }else if(Key == VK_DELETE){
     Modified = true;
@@ -3251,7 +3513,8 @@ void __fastcall TMainGrid::SetEditText(int ACol, int ARow, String Value)
   String old = Cells[ACol][ARow];
   if(Value != old){
     Modified = true;
-    SetUndoMacro();
+    UndoList->ChangeCell(RXtoAX(Col), RYtoAY(Row), old, Value,
+                         RXtoAX(DataRight), RYtoAY(DataBottom));
   }
   UpdateDataRightBottom(Col, Row);
   TStringGrid::SetEditText(ACol, ARow, Value);
@@ -3259,177 +3522,69 @@ void __fastcall TMainGrid::SetEditText(int ACol, int ARow, String Value)
 //---------------------------------------------------------------------------
 //  Undo 処理
 //
-void TMainGrid::SetUndoMacro(bool inRedo)
+static void MacroScriptExec(String script)
 {
-  if(UndoSetLock > 0) return;
-
-  if(!UndoMacro) UndoMacro = new TStringList;
-
-  String Tmp = (String)int(Col - DataLeft) + ","
-             + (String)int(Row - DataTop);
-  if(UndoMacro->Count == 0 || UndoMacro->Names[0] != Tmp)
-  {
-    Tmp += (String)"=" + Cells[Col][Row];
-    UndoMacro->Insert(0,Tmp);
+  String cmsname = "$undo";
+  TStringList *modules = new TStringList;
+  TStringList *inPaths = new TStringList;
+  bool ok = MacroCompile(&script, cmsname, inPaths, modules, true);
+  if (ok) {
+    ExecMacro(cmsname, 0, modules, -1, -1);
   }
-
-  if(!inRedo){
-    if(RedoMacro){ delete RedoMacro; RedoMacro = NULL; }
-    if(RedoCsv){ delete[] RedoCsv; RedoCsv = NULL; }
+  for (int i = modules->Count-1; i >= 0; i--) {
+    if (modules->Objects[i]) { delete modules->Objects[i]; }
   }
-}
-//---------------------------------------------------------------------------
-void TMainGrid::SetUndoCsv(bool inRedo)
-{
-  if(UndoSetLock > 0) return;
-
-  if(UndoMacro){ delete UndoMacro; UndoMacro = NULL; }
-  if(!UndoCsv){ delete[] UndoCsv; }
-
-  UndoCsvWidth = DataRight - DataLeft + 1;
-  UndoCsvHeight = DataBottom - DataTop + 1;
-  UndoCsv = new String[UndoCsvWidth * UndoCsvHeight];
-  String *p = UndoCsv;
-  for(int y=DataTop; y<=DataBottom; y++){
-    for(int x=DataLeft; x<=DataRight; x++){
-      *p = Cells[x][y];
-      p++;
-    }
-  }
-
-  if(!inRedo){
-    if(RedoMacro){ delete RedoMacro; RedoMacro = NULL; }
-    if(RedoCsv){ delete[] RedoCsv; RedoCsv = NULL; }
-  }
-}
-//---------------------------------------------------------------------------
-void TMainGrid::ClearUndo()
-{
-  if(UndoMacro){ delete UndoMacro; UndoMacro = NULL; }
-  if(UndoCsv){ delete[] UndoCsv; UndoCsv = NULL; }
-  if(RedoMacro){ delete RedoMacro; RedoMacro = NULL; }
-  if(RedoCsv){ delete[] RedoCsv; RedoCsv = NULL; }
+  delete modules;
+  delete inPaths;
 }
 //---------------------------------------------------------------------------
 void TMainGrid::Undo()
 {
-  if(UndoMacro)
-  {
-    String Macro = UndoMacro->Strings[0];
-    int Sep = Macro.Pos(",");
-    String Dat = Macro.SubString(1,Sep-1);
-    Macro.Delete(1,Sep);
-    Col = Dat.ToInt() + DataLeft;
-    Sep = Macro.Pos("=");
-    Dat = Macro.SubString(1,Sep-1);
-    Macro.Delete(1,Sep);
-    Row = Dat.ToInt() + DataTop;
-    SetRedoMacro();
-    Cells[Col][Row] = Macro;
-    Modified = true;
-    UndoMacro->Delete(0);
-    if(UndoMacro->Count == 0){ delete UndoMacro; UndoMacro = NULL; }
-  }
-  else if(UndoCsv)
-  {
-    SetRedoCsv();
-    // EOFマーカーの削除
-    Objects[DataLeft+DataRight][DataTop+DataBottom] = NULL;
-    for(int i=1; i <= ColCount; i++)
-      Cols[i]->Clear();
-
-    int RC = DataTop+UndoCsvHeight;
-    int CC = DataLeft+UndoCsvWidth;
-    ChangeRowCount(RC+1);
-    ChangeColCount(CC+1);
-    String *p = UndoCsv;
-    for(int y=DataTop; y<RC; y++){
-      for(int x=DataLeft; x<CC; x++){
-        Cells[x][y] = *p;
-        p++;
+  TUndoCommand* command = UndoList->Undo();
+  if (command) {
+    UndoList->Lock();
+    if (command->type == UNDO_SET_CELL) {
+      int x = AXtoRX(command->x);
+      int y = AYtoRY(command->y);
+      Cells[x][y] = command->undoData;
+      SetSelection(x, x, y, y);
+      SetDataRightBottom(AXtoRX(command->right), AYtoRY(command->bottom), true);
+    } else if (command->type == UNDO_MACRO) {
+      MacroScriptExec(command->undoData);
+      if (EditorMode) {
+        InplaceEditor->Text = Cells[Col][Row];
       }
     }
-    if(TypeOption->DummyEof) {
-      Objects[CC][RC] = EOFMarker;
-    }
     Modified = true;
-    delete[] UndoCsv; UndoCsv = NULL;
-    UpdateDataRightBottom(0,0);
-  }
-}
-//---------------------------------------------------------------------------
-void TMainGrid::SetRedoMacro()
-{
-  if(RedoCsv){ delete[] RedoCsv; RedoCsv = NULL; }
-  if(!RedoMacro) RedoMacro = new TStringList;
-
-  String Tmp = (String)int(Col - DataLeft) + ","
-             + (String)int(Row - DataTop);
-  if(RedoMacro->Count == 0 || RedoMacro->Names[0] != Tmp)
-  {
-    Tmp += (String)"=" + Cells[Col][Row];
-    RedoMacro->Insert(0,Tmp);
-  }
-}
-//---------------------------------------------------------------------------
-void TMainGrid::SetRedoCsv()
-{
-  if(!RedoCsv){ delete[] RedoCsv; RedoCsv = NULL; }
-  RedoCsvWidth = DataRight - DataLeft + 1;
-  RedoCsvHeight = DataBottom - DataTop + 1;
-  RedoCsv = new String[RedoCsvWidth * RedoCsvHeight];
-  String *p = RedoCsv;
-  for(int y=DataTop; y<=DataBottom; y++){
-    for(int x=DataLeft; x<=DataRight; x++){
-      *p = Cells[x][y];
-      p++;
-    }
+    UndoList->Unlock();
   }
 }
 //---------------------------------------------------------------------------
 void TMainGrid::Redo()
 {
-  if(RedoCsv){   
-    SetUndoCsv(true);
-    // EOFマーカーの削除
-    Objects[DataLeft+DataRight][DataTop+DataBottom] = NULL;
-    for(int i=1; i <= ColCount; i++)
-      Cols[i]->Clear();
-
-    int RC = DataTop+RedoCsvHeight;
-    int CC = DataLeft+RedoCsvWidth;
-    ChangeRowCount(RC+1);
-    ChangeColCount(CC+1);
-    String *p = RedoCsv;
-    for(int y=DataTop; y<RC; y++){
-      for(int x=DataLeft; x<CC; x++){
-        Cells[x][y] = *p;
-        p++;
+  TUndoCommand* command = UndoList->Redo();
+  if(command) {
+    UndoList->Lock();
+    if (command->type == UNDO_SET_CELL) {
+      int x = AXtoRX(command->x);
+      int y = AYtoRY(command->y);
+      if (x >= ColCount) {
+        ChangeColCount(x + 1);
+      }
+      if (y >= RowCount) {
+        ChangeRowCount(y + 1);
+      }
+      Cells[x][y] = command->redoData;
+      SetSelection(x, x, y, y);
+    } else if (command->type == UNDO_MACRO) {
+      MacroScriptExec(command->redoData);
+      if (EditorMode) {
+        InplaceEditor->Text = Cells[Col][Row];
       }
     }
-    if(TypeOption->DummyEof) {
-      Objects[CC][RC] = EOFMarker;
-    }
     Modified = true;
-    delete[] RedoCsv; RedoCsv = NULL;
-  } else if(RedoMacro) {
-    String Macro = RedoMacro->Strings[0];
-    int Sep = Macro.Pos(",");
-    String Dat = Macro.SubString(1,Sep-1);
-    Macro.Delete(1,Sep);
-    Col = Dat.ToInt() + DataLeft;
-    Sep = Macro.Pos("=");
-    Dat = Macro.SubString(1,Sep-1);
-    Macro.Delete(1,Sep);
-    Row = Dat.ToInt() + DataTop;
-    SetUndoMacro(true);
-    Cells[Col][Row] = Macro;
-    Modified = true;
-    RedoMacro->Delete(0);
-    if(RedoMacro->Count == 0){ delete RedoMacro; RedoMacro = NULL; }
+    UndoList->Unlock();
   }
   UpdateDataRightBottom(0,0);
 }
 //---------------------------------------------------------------------------
-
-
