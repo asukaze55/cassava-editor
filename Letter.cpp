@@ -206,7 +206,7 @@ AnsiString Note = fmMain->MainGrid->ACells[udToNote->Position][Index];
 const int PX = udHorz->Position;
 const int PY = udVert->Position;
 
-const float mmPt = Canvas->Font->PixelsPerInch / 25.4;
+const double mmPt = ((double) Canvas->Font->PixelsPerInch) / 25.4;
 
 if(cbUseNote->Checked)
 {
@@ -248,7 +248,7 @@ for(int ibox=0; ibox<2; ibox++){
 
   double PCY;
   double YItv;
-  int BoxTop, BoxBottom, BoxMiddle, Name2Top;
+  double BoxTop, BoxBottom, BoxMiddle, Name2Top;
   switch(ibox){
     case 0:
       YItv = (double)AddressSize[Who] / 2;
@@ -284,30 +284,6 @@ for(int ibox=0; ibox<2; ibox++){
         break;
     }
 
-    if(Canvas->Font->Name[1] ==  '@'){
-      if(i == 1 && ibox == 1){
-        PCY = (BoxTop + NengaDY + PY) * mmPt
-            + Canvas->TextWidth(Box[1][Who][0].SubString(1, Name2Pos[Who]-1));
-      }else if(i == 0){
-        PCY = (BoxTop + NengaDY + PY) * mmPt;
-      }else{
-        PCY = (BoxBottom + NengaDY + PY) * mmPt
-            - Canvas->TextWidth(Box[ibox][Who][i]);
-      }
-      LOGFONT lf;
-      Canvas->Brush->Style = bsClear;
-      ZeroMemory(&lf, sizeof(LOGFONT));
-      lf.lfHeight = YItv * 2 * mmPt;
-      lf.lfEscapement = -90 * 10;
-      lf.lfOrientation = -90 * 10;
-      lf.lfCharSet = DEFAULT_CHARSET;
-      _tcscpy(lf.lfFaceName, Canvas->Font->Name.c_str());
-      Canvas->Font->Handle = CreateFontIndirect(&lf);
-      int HWidth = Canvas->TextHeight(Box[ibox][Who][i]) / 2;
-      Canvas->TextOut((BoxMiddle + PX)*mmPt + HWidth, PCY, Box[ibox][Who][i]);
-      continue;
-    }
-
     if(i == 1 && ibox == 1){
       PCY = Name2Top;
     }else if(i == 0){
@@ -320,7 +296,8 @@ for(int ibox=0; ibox<2; ibox++){
     {
       AnsiString Msg;
       char c = Box[ibox][Who][i][j];
-      if(j == Name2Pos[Who]) Name2Top = PCY; 
+      bool num = false;
+      if(j == Name2Pos[Who]) Name2Top = PCY;
       if(Box[ibox][Who][i].IsLeadByte(j)){
         Msg = Box[ibox][Who][i].SubString(j,2);
         j++;
@@ -330,6 +307,7 @@ for(int ibox=0; ibox<2; ibox++){
           j++;
           Msg += c;
         }
+        num = true;
       }else{
         Msg = c;
       }
@@ -337,6 +315,27 @@ for(int ibox=0; ibox<2; ibox++){
       int HWidth = Canvas->TextWidth(Msg) / 2;
       if(Msg == " " || Msg == "_"){
         PCY += YItv;
+      }else if(Canvas->Font->Name[1] ==  '@'){
+        if(num || Msg == "b"){
+          Canvas->TextOut((BoxMiddle + PX)*mmPt - (Canvas->TextWidth(Msg) / 2),
+                          PCY*mmPt, Msg);
+          PCY += (Canvas->TextHeight(Msg) / mmPt);
+        }else{
+          LOGFONT lf;
+          Canvas->Brush->Style = bsClear;
+          ZeroMemory(&lf, sizeof(LOGFONT));
+          lf.lfHeight = YItv * 2 * mmPt;
+          lf.lfEscapement = -90 * 10;
+          lf.lfOrientation = -90 * 10;
+          lf.lfCharSet = DEFAULT_CHARSET;
+          _tcscpy(lf.lfFaceName, Canvas->Font->Name.c_str());
+          Canvas->Font->Handle = CreateFontIndirect(&lf);
+          int HWidth = Canvas->TextHeight(Box[ibox][Who][i]) / 2;
+          Canvas->TextOut((BoxMiddle + PX)*mmPt + HWidth, PCY*mmPt, Msg);
+          PCY += (Canvas->TextWidth(Msg) / mmPt);
+          Canvas->Font = lbFont->Font;
+          Canvas->Font->Height = ((YItv * 2) - 0.25) * mmPt;
+        }
       }else{
         Canvas->TextOut((BoxMiddle + PX)*mmPt - HWidth, PCY*mmPt, Msg);
         PCY += YItv * 2;
@@ -351,7 +350,8 @@ return(true);
 //---------------------------------------------------------------------------
 AnsiString TfmLetter::Tate(AnsiString Source)
 {
-  if(lbFont->Font->Name[1] == '@'){
+  bool verticalFont = (lbFont->Font->Name[1] == '@');
+  if(verticalFont && !cbHorzNum->Checked){
     int p;
     while((p = Source.AnsiPos("_")) > 0){
       Source[p] = ' ';
@@ -368,9 +368,13 @@ AnsiString TfmLetter::Tate(AnsiString Source)
       longnumber = false;
       AnsiString S = Source.SubString(i,2);
       i++;
-      if(S == "[" || S == "|") St += "b";
-      else if(S == "A")         St += "@";
-      else                       St += S;
+      if (verticalFont) {
+        St += S;
+      }else{
+        if(S == "[" || S == "|") St += "b";
+        else if(S == "A")         St += "@";
+        else                       St += S;
+      }
     }else if(cbHorzNum->Checked && IsNumericChar(c)){
       int r = i + udHorzNumMax->Position;
       if(!longnumber && r <= L){

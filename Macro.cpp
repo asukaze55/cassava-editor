@@ -7,7 +7,6 @@
 #include "Macro.h"
 #include "MacroOpeCode.h"
 #include "MainForm.h"
-#include "EncodedStream.h"
 #include "MultiLineInputBox.h"
 #include "AutoOpen.h"
 //---------------------------------------------------------------------------
@@ -23,7 +22,7 @@ using namespace std;
 #define ME_HIKISU 1
 #define ME_SECURITY 2
 //---------------------------------------------------------------------------
-#define TVar  map<AnsiString, Element>
+#define TVar  map<String, Element>
 #define MGCol (fmMain->MainGrid->Col - fmMain->MainGrid->DataLeft + 1)
 #define MGRow (fmMain->MainGrid->Row - fmMain->MainGrid->DataTop  + 1)
 #define RXtoAX(x)                 (x - fmMain->MainGrid->DataLeft + 1)
@@ -33,27 +32,27 @@ class TMacro;
 //---------------------------------------------------------------------------
 class Element {
 private:
-  AnsiString st;
+  String st;
   double vl;
   bool Num;
   TMacro *macro;
-  Element &GetVar(AnsiString name);
+  Element &GetVar(String name);
 public:
   int Type;
   bool isNum();
   int X, Y;
   Element() : Type(etErr), Num(true), vl(0), st(""), macro(NULL) {};
   Element(double d, TMacro *m) : Type(etAtom), Num(true), vl(d), macro(m) {};
-  Element(AnsiString s, TMacro *m) : Type(etAtom), Num(false), st(s), macro(m) {};
-  Element(AnsiString s, int t, TMacro *m) : Type(t), Num(false), st(s), macro(m) {};
-  Element(AnsiString s, int t, bool nm, TMacro *m) : Type(t), Num(nm), st(s), macro(m) {};
+  Element(String s, TMacro *m) : Type(etAtom), Num(false), st(s), macro(m) {};
+  Element(String s, int t, TMacro *m) : Type(t), Num(false), st(s), macro(m) {};
+  Element(String s, int t, bool nm, TMacro *m) : Type(t), Num(nm), st(s), macro(m) {};
   Element(int cl, int rw, TMacro *m);
   Element(int cl, int rw, bool nm, TMacro *m)
   : Type(etCell), Num(nm), X(cl), Y(rw), macro(m) {};
   Element(const Element &e)
   : st(e.st), vl(e.vl), Type(e.Type), Num(e.Num), X(e.X), Y(e.Y), macro(e.macro) {};
   double Val();
-  AnsiString Str();
+  String Str();
   void Sbst(Element e);
   void Pntr(Element e);
   Element Points();
@@ -62,30 +61,30 @@ public:
 class TMacro{
 private:
   TStream *fs;
-  AnsiString ReadString(TStream *fs);
-  TStream *GetStreamFor(AnsiString FileName);
+  String ReadString(TStream *fs);
+  TStream *GetStreamFor(String FileName);
   void ExecOpe(char c);
-  void ExecFnc(AnsiString s);
+  void ExecFnc(String s);
   TList *Stack;
   int LoopCount;
-  AnsiString FileName;
+  String FileName;
   bool canReadFile;
   bool canWriteFile;
-  TStream *fs_io;
+  EncodedWriter *fs_io;
   TStringList *modules;
 public:
-  TMacro(TStream *io, int ml, TStringList *md, bool cm);
+  TMacro(EncodedWriter *io, int ml, TStringList *md, bool cm);
   TVar Var;
   int MaxLoop;
   bool IsCellMacro;
-  Element *Do(AnsiString FileName, TList *AStack, int x=-1, int y=-1);
+  Element *Do(String FileName, TList *AStack, int x=-1, int y=-1);
 };
 //---------------------------------------------------------------------------
 class MacroException{
 public:
-  AnsiString Message;
+  String Message;
   int Type;
-  MacroException(AnsiString Mes, int t = 0) : Message(Mes), Type(t) {}
+  MacroException(String Mes, int t = 0) : Message(Mes), Type(t) {}
 };
 //---------------------------------------------------------------------------
 static int RunningCount = 0;
@@ -108,7 +107,7 @@ void CsvGridGoTo(TCsvGrid *g, int x, int y){
   g->Row = y;
 }
 //---------------------------------------------------------------------------
-void Write(int x, int y, AnsiString str, bool IsCellMacro)
+void Write(int x, int y, String str, bool IsCellMacro)
 {
   if(IsCellMacro){
 	throw MacroException("Cell Macro Can't Update Cells.", ME_SECURITY);
@@ -119,10 +118,10 @@ void Write(int x, int y, AnsiString str, bool IsCellMacro)
   g->Modified = true;
 }
 //---------------------------------------------------------------------------
-double ToDouble(AnsiString str, double def)
+double ToDouble(String str, double def)
 {
   try{
-    AnsiString temp = str;
+    String temp = str;
     for(int i=temp.Length(); i>0; i--){
       if(temp[i] == ','){
         temp.Delete(i,1);
@@ -141,7 +140,7 @@ Element::Element(int cl, int rw, TMacro *m)
   macro = m;
 }
 //---------------------------------------------------------------------------
-Element &Element::GetVar(AnsiString name)
+Element &Element::GetVar(String name)
 {
 	return macro->Var[name];
 }
@@ -167,12 +166,12 @@ double Element::Val()
   return ToDouble(st, 0);
 }
 //---------------------------------------------------------------------------
-AnsiString Element::Str()
+String Element::Str()
 {
   if(Type == etCell) return fmMain->MainGrid->ACells[X][Y];
   else if(Type == etVar) return GetVar(st).Str();
-  else if(Type == etSystem) return AnsiString(Val());
-  else if(Num) return AnsiString(vl);
+  else if(Type == etSystem) return String(Val());
+  else if(Num) return String(vl);
   else return st;
 }
 //---------------------------------------------------------------------------
@@ -246,7 +245,7 @@ void Clear(TList *L)
   L->Clear();
 }
 //---------------------------------------------------------------------------
-TMacro::TMacro(TStream *io, int ml, TStringList *md, bool cm)
+TMacro::TMacro(EncodedWriter *io, int ml, TStringList *md, bool cm)
 {
   fs_io = io;
   if(io){
@@ -262,7 +261,7 @@ TMacro::TMacro(TStream *io, int ml, TStringList *md, bool cm)
 
 }
 //---------------------------------------------------------------------------
-AnsiString TMacro::ReadString(TStream *fs)
+String TMacro::ReadString(TStream *fs)
 {
   char str[260];
   unsigned char c;
@@ -284,10 +283,10 @@ AnsiString TMacro::ReadString(TStream *fs)
   }
 }
 //---------------------------------------------------------------------------
-TMenuItem *MenuSearch(TMenuItem *m, AnsiString s)
+TMenuItem *MenuSearch(TMenuItem *m, String s)
 {
   for(int i=0; i<m->Count; i++){
-    if(m->Items[i]->Name == (AnsiString)"mn" + s) return (m->Items[i]);
+    if(m->Items[i]->Name == (String)"mn" + s) return (m->Items[i]);
     else if(m->Items[i]->Count > 0){
       TMenuItem *sub = MenuSearch(m->Items[i], s);
       if(sub) return sub;
@@ -296,7 +295,7 @@ TMenuItem *MenuSearch(TMenuItem *m, AnsiString s)
   return NULL;
 }
 //---------------------------------------------------------------------------
-AnsiString NormalizeNewLine(AnsiString Val)
+String NormalizeNewLine(String Val)
 {
   int len = Val.Length();
   for(int i=len; i > 0; i--){
@@ -320,7 +319,7 @@ AnsiString NormalizeNewLine(AnsiString Val)
 #define STR3 ope[3]->Str()
 #define VAL3 ope[3]->Val()
 //---------------------------------------------------------------------------
-void TMacro::ExecFnc(AnsiString s){
+void TMacro::ExecFnc(String s){
   int H = s[1];
   s.Delete(1,1);
 
@@ -343,7 +342,7 @@ void TMacro::ExecFnc(AnsiString s){
       }
       int ml = ((MaxLoop > 0) ? MaxLoop-LoopCount : 0);
       TMacro mcr(fs_io, ml, modules, IsCellMacro);
-      Element *r = mcr.Do(s + "$" + (AnsiString)H, ArgStack);
+      Element *r = mcr.Do(s + "$" + (String)H, ArgStack);
       if(r){
         Stack->Add(r);
       }else{
@@ -362,21 +361,21 @@ void TMacro::ExecFnc(AnsiString s){
       ope[0]->Sbst(t1);
       ope[1]->Sbst(t0);
     }else if(s == "MessageBox"){
-      const char *Text = (H >= 1) ? STR0.c_str() : "ブレークポイントです";
+      const wchar_t *Text = (H >= 1) ? STR0.c_str() : TEXT("ブレークポイントです");
       int Flag = (H >= 2) ? (ope[H-1]->Val()) : MB_OK;
-      const char *Caption = (H >= 3) ? STR1.c_str() : "Cassava Macro";
-      Stack->Add(new Element(::MessageBoxA(NULL, Text, Caption, Flag), this));
+      const wchar_t *Caption = (H >= 3) ? STR1.c_str() : TEXT("Cassava Macro");
+      Stack->Add(new Element(::MessageBox(NULL, Text, Caption, Flag), this));
     }else if(s == "InputBox"){
-      AnsiString Text = (H >= 1) ? STR0 : (AnsiString)"";
-      AnsiString Def = (H >= 2) ? (ope[H-1]->Str()) : (AnsiString)"";
-      AnsiString Caption = (H >= 3) ? STR1 : (AnsiString)"Cassava Macro";
+      String Text = (H >= 1) ? STR0 : (String)"";
+      String Def = (H >= 2) ? (ope[H-1]->Str()) : (String)"";
+      String Caption = (H >= 3) ? STR1 : (String)"Cassava Macro";
       Stack->Add(new Element(InputBox(Caption, Text, Def), this));
     }else if(s == "InputBoxMultiLine"){
-      AnsiString Text = (H >= 1) ? STR0 : (AnsiString)"";
-      AnsiString Def = (H >= 2) ? (ope[H-1]->Str()) : (AnsiString)"";
-      AnsiString Caption = (H >= 3) ? STR1 : (AnsiString)"Cassava Macro";
-      AnsiString Cancel = (H >= 4) ? STR2 : Def;
-      AnsiString Result = InputBoxMultiLine(Caption, Text, Cancel, Def);
+      String Text = (H >= 1) ? STR0 : (String)"";
+      String Def = (H >= 2) ? (ope[H-1]->Str()) : (String)"";
+      String Caption = (H >= 3) ? STR1 : (String)"Cassava Macro";
+      String Cancel = (H >= 4) ? STR2 : Def;
+      String Result = InputBoxMultiLine(Caption, Text, Cancel, Def);
       Stack->Add(new Element(NormalizeNewLine(Result), this));
     }else if(s == "GetRowHeight" && H == 0){
       Stack->Add(new Element(fmMain->MainGrid->DefaultRowHeight, this));
@@ -423,8 +422,8 @@ void TMacro::ExecFnc(AnsiString s){
       Time().DecodeTime(&hours, &minutes, &seconds, &msec);
       Stack->Add(new Element((int)seconds, this));
     }else if(s == "GetFilePath" && H == 0){
-      AnsiString Path = ExtractFilePath(fmMain->FileName);
-      if(Path != "" && (*(Path.AnsiLastChar()) != '\\')){ Path += '\\'; }
+      String Path = ExtractFilePath(fmMain->FileName);
+      if(Path != "" && (*(Path.LastChar()) != '\\')){ Path += '\\'; }
       Stack->Add(new Element(Path, this));
     }else if(s == "GetFileName" && H == 0){
       Stack->Add(new Element(ExtractFileName(fmMain->FileName), this));
@@ -442,7 +441,7 @@ void TMacro::ExecFnc(AnsiString s){
       }
     }else if(s == "GetStatusBarText" && H == 1){
       int val = VAL0;
-      AnsiString data = "";
+      String data = "";
       if(val >= 0 && val < fmMain->StatusBar->Panels->Count){
         data = fmMain->StatusBar->Panels->Items[val]->Text;
       }
@@ -486,33 +485,31 @@ void TMacro::ExecFnc(AnsiString s){
       fmMain->MainGrid->Font->Size = VAL0;
     }else if(s == "write" || s == "writeln"){
       if(canWriteFile){
-        EncodedStream *es = dynamic_cast<EncodedStream*>(fs_io);
-        if(es){
+        if(fs_io){
           if(fmMain->mnSjis->Checked){
-            es->SetEncode(CHARCODE_SJIS);
+            fs_io->SetEncode(CHARCODE_SJIS);
           }else if(fmMain->mnEuc->Checked){
-            es->SetEncode(CHARCODE_EUC);
+            fs_io->SetEncode(CHARCODE_EUC);
           }else if(fmMain->mnJis->Checked){
-            es->SetEncode(CHARCODE_JIS);
+            fs_io->SetEncode(CHARCODE_JIS);
           }else if(fmMain->mnUtf8->Checked){
-            es->SetEncode(CHARCODE_UTF8);
+            fs_io->SetEncode(CHARCODE_UTF8);
           }else if(fmMain->mnUnicode->Checked){
-            es->SetEncode(CHARCODE_UTF16LE);
+            fs_io->SetEncode(CHARCODE_UTF16LE);
           }else if(fmMain->mnUtf16be->Checked){
-            es->SetEncode(CHARCODE_UTF16BE);
+            fs_io->SetEncode(CHARCODE_UTF16BE);
           }
         }
         for(int i=0; i<H; i++){
-          AnsiString str = ope[i]->Str();
-          fs_io->Write(str.c_str(), str.Length());
+          fs_io->Write(ope[i]->Str());
         }
         if(s == "writeln"){
           if(fmMain->mnLf->Checked){
-            fs_io->Write("\x0A", 1);
+            fs_io->Write(TEXT("\x0A"));
           }else if(fmMain->mnCr->Checked){
-            fs_io->Write("\x0D", 1);
+            fs_io->Write(TEXT("\x0D"));
           }else{
-            fs_io->Write("\x0D\x0A", 2);
+            fs_io->Write(TEXT("\x0D\x0A"));
           }
         }
       }else{
@@ -550,9 +547,9 @@ void TMacro::ExecFnc(AnsiString s){
       }
       Stack->Add(new Element(minval, this));
     }else if(s == "len" && H == 1){
-      Stack->Add(new Element(((WideString)STR0).Length(), this));
-    }else if(s == "lenB" && H == 1){
       Stack->Add(new Element(STR0.Length(), this));
+    }else if(s == "lenB" && H == 1){
+      Stack->Add(new Element(((AnsiString)STR0).Length(), this));
     }else if(s == "InsertRow" && H == 1){
       fmMain->MainGrid->InsertRow(VAL0 + fmMain->MainGrid->DataTop - 1);
     }else if(s == "DeleteRow" && H == 1){
@@ -566,26 +563,27 @@ void TMacro::ExecFnc(AnsiString s){
     }else if(s == "cell" && H == 2){
       Stack->Add(new Element(VAL0, VAL1, this));
     }else if(s == "left" && H == 2){
-      Stack->Add(new Element(((WideString)STR0).SubString(1, VAL1), this));
+      Stack->Add(new Element(STR0.SubString(1, VAL1), this));
     }else if(s == "right" && H == 2){
-      WideString st = (WideString)STR0;
-      Stack->Add(new Element(st.SubString(st.Length()-VAL1+1, VAL1), this));
+      String st = STR0;
+      int v1 = VAL1;
+      Stack->Add(new Element(st.SubString(st.Length()-v1+1, v1), this));
     }else if(s == "pos" && H == 2){
-      Stack->Add(new Element(((WideString)STR0).Pos(STR1), this));
+      Stack->Add(new Element(STR0.Pos(STR1), this));
     }else if(s == "posB" && H == 2){
-      Stack->Add(new Element(STR0.AnsiPos(STR1), this));
+      Stack->Add(new Element(((AnsiString)STR0).AnsiPos(STR1), this));
     }else if(s == "asc" && H == 1){
       AnsiString str = STR0;
       if(str == ""){
         Stack->Add(new Element(0, this));
       }else if(str.IsLeadByte(1)){
-        Stack->Add(new Element((unsigned char)(STR0[1]) * 256
-          + (unsigned char)(STR0[2]), this));
+        Stack->Add(new Element((unsigned char)(str[1]) * 256
+          + (unsigned char)(str[2]), this));
       }else{
-        Stack->Add(new Element((unsigned char)(STR0[1]), this));
+        Stack->Add(new Element((unsigned char)(str[1]), this));
       }
     }else if(s == "ascW" && H == 1){
-      WideString str = STR0;
+      String str = STR0;
       if(str == ""){
         Stack->Add(new Element(0, this));
       }else{
@@ -607,28 +605,28 @@ void TMacro::ExecFnc(AnsiString s){
       wchar_t buf[2];
       buf[0] = VAL0;
       buf[1] = '\0';
-      Stack->Add(new Element((AnsiString)buf, this));
+      Stack->Add(new Element((String)buf, this));
     }else if((s == "move" || s == "moveto") && H == 2){
       int c = VAL0;
       int r = VAL1;
       if(s == "move"){ c += MGCol; r += MGRow; }
       CsvGridGoTo(fmMain->MainGrid, c, r);
     }else if(s == "mid" && H == 2){
-      WideString st = (WideString)STR0;
+      String st = STR0;
       Stack->Add(new Element(st.SubString(VAL1, st.Length()-VAL1+1), this));
     }else if(s == "mid" && H == 3){
-      Stack->Add(new Element(((WideString)STR0).SubString(VAL1, VAL2), this));
+      Stack->Add(new Element(((String)STR0).SubString(VAL1, VAL2), this));
     }else if(s == "mid=" && H == 4){
-      WideString st = (WideString)STR0;
+      String st = STR0;
       int r = VAL1 + VAL2;
-      st = st.SubString(1, VAL1-1) + (WideString)STR3 + st.SubString(r, st.Length() - r + 1);
+      st = st.SubString(1, VAL1-1) + STR3 + st.SubString(r, st.Length() - r + 1);
       ope[0]->Sbst(Element(st, this));
     }else if(s == "replace" && H == 3){
-      AnsiString fr = STR0;
-      AnsiString to = "";
+      String fr = STR0;
+      String to = "";
       int hitlen = STR1.Length();
       int p;
-      while((p = fr.AnsiPos(STR1)) > 0){
+      while((p = fr.Pos(STR1)) > 0){
         to += fr.SubString(1, p-1) + STR2;
         fr.Delete(1, hitlen + p - 1);
       }
@@ -656,12 +654,12 @@ void TMacro::ExecFnc(AnsiString s){
         AutoOpen(FileName);
       }
     }else if(s == "ShellOpen" && H > 1){
-      char **argv = new char*[H+1];
+      wchar_t **argv = new wchar_t*[H+1];
       for(int i=0; i<H; i++){
         argv[i] = ope[i]->Str().c_str();
       }
       argv[H] = NULL;
-      int result = spawnvp(P_NOWAITO, argv[0], argv);
+      int result = _wspawnvp(P_NOWAITO, argv[0], argv);
       delete[] argv;
 
       if(result == -1){
@@ -671,6 +669,35 @@ void TMacro::ExecFnc(AnsiString s){
           throw MacroException(ope[0]->Str() + "\n実行に失敗しました。");
         }
       }
+    }else if(s == "Open" && H == 1){
+      String filename = STR0;
+      fmMain->MainGridDropFiles(NULL, 1, &filename);
+      while (fmMain->MainGrid->FileOpenThread) {
+        Sleep(100);
+        Application->ProcessMessages();
+      }
+    }else if(s == "SaveAs" && (H == 1 || H == 2)){
+      TTypeOption *format = NULL;
+      if(H == 1){
+        format = fmMain->MainGrid->TypeOption;
+      }else{
+        int count = fmMain->MainGrid->TypeList.Count;
+        for(int i=0; i<count; i++){
+          TTypeOption *p = fmMain->MainGrid->TypeList.Items(i);
+          if(p->Name == STR1){
+            format = p;
+            break;
+          }
+        }
+        if(!format) {
+          throw MacroException("保存形式が不明です:" + STR1);
+        }
+      }
+      fmMain->UpdateKCode();
+      fmMain->MainGrid->SaveToFile(STR0, format);
+    }else if(s == "Export" && H == 2){
+      fmMain->UpdateKCode();
+      fmMain->Export(STR0, STR1);
     }else{
       throw MacroException("定義されていない関数です:" + s + "/" + H);
     }
@@ -700,7 +727,7 @@ void TMacro::ExecOpe(char c){
       LoopCount++;
       Application->ProcessMessages();
       if(MaxLoop > 0 && LoopCount > MaxLoop){
-        throw MacroException((AnsiString)"ループ回数が" + MaxLoop +
+        throw MacroException((String)"ループ回数が" + MaxLoop +
               "に達しました。処理を中断します。");
       }
       if(!RunningOk){ throw MacroException("中断しました"); }
@@ -774,7 +801,7 @@ void TMacro::ExecOpe(char c){
   }
 }
 //---------------------------------------------------------------------------
-TStream *TMacro::GetStreamFor(AnsiString FileName){
+TStream *TMacro::GetStreamFor(String FileName){
   TStream *result;
   try{
     int index = modules->IndexOf(FileName);
@@ -799,7 +826,7 @@ TStream *TMacro::GetStreamFor(AnsiString FileName){
   return result;
 }
 //---------------------------------------------------------------------------
-Element *TMacro::Do(AnsiString FileName, TList *AStack, int x, int y){
+Element *TMacro::Do(String FileName, TList *AStack, int x, int y){
   Element *ReturnValue = NULL;
   // 再帰呼び出し対応のため、メソッド終了時にStreamのPositionを元に戻す
   long oldpc = 0L;
@@ -864,7 +891,7 @@ Element *TMacro::Do(AnsiString FileName, TList *AStack, int x, int y){
       if(e.Type == ME_HIKISU){
         e.Message = "引数の数が足りません:" + e.Message;
       }
-      ::MessageBoxA(NULL, e.Message.c_str(), "Cassava Macro Interpreter", 0);
+      ::MessageBox(NULL, e.Message.c_str(), TEXT("Cassava Macro Interpreter"), 0);
     }
   }catch(Exception *e){
     if(IsCellMacro){
@@ -874,8 +901,8 @@ Element *TMacro::Do(AnsiString FileName, TList *AStack, int x, int y){
       Clear(Stack); delete Stack;
       throw e;
     }else{
-	  Application->MessageBox(e->Message.c_str(),
-	                          TEXT("Cassava Macro Interpreter"), 0);
+      Application->MessageBox(e->Message.c_str(),
+                              TEXT("Cassava Macro Interpreter"), 0);
     }
   }
 
@@ -886,8 +913,8 @@ Element *TMacro::Do(AnsiString FileName, TList *AStack, int x, int y){
   return ReturnValue;
 }
 //---------------------------------------------------------------------------
-AnsiString ExecMacro(AnsiString FileName, int MaxLoop, TStringList *Modules,
-                     int x, int y, TStream *IO, bool IsCellMacro)
+String ExecMacro(String FileName, int MaxLoop, TStringList *Modules,
+                 int x, int y, EncodedWriter *IO, bool IsCellMacro)
 {
   if(!RunningOk){ return ""; }
   if(!IsCellMacro){ RunningCount++; }
@@ -901,7 +928,7 @@ AnsiString ExecMacro(AnsiString FileName, int MaxLoop, TStringList *Modules,
     }
   }
 
-  AnsiString ReturnValue = "";
+  String ReturnValue = "";
   if(r){
     ReturnValue = r->Str();
     delete r;

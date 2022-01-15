@@ -20,7 +20,6 @@ __fastcall TfrOptionFile::TfrOptionFile(TComponent* Owner)
 void TfrOptionFile::RestoreFromMainForm()
 {
   cbCheckKanji->Checked = fmMain->MainGrid->CheckKanji;
-  cbUnicodeWindowsMapping->Checked = fmMain->MainGrid->UnicodeWindowsMapping;
   cbNewWindow->Checked = fmMain->MakeNewWindow;
   cbTitleFullPath->Checked = fmMain->TitleFullPath;
   cbLockFile->ItemIndex = fmMain->LockFile;
@@ -51,7 +50,6 @@ void TfrOptionFile::RestoreFromMainForm()
 void TfrOptionFile::StoreToMainForm()
 {
   fmMain->MainGrid->CheckKanji = cbCheckKanji->Checked;
-  fmMain->MainGrid->UnicodeWindowsMapping = cbUnicodeWindowsMapping->Checked;
   fmMain->MakeNewWindow = cbNewWindow->Checked;
   fmMain->TitleFullPath = cbTitleFullPath->Checked;
   fmMain->LockFile = cbLockFile->ItemIndex;

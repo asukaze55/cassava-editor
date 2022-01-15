@@ -44,7 +44,7 @@ object frOptionFile: TfrOptionFile
   end
   object gbKanren: TGroupBox
     Left = 3
-    Top = 258
+    Top = 247
     Width = 354
     Height = 121
     Caption = #38306#36899#20184#12369
@@ -86,7 +86,7 @@ object frOptionFile: TfrOptionFile
     Left = 3
     Top = 174
     Width = 354
-    Height = 78
+    Height = 59
     Caption = #25991#23383#12467#12540#12489
     TabOrder = 2
     object cbCheckKanji: TCheckBox
@@ -96,14 +96,6 @@ object frOptionFile: TfrOptionFile
       Height = 17
       Caption = #12525#12540#12489#26178#12395#25991#23383#12467#12540#12489#12434#21028#21029#12377#12427
       TabOrder = 0
-    end
-    object cbUnicodeWindowsMapping: TCheckBox
-      Left = 12
-      Top = 48
-      Width = 338
-      Height = 17
-      Caption = 'Unicode'#22793#25563#12399'Windows'#12510#12483#12500#12531#12464#12523#12540#12523#12395#24467#12358
-      TabOrder = 1
     end
   end
   object gbOpen: TGroupBox

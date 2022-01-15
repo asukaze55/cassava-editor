@@ -22,6 +22,8 @@ void TfrOptionColor::RestoreFromMainForm()
   cbBgColor->Selected = fmMain->MainGrid->Color;
   cbFixFgColor->Selected = fmMain->MainGrid->FixFgColor;
   cbFixBgColor->Selected = fmMain->MainGrid->FixedColor;
+  cbCurrentRowBgColor->Selected = fmMain->MainGrid->CurrentRowBgColor;
+  cbCurrentColBgColor->Selected = fmMain->MainGrid->CurrentColBgColor;
   cbDummyBgColor->Selected = fmMain->MainGrid->DummyBgColor;
   cbCalcFgColor->Selected = fmMain->MainGrid->CalcFgColor;
   cbCalcBgColor->Selected = fmMain->MainGrid->CalcBgColor;
@@ -37,6 +39,8 @@ void TfrOptionColor::StoreToMainForm()
   fmMain->MainGrid->UrlColor = cbUrlColor->Selected;
   fmMain->MainGrid->FixFgColor = cbFixFgColor->Selected;
   fmMain->MainGrid->FixedColor = cbFixBgColor->Selected;
+  fmMain->MainGrid->CurrentRowBgColor = cbCurrentRowBgColor->Selected;
+  fmMain->MainGrid->CurrentColBgColor = cbCurrentColBgColor->Selected;
   fmMain->MainGrid->DummyBgColor = cbDummyBgColor->Selected;
   fmMain->MainGrid->CalcFgColor = cbCalcFgColor->Selected;
   fmMain->MainGrid->CalcBgColor = cbCalcBgColor->Selected;

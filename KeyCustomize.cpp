@@ -48,26 +48,32 @@ void __fastcall TfmKey::FormShow(TObject *Sender)
 void TfmKey::SetMSC(TMenuShortCut *MSC)
 {
   if(MSC){
-    TShiftState SS;
-    if(cbCtrl->Checked)  SS << ssCtrl;
-    if(cbShift->Checked) SS << ssShift;
-    if(cbAlt->Checked)   SS << ssAlt;
-    MSC->Shift = SS;
+    TShiftState ss;
+    String ssString = "";
+    if (cbShift->Checked) {
+      ss << ssShift;
+      ssString += "Shift+";
+    }
+    if (cbCtrl->Checked) {
+      ss << ssCtrl;
+      ssString += "Ctrl+";
+    }
+    if (cbAlt->Checked) {
+      ss << ssAlt;
+      ssString += "Alt+";
+    }
+    MSC->Shift = ss;
 
     switch(rgSCKey->ItemIndex){
       case 1:
         if(edSCKey->Text.Length() >= 1){
-          if(edSCKey->Text[1] == '\\'){
-            MSC->Key = 220;
-          }else{
-            MSC->Key = edSCKey->Text[1];
-          }
+          MSC->MShortCut = TextToShortCut(ssString + edSCKey->Text);
         }
         else MSC->Key = '\0';
         break;
-	  case 2:
-	    MSC->Key = static_cast<Word>(VK_F1 + udFNumber->Position - 1);
-		break;
+      case 2:
+        MSC->Key = static_cast<Word>(VK_F1 + udFNumber->Position - 1);
+        break;
       case 3: MSC->Key = VK_RETURN; break;
       case 4: MSC->Key = VK_SPACE; break;
       case 5: MSC->Key = VK_INSERT; break;
@@ -136,14 +142,12 @@ void __fastcall TfmKey::tvMenuChange(TObject *Sender, TTreeNode *Node)
     rgSCKey->ItemIndex = ii;
     if(ii == 1) {
       edSCKey->Enabled = true;
-      if(SCKey == 220){
-        edSCKey->Text = "\\";
-      }else{
-        edSCKey->Text = (char)SCKey;
-      }
+      String text = ShortCutToText(NowMSC->MShortCut);
+      int index = text.LastDelimiter("+");
+      edSCKey->Text = text.SubString(index + 1, text.Length() - index);
     } else if(ii == 2){
-	  csFNumber->Enabled = true;
-	  udFNumber->Enabled = true;
+      csFNumber->Enabled = true;
+      udFNumber->Enabled = true;
       csFNumber->Text = AnsiString(static_cast<long>(SCKey - VK_F1) + 1);
     }
   }

@@ -36,12 +36,14 @@
 起動時や「マクロの検索」の実行時に「Macro」フォルダがスキャンされ、
 「*.cms」ファイルの一覧が「マクロ」メニューに追加されます。
 「マクロ」メニューから項目を選ぶことで実行できます。
-エラー処理は適当なのであまりエラーメッセージは出ずに誤動作します。
-重要なファイルに対してはあまり使わないでください。
+エラー処理は適当なので、ちょっとした間違いで誤動作するかもしれません。
+注意して使ってください。
 </p>
 <p>
 「Macro」フォルダ内に「!startup.cms」というファイル名でマクロを置いておくと、
 起動時に自動的に実行されます。
+また、「!open.cms」というファイル名でマクロを置いておくと、
+ファイルを開いた時に自動的に実行されます。
 </p>
 <p>
 また、セル内のデータとして「=」に続けて式を書くことで、簡単な表計算も可能です。
@@ -218,7 +220,14 @@ cell(x,y) = val;
 <dt><code>ShellOpen(filename);</code></dt>
 <dd>指定されたファイルを関連付けられたアプリケーションで開きます。</dd>
 <dt><code>ShellOpen(appname, filename);</code></dt>
-<dd>filename をパラメータとして appname で指定したアプリケーションを実行します。</dd>
+<dd>filename をパラメータとして appname で指定したアプリケーションを実行します。<dt><code>Open(filename);</code></dt>
+<dd>filename を Cassava で読み込みます。</dd>
+<dt><code>SaveAs(filename);</code></dt>
+<dd>現在開いているファイルを filename に保存します。</dd>
+<dt><code>SaveAs(filename, type);</code></dt>
+<dd>現在開いているファイルを type で指定した形式で filename に保存します。</dd>
+<dt><code>Export(filename, type);</code></dt>
+<dd>現在開いているファイルを type で指定した形式で filename にエクスポートします。</dd>
 </dl>
 
 <h3>関数</h3>

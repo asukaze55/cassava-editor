@@ -7,8 +7,8 @@
 #include <vcl\Classes.hpp>
 #include <vcl\Forms.hpp>
 #include <vcl\Grids.hpp>
+#include "EncodedWriter.h"
 #include "TypeList.h"
-#include "Nkf.h"
 //---------------------------------------------------------------------------
 typedef void __fastcall (__closure *TDropCsvFiles)
     (System::TObject *Sender, int iFiles, System::String *DropFileNames);
@@ -105,7 +105,9 @@ protected:
     void PasteCSV(TStrings *List , int Left=1 , int Top=1 , int Way=2 ,
         int ClipCols=0 , int ClipRows=0);
     String StringsToCSV(TStrings* Data, TTypeOption *Format);
-    void WriteGrid(TStream *Stream, TTypeOption *Format);
+    void WriteGrid(EncodedWriter *Writer, TTypeOption *Format);
+
+    virtual bool __fastcall SelectCell(int ACol, int ARow);
     DYNAMIC void __fastcall MouseDown(Controls::TMouseButton Button,
         Classes::TShiftState Shift, int X, int Y);
     DYNAMIC void __fastcall MouseMove(Classes::TShiftState Shift, int X, int Y);
@@ -196,9 +198,8 @@ public:
     int DefWay;
     bool CheckKanji;
     int KanjiCode;
-    bool UnicodeWindowsMapping;
-#define LFCR '\0'
-    char ReturnCode;
+#define LFCR TEXT('\0')
+    wchar_t ReturnCode;
     bool LeftArrowInCell;
 #define cssv_taLeft 0
 #define cssv_taNumRight 1
@@ -324,6 +325,8 @@ public:
 
     TColor UrlColor;
     TColor FixFgColor;
+    TColor CurrentRowBgColor;
+    TColor CurrentColBgColor;
     TColor DummyBgColor;
     TColor CalcFgColor;
     TColor CalcBgColor;

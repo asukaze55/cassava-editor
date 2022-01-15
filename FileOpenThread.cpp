@@ -31,9 +31,8 @@ class FileOpenThread : public TThread
 {
 private:
   TCsvGrid *FGrid;
-  AnsiString FFileName;
-  char *buf;
-  unsigned long len;
+  String FFileName;
+  String Data;
   int x;
   int y;
   int maxx;
@@ -41,35 +40,24 @@ private:
   void __fastcall UpdateNextCell();
   void __fastcall GridRefresh();
   void __fastcall UpdateWidthHeight();
-  AnsiString __fastcall NormalizeCRLF(AnsiString Val);
+  String __fastcall NormalizeCRLF(String Val);
 protected:
   void __fastcall Execute();
 public:
-  __fastcall FileOpenThread(bool, TCsvGrid *, AnsiString,
-                            char *, unsigned long);
-  __fastcall virtual ~FileOpenThread();
+  __fastcall FileOpenThread(bool, TCsvGrid *, String, String);
   __property TCsvGrid *Grid = { read=FGrid, write=FGrid };
-  __property AnsiString FileName = { read=FFileName, write=FFileName };
+  __property String FileName = { read=FFileName, write=FFileName };
 };
 //---------------------------------------------------------------------------
-TThread *ThreadFileOpen(TCsvGrid *AGrid, AnsiString AFileName,
-                    char *buffer, unsigned long length)
+TThread *ThreadFileOpen(TCsvGrid *AGrid, String AFileName, String AData)
 {
-  return new FileOpenThread(true, AGrid, AFileName, buffer, length);
+  return new FileOpenThread(true, AGrid, AFileName, AData);
 }
 //---------------------------------------------------------------------------
 __fastcall FileOpenThread::FileOpenThread(bool CreateSuspended,
-    TCsvGrid *AGrid, AnsiString AFileName, char *buffer, unsigned long length)
-  : TThread(CreateSuspended), FGrid(AGrid), FFileName(AFileName),
-    buf(buffer), len(length)
+    TCsvGrid *AGrid, String AFileName, String AData)
+  : TThread(CreateSuspended), FGrid(AGrid), FFileName(AFileName), Data(AData)
 {
-}
-//---------------------------------------------------------------------------
-__fastcall FileOpenThread::~FileOpenThread()
-{
-  if(buf){
-    delete[] buf;
-  }
 }
 //---------------------------------------------------------------------------
 void __fastcall FileOpenThread::UpdateNextCell()
@@ -114,17 +102,17 @@ void __fastcall FileOpenThread::UpdateWidthHeight()
   }
 }
 //---------------------------------------------------------------------------
-AnsiString __fastcall FileOpenThread::NormalizeCRLF(AnsiString Val)
+String __fastcall FileOpenThread::NormalizeCRLF(String Val)
 {
   int len = Val.Length();
   for(int i=len; i > 0; i--){
-    if(Val[i] == '\n'){
-      if(i == 1 || Val[i-1] != '\r'){
-        Val.Insert("\r", i);
+    if(Val[i] == TEXT('\n')){
+      if(i == 1 || Val[i-1] != TEXT('\r')){
+        Val.Insert(TEXT("\r"), i);
       }
-    }else if(Val[i] == '\r'){
-      if(i == len || Val[i+1] != '\n'){
-        Val.Insert("\n", i+1);
+    }else if(Val[i] == TEXT('\r')){
+      if(i == len || Val[i+1] != TEXT('\n')){
+        Val.Insert(TEXT("\n"), i+1);
       }
     }
   }
@@ -136,15 +124,12 @@ void __fastcall FileOpenThread::Execute()
   TTypeOption *typeOption = Grid->TypeOption;
   int dt = Grid->DataTop;
   int dl = Grid->DataLeft;
-  AnsiString data;
-  if(buf[0]=='\xFF' && buf[1]=='\xFE'){
-    data = AnsiString(buf+2, len-2);
-  }else if(buf[0]=='\xFF'){
-    data = AnsiString(buf+1, len-1);
-  }else{
-    data = AnsiString(buf, len);
+  if (Data.Length() > 0) {
+    if (Data[1] == TEXT('\xFEFF') || Data[1] == TEXT('\xFFFE')) {
+      Data.Delete(1, 1);
+    }
   }
-  CsvReader *reader = new CsvReader(typeOption, data);
+  CsvReader *reader = new CsvReader(typeOption, Data);
 
   y = dt;
   x = dl;

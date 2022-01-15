@@ -62,7 +62,7 @@ object fmSort: TfmSort
     Associate = seSortLeft
     ArrowKeys = False
     Min = 1
-    Max = 32767
+    Max = 2147483647
     Position = 1
     TabOrder = 3
     Thousands = False
@@ -85,7 +85,7 @@ object fmSort: TfmSort
     Associate = seSortTop
     ArrowKeys = False
     Min = 1
-    Max = 32767
+    Max = 2147483647
     Position = 1
     TabOrder = 5
     Thousands = False
@@ -108,7 +108,7 @@ object fmSort: TfmSort
     Associate = seSortRight
     ArrowKeys = False
     Min = 1
-    Max = 32767
+    Max = 2147483647
     Position = 1
     TabOrder = 7
     Thousands = False
@@ -131,7 +131,7 @@ object fmSort: TfmSort
     Associate = seSortBottom
     ArrowKeys = False
     Min = 1
-    Max = 32767
+    Max = 2147483647
     Position = 1
     TabOrder = 9
     Thousands = False

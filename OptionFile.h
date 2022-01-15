@@ -23,7 +23,6 @@ __published:  // IDE 管理のコンポーネント
   TCheckBox *cbKanrenTSV;
   TGroupBox *gbCharCode;
   TCheckBox *cbCheckKanji;
-  TCheckBox *cbUnicodeWindowsMapping;
   TComboBox *cbLockFile;
   TLabel *Label1;
   TGroupBox *gbOpen;

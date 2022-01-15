@@ -18,7 +18,7 @@
 #include "Macro.h"
 #include "Compiler.h"
 #include "Find.h"
-#include "EncodedStream.h"
+#include "EncodedWriter.h"
 #include "Version.h"
 #include "Sort.h"
 //---------------------------------------------------------------------------
@@ -61,6 +61,7 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
   ReadToolBar();
 
   bool FileOpening = false;
+  StartupMacroDone = false;
   TimeStamp = 0;
   int wd=MainGrid->FixedCols;
   int ht=MainGrid->FixedRows;
@@ -73,7 +74,7 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
       }
     }else{
       FileName = ParamStr(i);
-      OpenFile(FileName, CHARCODE_AUTO, ExecStartupMacro);
+      OpenFile(FileName, CHARCODE_AUTO);
       FileOpening = true;
       break;
     }
@@ -96,7 +97,8 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
 
 #ifdef CssvMacro
   if(!FileOpening){
-    ExecStartupMacro(NULL);
+    StartupMacroDone = true;
+    ExecStartupMacro();
   }
   StatusbarMacroCache = new TStringList;
   AnsiString CmsFile = Pref->UserPath + "Macro\\!statusbar.cms";
@@ -121,7 +123,7 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
 #endif
 }
 //---------------------------------------------------------------------------
-void TfmMain::ExecStartupMacro(System::TObject* Sender)
+void TfmMain::ExecStartupMacro()
 {
   AnsiString CmsFile;
   CmsFile = Pref->SharedPath + "Macro\\!startup.cms";
@@ -129,6 +131,24 @@ void TfmMain::ExecStartupMacro(System::TObject* Sender)
     MacroExec(CmsFile, NULL);
   }
   CmsFile = Pref->UserPath + "Macro\\!startup.cms";
+  if(FileExists(CmsFile)){
+    MacroExec(CmsFile, NULL);
+  }
+}
+//---------------------------------------------------------------------------
+void TfmMain::ExecOpenMacro(System::TObject* Sender)
+{
+  if(!StartupMacroDone){
+    StartupMacroDone = true;
+    ExecStartupMacro();
+  }
+
+  AnsiString CmsFile;
+  CmsFile = Pref->SharedPath + "Macro\\!open.cms";
+  if(FileExists(CmsFile)){
+    MacroExec(CmsFile, NULL);
+  }
+  CmsFile = Pref->UserPath + "Macro\\!open.cms";
   if(FileExists(CmsFile)){
     MacroExec(CmsFile, NULL);
   }
@@ -172,6 +192,8 @@ void TfmMain::ReadIni()
     MainGrid->UrlColor    = (TColor)Ini->ReadInteger("Font","UrlColor",clBlue);
     MainGrid->FixFgColor  = (TColor)Ini->ReadInteger("Font","FixFgColor",MainGrid->Font->Color);
     MainGrid->FixedColor  = (TColor)Ini->ReadInteger("Font","FixedColor",MainGrid->FixedColor);
+    MainGrid->CurrentRowBgColor = (TColor)Ini->ReadInteger("Font","CurrentRowBgColor",MainGrid->Color);
+    MainGrid->CurrentColBgColor  = (TColor)Ini->ReadInteger("Font","CurrentColBgColor",MainGrid->Color);
     MainGrid->DummyBgColor  = (TColor)Ini->ReadInteger("Font","DummyBgColor",clCream);
     MainGrid->CalcFgColor  = (TColor)Ini->ReadInteger("Font","CalcFgColor",MainGrid->Font->Color);
     MainGrid->CalcBgColor  = (TColor)Ini->ReadInteger("Font","CalcBgColor",clAqua);
@@ -276,10 +298,13 @@ void TfmMain::ReadIni()
     SortIgnoreCase = Ini->ReadBool("Mode", "SortIgnoreCase", false);
     SortIgnoreZenhan = Ini->ReadBool("Mode", "SortIgnoreZenhan", false);
     MainGrid->CheckKanji = Ini->ReadBool("Mode","CheckKanji",false);
-    MainGrid->UnicodeWindowsMapping = Ini->ReadBool("Mode","UnicodeWindowsMapping",true);
     MainGrid->DefaultViewMode = Ini->ReadBool("Mode","DefaultViewMode", 0);
     MainGrid->CalcWidthForAllRow = Ini->ReadBool("Mode","CalcWidthForAllRow", 0);
     StopMacroCount = Ini->ReadInteger("Mode","StopMacro", 0);
+
+    FindCase = Ini->ReadBool("Search", "Case", true);
+    FindWordSearch = Ini->ReadBool("Search", "Word", false);
+    FindRegex = Ini->ReadBool("Search", "Regex", false);
 
     AnsiString LaunchName[3];
     mnAppli0->Hint = Ini->ReadString("Application", "E0", "");
@@ -343,6 +368,8 @@ void TfmMain::WriteIni(bool PosSlide)
     Ini->WriteInteger("Font","BgColor",MainGrid->Color);
     Ini->WriteInteger("Font","FixFgColor",MainGrid->FixFgColor);
     Ini->WriteInteger("Font","FixedColor",MainGrid->FixedColor);
+    Ini->WriteInteger("Font","CurrentRowBgColor",MainGrid->CurrentRowBgColor);
+    Ini->WriteInteger("Font","CurrentColBgColor",MainGrid->CurrentColBgColor);
     Ini->WriteInteger("Font","DummyBgColor",MainGrid->DummyBgColor);
     Ini->WriteInteger("Font","CalcFgColor",MainGrid->CalcFgColor);
     Ini->WriteInteger("Font","CalcBgColor",MainGrid->CalcBgColor);
@@ -413,10 +440,13 @@ void TfmMain::WriteIni(bool PosSlide)
     Ini->WriteBool("Mode", "SortIgnoreCase", SortIgnoreCase);
     Ini->WriteBool("Mode", "SortIgnoreZenhan", SortIgnoreZenhan);
     Ini->WriteBool("Mode","CheckKanji",MainGrid->CheckKanji);
-    Ini->WriteBool("Mode","UnicodeWindowsMapping",MainGrid->UnicodeWindowsMapping);
     Ini->WriteBool("Mode","DefaultViewMode", MainGrid->DefaultViewMode);
     Ini->WriteBool("Mode","CalcWidthForAllRow", MainGrid->CalcWidthForAllRow);
     Ini->WriteInteger("Mode","StopMacro", StopMacroCount);
+
+    Ini->WriteBool("Search", "Case", fmFind->cbCase->Checked);
+    Ini->WriteBool("Search", "Word", fmFind->cbWordSearch->Checked);
+    Ini->WriteBool("Search", "Regex", fmFind->cbRegex->Checked);
 
     Ini->WriteString("Application", "E0", mnAppli0->Hint);
     Ini->WriteString("Application", "N0", mnAppli0->Caption.c_str() + 4);
@@ -819,8 +849,7 @@ void __fastcall TfmMain::mnNewSizeClick(TObject *Sender)
   }
 }
 //---------------------------------------------------------------------------
-void TfmMain::OpenFile (String OpenFileName, int KCode,
-  void (__closure *OnTerminate)(System::TObject* Sender))
+void TfmMain::OpenFile (String OpenFileName, int KCode)
 {
   if(!FileExists(OpenFileName)){
     Application->MessageBox(
@@ -832,7 +861,7 @@ void TfmMain::OpenFile (String OpenFileName, int KCode,
     delete LockingFile;
     LockingFile = NULL;
   }
-  if(!MainGrid->LoadFromFile(OpenFileName, KCode, OnTerminate)){
+  if(!MainGrid->LoadFromFile(OpenFileName, KCode, ExecOpenMacro)){
     return;
   }
   FileName = OpenFileName;
@@ -1202,32 +1231,44 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
       if(ext == ""){ ext = (AnsiString)"." + type; }
       dlgSave->FileName = dlgSave->FileName + ext;
     }
+    Export(dlgSave->FileName, type);
+  }
+  dlgSave->Filter = strOrgFilter;
+  delete types;
+#endif
+}
+//---------------------------------------------------------------------------
+void TfmMain::Export(String filename, String type)
+{
+#ifdef CssvMacro
     AnsiString CmsFile = Pref->SharedPath + "Export\\" + type + ".cms";
     if(FileExists(Pref->UserPath + "Export\\" + type + ".cms")){
       CmsFile = Pref->UserPath + "Export\\" + type + ".cms";
     }
+    if(!FileExists(CmsFile)){
+      Application->MessageBox(
+          (type + " 形式ではエクスポートできません。").c_str(),
+          TEXT("Cassava Export"), 0);
+      return;
+    }
 
     TStream *out = NULL;
-    EncodedStream *es = NULL;
+    EncodedWriter *ew = NULL;
     TStringList *checkedMenus = NULL;
     try{
-      out = new TFileStream(dlgSave->FileName, fmCreate | fmShareDenyWrite);
-      es = new EncodedStream(out, MainGrid->KanjiCode,
-                             MainGrid->UnicodeWindowsMapping);
+      out = new TFileStream(filename, fmCreate | fmShareDenyWrite);
+      ew = new EncodedWriter(out, MainGrid->KanjiCode);
       checkedMenus = new TStringList();
       GetCheckedMenus(checkedMenus);
-      MacroExec(CmsFile, es);
+      MacroExec(CmsFile, ew);
       RestoreCheckedMenus(checkedMenus);
     }catch(Exception *e){
 	  Application->MessageBox(e->Message.c_str(),
                               TEXT("Cassava Macro Interpreter"), 0);
     }
     if(checkedMenus) { delete checkedMenus; }
-    if(es) { delete es; }
+    if(ew) { delete ew; }
     if(out) { delete out; }
-  }
-  dlgSave->Filter = strOrgFilter;
-  delete types;
 #endif
 }
 //---------------------------------------------------------------------------
@@ -2039,7 +2080,7 @@ void __fastcall TfmMain::acMacroTerminateUpdate(TObject *Sender)
   acMacroTerminate->Enabled = (GetRunningMacroCount() > 0);
 }
 //---------------------------------------------------------------------------
-void TfmMain::MacroExec(String CmsFile, TStream *io)
+void TfmMain::MacroExec(String CmsFile, EncodedWriter *io)
 {
 #ifdef CssvMacro
   AnsiString InName = ChangeFileExt(ExtractFileName(CmsFile),"");

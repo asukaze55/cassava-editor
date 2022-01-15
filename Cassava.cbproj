@@ -49,6 +49,9 @@
 			<Multithreaded>true</Multithreaded>
 		</PropertyGroup>
 		<PropertyGroup Condition="'$(Cfg_1)'!=''">
+			<BCC_MonitorGlobalAndStackData>true</BCC_MonitorGlobalAndStackData>
+			<BCC_MonitorThis>true</BCC_MonitorThis>
+			<BCC_MonitorInlinePtrAccess>true</BCC_MonitorInlinePtrAccess>
 			<BCC_Defines>_DEBUG;NO_WIN32_LEAN_AND_MEAN;$(BCC_Defines);$(BCC_Defines)</BCC_Defines>
 			<BCC_UserSuppliedOptions> -5 -Vx -Ve -k</BCC_UserSuppliedOptions>
 			<ILINK_LibraryPath>$(BDS)\lib\debug;$(ILINK_LibraryPath);$(ILINK_LibraryPath)</ILINK_LibraryPath>
@@ -88,16 +91,16 @@
 				<DependentOn>Compiler.h</DependentOn>
 				<BuildOrder>11</BuildOrder>
 			</CppCompile>
+			<CppCompile Include="FormattedFileName.cpp">
+				<BuildOrder>9</BuildOrder>
+				<DependentOn>FormattedFileName.h</DependentOn>
+				<BuildOrder>28</BuildOrder>
+			</CppCompile>
 			<CppCompile Include="Print.cpp">
 				<BuildOrder>7</BuildOrder>
 				<Form>fmPrint</Form>
 				<DependentOn>Print.h</DependentOn>
 				<BuildOrder>26</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="Nkf.cpp">
-				<BuildOrder>24</BuildOrder>
-				<DependentOn>Nkf.h</DependentOn>
-				<BuildOrder>13</BuildOrder>
 			</CppCompile>
 			<CppCompile Include="Cassava.cpp">
 				<BuildOrder>-1</BuildOrder>
@@ -118,19 +121,6 @@
 				<BuildOrder>-1</BuildOrder>
 				<BuildOrder>1</BuildOrder>
 			</ResFiles>
-			<CppCompile Include="CsvReader.cpp">
-				<DependentOn>CsvReader.h</DependentOn>
-				<BuildOrder>28</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="Sort.cpp">
-				<Form>fmSort</Form>
-				<DependentOn>Sort.h</DependentOn>
-				<BuildOrder>32</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="Version.cpp">
-				<DependentOn>Version.h</DependentOn>
-				<BuildOrder>31</BuildOrder>
-			</CppCompile>
 			<CppCompile Include="MainForm.cpp">
 				<BuildOrder>4</BuildOrder>
 				<Form>fmMain</Form>
@@ -138,26 +128,38 @@
 				<BuildOrder>15</BuildOrder>
 				<OptionOverrides>true</OptionOverrides>
 			</CppCompile>
-			<CppCompile Include="Macro.cpp">
-				<BuildOrder>25</BuildOrder>
-				<DependentOn>Macro.h</DependentOn>
-				<BuildOrder>10</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="FormattedFileName.cpp">
-				<BuildOrder>9</BuildOrder>
-				<DependentOn>FormattedFileName.h</DependentOn>
+			<CppCompile Include="CsvReader.cpp">
+				<DependentOn>CsvReader.h</DependentOn>
 				<BuildOrder>28</BuildOrder>
 			</CppCompile>
-			<CppCompile Include="TypeList.cpp">
-				<BuildOrder>23</BuildOrder>
-				<DependentOn>TypeList.h</DependentOn>
-				<BuildOrder>12</BuildOrder>
+			<CppCompile Include="EncodingDetector.cpp">
+				<DependentOn>EncodingDetector.h</DependentOn>
+				<BuildOrder>33</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="Version.cpp">
+				<DependentOn>Version.h</DependentOn>
+				<BuildOrder>31</BuildOrder>
 			</CppCompile>
 			<CppCompile Include="Preview.cpp">
 				<BuildOrder>5</BuildOrder>
 				<Form>fmPreview</Form>
 				<DependentOn>Preview.h</DependentOn>
 				<BuildOrder>16</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="Macro.cpp">
+				<BuildOrder>25</BuildOrder>
+				<DependentOn>Macro.h</DependentOn>
+				<BuildOrder>10</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="Sort.cpp">
+				<Form>fmSort</Form>
+				<DependentOn>Sort.h</DependentOn>
+				<BuildOrder>32</BuildOrder>
+			</CppCompile>
+			<CppCompile Include="TypeList.cpp">
+				<BuildOrder>23</BuildOrder>
+				<DependentOn>TypeList.h</DependentOn>
+				<BuildOrder>12</BuildOrder>
 			</CppCompile>
 			<CppCompile Include="KeyCustomize.cpp">
 				<BuildOrder>6</BuildOrder>
@@ -176,9 +178,9 @@
 				<DependentOn>AutoOpen.h</DependentOn>
 				<BuildOrder>16</BuildOrder>
 			</CppCompile>
-			<CppCompile Include="EncodedStream.cpp">
+			<CppCompile Include="EncodedWriter.cpp">
 				<BuildOrder>24</BuildOrder>
-				<DependentOn>EncodedStream.h</DependentOn>
+				<DependentOn>EncodedWriter.h</DependentOn>
 				<BuildOrder>13</BuildOrder>
 			</CppCompile>
 			<CppCompile Include="OptionDataFormat.cpp">
@@ -263,9 +265,9 @@
 			<FormResources Include="Size.dfm"/>
 			<FormResources Include="Print.dfm"/>
 			<FormResources Include="Letter.dfm"/>
-			<FormResources Include="Sort.dfm"/>
 			<FormResources Include="MainForm.dfm"/>
 			<FormResources Include="Preview.dfm"/>
+			<FormResources Include="Sort.dfm"/>
 			<FormResources Include="KeyCustomize.dfm"/>
 			<FormResources Include="Option.dfm"/>
 			<FormResources Include="OptionDataFormat.dfm"/>
@@ -300,9 +302,9 @@
 						<VersionInfo Name="IncludeVerInfo">True</VersionInfo>
 						<VersionInfo Name="AutoIncBuild">True</VersionInfo>
 						<VersionInfo Name="MajorVer">1</VersionInfo>
-						<VersionInfo Name="MinorVer">7</VersionInfo>
-						<VersionInfo Name="Release">3</VersionInfo>
-						<VersionInfo Name="Build">621</VersionInfo>
+						<VersionInfo Name="MinorVer">8</VersionInfo>
+						<VersionInfo Name="Release">5</VersionInfo>
+						<VersionInfo Name="Build">703</VersionInfo>
 						<VersionInfo Name="Debug">False</VersionInfo>
 						<VersionInfo Name="PreRelease">False</VersionInfo>
 						<VersionInfo Name="Special">False</VersionInfo>
@@ -314,13 +316,13 @@
 					<VersionInfoKeys>
 						<VersionInfoKeys Name="CompanyName"/>
 						<VersionInfoKeys Name="FileDescription">Cassava Editor</VersionInfoKeys>
-						<VersionInfoKeys Name="FileVersion">1.7.3.621</VersionInfoKeys>
+						<VersionInfoKeys Name="FileVersion">1.8.5.703</VersionInfoKeys>
 						<VersionInfoKeys Name="InternalName"/>
 						<VersionInfoKeys Name="LegalCopyright">あすかぜ</VersionInfoKeys>
 						<VersionInfoKeys Name="LegalTrademarks"/>
 						<VersionInfoKeys Name="OriginalFilename"/>
 						<VersionInfoKeys Name="ProductName">Cassava Editor</VersionInfoKeys>
-						<VersionInfoKeys Name="ProductVersion">1.7.3</VersionInfoKeys>
+						<VersionInfoKeys Name="ProductVersion">1.8.0</VersionInfoKeys>
 						<VersionInfoKeys Name="Comments"/>
 					</VersionInfoKeys>
 					<HistoryLists_hlIncludePath>

@@ -13,27 +13,31 @@
 class TfrOptionColor : public TFrame
 {
 __published:	// IDE 管理のコンポーネント
-    TGroupBox *gbColor;
-    TLabel *lblFgColor;
-    TLabel *lblBgColor;
-    TLabel *lblFixBgColor;
-    TLabel *lblCalcFgColor;
-    TLabel *lblCalcBgColor;
-    TLabel *lblCalcErrorFgColor;
-    TLabel *lblCalcErrorBgColor;
-    TLabel *lblFixFgColor;
-    TLabel *lblDummyBgColor;
-    TLabel *lblUrlColor;
-    TColorBox *cbFgColor;
-    TColorBox *cbBgColor;
-    TColorBox *cbFixFgColor;
-    TColorBox *cbFixBgColor;
-    TColorBox *cbCalcFgColor;
-    TColorBox *cbCalcBgColor;
-    TColorBox *cbCalcErrorFgColor;
-    TColorBox *cbCalcErrorBgColor;
-    TColorBox *cbDummyBgColor;
-    TColorBox *cbUrlColor;
+  TGroupBox *gbColor;
+  TLabel *lblFgColor;
+  TLabel *lblBgColor;
+  TLabel *lblFixBgColor;
+  TLabel *lblCurrentRowBgColor;
+  TLabel *lblCurrentColBgColor;
+  TLabel *lblCalcFgColor;
+  TLabel *lblCalcBgColor;
+  TLabel *lblCalcErrorFgColor;
+  TLabel *lblCalcErrorBgColor;
+  TLabel *lblFixFgColor;
+  TLabel *lblDummyBgColor;
+  TLabel *lblUrlColor;
+  TColorBox *cbFgColor;
+  TColorBox *cbBgColor;
+  TColorBox *cbFixFgColor;
+  TColorBox *cbFixBgColor;
+  TColorBox *cbCurrentColBgColor;
+  TColorBox *cbCurrentRowBgColor;
+  TColorBox *cbCalcFgColor;
+  TColorBox *cbCalcBgColor;
+  TColorBox *cbCalcErrorFgColor;
+  TColorBox *cbCalcErrorBgColor;
+  TColorBox *cbDummyBgColor;
+  TColorBox *cbUrlColor;
 	void __fastcall cbFgColorChange(TObject *Sender);
 	void __fastcall cbBgColorChange(TObject *Sender);
 private:	// ユーザー宣言

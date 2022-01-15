@@ -131,6 +131,10 @@ object fmFind: TfmFind
     object tsNumSearch: TTabSheet
       Caption = #25968#20516#26908#32034'(&V)'
       ImageIndex = 1
+      ExplicitLeft = 0
+      ExplicitTop = 0
+      ExplicitWidth = 0
+      ExplicitHeight = 0
       object Label3: TLabel
         Left = 152
         Top = 52

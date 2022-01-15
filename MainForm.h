@@ -333,10 +333,10 @@ __published:	// IDE 管理のコンポーネント
     void __fastcall acPasteUpdate(TObject *Sender);
 
 private:    // ユーザー宣言
-  void UpdateKCode();
-  void OpenFile(String OpenFileName, int KCode=CHARCODE_AUTO,
-	void (__closure *OnTerminate)(System::TObject* Sender)=NULL);
-  void ExecStartupMacro(System::TObject* Sender);
+  void OpenFile(String OpenFileName, int KCode=CHARCODE_AUTO);
+  bool StartupMacroDone;
+  void ExecStartupMacro();
+  void ExecOpenMacro(System::TObject* Sender);
   void SaveFile(TTypeOption *Format);
   void GetCheckedMenus(TStringList *list);
   void AddCheckedMenus(TStringList *list, TMenuItem* item);
@@ -380,9 +380,11 @@ public:     // ユーザー宣言
   void SetPasteMenu(TMenuItem *Item);
   void SetGridFont(TFont *AFont);
 
-  void MacroExec(String CmsFile, TStream *io);
+  void MacroExec(String CmsFile, EncodedWriter *io);
   void MacroScriptExec(String cmsname, String script);
   String GetCalculatedCell(String Str, int ACol, int ARow);
+  void UpdateKCode();
+  void Export(String filename, String type);
 
   bool MakeNewWindow;
   bool TitleFullPath;
@@ -407,6 +409,11 @@ public:     // ユーザー宣言
   bool SortByNumber;
   bool SortIgnoreCase;
   bool SortIgnoreZenhan;
+
+  // After fmFind loaded, Use fmFind->cbCase->Checked.
+  bool FindCase;
+  bool FindWordSearch;
+  bool FindRegex;
 
   String PrintFontName;
   int PrintFontSize;

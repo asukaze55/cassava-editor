@@ -145,37 +145,38 @@ bool TTokenizer::Read(char *c) {
 //---------------------------------------------------------------------------
 AnsiString TTokenizer::GetString(char EOS)
 {
-	AnsiString s = "";
-	char c;
-	while(Read(&c)){
-		if(c == EOS){
-			return s;
-		}else if(c == '\n'){
-			throw CMCException("文字列定数が終了していません。");
-		}else if(c == '\\'){
-			Read(&c);
-			if(c == 'n') c = '\n';
-			else if(c == 't') c = '\t';
-			else if(c == 'x'){
-       char x, ci, xi;
-       Read(&c); Read(&x);
-       if(c >= '0' && c <= '9') { ci = (c - '0'); }
-       else if(c >= 'A' && c <= 'F') { ci = (c - 'A') + 10; }
-       else if(c >= 'a' && c <= 'f') { ci = (c - 'a') + 10; }
-       else { throw CMCException("\\x?? エスケープシーケンス が不正です。"); }
-       if(x >= '0' && x <= '9') { xi = (x - '0'); }
-       else if(x >= 'A' && x <= 'F') { xi = (x - 'A') + 10; }
-       else if(x >= 'a' && x <= 'f') { xi = (x - 'a') + 10; }
-       else { throw CMCException("\\x?? エスケープシーケンス が不正です。"); }
-       c = ci * 16 + xi;
+  AnsiString s = "";
+  char c;
+  while (Read(&c)) {
+    unsigned char uc = (unsigned char) c;
+    if (c == EOS) {
+      return s;
+    } else if(c == '\n') {
+      throw CMCException("文字列定数が終了していません。");
+    } else if(c == '\\') {
+      Read(&c);
+      if(c == 'n') c = '\n';
+      else if(c == 't') c = '\t';
+      else if(c == 'x'){
+        char x, ci, xi;
+        Read(&c); Read(&x);
+        if(c >= '0' && c <= '9') { ci = (c - '0'); }
+        else if(c >= 'A' && c <= 'F') { ci = (c - 'A') + 10; }
+        else if(c >= 'a' && c <= 'f') { ci = (c - 'a') + 10; }
+        else { throw CMCException("\\x?? エスケープシーケンス が不正です。"); }
+        if(x >= '0' && x <= '9') { xi = (x - '0'); }
+        else if(x >= 'A' && x <= 'F') { xi = (x - 'A') + 10; }
+        else if(x >= 'a' && x <= 'f') { xi = (x - 'a') + 10; }
+        else { throw CMCException("\\x?? エスケープシーケンス が不正です。"); }
+        c = ci * 16 + xi;
       }
-		}else if(c < 0){
+    } else if ((uc >= 0x80 && uc < 0xa0) || uc >= 0xe0) {
       s += c;
       Read(&c);
     }
-		s += c;
-	}
-	throw CMCException("文字列定数が終了していません。");
+    s += c;
+  }
+  throw CMCException("文字列定数が終了していません。");
 }
 //---------------------------------------------------------------------------
 bool IsNumChar(char c) { return ((c >= '0' && c <= '9') || c=='.'); }

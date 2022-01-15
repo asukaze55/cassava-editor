@@ -11,6 +11,9 @@ TfmFind *fmFind;
 __fastcall TfmFind::TfmFind(TComponent* Owner)
         : TForm(Owner)
 {
+  cbCase->Checked = fmMain->FindCase;
+  cbWordSearch->Checked = fmMain->FindWordSearch;
+  cbRegex->Checked = fmMain->FindRegex;
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmFind::FormShow(TObject *Sender)

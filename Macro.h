@@ -4,9 +4,10 @@
 #define MacroH
 //---------------------------------------------------------------------------
 #include <vcl.h>
+#include "EncodedWriter.h"
 //---------------------------------------------------------------------------
-AnsiString ExecMacro(AnsiString FileName, int MaxLoop,
-  TStringList *Modules, int x, int y, TStream *IO=NULL, bool IsCellMacro=false);
+String ExecMacro(String FileName, int MaxLoop, TStringList *Modules,
+  int x, int y, EncodedWriter *IO=NULL, bool IsCellMacro=false);
 
 void StopAllMacros();
 
