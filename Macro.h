@@ -3,10 +3,10 @@
 #ifndef MacroH
 #define MacroH
 //---------------------------------------------------------------------------
-#include "MainForm.h"
+#include <vcl.h>
 
-void ExecMacro(AnsiString FileName, int MaxLoop,
-  AnsiString Read="", AnsiString Write="");
+AnsiString ExecMacro(AnsiString FileName, int MaxLoop,
+  TStringList *Modules, int x, int y, TStream *IO=NULL, bool IsCellMacro=false);
 //---------------------------------------------------------------------------
 #endif
 #endif

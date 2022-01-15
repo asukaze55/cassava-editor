@@ -14,17 +14,21 @@ TfmPrint *fmPrint;
 __fastcall TfmPrint::TfmPrint(TComponent* Owner)
         : TForm(Owner)
 {
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmPrint::FormShow(TObject *Sender)
+{
   DataWidth = fmMain->MainGrid->DataRight - fmMain->MainGrid->DataLeft + 1;
   DataHeight = fmMain->MainGrid->DataBottom - fmMain->MainGrid->DataTop + 1;
   Widths = new int[DataWidth+2];
   Printer()->Canvas->Font->Name = fmMain->PrintFontName;
   Printer()->Canvas->Font->Size = fmMain->PrintFontSize;
-  csYohaku0->Value = fmMain->PrintMargin[0];
-  csYohaku1->Value = fmMain->PrintMargin[1];
-  csYohaku2->Value = fmMain->PrintMargin[2];
-  csYohaku3->Value = fmMain->PrintMargin[3];
+  csYohaku0->Text = AnsiString(fmMain->PrintMargin[0]);
+  csYohaku1->Text = AnsiString(fmMain->PrintMargin[1]);
+  csYohaku2->Text = AnsiString(fmMain->PrintMargin[2]);
+  csYohaku3->Text = AnsiString(fmMain->PrintMargin[3]);
   lblFont->Caption = Printer()->Canvas->Font->Name + "    " +
-                     Printer()->Canvas->Font->Size + " pt";
+					 Printer()->Canvas->Font->Size + " pt";
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmPrint::FormClose(TObject *Sender, TCloseAction &Action)
@@ -32,38 +36,39 @@ void __fastcall TfmPrint::FormClose(TObject *Sender, TCloseAction &Action)
   delete Widths;
   fmMain->PrintFontName = Printer()->Canvas->Font->Name;
   fmMain->PrintFontSize = Printer()->Canvas->Font->Size;
-  fmMain->PrintMargin[0] = csYohaku0->Value;
-  fmMain->PrintMargin[1] = csYohaku1->Value;
-  fmMain->PrintMargin[2] = csYohaku2->Value;
-  fmMain->PrintMargin[3] = csYohaku3->Value;
+  fmMain->PrintMargin[0] = udYohaku0->Position;
+  fmMain->PrintMargin[1] = udYohaku1->Position;
+  fmMain->PrintMargin[2] = udYohaku2->Position;
+  fmMain->PrintMargin[3] = udYohaku3->Position;
 }
 //---------------------------------------------------------------------------
 void TfmPrint::PrintOut()
 {
-  Printer()->Title = "Cassava";
-  Printer()->Copies = 1;
-  Printer()->BeginDoc();
+  TPrinter *printer = Printer();
+  printer->Title = "Cassava";
+  printer->Copies = 1;
+  printer->BeginDoc();
   int Row = 1;
   bool NewPage = false;
-  const float mmPt = Printer()->Canvas->Font->PixelsPerInch / 25.4;
-  Yohaku[0] = csYohaku0->Value * mmPt;
-  Yohaku[1] = csYohaku1->Value * mmPt;
-  Yohaku[2] = csYohaku2->Value * mmPt;
-  Yohaku[3] = csYohaku3->Value * mmPt;
+  const double mmPt = printer->Canvas->Font->PixelsPerInch / 25.4;
+  Yohaku[0] = udYohaku0->Position * mmPt;
+  Yohaku[1] = udYohaku1->Position * mmPt;
+  Yohaku[2] = udYohaku2->Position * mmPt;
+  Yohaku[3] = udYohaku3->Position * mmPt;
 
   fmMain->MainGrid->CompactWidth(Widths,
-    Printer()->PageWidth-Yohaku[0]-Yohaku[1], 16, Printer()->Canvas);
+	printer->PageWidth-Yohaku[0]-Yohaku[1], 16, printer->Canvas);
 
 
   while(Row <= fmMain->MainGrid->DataBottom)
   {
-    if(NewPage) Printer()->NewPage();
-    Print(Printer()->Canvas, Printer()->PageWidth,
-                             Printer()->PageHeight-Yohaku[3], &Row);
+	if(NewPage) printer->NewPage();
+	Print(printer->Canvas, printer->PageWidth,
+						   printer->PageHeight-Yohaku[3], &Row);
     NewPage = true;
   }
 
-  Printer()->EndDoc();
+  printer->EndDoc();
 
 }
 //---------------------------------------------------------------------------
@@ -76,7 +81,7 @@ void TfmPrint::Print(TCanvas *Canvas, int Width, int Height, int *Top)
     WdSum += Widths[i];
   }
 
-  int y=Yohaku[0];
+  int y=Yohaku[2];
   while(*Top <= DataHeight && y < Bottom){
     Canvas->MoveTo(Yohaku[0],y);
     Canvas->LineTo(Yohaku[0]+WdSum,y);

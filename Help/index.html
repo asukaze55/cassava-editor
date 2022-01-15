@@ -1,11 +1,143 @@
-<html>
+<?xml version="1.0" encoding="euc-jp" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="ja" xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
-  <link rel="stylesheet" HREF="cassava.css">
-  <title>Cassava Editor</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=euc-jp" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <title>Cassava Editor ヘルプ</title>
+  <link rel="stylesheet" type="text/css" href="cassava.css" />
 </head>
-<frameset cols="20%,80%" border="0">
-  <frame src="contents.html" scrolling="no">
-  <frame src="top.html" name="main">
-</frameset>
+<body>
+
+<!-- HEAD LINE -->
+<div class="headline">
+  <a href="http://www.asukaze.net/">
+    <img src="asukaze.png" width="88" height="31"
+      alt="[あすかぜ・ねっと]" title="あすかぜ・ねっと"
+      class="headline" />あすかぜ・ねっと</a> ＞
+  <a href="http://www.asukaze.net/soft/index.html">自作ソフト</a> ＞
+  <a href="http://www.asukaze.net/soft/cassava/index.html">Cassava</a> ＞
+  ヘルプ
+</div>
+
+<h1>Cassava Editor ヘルプ</h1>
+
+<!-- MAIN VIEW -->
+<div class="mainview">
+
+CSV(Comma Separated Value)ファイルを手軽に作成・編集するフリーソフトです。
+
+<h2>主な特徴</h2>
+<h3>対応形式</h3>
+<p>
+カンマ区切りだけでなく、タブ区切りのデータも読込めるため、
+エクセルからクリップボード経由でデータを貼り付けることが出来ます。
+書き出し時、ダブルクォーテーションを全てのデータにつけたり、
+文字列のみに付けたり、あるいはカンマを含むデータのみにつけたりすることが出来ます。
+</p>
+<p>
+Shift-JIS, EUC, JIS, UTF-8, UTF-16 の文字コードを読み書きできます。
+（内部的には Windows-31J でデータを扱うため、日本語以外の文字や拡張文字は扱えません）
+</p>
+
+<h3>キーボード処理の充実</h3>
+<p>
+マウスとキーボードを交互に使う煩わしさを避けるため、
+キーボードでの操作がしやすいようにしてあります。
+キーカスタマイズを設定すれば、すべてのメニュー操作を好きなキーで実行できます。
+</p>
+
+<h3>マクロ対応</h3>
+<p>
+形式的な処理を自動で行うマクロ機能を搭載。
+基本的な計算機能を備え、簡易表計算機能が実現できます。
+スクリプトファイルを実行できるだけでなく、
+セル内に直接書き込んだ計算式も処理できます。
+</p>
+
+<h3>新規データの作成・データの追加が便利</h3>
+<p>
+データの一番下と一番右にダミーの行と列が用意されており、
+そこにデータを書き込むだけで新規データを追加できます。
+（一番下の空行・一番右の空列は保存しません。)
+</p>
+<p>
+最後の行以外に挿入する場合は、
+以下のようなキーボードショートカットが用意されています。
+</p>
+<dl>
+  <dt>Shift+Enter</dt>
+  <dd>カーソル位置に行挿入（カーソルは挿入した行に残る）</dd>
+  <dt>一番左でCtrl+Enter</dt>
+  <dd>カーソル位置に行挿入（カーソルは次の行に移動）</dd>
+  <dt>一番右でCtrl+Enter</dt>
+  <dd>カーソルの次の行に行挿入（カーソルは挿入した行に移動）</dd>
+</dl>
+
+<h3>検索機能の充実</h3>
+<p>
+通常の文字列検索・置換の他、セル全体との完全一致・正規表現・数値の範囲指定での検索が可能です。
+</p>
+	
+<h3>宛名印刷機能</h3>
+<p>
+住所録のCSVファイルから直接葉書に宛名を印刷することが出来ます。
+</p>
+
+<h3>外部ソフトの起動</h3>
+<p>
+ファイル管理やインターネットのURLの管理にCassavaを使っている場合、
+F5キーを押すだけでそこに書いてあるファイル・URLを
+関連付けされている外部ソフトで開くことができます。
+</p>
+
+</div>
+
+<!-- SIDE PANE -->
+<div class="sidepane">
+
+<h2 class="sectitle">Menu</h2>
+
+<div class="MainMenuSel">Cassava ヘルプ</div>
+<div class="MainMenu"><a href="about.html">Cassavaとは</a></div>
+<div class="MainMenu"><a href="install.html">インストール</a></div>
+<div class="MainMenu">メニュー</div>
+  <ul class="MainMenu">
+    <li><a href="filemenu.html" title="[ファイル]メニュー">ファイル</a></li>
+    <li><a href="editmenu.html" title="[編集]メニュー">編集</a></li>
+    <li><a href="insdelmenu.html" title="[挿入・削除]メニュー">挿入・削除</a></li>
+    <li><a href="findmenu.html" title="[検索]メニュー">検索</a></li>
+    <li><a href="viewmenu.html" title="[表示]メニュー">表示</a></li>
+    <li><a href="optionmenu.html" title="[オプション]メニュー">オプション</a>
+      <ul class="MainMenu">
+        <li><a href="dataoption.html" title="[データ形式]オプション">データ形式</a></li>
+        <li><a href="fileoption.html" title="[ファイル]オプション">ファイル</a></li>
+        <li><a href="behavioroption.html" title="[動作]オプション">動作</a></li>
+        <li><a href="backupoption.html" title="[バックアップ]オプション">バックアップ</a></li>
+        <li><a href="applioption.html" title="[外部アプリ連携]オプション">外部アプリ連携</a></li>
+        <li><a href="coloroption.html" title="[フォント・色]オプション">フォント・色</a></li>
+      </ul>
+    </li>
+    <li><a href="helpmenu.html" title="[ヘルプ]メニュー">ヘルプ</a></li>
+  </ul>
+<div class="MainMenu"><a href="key.html">キー操作</a></div>
+<div class="MainMenu"><a href="macro.html">マクロ</a></div>
+  <ul class="MainMenu">
+    <li><a href="macroref.html">リファレンス</a></li>
+  </ul>
+<div class="MainMenu"><a href="letter.html">はがき印刷</a></div>
+<div class="MainMenu"><a href="contact.html">著作権・連絡先</a></div>
+
+</div>
+
+<!-- SIGN -->
+<br style="clear: both;" />
+<address>
+  Copyright (C) 2000-2007 asukaze, Some Rights Reserved.<br />
+  mail (at) asukaze.net
+</address>
+<!-- ==== -->
+
+</body>
 </html>

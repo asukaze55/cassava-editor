@@ -1,6 +1,7 @@
   html, body {
     background: #ffffff;
     color: #000000;
+    margin: 0px;
   }
   h1 {
     color: #0066ff;
@@ -15,12 +16,42 @@
     font-weight: bold;
   }
   h3 { 
-    border-bottom: 3px solid #ffcc66;
+    border-left: 10px solid #ffcc66;
+    padding-left: 10px;
     color: #993300;
     font-size: 110%;
     font-weight: bold;
-    margin-left: 40px;
   }
+
+  .mainview {
+    margin-left: 10em;
+    padding-bottom: 30px;
+    padding-left: 30px;
+    padding-right: 30px;
+  }
+  a.noul       { text-decoration: none; }
+  a.noul:hover { text-decoration: underline; }
+  ul           { margin-bottom: 1em; }
+  ul.nomargin  { margin-bottom: 0em; }
+
+  div.advertisement {
+    text-align: center;
+  }
+  div.headline {
+    background-color: #ccffff;
+    color: #666666;
+    font-size: 80%;
+    margin: 0px;
+    padding: 0px;
+  }
+  img.headline { 
+    border: 0px; 
+    margin-right: 20px;
+    vertical-align:middle;
+  }
+  img.counter          { float: right; vertical-align:middle; }
+  div.headline a       { text-decoration: none; }
+  div.headline a:hover { text-decoration: underline; }
 
   div.sign, address {
     background-color: #ccffff;
@@ -28,15 +59,22 @@
     font-style: normal;
   }
 
-  a.noul       { text-decoration: none; }
-
-  .sidepane { float: left; padding: 5px; }
-  div.sectitle {
+  .sidepane {
+    float: left;
+    padding: 5px;
+    position: absolute;
+    top: 5em;
+    left: 0px;
+  }
+  .sectitle {
     background-color: #cccccc;
     border-bottom: 1px solid #999999;
     border-right: 1px solid #999999;
     font-weight: bold; 
     padding: 2px;
+    margin: 0px;
+    color: #000000;
+    font-size: 100%;
   }
   div.MainMenu {
     background-color: #99ccff;
@@ -45,8 +83,7 @@
     border-right: 1px solid #6699cc;
     border-top: 1px solid #ccffff;
     font-weight: bold; 
-    word-break: keep-all;
-    padding: 3px 3px 3px 3px;
+    padding: 3px 30px 3px 3px;
   }
   div.MainMenuSel {
     background-color: #66ccff;
@@ -69,4 +106,36 @@
   }
   .Sel { font-weight: bold; }
   .Comment { font-size: 80%; margin-left: 10px; margin-right: 10px; }
+  .sidead {
+    text-align: center;
+    padding: 1em 0px 3em 0px;
+    background-color: #ccffff;
+  }
 
+  div.download {
+    background-color: #ccffff;
+    border: 3px outset #ccffff;
+    margin: 1px;
+    padding: 15px;
+    text-align: center; 
+  }
+
+  td.CalWritten { background-color: #ff6600; cursor: pointer; }
+  p.intercut { text-align: center; }
+  .diary_id { text-align: right; }
+  .calendar {
+    background-color: #66ff66;
+    padding: 5px;
+  }
+  .trackback { text-align: right; font-size: 80%; }
+  .diary_id { text-align: right; color: #660000; }
+  blockquote.Mail { background-color: #cccccc; }
+  .ps { color: #330066; margin: 1em; }
+  #pickup {
+    background-color: #ccffcc;
+    padding: 2px;
+    text-align: left;
+  }
+
+  dl { margin-left: 1em; }
+  dt { font-weight: bold; }

@@ -11,18 +11,28 @@ AnsiString FormattedFileName(AnsiString Format, AnsiString BaseFileName)
   AnsiString Body2 = ChangeFileExt(FileName2,"");
   if(Ext2.Length() >= 1 && Ext2[1]=='.') Ext2.Delete(1,1);
 
-  AnsiString FileName = Format;
-
-  int p;
-  while((p = FileName.AnsiPos("%f")) > 0){
-    FileName.Delete(p, 2);
-    FileName.Insert(Body2, p);
+  AnsiString FileName = "";
+  for(int i=1; i<=Format.Length(); i++){
+    if(Format[i] == '%' && i < Format.Length()){
+      i++;
+      char ch = Format[i];
+      switch(ch){
+      case 'f':
+        FileName += Body2;
+        break;
+      case 'x':
+        FileName += Ext2;
+        break;
+      default:
+        FileName += '%';
+        FileName += ch;
+        break;
+      }
+    }else{
+      FileName += Format[i];
+    }
   }
-  while((p = FileName.AnsiPos("%x")) > 0){
-    FileName.Delete(p, 2);
-    FileName.Insert(Ext2, p);
-  }
-  if((Ext2.Length() < 2) ||
+  if((Format.Length() < 2) ||
      ((Format[1]!='\\') && (Format[2]!=':') && (Format[1]!='/'))) {
     FileName = Path2 + FileName;
   }

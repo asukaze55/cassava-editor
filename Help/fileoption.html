@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="euc-jp" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="ja" xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=euc-jp" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <title>ファイルオプション - Cassava Editor ヘルプ</title>
+  <link rel="stylesheet" type="text/css" href="cassava.css" />
+</head>
+<body>
+
+<!-- HEAD LINE -->
+<div class="headline">
+  <a href="http://www.asukaze.net/">
+    <img src="asukaze.png" width="88" height="31"
+      alt="[あすかぜ・ねっと]" title="あすかぜ・ねっと"
+      class="headline" />あすかぜ・ねっと</a> ＞
+  <a href="http://www.asukaze.net/soft/index.html">自作ソフト</a> ＞
+  <a href="http://www.asukaze.net/soft/cassava/index.html">Cassava</a> ＞
+  <a href="index.html">ヘルプ</a> ＞
+  ファイルオプション
+</div>
+
+<h1>ファイルオプション</h1>
+
+<!-- MAIN VIEW -->
+<div class="mainview">
+
+<p>
+ファイルオプションでは、ファイルの開き方などを設定できます。
+</p>
+
+<h2>各オプションの説明</h2>
+
+<h3>開く</h3>
+  <dl>
+  <dt>ファイルを新しいウィンドウで開く</dt>
+  <dd>「新規作成」・「開く」・ファイルのドラッグ＆ドロップ時に新しいウィンドウを作成します。</dd>
+  <dt>ファイル名をフルパスで表示</dt>
+  <dd>タイトルバーにファイルの場所を表示します。</dd>
+  </dl>
+<h3>排他制御</h3>
+  <dl>
+  <dt>ロックしない</dt>
+  <dd>他のプロセスがファイルを更新するのを禁止しません。</dd>
+  <dt>変更したファイルをロック</dt>
+  <dd>未保存の変更がある間、他のプロセスがファイルを更新するのを禁止します。
+      ファイルを保存するとロックが解除されます。</dd>
+  <dt>開いているファイルをロック</dt>
+  <dd>他のプロセスがCassavaで開いているファイルをを更新するのを禁止します。
+      Cassavaを終了するかファイルを閉じるとロックが解除されます。</dd>
+  <dt>ファイルのタイムスタンプをチェックする</dt>
+  <dd>Cassavaがアクティブになったときに、ファイルが更新されていないか確認します。
+      他のプロセスがファイルを更新していた場合には確認のダイアログが表示されます。</dd>
+  </dl>
+<h3>文字コード</h3>
+  <dl>
+  <dt>ロード時に文字コードを判別する</dt>
+  <dd>ファイルを開くときに自動的に文字コードを判別し、適切な文字コードで開きます。
+      チェックしていない場合、常にShift_JIS(Windows31J)として開きます</dd>
+  <dt>Unicode変換はWindowsマッピングルールに従う</dt>
+  <dd>UTF-8・UTF-16LE・UTF-16BEでの保存時に、Shift_JIS→Unicodeのマッピングルールではなく
+      Windows31J→Unicodeのマッピングルールを使います。
+      Cassavaで保存したファイルの「〜‖−¢£¬」などの文字が
+      他のソフトで読み込んだときに文字化けする場合、このオプションを変更してみてください。</dd>
+  </dl>
+<h3>関連付け</h3>
+  <dl>
+  <dt>CSVファイルをCassavaに関連付け</dt>
+  <dd>関連付けを変更してCSVファイルを標準でCassavaで開くようにします。
+      チェックをはずすと、もとの設定に戻すことができます。
+      この設定はレジストリの値を書き換えます。</dd>
+  <dt>CSVをエクスプローラの「新規作成」に追加</dt>
+  <dd>エクスプローラ上の右クリックからCSVファイルを作成できるようにします。 
+      チェックをはずすと、設定を解除することができます。
+      この設定はレジストリの値を書き換えます。</dd>
+  <dt>TSVファイルをCassavaに関連付け</dt>
+  <dd>関連付けを変更してTSVファイルを標準でCassavaで開くようにします。
+      チェックをはずすと、もとの設定に戻すことができます。
+      この設定はレジストリの値を書き換えます。</dd>
+  <dt>TSVをエクスプローラの「新規作成」に追加</dt>
+  <dd>エクスプローラ上の右クリックからTSVファイルを作成できるようにします。 
+      チェックをはずすと、設定を解除することができます。
+      この設定はレジストリの値を書き換えます。</dd>
+  </dl>
+</div>
+
+<!-- SIDE PANE -->
+<div class="sidepane">
+
+<h2 class="sectitle">Menu</h2>
+
+<div class="MainMenu"><a href="index.html">Cassava ヘルプ</a></div>
+<div class="MainMenu"><a href="about.html">Cassavaとは</a></div>
+<div class="MainMenu"><a href="install.html">インストール</a></div>
+<div class="MainMenuSel">メニュー</div>
+  <ul class="MainMenu">
+    <li><a href="filemenu.html" title="[ファイル]メニュー">ファイル</a></li>
+    <li><a href="editmenu.html" title="[編集]メニュー">編集</a></li>
+    <li><a href="insdelmenu.html" title="[挿入・削除]メニュー">挿入・削除</a></li>
+    <li><a href="findmenu.html" title="[検索]メニュー">検索</a></li>
+    <li><a href="viewmenu.html" title="[表示]メニュー">表示</a></li>
+    <li><a href="optionmenu.html" title="[オプション]メニュー">オプション</a>
+      <ul class="MainMenu">
+        <li><a href="dataoption.html" title="[データ形式]オプション">データ形式</a></li>
+        <li class="Sel">ファイル</li>
+        <li><a href="behavioroption.html" title="[動作]オプション">動作</a></li>
+        <li><a href="backupoption.html" title="[バックアップ]オプション">バックアップ</a></li>
+        <li><a href="applioption.html" title="[外部アプリ連携]オプション">外部アプリ連携</a></li>
+        <li><a href="coloroption.html" title="[フォント・色]オプション">フォント・色</a></li>
+      </ul>
+    </li>
+    <li><a href="helpmenu.html" title="[ヘルプ]メニュー">ヘルプ</a></li>
+  </ul>
+<div class="MainMenu"><a href="key.html">キー操作</a></div>
+<div class="MainMenu"><a href="macro.html">マクロ</a></div>
+  <ul class="MainMenu">
+    <li><a href="macroref.html">リファレンス</a></li>
+  </ul>
+<div class="MainMenu"><a href="letter.html">はがき印刷</a></div>
+<div class="MainMenu"><a href="contact.html">著作権・連絡先</a></div>
+
+</div>
+
+<!-- SIGN -->
+<br style="clear: both;" />
+<address>
+  Copyright (C) 2000-2007 asukaze, Some Rights Reserved.<br />
+  mail (at) asukaze.net
+</address>
+<!-- ==== -->
+
+</body>
+</html>

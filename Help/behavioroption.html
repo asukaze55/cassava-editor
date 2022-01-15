@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="euc-jp" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="ja" xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=euc-jp" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <title>動作オプション - Cassava Editor ヘルプ</title>
+  <link rel="stylesheet" type="text/css" href="cassava.css" />
+</head>
+<body>
+
+<!-- HEAD LINE -->
+<div class="headline">
+  <a href="http://www.asukaze.net/">
+    <img src="asukaze.png" width="88" height="31"
+      alt="[あすかぜ・ねっと]" title="あすかぜ・ねっと"
+      class="headline" />あすかぜ・ねっと</a> ＞
+  <a href="http://www.asukaze.net/soft/index.html">自作ソフト</a> ＞
+  <a href="http://www.asukaze.net/soft/cassava/index.html">Cassava</a> ＞
+  <a href="index.html">ヘルプ</a> ＞
+  動作オプション
+</div>
+
+<h1>動作オプション</h1>
+
+<!-- MAIN VIEW -->
+<div class="mainview">
+
+<p>
+動作オプションでは、編集時のCassavaの挙動を変更できます。
+</p>
+
+<h2>各オプションの説明</h2>
+
+<h3>固定セルドラッグ時の動作</h3>
+  <ul>
+  <li>表の一番上・一番左にある固定セルをドラッグしたときの動作を変更します。</li>
+  </ul>
+  <dl>
+  <dt>行･列の移動</dt>
+  <dd>固定セルをつかんで、行・列を入れ替えることができます。</dd>
+  <dt>複数行・列選択</dt>
+  <dd>固定セルのドラッグで、複数行・列をまとめて選択できます。</dd>
+  </dl>
+<h3>Enterキーでのセル移動</h3>
+  <ul>
+  <li>Enterキーを押したときに、下もしくは右のセルに移動することができます。</li>
+  </ul>
+<h3>左カーソルキーでセル内を移動する</h3>
+  <ul>
+  <li>編集モードで左カーソルキーを押した場合、セル内のカーソル位置を移動します。
+      チェックをはずした場合、1つのセル全体を選択して左カーソルキーを押すと
+      左のセルに移動します（セル内を移動するにはEnterキーかF2キーを押してください）。</li>
+  </ul>
+<h3>マウスホイールでカーソルを移動する</h3>
+  <ul>
+  <li>マウスホイールでカーソルを上下に移動します。
+      チェックをはずした場合、カーソル位置を変えずにスクロールします。</li>
+  </ul>
+<h3>単一セル選択時はすぐに編集モードに入る</h3>
+  <ul>
+  <li>クリックやカーソル移動で単一セルのみを選択した場合、領域選択モードではなく編集モードに入ります。
+      チェックをはずした場合、EnterキーかF2キーかダブルクリックで編集を開始するまでは
+      領域選択モードとなり、編集後ESCキーで領域選択モードに戻ります。</li>
+  </ul>
+<h3>単一列選択時は全体をソート</h3>
+  <ul>
+  <li>選択範囲が単一列のみの場合、表全体をソートの対象とします。
+      チェックをはずした場合や複数列の選択時は、選択範囲のみがソートの対象となります。</li>
+  </ul>
+<h3>指定回数のループでマクロを強制終了する</h3>
+  <ul>
+  <li>一定回数のループを検出するとマクロを強制終了するようにします。
+      while文・for文はカウントされますが、関数の再帰呼び出しはカウントされません。</li>
+  </ul>
+</div>
+
+<!-- SIDE PANE -->
+<div class="sidepane">
+
+<h2 class="sectitle">Menu</h2>
+
+<div class="MainMenu"><a href="index.html">Cassava ヘルプ</a></div>
+<div class="MainMenu"><a href="about.html">Cassavaとは</a></div>
+<div class="MainMenu"><a href="install.html">インストール</a></div>
+<div class="MainMenuSel">メニュー</div>
+  <ul class="MainMenu">
+    <li><a href="filemenu.html" title="[ファイル]メニュー">ファイル</a></li>
+    <li><a href="editmenu.html" title="[編集]メニュー">編集</a></li>
+    <li><a href="insdelmenu.html" title="[挿入・削除]メニュー">挿入・削除</a></li>
+    <li><a href="findmenu.html" title="[検索]メニュー">検索</a></li>
+    <li><a href="viewmenu.html" title="[表示]メニュー">表示</a></li>
+    <li><a href="optionmenu.html" title="[オプション]メニュー">オプション</a>
+      <ul class="MainMenu">
+        <li><a href="dataoption.html" title="[データ形式]オプション">データ形式</a></li>
+        <li><a href="fileoption.html" title="[ファイル]オプション">ファイル</a></li>
+        <li class="Sel">動作</li>
+        <li><a href="backupoption.html" title="[バックアップ]オプション">バックアップ</a></li>
+        <li><a href="applioption.html" title="[外部アプリ連携]オプション">外部アプリ連携</a></li>
+        <li><a href="coloroption.html" title="[フォント・色]オプション">フォント・色</a></li>
+      </ul>
+    </li>
+    <li><a href="helpmenu.html" title="[ヘルプ]メニュー">ヘルプ</a></li>
+  </ul>
+<div class="MainMenu"><a href="key.html">キー操作</a></div>
+<div class="MainMenu"><a href="macro.html">マクロ</a></div>
+  <ul class="MainMenu">
+    <li><a href="macroref.html">リファレンス</a></li>
+  </ul>
+<div class="MainMenu"><a href="letter.html">はがき印刷</a></div>
+<div class="MainMenu"><a href="contact.html">著作権・連絡先</a></div>
+
+</div>
+
+<!-- SIGN -->
+<br style="clear: both;" />
+<address>
+  Copyright (C) 2000-2007 asukaze, Some Rights Reserved.<br />
+  mail (at) asukaze.net
+</address>
+<!-- ==== -->
+
+</body>
+</html>

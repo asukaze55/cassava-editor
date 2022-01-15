@@ -9,6 +9,7 @@
 #include <vcl\ExtCtrls.hpp>
 #include <vcl\Dialogs.hpp>
 #include "CSPIN.h"
+#include <ComCtrls.hpp>
 //---------------------------------------------------------------------------
 class TfmLetter : public TForm
 {
@@ -49,27 +50,40 @@ __published:	// IDE 管理のコンポーネント
     TEdit *edPrefix;
     TCheckBox *cbMyDataInCsv;
     TLabel *Label17;
-    TCSpinEdit *edVert;
-    TCSpinEdit *edHorz;
-    TCSpinEdit *edTop;
-    TCSpinEdit *edBottom;
-    TCSpinEdit *edMyDataInCsv;
-    TCSpinEdit *edToNumber;
-    TCSpinEdit *edToAddress1;
-    TCSpinEdit *edToAddress2;
-    TCSpinEdit *edToName;
-    TCSpinEdit *edToNote;
         TButton *btnPrinter;
         TPrinterSetupDialog *dlgPrinter;
         TCheckBox *cbNenga;
         TCheckBox *cbHorzNum;
         TLabel *Label14;
-        TCSpinEdit *seHorzNumMax;
-        TCSpinEdit *edToName2;
         TEdit *edMyName2;
         TButton *btnHelp;
-  TCSpinEdit *seCopies;
   TLabel *Label18;
+	TEdit *edToNumber;
+	TUpDown *udToNumber;
+	TEdit *edMyDataInCsv;
+	TUpDown *udMyDataInCsv;
+	TEdit *edVert;
+	TUpDown *udVert;
+	TUpDown *udHorz;
+	TEdit *edHorz;
+	TEdit *edTop;
+	TUpDown *udTop;
+	TUpDown *udBottom;
+	TEdit *edBottom;
+	TEdit *seCopies;
+	TUpDown *udCopies;
+	TEdit *edToAddress1;
+	TUpDown *udToAddress1;
+	TUpDown *udToAddress2;
+	TEdit *edToAddress2;
+	TUpDown *udToName2;
+	TEdit *edToName2;
+	TEdit *edToNote;
+	TUpDown *udToNote;
+	TEdit *edToName;
+	TUpDown *udToName;
+	TUpDown *udHorzNumMax;
+	TEdit *seHorzNumMax;
     void __fastcall FormShow(TObject *Sender);
     void __fastcall imPreviewClick(TObject *Sender);
     void __fastcall btnPrintClick(TObject *Sender);

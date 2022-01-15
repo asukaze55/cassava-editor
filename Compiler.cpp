@@ -28,44 +28,44 @@
 //---------------------------------------------------------------------------
 class CMCElement{
 public:
-	AnsiString str;
-	int pri;
-	char type;
+  AnsiString str;
+  int pri;
+  char type;
   CMCElement() : str(""), pri(prEOF), type(tpStructure) {};
-	CMCElement(AnsiString s);
-	CMCElement(char *s);
+  CMCElement(AnsiString s);
+  CMCElement(char *s);
   CMCElement::CMCElement(AnsiString s, int p, char t) : str(s), pri(p), type(t) {};
   CMCElement::CMCElement(const CMCElement &e) : str(e.str), pri(e.pri), type(e.type) {};
-	bool operator >(CMCElement e);
-	bool operator ==(CMCElement e);
+  bool operator >(CMCElement e);
+  bool operator ==(CMCElement e);
   bool iseof(){ return(pri == prEOF); }
 };
 //---------------------------------------------------------------------------
 CMCElement::CMCElement(AnsiString s){
-	str = s; pri = 100; type=tpVar;
-	if(s == ";"){ pri = 0; type=tpStructure; }
-	else if(s == ","){ pri = 2; type=tpStructure; }
+  str = s; pri = 100; type=tpVar;
+  if(s == ";"){ pri = 0; type=tpStructure; }
+  else if(s == ","){ pri = 2; type=tpStructure; }
   else if(s == "(" || s == ")" || s == "{" || s == "}" || s == "[" || s == "]"){
     pri = 1; type=tpStructure;
   }
-	else if(s == "++" || s == "--" || s == "!"){ pri = 50; type='-'; }
-	//           "P"        50 ;     '-'
-	else if(s == "^"){ pri = 40; type='-'; }
-	else if(s == "*" || s == "/" || s == "%"){ pri = 30; type='-'; }
-	else if(s == "+" || s == "-"){ pri = 20; type='-'; }
-	else if(s == "<" || s == ">" || s == "<=" || s == ">="){ pri = 17; type='-'; }
-	else if(s == "==" || s == "!="){ pri = 15; type='-'; }
-	else if(s == "&&" || s == "&"){ pri = 13; type='-'; }
-	else if(s == "||" || s == "|"){ pri = 12; type='-'; }
-	else if(s == "=" || s == "=&"){ pri = 10; type='-'; }
+  else if(s == "++" || s == "--" || s == "!"){ pri = 50; type='-'; }
+  //           "P"        50 ;     '-'
+  else if(s == "^"){ pri = 40; type='-'; }
+  else if(s == "*" || s == "/" || s == "%"){ pri = 30; type='-'; }
+  else if(s == "+" || s == "-"){ pri = 20; type='-'; }
+  else if(s == "<" || s == ">" || s == "<=" || s == ">="){ pri = 17; type='-'; }
+  else if(s == "==" || s == "!="){ pri = 15; type='-'; }
+  else if(s == "&&" || s == "&"){ pri = 13; type='-'; }
+  else if(s == "||" || s == "|"){ pri = 12; type='-'; }
+  else if(s == "=" || s == "=&"){ pri = 10; type='-'; }
   else if(s.Length()>0 && s[1]=='.'){type='d';}
-	else if(s.Length()>0 && s[1]>='0' && s[1]<='9'){
+  else if(s.Length()>0 && s[1]>='0' && s[1]<='9'){
     if(s.AnsiPos(".") > 0) type='d'; else  type='i';
   }
 }
 //---------------------------------------------------------------------------
 CMCElement::CMCElement(char *s){
-	CMCElement((AnsiString)s);
+  CMCElement((AnsiString)s);
 }
 //---------------------------------------------------------------------------
 bool CMCElement::operator >(CMCElement e){ return pri > e.pri; }
@@ -106,7 +106,7 @@ public:
 };
 //---------------------------------------------------------------------------
 class TTokenizer {
-	TFileStream *fin;
+  TStream *fin;
   char buf;
   bool Read(char *c);
   CMCElement last;
@@ -114,23 +114,18 @@ class TTokenizer {
   CMCElement GetR();
 public:
   int x, y;
-  TTokenizer(AnsiString infile);
-  ~TTokenizer();
+  TTokenizer(TStream *stream);
   AnsiString GetString(char EOS);
   CMCElement Get();
   CMCElement GetNext();
 };
 //---------------------------------------------------------------------------
-TTokenizer::TTokenizer(AnsiString infile) {
-  fin = new TFileStream(infile, fmOpenRead | fmShareDenyWrite);
+TTokenizer::TTokenizer(TStream *stream) {
+  fin = stream;
   buf = '\0';
   last = CMCEOF;
   next = CMCEOF;
   x = -1; y = 1;
-}
-//---------------------------------------------------------------------------
-TTokenizer::~TTokenizer() {
-  delete fin;
 }
 //---------------------------------------------------------------------------
 bool TTokenizer::Read(char *c) {
@@ -185,7 +180,8 @@ AnsiString TTokenizer::GetString(char EOS)
 //---------------------------------------------------------------------------
 bool IsNumChar(char c) { return ((c >= '0' && c <= '9') || c=='.'); }
 bool IsAlphaChar(char c) {
-  return ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c=='_');
+  return ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')
+        || c == '_' || c == ':');
 }
 //---------------------------------------------------------------------------
 CMCElement TTokenizer::GetR()
@@ -221,6 +217,11 @@ CMCElement TTokenizer::GetR()
   }else if(IsAlphaChar(buf)){
     do{
       s += buf;
+      if(buf == ':'){
+        if(s.Length() > 2 || s[1] != ':'){
+          throw CMCException("記号の位置が不正です：:");
+        }
+      }
     }while(Read(&buf) && (IsAlphaChar(buf) || IsNumChar(buf)));
 
     while(buf <= ' ' && Read(&buf));
@@ -252,7 +253,8 @@ CMCElement TTokenizer::GetR()
       }
       if(elm.type == tpStructure) return elm;
       if(last.type == tpOpe ||
-        (last.type == tpStructure && last.str != ")" && last.str != "]")){
+        (last.type == tpStructure && last.str != ")" && last.str != "]") ||
+        (last.type == tpFunc && last.str == "return")){
         if(c1 == '!' || s == "++" || s == "--"){
           return elm;
         }else if(c1 == '*'){
@@ -311,6 +313,9 @@ CMCElement TTokenizer::Get(){
     last = CMCElement(IDRETRY, prElement, tpInteger);
   }else if(last.str == "IDYES"){
     last = CMCElement(IDYES, prElement, tpInteger);
+
+  }else if(last.type != tpFunc && last.str.Length()>0 && last.str[1] == ':'){
+    throw CMCException("変数名が不正です：" + last.str);
   }
 
   return last;
@@ -325,17 +330,19 @@ CMCElement TTokenizer::GetNext(){
 //---------------------------------------------------------------------------
 class TCompiler {
 private:
-	enum chartype { ctSpace, ctAlpha, ctNum, ctOpe };
-	bool Fail;
-	TTokenizer *lex;
-	TStream *fout;
-  AnsiString OutFileName;
-  AnsiString InFileName;
+  enum chartype { ctSpace, ctAlpha, ctNum, ctOpe };
+  bool Fail;
+  TTokenizer *lex;
+  TStream *fout;
+  AnsiString InPath;
+  AnsiString InName;
+  AnsiString Ext;
   TStrings *PrivateFunctions;
+  TStringList *Modules;
 
-	chartype GetType(char c);
-	void Output(CMCElement e);
-	void Push(CMCElement e, TEList *L);
+  chartype GetType(char c);
+  void Output(CMCElement e);
+  void Push(CMCElement e, TEList *L);
   void GetIf();
   void GetWhile();
   void GetFor();
@@ -344,13 +351,14 @@ private:
   void GetReturn();
   void GetCell();
   void GetSwap();
-	bool GetSentence(char EOS, char *nHikisu = NULL);
-	void GetBlock();
+  bool GetSentence(char EOS, char *nHikisu = NULL);
+  void GetBlock();
 
 public:
   TStrings *import;
 
-	bool Compile(AnsiString infile, AnsiString outfile);
+  bool Compile(TStream *stream, AnsiString inpath, AnsiString inname,
+               AnsiString ext, TStringList *modules, bool showMessage);
   TCompiler() { import = new TStringList; }
   ~TCompiler() { delete import; }
 };
@@ -358,8 +366,8 @@ public:
 TCompiler::chartype TCompiler::GetType(char c)
 {
 	if(c <= ' ') return ctSpace;
-	else if((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c=='_') return ctAlpha;
-	else if((c >= '0' && c <= '9') || c=='.') return ctNum;
+	else if(IsAlphaChar(c)) return ctAlpha;
+	else if(IsNumChar(c)) return ctNum;
 	return ctOpe;
 }
 //---------------------------------------------------------------------------
@@ -485,17 +493,19 @@ void TCompiler::GetBasicFor()
 //---------------------------------------------------------------------------
 void TCompiler::GetFunction()
 {
-  AnsiString orgOutFileName = OutFileName;
   TStream *orgFOut = fout;
 
   AnsiString FunctionName = lex->Get().str;
-  if(lex->Get().str != "(") throw CMCException("function文が不正です。");
+  if(lex->Get().str != "("){
+    throw CMCException("function文が不正です。");
+  }else if(FunctionName.AnsiPos(':')>0){
+    throw CMCException("function名が不正です：" + FunctionName);
+  }
   if(PrivateFunctions->IndexOf(FunctionName) < 0){
     PrivateFunctions->Add(FunctionName);
   }
 
-  TStream *ms = new TMemoryStream();
-  fout = ms;
+  fout = new TMemoryStream();
   char H;
   GetSentence(')', &H);     // 引数
   int argcount = H;
@@ -503,9 +513,8 @@ void TCompiler::GetFunction()
   bool func_equal = false;
 
   if(lex->GetNext().str == ";"){
+    delete fout;
     fout = orgFOut;
-    OutFileName = orgOutFileName;
-    delete ms;
     return;
   }else if(lex->GetNext().str == "="){
     lex->Get();
@@ -513,29 +522,20 @@ void TCompiler::GetFunction()
   }
 
 
-  OutFileName = ChangeFileExt(OutFileName,"") + "$"
-              + FunctionName + "$" + argcount + ExtractFileExt(OutFileName);
-	fout = new TFileStream(OutFileName, fmCreate | fmShareDenyWrite);
-  try{
-    fout->CopyFrom(ms, 0);
-    delete ms;
-    fout->Write("*\x06",2);
-    fout->Write(&H, 1);
-    fout->Write("func=",5);
+  AnsiString OutName = InName + "$" + FunctionName + "$" + argcount;
+  Modules->AddObject(OutName, fout);
 
-    if(func_equal){
-      GetReturn();
-    }else{
-      GetSentence(';');     // 関数本体
-    }
-  }catch(CMCException e){
-    delete fout;
-    throw e;
+  fout->Write("*\x06",2);
+  fout->Write(&H, 1);
+  fout->Write("func=",5);
+
+  if(func_equal){
+    GetReturn();
+  }else{
+    GetSentence(';');     // 関数本体
   }
-  delete fout;
 
   fout = orgFOut;
-  OutFileName = orgOutFileName;
 }
 //---------------------------------------------------------------------------
 void TCompiler::GetReturn()
@@ -596,29 +596,29 @@ void TCompiler::GetSwap()
 //---------------------------------------------------------------------------
 void TCompiler::Output(CMCElement e)
 {
-	if(e.type == tpComment || e.type == tpStructure) return;
-  if(e.type == tpVar){
-    if(AnsiPos("/" + e.str + "/",
-       "/Col/Row/Right/Bottom/SelLeft/SelTop/SelRight/SelBottom/") > 0) {
-      e.type = tpSystemVar;
+  if(e.type == tpComment || e.type == tpStructure) return;
+    if(e.type == tpVar){
+      if(AnsiPos("/" + e.str + "/",
+         "/Col/Row/Right/Bottom/SelLeft/SelTop/SelRight/SelBottom/") > 0) {
+        e.type = tpSystemVar;
+      }
     }
-  }
-  
-	fout->Write(&(e.type), 1);
-	switch(e.type){
-		case '$': case '*': case '~': case '!': {
+
+    fout->Write(&(e.type), 1);
+    switch(e.type){
+    case '$': case '*': case '~': case '!': {
       int iL = e.str.Length();
       if(iL > 255){
         throw CMCException("文字列定数は255文字以内にしてください：" + e.str);
       }
       unsigned char L = (unsigned char)iL;
       fout->Write(&L,1);
-			fout->Write(e.str.c_str(), L);
+      fout->Write(e.str.c_str(), L);
       break;
     }
-		case '-':
-			if(e.str.Length() == 1){
-			  fout->Write(e.str.c_str(), 1);
+    case '-':
+      if(e.str.Length() == 1){
+        fout->Write(e.str.c_str(), 1);
       }else{
         char c = CMOCode(e.str);
         if(c == '\0'){
@@ -628,17 +628,17 @@ void TCompiler::Output(CMCElement e)
         }
       }
       break;
-		case 'i': {
-			int i = e.str.ToInt();
- 		  fout->Write(&i, sizeof(int));
-			break;
-		}
-		case 'd': {
-			double d = e.str.ToDouble();
- 		  fout->Write(&d, sizeof(double));
-			break;
-		}
-	}
+    case 'i': {
+      int i = e.str.ToInt();
+      fout->Write(&i, sizeof(int));
+      break;
+    }
+    case 'd': {
+      double d = e.str.ToDouble();
+      fout->Write(&d, sizeof(double));
+      break;
+    }
+  }
 }
 //---------------------------------------------------------------------------
 void TCompiler::Push(CMCElement e, TEList *L)
@@ -741,8 +741,10 @@ bool TCompiler::GetSentence(char EOS, char *nHikisu)
             e.str = (AnsiString)H + "$" + imp + "$"
                   + e.str.SubString(pp + 1, e.str.Length() - pp);
           }else if(PrivateFunctions->IndexOf(e.str) >= 0){
-            AnsiString imp = ChangeFileExt(ExtractFileName(InFileName),"");
+            AnsiString imp = InName;
             e.str = (AnsiString)H + "$" + imp + "$" + e.str;
+          }else if(e.str.Length() > 2 && e.str[1] == ':' && e.str[2] == ':'){
+            e.str = (AnsiString)H + e.str.SubString(3, e.str.Length()-2);
           }else{
             e.str = (AnsiString)H + e.str;
           }
@@ -761,50 +763,91 @@ void TCompiler::GetBlock()
   while(GetSentence(';'));
 }
 //---------------------------------------------------------------------------
-bool TCompiler::Compile(AnsiString infile, AnsiString outfile)
+bool TCompiler::Compile(TStream *stream,
+                        AnsiString inpath, AnsiString inname, AnsiString ext,
+                        TStringList *modules, bool showMessage)
 {
-  InFileName  = infile;
-  OutFileName = outfile;
-	Fail = false;
-	lex = new TTokenizer(infile);
-	fout = new TFileStream(outfile, fmCreate | fmShareDenyWrite);
+  InPath = inpath;
+  InName = inname;
+  Ext = ext;
+  Fail = false;
+  lex = new TTokenizer(stream);
+  fout = new TMemoryStream();
+  Modules = modules;
+  Modules->AddObject(inname, fout);
   PrivateFunctions = new TStringList();
+
   try {
-  	GetBlock();
+    GetBlock();
   }catch(CMCException e){
-    AnsiString str = infile
-      + (AnsiString)"\nL" + lex->y + "\tC" + lex->x + "\n" + e.Message;
-    Application->MessageBox(str.c_str(), "Cassava Macro Compiler", 0);
+    if(showMessage){
+      AnsiString str = inpath + inname + ext
+        + (AnsiString)"\nL" + lex->y + "\tC" + lex->x + "\n" + e.Message;
+      Application->MessageBox(str.c_str(), "Cassava Macro Compiler", 0);
+    }
     Fail = true;
   }catch(Exception *e){
-    AnsiString str = infile
-      + (AnsiString)"\nL" + lex->y + "\tC" + lex->x + "\n" + e->Message;
-    Application->MessageBox(str.c_str(), "Cassava Macro Compiler", 0);
+    if(showMessage){
+      AnsiString str = inpath + inname + ext
+        + (AnsiString)"\nL" + lex->y + "\tC" + lex->x + "\n" + e->Message;
+      Application->MessageBox(str.c_str(), "Cassava Macro Compiler", 0);
+    }
     Fail = true;
   }
-	delete lex;
-	delete fout;
+  delete lex;
   delete PrivateFunctions;
-	return !Fail;
+  return !Fail;
 }
 //---------------------------------------------------------------------------
-bool MacroComplile(char *infile, char *outfile){
-  AnsiString InPath  = ExtractFilePath(infile);
-  AnsiString OutPath = ExtractFilePath(outfile);
-  AnsiString InExt   = ExtractFileExt(infile);
-  AnsiString OutExt  = ExtractFileExt(outfile);
-  if(*(InPath.AnsiLastChar()) != '\\') InPath += "\\";
-  if(*(OutPath.AnsiLastChar()) != '\\') OutPath += "\\";
+bool MacroCompile(TStream *stream,
+                  AnsiString inpath, AnsiString inname, AnsiString ext,
+                  TStringList *modules, bool showMessage)
+{
+  if(modules == NULL){ return false; }
 
-	TCompiler Cmp;
-  Cmp.import->Add(ChangeFileExt(ExtractFileName(infile),""));
+  TCompiler Cmp;
+  Cmp.import->Add(inname);
 
-  bool OK = Cmp.Compile(infile,outfile);
+  bool OK = Cmp.Compile(stream, inpath, inname, ext, modules, showMessage);
   for(int i=1; OK && (i < Cmp.import->Count); i++){
-    OK = Cmp.Compile(InPath  + Cmp.import->Strings[i] + InExt,
-                     OutPath + Cmp.import->Strings[i] + OutExt);
+    TStream *libstream = NULL;
+    AnsiString libname = Cmp.import->Strings[i];
+    try{
+      libstream = new TFileStream(inpath + libname + ext,
+                                  fmOpenRead | fmShareDenyWrite);
+      OK = Cmp.Compile(libstream, inpath, libname, ext, modules, showMessage);
+    }catch(Exception *e){
+      if(showMessage){
+        AnsiString str = inpath + libname + ext + "\n" + e->Message;
+        Application->MessageBox(str.c_str(), "Cassava Macro Compiler", 0);
+      }
+      OK = false;
+    }
+    if(libstream) { delete libstream; }
   }
-	return OK;
+  return OK;
+}
+//---------------------------------------------------------------------------
+bool MacroCompile(AnsiString infile, TStringList *modules, bool showMessage)
+{
+  TStream *stream = NULL;
+  bool OK;
+  try{
+    stream = new TFileStream(infile, fmOpenRead | fmShareDenyWrite);
+    AnsiString inpath = ExtractFilePath(infile);
+    if(*(inpath.AnsiLastChar()) != '\\') inpath += "\\";
+    AnsiString inname = ChangeFileExt(ExtractFileName(infile),"");
+    AnsiString ext  = ExtractFileExt(infile);
+    OK = MacroCompile(stream, inpath, inname, ext, modules, showMessage);
+  }catch(Exception *e){
+    if(showMessage){
+      AnsiString str = infile + "\n" + e->Message;
+      Application->MessageBox(str.c_str(), "Cassava Macro Compiler", 0);
+    }
+    OK = false;
+  }
+  if(stream) { delete stream; }
+  return OK;
 }
 //---------------------------------------------------------------------------
 #endif

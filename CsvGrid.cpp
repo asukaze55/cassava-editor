@@ -4,12 +4,13 @@
 #include <shellapi.h>
 #include <string.h>
 #include <process.h>
+#include <regexp.h>
 #pragma hdrstop
 
 #include "PasteDlg.h"
-#pragma link "PasteDlg.obj"
 #include "CsvGrid.h"
 #include "AutoOpen.h"
+#include "EncodedStream.h"
 
 #define min(X,Y) ((X)<(Y) ? (X) : (Y))
 #define max(X,Y) ((X)>(Y) ? (X) : (Y))
@@ -19,7 +20,9 @@
 #define soNormal 1
 #define soString 2
 #define soAll 3
-#define STRDEOF "\t[EOF]"
+
+#define RXtoAX(x)                 (x - DataLeft + 1)
+#define RYtoAY(y)                 (y - DataTop  + 1)
 
 bool SameCellClicking;
 //---------------------------------------------------------------------------
@@ -32,20 +35,15 @@ __fastcall TCsvGrid::TCsvGrid(TComponent* Owner)  //デフォルトの設定
     : TStringGrid(Owner)
 {
   Options = Options << goRowSizing << goColSizing << goRowMoving << goColMoving
-		    << goDrawFocusSelected  << goThumbTracking << goTabs
-		    << goEditing << goAlwaysShowEditor << goRangeSelect;
+            << goDrawFocusSelected  << goThumbTracking << goTabs
+            << goEditing << goAlwaysShowEditor << goRangeSelect;
   AlwaysShowEditor = true;
   DefaultColWidth = 64;
-  DefaultRowHeight = 24;
   Dragging = false;
   EditorMode = true;
   DragMove = true;
   TypeIndex = 0;
   TypeOption = TypeList.DefItem();
-//  SepChars = ",\t";
-//  WeakSepChars = " ";
-//  QuoteChars = "\"";
-//  SaveOption = soNormal;
   PasteOption = -1;
   DefWay = 2;
   FShowRowCounter = true;
@@ -54,6 +52,19 @@ __fastcall TCsvGrid::TCsvGrid(TComponent* Owner)  //デフォルトの設定
   TextAlignment = cssv_taLeft;
   WheelMoveCursol = false;
   SameCellClicking = false;
+  ExecCellMacro = false;
+  CalculatedCellCache = NULL;
+  UsingCellMacro = NULL;
+  FDataRight = 1;
+  FDataBottom = 1;
+  EOFMarker = new TObject();
+}
+//---------------------------------------------------------------------------
+__fastcall TCsvGrid::~TCsvGrid(){
+  ClearUndo();
+  if(CalculatedCellCache){ delete CalculatedCellCache; }
+  if(UsingCellMacro){ delete UsingCellMacro; }
+  if(EOFMarker){ delete EOFMarker; }
 }
 //---------------------------------------------------------------------------
 AnsiString FormatNumComma(AnsiString Str, int Count)
@@ -76,75 +87,301 @@ AnsiString FormatNumComma(AnsiString Str, int Count)
   return Str;
 }
 //---------------------------------------------------------------------------
+TRect TCsvGrid::DrawTextRect(TCanvas *Canvas, TRect Rect,
+  AnsiString Str, bool Wrap, bool MeasureOnly)
+{
+  int x = Rect.Left;
+  int y = Rect.Top;
+  int textHeight = Canvas->TextHeight(Str);
+  int yint = textHeight + CellLineMargin;
+  int xmax = x;
+  TRect R = Rect;
+  for(int i=1; i<=Str.Length(); i++){
+    if(y >= Rect.Bottom){
+      return TRect(0,0,xmax-Rect.Left, Rect.Bottom-Rect.Top);
+    }
+    AnsiString ss;
+    if(Str.IsLeadByte(i)){
+      ss = Str.SubString(i,2);
+      i++;
+    }else{
+      ss = Str.SubString(i,1);
+    }
+    int w = Canvas->TextWidth(ss);
+    if(ss == "\n"){
+      y += yint;
+      x = Rect.Left;
+    }else{
+      if(Wrap && (x + w) > Rect.Right && x > Rect.Left){
+        y += yint;
+        x = Rect.Left;
+      }
+      if(!MeasureOnly){
+        R.Left = x; R.Top = y;
+        Canvas->TextRect(R, x, y, ss);
+      }
+      x += w;
+      if(x > xmax){ xmax = x; }
+    }
+  }
+  y += textHeight + LineMargin + 2;
+  return TRect(0,0,xmax-Rect.Left, min(y,Rect.Bottom)-Rect.Top);
+}
+//---------------------------------------------------------------------------
 void __fastcall TCsvGrid::DrawCell(int ACol, int ARow,
   const TRect &ARect, TGridDrawState AState)
 {
-//  TStringGrid::DrawCell(ACol, ARow, ARect, AState);
+  int cellType = CALC_NOTEXPR;
   AnsiString Str = Cells[ACol][ARow];
+#ifdef CssvMacro
+  if(ExecCellMacro){
+    if(Str.Length() > 0 && Str[1] == '='){
+      AnsiString CalcdStr = GetCalculatedCell(ACol+1-DataLeft, ARow+1-DataTop);
+      if(!GetSelected(ACol,ARow)){
+        switch(CalcdStr[1]){
+        case CALC_OK:
+          Canvas->Brush->Color = CalcBgColor;
+          Canvas->FillRect(ARect);
+          cellType = CALC_OK;
+          break;
+        case CALC_NG:
+        case CALC_LOOP:
+          Canvas->Brush->Color = CalcErrorBgColor;
+          Canvas->FillRect(ARect);
+          cellType = CALC_NG;
+          break;
+        }
+      }
+      Str = CalcdStr.SubString(2,CalcdStr.Length()-1);
+    }
+  }
+#endif
+
+  if(ACol >= FixedCols && ARow >= FixedRows &&
+     (ACol > DataRight || ARow > DataBottom) &&
+     (! GetSelected(ACol, ARow))){
+    Canvas->Brush->Color = DummyBgColor;
+    Canvas->FillRect(ARect);
+  }
+
+  TRect R;
+  R.Left = ARect.Left + 2; R.Top = ARect.Top + 2;
+  R.Right = ARect.Right - 2; R.Bottom = ARect.Bottom - 2;
   bool isnum = ((TextAlignment == cssv_taNumRight) || (NumberComma > 0))
              && IsNumber(Str);
   if(isnum && (NumberComma > 0)){
     Str = FormatNumComma(Str, NumberComma);
   }
-  int nl, t=ARect.Top + 2, tint = Canvas->TextHeight(Str) + 4;
-  TRect R;
-  R.Left = ARect.Left + 2;
-  R.Right = ARect.Right - 2; R.Bottom = ARect.Bottom - 2;
   if((TextAlignment == cssv_taNumRight) && isnum){
     int L = R.Right - Canvas->TextWidth(Str);
     if(R.Left < L) R.Left = L;
   }
 
-  while((nl = Str.AnsiPos("\n")) > 0){
-    R.Top = t;
-    Canvas->TextRect(R, R.Left, t, Str.SubString(1, nl-1));
-    Str.Delete(1, nl);
-    t += tint;
-    if(t >= R.Bottom) return;
-  }
-  R.Top = t;
-  if(TypeOption->DummyEof && Str == STRDEOF){
+  if(TypeOption->DummyEof && ACol == DataRight + 1 && ARow == DataBottom + 1){
     TColor CFC = Canvas->Font->Color;
     Canvas->Font->Color = clGray;
-    Canvas->TextRect(R, R.Left, t, "[EOF]");
+    Canvas->TextRect(R, R.Left, R.Top, "[EOF]");
     Canvas->Font->Color = CFC;
   }else if(ShowURLBlue && Str.SubString(1,7) == "http://"){
     TFontStyles CFS = Canvas->Font->Style;
     TColor CFC = Canvas->Font->Color;
     Canvas->Font->Style = TFontStyles() << fsUnderline;
     Canvas->Font->Color = clBlue;
-    Canvas->TextRect(R, R.Left, t, Str);
+    DrawTextRect(Canvas, R, Str, WordWrap);
     Canvas->Font->Style = CFS;
     Canvas->Font->Color = CFC;
   }else{
-    Canvas->TextRect(R, R.Left, t, Str);
+    TColor CFC = Canvas->Font->Color;
+    if(cellType == CALC_OK){
+      Canvas->Font->Color = CalcFgColor;
+    }else if(cellType == CALC_NG){
+      Canvas->Font->Color = CalcErrorFgColor;
+    }else if(ACol < FixedCols || ARow < FixedRows){
+      Canvas->Font->Color = FixFgColor;
+    }
+    DrawTextRect(Canvas, R, Str, WordWrap);
+    Canvas->Font->Color = CFC;
   }
+
+  // TextRectでなぜか範囲の外まで背景色が塗られてしまうので、
+  // 自前で線を引きなおす
+  TColor PenColor = Canvas->Pen->Color;
+  if(ACol < FixedCols || ARow < FixedRows){
+    Canvas->Pen->Color = clBlack;
+  }else{
+    // Canvas->Pen->Color = clGray; ← 色の設定はいらなげ
+  }
+  Canvas->MoveTo(ARect.Right, ARect.Top);
+  Canvas->LineTo(ARect.Right, ARect.Bottom);
+  Canvas->LineTo(ARect.Left, ARect.Bottom);
+  Canvas->Pen->Color = PenColor;
 }
 //---------------------------------------------------------------------------
 //  基本入出力メソッド
 //
-AnsiString TCsvGrid::GetACells(int ACol, int ARow){
-  int c = ACol+DataLeft-1;
-  int r = ARow+DataTop-1;
-  if(ACol<=0 || ARow<=0 || c<0 || c>=ColCount || r<0 || r>=RowCount)
-    return "";
-  return Cells[c][r];
+void TCsvGrid::SetExecCellMacro(bool Value)
+{
+  FExecCellMacro = Value;
+  ClearCalcCache();
 }
 //---------------------------------------------------------------------------
-void TCsvGrid::Clear(int AColCount, int ARowCount)
+void TCsvGrid::ClearCalcCache()
+{
+  if(CalculatedCellCache){
+    delete CalculatedCellCache;
+    CalculatedCellCache = NULL;
+  }
+  if(UsingCellMacro){
+    delete UsingCellMacro;
+    UsingCellMacro = NULL;
+  }
+}
+//---------------------------------------------------------------------------
+void TCsvGrid::ErrorCalcLoop()
+{
+  if(!CalculatedCellCache){ CalculatedCellCache = new TStringList; }
+  for(int i=0; i<UsingCellMacro->Count; i++){
+    AnsiString cellname = UsingCellMacro->Names[i];
+    CalculatedCellCache->Values[cellname]
+      = (AnsiString)CALC_LOOP + UsingCellMacro->ValueFromIndex[i];
+  }
+}
+//---------------------------------------------------------------------------
+AnsiString TCsvGrid::GetCalculatedCell(int ACol, int ARow)
+{
+  int c = ACol+DataLeft-1;
+  int r = ARow+DataTop-1;
+  if(ACol<=0 || ARow<=0 || c<0 || c>=ColCount || r<0 || r>=RowCount) {
+    return CALC_NOTEXPR;
+  }
+
+  // 計算式でないものはなにもしない
+  AnsiString Str = Cells[c][r];
+  if(!ExecCellMacro || Str.Length() == 0 || Str[1] != '='){
+    return (AnsiString)CALC_NOTEXPR + Str;
+  }
+
+  AnsiString key = (AnsiString)"[" + ACol + "," + ARow + "]";
+  // 自己参照をはじく
+  if(UsingCellMacro){
+    int index = UsingCellMacro->IndexOfName(key);
+    if(index >= 0){
+      ErrorCalcLoop();
+      return (AnsiString)CALC_LOOP + Str;
+    }
+  }
+  // キャッシュがあれば返す
+  if(CalculatedCellCache){
+    int index = CalculatedCellCache->IndexOfName(key);
+    if(index >= 0){
+      AnsiString Result = CalculatedCellCache->Values[key];
+      // キャッシュがエラーなら自分もエラー
+      if((Result[1] & CALC_NG) > 0){
+        ErrorCalcLoop();
+        return (AnsiString)CALC_LOOP + Str;
+      }
+      return Result;
+    }
+  }
+
+  if(OnGetCalculatedCell){
+    // 自己参照チェックのためのリストを更新
+    if(!UsingCellMacro){ UsingCellMacro = new TStringList; }
+    UsingCellMacro->Values[key] = Str;
+
+    // OnGetCalculatedCellに委譲
+    AnsiString Result = OnGetCalculatedCell(Str, ACol, ARow);
+
+    // キャッシュを更新
+    if(!CalculatedCellCache){ CalculatedCellCache = new TStringList; }
+    AnsiString oldValue = CalculatedCellCache->Values[key];
+    if(oldValue.Length() > 0 && oldValue[1] == CALC_LOOP){
+      // 自己参照エラーが起こっていれば更新しない
+      Result = oldValue;
+    }else{
+      CalculatedCellCache->Values[key] = Result;
+    }
+
+    // 自己参照チェックのためのリストを元に戻す
+    UsingCellMacro->Delete(UsingCellMacro->IndexOfName(key));
+
+    // 成功
+    return Result;
+  }else{
+    return (AnsiString)CALC_NOTEXPR + Str;
+  }
+}
+//---------------------------------------------------------------------------
+AnsiString TCsvGrid::GetACells(int ACol, int ARow)
+{
+  AnsiString Str = GetCalculatedCell(ACol, ARow);
+  Str.Delete(1,1);
+  int len = Str.Length();
+  for(int i=len; i > 0; i--){
+    if(Str[i] == '\r'){
+      if(i == len || Str[i+1] != '\n'){
+        Str[i] = '\n';
+      }else{
+        Str.Delete(i, 1);
+      }
+    }
+  }
+  return Str;
+}
+//---------------------------------------------------------------------------
+void TCsvGrid::SetACells(int ACol, int ARow, AnsiString Val){
+  int len = Val.Length();
+  for(int i=len; i > 0; i--){
+    if(Val[i] == '\n'){
+      if(i == 1 || Val[i-1] != '\r'){
+        Val.Insert("\r", i);
+      }
+    }else if(Val[i] == '\r'){
+      if(i == len || Val[i+1] != '\n'){
+        Val.Insert("\n", i+1);
+      }
+    }
+  }
+  int rx = ACol+DataLeft-1;
+  int ry = ARow+DataTop-1;
+  if(ColCount <= rx) { ChangeColCount(rx + 1); }
+  if(RowCount <= ry) { ChangeRowCount(ry + 1); }
+  Cells[rx][ry] = Val;
+  UpdateDataRightBottom(rx, ry);
+}
+//---------------------------------------------------------------------------
+void TCsvGrid::SetModified(bool Value)
+{
+  bool Before = FModified;
+  FModified = Value;
+  ClearCalcCache();
+  if(FModified != Before && OnChangeModified) OnChangeModified(this);
+}
+//---------------------------------------------------------------------------
+void TCsvGrid::Clear(int AColCount, int ARowCount, bool UpdateRightBottom)
 {
   Row = FixedRows;  Col = FixedCols;
   DefaultColWidth = 64;               //列の幅を64に戻す
   ColWidths[0] = 32;
-  DefaultRowHeight = Font->Size * Screen->PixelsPerInch / 48;  //行の高さは文字サイズの２倍
   for(int i=DataTop; i <= RowCount; i++)    //内容のクリア
     Rows[i]->Clear();
-  ChangeColCount(AColCount+1);  ChangeRowCount(ARowCount+1);
+  ChangeColCount(max(AColCount+1, 5));
+  ChangeRowCount(max(ARowCount+1, 5));
   ClearUndo();
   Modified = false;
-  ReNum();
   TypeIndex = 0;
   TypeOption = TypeList.DefItem();
+  if(UpdateRightBottom){
+    FDataRight = AColCount - 1;
+    FDataBottom = ARowCount - 1;
+  }else{
+    FDataRight = DataLeft;
+    FDataBottom = DataTop;
+  }
+  if(TypeOption->DummyEof){
+    Objects[FDataRight+1][FDataBottom+1] = EOFMarker;
+  }
+  ReNum();
 }
 //---------------------------------------------------------------------------
 void TCsvGrid::ReNum()
@@ -153,17 +390,17 @@ void TCsvGrid::ReNum()
   int DB = DataBottom+1-DataTop;
   if(FShowRowCounter){
     for(int i=1; i <= DB; i++)
-      ACells[0][i] = (AnsiString)i;
+      Cells[0][i+DataTop-1] = (AnsiString)i;
     for(int i=DB+1; i <= RowCount; i++)
-      ACells[0][i] = "";
+      Cells[0][i+DataTop-1] = "";
   }
   if(FShowColCounter){
     for(int i=1; i <= DR; i++)
-      ACells[i][0] = (AnsiString)i;
+      Cells[i+DataLeft-1][0] = (AnsiString)i;
     for(int i=DR+1; i <= ColCount; i++)
-      ACells[i][0] = "";
+      Cells[i+DataLeft-1][0] = "";
   }
-  Refresh();
+  Invalidate();
 }
 //---------------------------------------------------------------------------
 void TCsvGrid::SetShowRowCounter(bool Value)
@@ -237,7 +474,11 @@ int TCsvGrid::TextWidth(TCanvas *cnvs, AnsiString str)
   if((NumberComma > 0) && IsNumber(str)){
     str = FormatNumComma(str, NumberComma);
   }
-  return cnvs->TextWidth(str);
+  TRect MaxRect(0,0,
+    (ClientWidth - ColWidths[0]), (ClientHeight - RowHeights[0]) / 2);
+  TRect R = DrawTextRect(cnvs, MaxRect, str, WordWrap, true);
+
+  return R.Right;
 }
 
 //---------------------------------------------------------------------------
@@ -245,12 +486,19 @@ void TCsvGrid::SetWidth(int i)
 {
   int WMax = 0;                     //その列で幅の最大値
   if(i==0 && ShowRowCounter){
-    ColWidths[i] =
-      max(32, TextWidth(Canvas, Cells[0][DataBottom]) + 4);
-    return;
+    if(DataBottom >= 0){
+      ColWidths[i] = max(32, TextWidth(Canvas, Cells[0][DataBottom]) + 4);
+    }else{
+      ColWidths[i] = 32;
+    }
+  return;
   }
-  for(int j=DataTop; j < RowCount; j++)
-    WMax = max(WMax, TextWidth(Canvas, Cells[i][j]));
+
+  int b = min(TopRow + VisibleRowCount, RowCount);
+  for(int j=TopRow; j <= b; j++){
+  AnsiString Str = GetACells(RXtoAX(i), RYtoAY(j));
+    WMax = max(WMax, TextWidth(Canvas, Str));
+  }
   WMax += 4;
   if( WMax < 32 ) WMax = 32;        //狭すぎないように
   else if( WMax >= ClientWidth - ColWidths[0])         //広すぎないように
@@ -275,15 +523,12 @@ void TCsvGrid::SetHeight(int j)
     RowHeights[j] = DefaultRowHeight;
     return;
   }
-  for(int i=DataLeft; i < ColCount; i++){
-    int MultiLine = 1;
-    for(int k=1; k<Cells[i][j].Length(); k++){
-      if(Cells[i][j][k] == '\n'){ MultiLine++; }
-    }
-    HMax = max(HMax, (Canvas->TextHeight("あ")+4) * MultiLine);
-  }
-  if(HMax >= (ClientHeight - RowHeights[0]) / 2){
-    HMax = (ClientHeight - RowHeights[0]) / 2;
+  int r = min(LeftCol + VisibleColCount, ColCount);
+  for(int i=LeftCol; i <= r; i++){
+    TRect MaxRect(0,0,ColWidths[i]-4, (ClientHeight - RowHeights[0]) / 2);
+    AnsiString Str = GetACells(i+1-DataLeft, j+1-DataTop);
+    TRect R = DrawTextRect(Canvas, MaxRect, Str, WordWrap, true);
+    HMax = max(HMax, R.Bottom);
   }
   RowHeights[j] = HMax;
 }
@@ -300,15 +545,16 @@ void TCsvGrid::CompactWidth(int *Widths, int WindowSize, int Minimum,
                             TCanvas *Cnvs)
 {
   int CC = DataRight - DataLeft + 1;
-  int RC = DataBottom - DataTop + 1;
+  int RT = TopRow - DataTop + 1;
+  int RC = min(TopRow + VisibleRowCount, RowCount) - DataTop + 1;
   int BigColSize = 0;
   int Room = WindowSize - (Minimum*CC);
   if(!Cnvs) Cnvs = Canvas;
 
   for(int i=1; i<=CC; i++){
-    int AWMax = 0;                     //その列で幅の最大値
-    for(int j=1; j<=RC; j++)
-      AWMax = max(AWMax, TextWidth(Cnvs, ACells[i][j]));
+	int AWMax = 0;                     //その列で幅の最大値
+	for(int j=RT; j<=RC; j++)
+	  AWMax = max(AWMax, TextWidth(Cnvs, GetACells(i,j)));
     Widths[i] = max((AWMax + 4 - Minimum), 0);
     BigColSize += Widths[i];
   }
@@ -346,51 +592,149 @@ void TCsvGrid::ShowAllColumn()
   delete[] WMax;
 }
 //---------------------------------------------------------------------------
-int TCsvGrid::GetDataRight()
-{
-  int i,j;
-  for(i=ColCount-1; i>=DataLeft; i--)
-    for(j=RowCount-1; j>=DataTop; j--){
-      if(TypeOption->DummyEof && Cells[i][j]==STRDEOF){
-         return (i-1);
-      }
-      if(Cells[i][j] != "") { return i; }
-    }
-  return DataLeft;
-}
-//---------------------------------------------------------------------------
-int TCsvGrid::GetDataBottom()
-{
-  int i,j;
-  for(j=RowCount-1; j>=DataTop; j--)
-    for(i=ColCount-1; i>=DataLeft; i--){
-      if(TypeOption->DummyEof && Cells[i][j]==STRDEOF){
-         return (j-1);
-      }
-      if(Cells[i][j] != ""){ return j; }
-    }
-  return DataTop;
-}
-//---------------------------------------------------------------------------
 void TCsvGrid::Cut()                  //右、下の余計な項目を削除
 {
+  if(Col > DataRight){ Col = DataRight; }
+  if(Row > DataBottom){ Row = DataBottom; }
   ChangeColCount(max(5,DataRight+2));
   ChangeRowCount(max(5,DataBottom+2));
 }
 //---------------------------------------------------------------------------
-void TCsvGrid::SpreadRightBottom()
+void TCsvGrid::UpdateDataRight()
 {
-  if(Col == ColCount-1 && Cells[Col][Row] != "")
-  { ChangeColCount(ColCount+1); ReNum(); }
-  if(Row == RowCount-1 && Cells[Col][Row] != "")
-  { ChangeRowCount(RowCount+1); ReNum(); }
+  int i,j;
+  bool findEof = false;
+  for(i=ColCount-1; i>=DataLeft; i--) {
+    for(j=RowCount-1; j>=DataTop; j--) {
+      if(Cells[i][j] != "") {
+        FDataRight = i;
+        return;
+      }else if(TypeOption->DummyEof && Objects[i][j]==EOFMarker) {
+        findEof = true;
+      }
+    }
+    if(findEof){
+      FDataRight = i - 1;
+      return;
+    }
+  }
+  FDataRight = DataLeft;
 }
 //---------------------------------------------------------------------------
-char GetReturnCode(char *s)
+void TCsvGrid::UpdateDataBottom()
 {
-  while(*s != '\x0D' && *s != '\x0A' && *s != '\0') s++;
-  if(*s == '\x0D' && *(s+1) == '\x0A') return LFCR;
-  else if(*s == '\x0D' || *s == '\x0A') return *s;
+  int i,j;
+  bool findEof = false;
+  for(j=RowCount-1; j>=DataTop; j--) {
+    for(i=ColCount-1; i>=DataLeft; i--) {
+      if(Cells[i][j] != ""){
+        FDataBottom = j;
+        return;
+      }else if(TypeOption->DummyEof && Objects[i][j]==EOFMarker) {
+        findEof = true;
+      }
+    }
+    if(findEof){
+      FDataBottom = j - 1;
+      return;
+    }
+  }
+  FDataBottom = DataTop;
+}
+//---------------------------------------------------------------------------
+void TCsvGrid::UpdateDataRightBottom(int modx, int mody, bool updateTableSize)
+{
+  int oldRight = DataRight;
+  int oldBottom = DataBottom;
+
+  if(modx <= 0 && mody <= 0){
+    UpdateDataRight();
+    UpdateDataBottom();
+    int cc = FDataRight + 2;
+    if(cc < 5){ cc = 5; }
+    if(cc <= modx){ cc = modx + 1; }
+    if(cc <= Col){ cc = Col + 1; }
+    if(updateTableSize){ ChangeColCount(cc); }
+    int rc = FDataBottom+2;
+    if(rc < 5){ rc = 5; }
+    if(rc <= mody){ rc = mody + 1; }
+    if(rc <= Row){ rc = Row + 1; }
+    if(updateTableSize){ ChangeRowCount(rc); }
+  }else if(Cells[modx][mody] == ""){
+    if(modx == oldRight){ UpdateDataRight(); }
+    if(mody == oldBottom){ UpdateDataBottom(); }
+  }else{
+    if(modx > oldRight){
+      UpdateDataRight();
+      int cc = FDataRight + 2;
+      if(cc < 5){ cc = 5; }
+      if(cc <= modx){ cc = modx + 1; }
+      if(cc <= Col){ cc = Col + 1; }
+      if(updateTableSize){ ChangeColCount(cc); }
+    }
+    if(mody > oldBottom){
+      UpdateDataBottom();
+      int rc = FDataBottom+2;
+      if(rc < 5){ rc = 5; }
+      if(rc <= mody){ rc = mody + 1; }
+      if(rc <= Row){ rc = Row + 1; }
+      if(updateTableSize){ ChangeRowCount(rc); }
+    }
+  }
+
+  if(FDataRight != oldRight || FDataBottom != oldBottom){
+    if(TypeOption->DummyEof) {
+      if(oldRight+1 < ColCount && oldBottom+1 < RowCount &&
+         Objects[oldRight+1][oldBottom+1]==EOFMarker){
+        if(Col == oldRight+1 && Row == oldBottom+1 && InplaceEditor){
+          // Objects更新時に選択範囲が初期化されるのを復元
+          int ss = InplaceEditor->SelStart;
+          int sl = InplaceEditor->SelLength;
+          Objects[oldRight+1][oldBottom+1] = NULL;
+          InplaceEditor->SelStart = ss;
+          InplaceEditor->SelLength = sl;
+        }else{
+          Objects[oldRight+1][oldBottom+1] = NULL;
+        }
+      }
+      if(FDataRight+1 < ColCount && FDataBottom+1 < RowCount){
+        Objects[FDataRight+1][FDataBottom+1] = EOFMarker;
+      }
+    }
+    ReNum();
+  }
+}
+//---------------------------------------------------------------------------
+char GetReturnCodeAndReplaceNull(char *str, int length)
+{
+  int crlf = 0;
+  int lf = 0;
+  int cr = 0;
+  char *end = str + length - 1;
+  for(char *s = str; s < end; s++){
+    if(*s == '\x0D'){
+      if(*(s+1) == '\x0A'){
+        crlf++;
+        s++;
+      }else{
+        cr++;
+      }
+    }else if(*s == '\x0A'){
+      lf++;
+    }else if(*s == '\0'){
+      *s = ' ';
+    }
+  }
+  if(lf > crlf){
+    if(lf > cr){
+      return '\x0A';
+    }else {
+      return '\x0D';
+    }
+  }else if(cr > crlf){
+    return '\x0D';
+  }
+
   return LFCR;
 }
 //---------------------------------------------------------------------------
@@ -402,8 +746,7 @@ void __fastcall TCsvGrid::SetDragDropAccept(bool Accept){
 void __fastcall TCsvGrid::DropCsvFiles(TWMDropFiles inMsg)
 {
   int DFiles = DragQueryFile((HDROP)inMsg.Drop, 0xffffffff, (LPSTR) NULL,255);
-  AnsiString *FileNames;
-  FileNames = new AnsiString[DFiles];
+  AnsiString *FileNames = new AnsiString[DFiles];
   char theFileName[255];
   for(int i=0;i<DFiles;i++){
     ::DragQueryFile((HDROP)inMsg.Drop, i, theFileName,255);
@@ -412,7 +755,7 @@ void __fastcall TCsvGrid::DropCsvFiles(TWMDropFiles inMsg)
   if(FOnDropFiles != NULL ){
     FOnDropFiles( this,DFiles,FileNames);
   }
-  delete FileNames;
+  delete[] FileNames;
 }
 //---------------------------------------------------------------------------
 bool TCsvGrid::LoadFromFile(AnsiString FileName, int KCode)
@@ -420,6 +763,7 @@ bool TCsvGrid::LoadFromFile(AnsiString FileName, int KCode)
   char *buf, *sjis;
   int filelength;
   unsigned long sjislen;
+
   TFileStream *File = new TFileStream(FileName, fmOpenRead|fmShareDenyNone);
   filelength = File->Size;
   if(filelength > 1048576){
@@ -469,7 +813,9 @@ bool TCsvGrid::LoadFromFile(AnsiString FileName, int KCode)
   }
   KanjiCode = KCode;
   if(sjis != buf) delete[] buf;
-  ReturnCode = GetReturnCode(sjis);
+
+  // 改行コードを得るついでにNULL文字をスペースに置換
+  ReturnCode = GetReturnCodeAndReplaceNull(sjis, sjislen);
   TStringList *List = new TStringList;
   if(sjis[0]=='\xFF' && sjis[1]=='\xFE'){
     List->Text = AnsiString(sjis+2, sjislen-2);
@@ -490,8 +836,10 @@ bool TCsvGrid::LoadFromFile(AnsiString FileName, int KCode)
 //  else                                SaveFormat = sfCSV;
   if(DefaultViewMode == 0){
     ShowAllColumn();
+    SetHeight();
   }else{
     SetWidth();
+    SetHeight();
   }
   Modified = false;
   return true;
@@ -527,8 +875,8 @@ void TCsvGrid::PasteCSV(TStrings *List , int Left , int Top , int Way ,
   if(Way == 0) iEnd = min((int)Selection.Bottom - Top + 1 , iEnd);
   else if(Way == 1) iEnd = Selection.Bottom - Top + 1;
   int linecont = 0;
-  int MultiLine = 0;
-  int colcount = 0;
+//  int MultiLine = 0;
+  int colcount = 1;
   for(int i=0; i < iEnd; i++)
   {
     int lc = linecont;
@@ -542,7 +890,7 @@ void TCsvGrid::PasteCSV(TStrings *List , int Left , int Top , int Way ,
     {
        if(lc){
         Top--;
-        MultiLine++;
+//        MultiLine++;
         ii = i + Top;
         Cells[lc][ii] = Cells[lc][ii] + "\r\n";
         if(OneRow->Count + lc >= ColCount){
@@ -556,15 +904,15 @@ void TCsvGrid::PasteCSV(TStrings *List , int Left , int Top , int Way ,
         if(linecont){
           if(OneRow->Count != 0) linecont = lc + OneRow->Count - 1;
           else linecont = lc;
-        }else{
-          int RH = (Canvas->TextHeight("あ")+4) * MultiLine;
-          if(RowHeights[ii] < RH) RowHeights[ii] = RH;
+//        }else{
+//          int RH = (Canvas->TextHeight("あ")+4) * MultiLine;
+//          if(RowHeights[ii] < RH) RowHeights[ii] = RH;
         }
       }else{
-        for(int j=0; j<Left; j++) OneRow->Insert(0,"");
+        for(int j=0; j<Left; j++) OneRow->Insert(0, (i+Top));
         if(linecont) linecont = OneRow->Count - 1;
         Rows[i+Top] = OneRow;
-        MultiLine = 0;
+//        MultiLine = 0;
         colcount = max(colcount, OneRow->Count);
       }
     }
@@ -583,15 +931,22 @@ void TCsvGrid::PasteCSV(TStrings *List , int Left , int Top , int Way ,
     }
   }
   delete OneRow;
-  if(Way == -1 && TypeOption->DummyEof){
-    if(colcount >= ColCount){
-      ChangeColCount(colcount + 1);
-    }
-    Cells[colcount][iEnd+Top] = STRDEOF;
-  }
   Modified = true;
-  Cut();
-  ReNum();
+
+  if(Way == -1){
+    if(TypeOption->DummyEof){
+      if(colcount >= ColCount){
+        ChangeColCount(colcount + 1);
+      }
+      Objects[FDataRight+1][FDataBottom+1] = NULL;
+      Objects[colcount][iEnd+Top] = EOFMarker;
+    }
+    FDataRight = colcount - 1;
+    FDataBottom = iEnd+Top - 1;
+    ReNum();
+  }else{
+    UpdateDataRightBottom(0,0);
+  }
 }
 //---------------------------------------------------------------------------
 bool TCsvGrid::SetCsv(TStringList *Dest, AnsiString Src)
@@ -650,67 +1005,50 @@ bool TCsvGrid::SetCsv(TStringList *Dest, AnsiString Src)
   return Quoted;
 }
 //---------------------------------------------------------------------------
-void TCsvGrid::SaveToNotSjisFile(AnsiString FileName, char *sjis, int length)
+void TCsvGrid::SaveToFile(AnsiString FileName, TTypeOption *Format, 
+                          bool SetModifiedFalse)
 {
-  char *buf = new char[length*2+1];
-  unsigned long buflen;
+  TFileStream *fs = new TFileStream(FileName, fmCreate | fmShareDenyWrite);
+  EncodedStream *es = new EncodedStream(fs, KanjiCode, UnicodeWindowsMapping);
 
-  switch(KanjiCode){
-  case CHARCODE_EUC:
-    NkfConvertSafe(buf, length*2+1, &buflen, sjis, length, "-Se");
-    break;
-  case CHARCODE_JIS:
-    NkfConvertSafe(buf, length*2+1, &buflen, sjis, length, "-Sj");
-    break;
-  case CHARCODE_UTF8:
-    NkfConvertSafe(buf, length*2+1, &buflen, sjis, length, "-Sw");
-    break;
-  case CHARCODE_UTF16LE:
-    NkfConvertSafe(buf, length*2+1, &buflen, sjis, length, "-Sw16L");
-    break;
-  case CHARCODE_UTF16BE:
-    NkfConvertSafe(buf, length*2+1, &buflen, sjis, length, "-Sw16B");
-    break;
+  WriteGrid(es, Format);
+
+  // 先に EncodedStream を破棄すること
+  delete es;
+  delete fs;
+  if(SetModifiedFalse){ 
+    Modified = false;
   }
-
-  TFileStream *File = new TFileStream(FileName, fmCreate | fmShareExclusive);
-  File->Write(buf, buflen);
-  delete File;
-  delete[] buf;
-  return;
 }
 //---------------------------------------------------------------------------
-void TCsvGrid::SaveToFile(AnsiString FileName, TTypeOption *Format, bool html)
+void TCsvGrid::WriteGrid(TStream *Stream, TTypeOption *Format)
 {
-  TStringList *Lines = new TStringList;
+  if(Format == NULL) Format = TypeOption;
 
-  if(html){
-    GridToHtml(Lines);
-  }else{
-    GridToCSV(Lines, Format);
-  }
+  TStringList* Data = new TStringList;
+  int R = ((Format->OmitComma) ? 0 : DataRight);
+  for(int i=DataTop; i<=DataBottom; i++)
+  {
+    Data->Assign(Rows[i]);
 
-  if(KanjiCode == CHARCODE_SJIS || KanjiCode == CHARCODE_AUTO){
-    if(ReturnCode==LFCR) Lines->SaveToFile(FileName);
-    else{
-      TFileStream *File = new TFileStream(FileName, fmCreate|fmShareExclusive);
-      for(int i=0; i<Lines->Count; i++){
-        File->Write(Lines->Strings[i].c_str(), Lines->Strings[i].Length());
-        File->Write(&ReturnCode,1);
-      }
-      delete File;
-    }
-  }else{
-    AnsiString Text;
-    if(ReturnCode==LFCR){
-      Text = Lines->Text;
+    if(Format->OmitComma){
+      for(int i = Data->Count-1; i>0 && Data->Strings[i]==""; i--)
+        Data->Delete(i);
     }else{
-      for(int i=0; i<Lines->Count; i++) Text += Lines->Strings[i] + ReturnCode;
+      for(int i = Data->Count-1; i>R; i--)
+        Data->Delete(i);
     }
-    SaveToNotSjisFile(FileName, Text.c_str(), Text.Length());
+    if(ShowRowCounter) Data->Delete(0);   // カウンタセルの削除
+
+    AnsiString line = StringsToCSV(Data, Format);
+    if(ReturnCode == LFCR){
+      line = line + "\r\n";
+    }else{
+      line = line + ReturnCode;
+    }
+    Stream->Write(line.c_str(), line.Length());
   }
-  delete Lines;
-  Modified = false;
+  delete Data;
 }
 //---------------------------------------------------------------------------
 AnsiString TCsvGrid::StringsToCSV(TStrings* Data, TTypeOption *Format)
@@ -777,58 +1115,6 @@ void TCsvGrid::QuotedDataToStrings(TStrings *Lines, AnsiString Text, TTypeOption
   }
 }
 //---------------------------------------------------------------------------
-void TCsvGrid::GridToCSV(TStrings *Lines, TTypeOption *Format)
-{
-  if(Format == NULL) Format = TypeOption;
-
-  TStringList* Data = new TStringList;
-  Lines->Clear();
-  int R = ((Format->OmitComma) ? 0 : DataRight);
-  for(int i=DataTop; i<=DataBottom; i++)
-  {
-    Data->Assign(Rows[i]);
-
-    if(Format->OmitComma){
-      for(int i = Data->Count-1; i>0 && Data->Strings[i]==""; i--)
-        Data->Delete(i);
-    }else{
-      for(int i = Data->Count-1; i>R; i--)
-        Data->Delete(i);
-    }
-    if(ShowRowCounter) Data->Delete(0);   // カウンタセルの削除
-
-    Lines->Add(StringsToCSV(Data, Format));
-  }
-  delete Data;
-}
-//---------------------------------------------------------------------------
-void TCsvGrid::GridToHtml(TStrings *Lines)
-{
-/*
-  Lines->Clear();
-  Lines->Add("<html>");
-  Lines->Add("");
-  Lines->Add("<table border=1>");
-
-  int db = DataBottom, dr = DataRight;
-  for(int y=DataTop; y<=db; y++)
-  {
-    Lines->Add("<tr>");
-    for(int x=DataLeft; x<=dr; x++)
-    {
-      char dh = (x<FixedCols || y<FixedRows) ? 'h' : 'd';
-      Lines->Add((AnsiString)("  <t") + dh + ">"
-                + Cells[x][y] + "</t" + dh + ">");
-    }
-    Lines->Add("</tr>");
-  }
-
-  Lines->Add("</table>");
-  Lines->Add("");
-  Lines->Add("</html>");
-*/
-}
-//---------------------------------------------------------------------------
 void TCsvGrid::CopyToClipboard(bool Cut)
 {
   if(Cut) SetUndoCsv();
@@ -846,8 +1132,8 @@ void TCsvGrid::CopyToClipboard(bool Cut)
       OneLine->Clear();
       for(int j = SLeft; j <= SRight; j++)
       {
-        OneLine->Add(Cells[j][i]);
-	      if(Cut == true) Cells[j][i] = "";
+		OneLine->Add(GetACells(RXtoAX(j), RYtoAY(i)));
+		  if(Cut == true) Cells[j][i] = "";
       }
       AnsiString ALine = StringsToCSV(OneLine, TypeOption);
       // if(*(AnsiLastChar(ALine)) == ',') ALine += "\"\"";
@@ -951,7 +1237,7 @@ void TCsvGrid::PasteFromClipboard()
                    STop , STop  + ClipRowCount - 1);
     }
   }
-  else //if(EditorMode == true){
+  else //if (EditorMode == true)
   {
     SetUndoMacro();
     InplaceEditor->PasteFromClipboard();
@@ -1029,13 +1315,44 @@ void TCsvGrid::Sort(int SLeft, int STop, int SRight, int SBottom,
   Modified = true;
 }
 //---------------------------------------------------------------------------
+double TCsvGrid::GetSum(int l, int t, int r, int b, int *Count)
+{
+  double Sum = 0;
+  int NumCount = 0;
+  for(int i=l; i <= r; i++){
+	for(int j=t; j <= b; j++){
+	  AnsiString Str = GetACells(i,j);
+      if(Str != ""){
+        try{
+          Sum += Str.ToDouble();
+          NumCount++;
+        }catch(...){}
+      }
+    }
+  }
+
+  if(Count) *Count = NumCount;
+  return Sum;
+}
+//---------------------------------------------------------------------------
+double TCsvGrid::GetAvr(int l, int t, int r, int b)
+{
+  int Count;
+  double Sum = GetSum(l,t,r,b,&Count);
+  if(Count==0){
+    return 0;
+  }else{
+    return (Sum / Count);
+  }
+}
+//---------------------------------------------------------------------------
 double TCsvGrid::SelectSum(int *Count)
 {
   double Sum = 0;
   int NumCount = 0;
   for(int i=SelLeft; i <= Selection.Right; i++){
     for(int j=SelTop; j <= Selection.Bottom; j++){
-      AnsiString Str = Cells[i][j];
+      AnsiString Str = GetACells(RXtoAX(i),RYtoAY(j));
       if(Str != ""){
         try{
           Sum += Str.ToDouble();
@@ -1052,7 +1369,7 @@ double TCsvGrid::SelectSum(int *Count)
 void TCsvGrid::CopySum()
 {
   TClipboard *Clip = new TClipboard;
-    Clip->AsText = (AnsiString)SelectSum(NULL);
+	Clip->AsText = (AnsiString)SelectSum(NULL);
   delete Clip;
 }
 //---------------------------------------------------------------------------
@@ -1072,7 +1389,7 @@ void TCsvGrid::CopyAvr()
 wchar_t Hankaku2Zenkaku(wchar_t wc)
 {
   if(wc == L' ') return L'　';
-  else if(wc < L'ｦ' || wc > L'ﾟ') return wc;
+  else if(wc < L'｡' || wc > L'ﾟ') return wc;
   else if(wc >= L'ｱ' && wc <= L'ｵ') return L'ア' + (wc - L'ｱ') * 2;
   else if(wc >= L'ｶ' && wc <= L'ﾁ') return L'カ' + (wc - L'ｶ') * 2;
   else if(wc >= L'ﾂ' && wc <= L'ﾄ') return L'ツ' + (wc - L'ﾂ') * 2;
@@ -1090,6 +1407,11 @@ wchar_t Hankaku2Zenkaku(wchar_t wc)
   else if(wc == L'ｰ') return L'ー';
   else if(wc == L'ﾞ') return L'゛';
   else if(wc == L'ﾟ') return L'゜';
+  else if(wc == L'｡') return L'。';
+  else if(wc == L'｢') return L'「';
+  else if(wc == L'｣') return L'」';
+  else if(wc == L'､') return L'、';
+  else if(wc == L'･') return L'・';
 
   return wc;
 }
@@ -1100,16 +1422,22 @@ int Zenkaku2Hankaku(wchar_t wc, wchar_t *ans)
   else if(wc == L'ワ'){ *ans = L'ﾜ'; return 1; }
   else if(wc == L'ヲ'){ *ans = L'ｦ'; return 1; }
   else if(wc == L'ン'){ *ans = L'ﾝ'; return 1; }
+  else if(wc == L'ヴ'){ *ans = L'ｳ'; *(ans+1) = L'ﾞ'; return 2; }
   else if(wc == L'゛'){ *ans = L'ﾞ'; return 1; }
   else if(wc == L'゜'){ *ans = L'ﾟ'; return 1; }
   else if(wc == L'ー'){ *ans = L'ｰ'; return 1; }
+  else if(wc == L'。'){ *ans = L'｡'; return 1; }
+  else if(wc == L'「'){ *ans = L'｢'; return 1; }
+  else if(wc == L'」'){ *ans = L'｣'; return 1; }
+  else if(wc == L'、'){ *ans = L'､'; return 1; }
+  else if(wc == L'・'){ *ans = L'･'; return 1; }
   else if(wc < L'ァ' || wc > L'ロ'){ *ans = wc; return 1; }
   else if(wc == L'ッ'){ *ans = L'ｯ'; return 1; }
   else if(wc >= L'ァ' && wc <= L'オ'){
     int x = (wc - L'ァ');
     *ans = ((x % 2) ? (L'ｱ' + (x / 2)) : (L'ｧ' + (x / 2)));
     return 1;
-  }else if(wc >= L'カ' && wc <= L'チ'){
+  }else if(wc >= L'カ' && wc <= L'ヂ'){
     int x = (wc - L'カ');
     *ans = L'ｶ' + (x / 2);
     if(x % 2){
@@ -1118,7 +1446,7 @@ int Zenkaku2Hankaku(wchar_t wc, wchar_t *ans)
     }else{
       return 1;
     }
-  }else if(wc >= L'ツ' && wc <= L'ト'){
+  }else if(wc >= L'ツ' && wc <= L'ド'){
     int x = (wc - L'ツ');
     *ans = L'ﾂ' + (x / 2);
     if(x % 2){
@@ -1130,7 +1458,7 @@ int Zenkaku2Hankaku(wchar_t wc, wchar_t *ans)
   }else if(wc >= L'ナ' && wc <= L'ノ'){
     *ans = L'ﾅ' + (wc - L'ナ');
     return 1;
-  }else if(wc >= L'ハ' && wc <= L'ホ'){
+  }else if(wc >= L'ハ' && wc <= L'ポ'){
     int x = (wc - L'ハ');
     *ans = L'ﾊ' + (x / 3);
     if((x % 3) == 1){
@@ -1217,6 +1545,9 @@ void TCsvGrid::TransKana(int Type)
           }else if(*(p+1) == L'ﾟ' && *p >= L'ﾊ' && *p <= L'ﾎ') {
             (*q) += 2;
             p++;
+          }else if(*(p+1) == L'ﾞ' && *p == L'ｳ') {
+            (*q) = L'ヴ';
+            p++;
           }
           q++;
         }
@@ -1291,46 +1622,92 @@ void TCsvGrid::ChangeColCount(int Count)
   }else if(Count < ColCount) ColCount = Count;
 }
 //---------------------------------------------------------------------------
-void __fastcall TCsvGrid::InsertRow(int Index)
+void TCsvGrid::InsertRow(int Top, int Bottom)
 {
   SetUndoCsv();
-  Rows[RowCount++]->Clear();
-  TStringGrid::MoveRow(RowCount-1,Index);
+  UndoSetLock++;
+  for(int y = Top; y <= Bottom; y++){
+    Rows[RowCount++]->Clear();
+    TStringGrid::MoveRow(RowCount-1, y);
+  }
+  UndoSetLock--;
   Modified = true;
-  ReNum();
+  UpdateDataRightBottom(0,0, false);
+}
+//---------------------------------------------------------------------------
+void TCsvGrid::InsertColumn(int Left, int Right)
+{
+  SetUndoCsv();
+  UndoSetLock++;
+  for(int x = Left; x <= Right; x++){
+    Cols[ColCount++]->Clear();
+    TStringGrid::MoveColumn(ColCount-1, x);
+  }
+  UndoSetLock--;
+  Modified = true;
+  UpdateDataRightBottom(0,0, false);
+}
+//---------------------------------------------------------------------------
+void TCsvGrid::DeleteRow(int Top, int Bottom)
+{
+  SetUndoCsv();
+  UndoSetLock++;
+  if(RangeSelect){ Col = 1; }
+  if(RowCount <= FixedRows+1){
+    return;
+  }else if(Row >= Top && Row <= Bottom){
+    if(Bottom == RowCount-1){
+      Rows[RowCount++]->Clear();
+    }
+    Row = Bottom + 1;
+  }
+  for(int y = Bottom; y >= Top; y--){
+    TStringGrid::DeleteRow(y);
+  }
+  UndoSetLock--;
+  Modified = true;
+  UpdateDataRightBottom(0,0);
+}
+//---------------------------------------------------------------------------
+void TCsvGrid::DeleteColumn(int Left, int Right)
+{
+  SetUndoCsv();
+  UndoSetLock++;
+  if(RangeSelect){ Row = 1; }
+  if(ColCount <= FixedCols+1){
+    return;
+  }else if(Col >= Left && Col <= Right){
+    if(Right == ColCount-1){
+      Cols[ColCount++]->Clear();
+    }
+    Col = Right + 1;
+  }
+  for(int x = Right; x >= Left; x--){
+    TStringGrid::DeleteColumn(x);
+  }
+  UndoSetLock--;
+  Modified = true;
+  UpdateDataRightBottom(0,0);
+}
+//---------------------------------------------------------------------------
+void __fastcall TCsvGrid::InsertRow(int Index)
+{
+  InsertRow(Index, Index);
 }
 //---------------------------------------------------------------------------
 void __fastcall TCsvGrid::InsertColumn(int Index)
 {
-  SetUndoCsv();
-  Cols[ColCount++]->Clear();
-  TStringGrid::MoveColumn(ColCount-1,Index);
-  Modified = true;
-  ReNum();
+  InsertColumn(Index, Index);
 }
 //---------------------------------------------------------------------------
 void __fastcall TCsvGrid::DeleteRow(int ARow)
 {
-  SetUndoCsv();
-  if(RangeSelect) Col = 1;
-  if(RowCount <= FixedRows+1) return;
-  else if(Row == ARow && ARow == RowCount-1) Row--;
-  else if(Row == ARow) Row++;
-  TStringGrid::DeleteRow(ARow);
-  Modified = true;
-  ReNum();
+  DeleteRow(ARow, ARow);
 }
 //---------------------------------------------------------------------------
 void __fastcall TCsvGrid::DeleteColumn(int ACol)
 {
-  SetUndoCsv();
-  if(RangeSelect) Row = 1;
-  if(ColCount <= FixedCols+1) return;
-  else if(Col == ACol && ACol == ColCount-1) Col--;
-  else if(Col == ACol) Col++;
-  TStringGrid::DeleteColumn(ACol);
-  Modified = true;
-  ReNum();
+  DeleteColumn(ACol, ACol);
 }
 //---------------------------------------------------------------------------
 void TCsvGrid::InsertEnter()
@@ -1363,7 +1740,7 @@ void TCsvGrid::InsertEnter()
     SetSelection(L, L+SelLen, Y+1, Y+1);
   }
   Modified = true;
-  ReNum();
+  UpdateDataRightBottom(0,0);
 }
 //---------------------------------------------------------------------------
 void TCsvGrid::InsertNewLine()
@@ -1372,6 +1749,12 @@ void TCsvGrid::InsertNewLine()
     SetUndoMacro();
     InplaceEditor->SelText = "\r\n";
     Modified = true;
+
+    TRect MaxRect(0,0,ColWidths[Col]-4, (ClientHeight - RowHeights[0]) / 2);
+    TRect R = DrawTextRect(Canvas, MaxRect, InplaceEditor->Text, WordWrap, true);
+    if(RowHeights[Row] < R.Bottom){
+      RowHeights[Row] = R.Bottom;
+    }
   }
 }
 //---------------------------------------------------------------------------
@@ -1389,16 +1772,18 @@ void TCsvGrid::ConnectCell()
     Cells[Selection.Left][Selection.Top] = str;
   }else{
     int C = SelLeft;
-    if(C > FixedCols)                //カンマの削除
-    {
+    if(Row > DataBottom){ // ダミーセルは処理しない
+      Row = DataBottom;
+      Col = DataRight;
+    }else if(Col > DataRight){
+      Col = DataRight;
+    }else if(C > FixedCols){ //カンマの削除
       Cells[C-1][Row] = Cells[C-1][Row] + Cells[C][Row];
       for(int i=C; i<ColCount-1; i++)
         Cells[i][Row] = Cells[i+1][Row];
       Cells[ColCount-1][Row] = "";
       Col--;
-    }
-    else if(Row > FixedRows)            //リターンの削除
-    {
+    }else if(Row > FixedRows && Row <= DataBottom){ //リターンの削除
       int i, UpColCount, ThisColCount;
       for(i=ColCount-1; i>=DataLeft && Cells[i][Row-1]==""; i--){} UpColCount = i+1;
       for(i=ColCount-1; i>=DataLeft && Cells[i][Row]  ==""; i--){} ThisColCount = i+1;
@@ -1411,7 +1796,7 @@ void TCsvGrid::ConnectCell()
     }
   }
   Modified = true;
-  ReNum();
+  UpdateDataRightBottom(0,0);
 }
 //---------------------------------------------------------------------------
 void TCsvGrid::InsertCell_Right()
@@ -1422,7 +1807,7 @@ void TCsvGrid::InsertCell_Right()
   else
     InsertCells_Right(Col,Col,Row,Row);
   Modified = true;
-  ReNum();
+  UpdateDataRightBottom(0,0);
 }
 //---------------------------------------------------------------------------
 void TCsvGrid::InsertCell_Down()
@@ -1433,27 +1818,39 @@ void TCsvGrid::InsertCell_Down()
   else
     InsertCells_Down(Col,Col,Row,Row);
   Modified = true;
-  ReNum();
+  UpdateDataRightBottom(0,0);
 }
 //---------------------------------------------------------------------------
 void TCsvGrid::DeleteCell_Left()
 {
+  if(Col > DataRight || Row > DataBottom){
+    return;
+  }
   SetUndoCsv();
-  if(RangeSelect)
+  if(RangeSelect){
     DeleteCells_Left(SelLeft, Selection.Right, SelTop, Selection.Bottom);
-  else
-  {
+  }else{
     int i;
-    for(i=Col; i < ColCount; i++)
+    for(i=Col; i < ColCount; i++){
       if(Cells[i][Row] != "") break;
+    }
 
-    if(i >= ColCount && Row != RowCount-1)
-    { Row++; Col = FixedCols; ConnectCell(); }
-    else
+    if(i >= ColCount){
+      if(Row < DataBottom){
+        // 次の行から連結
+        Row++; Col = FixedCols; ConnectCell();
+      }else{
+        // 列の縮小を試みる
+        DeleteCells_Left(1,1,DataBottom+1,DataBottom+1);
+        FDataRight--;
+      }
+    }else{
+      // 現在の行内で左につめる
       DeleteCells_Left(Col,Col,Row,Row);
+    }
   }
   Modified = true;
-  ReNum();
+  UpdateDataRightBottom(0,0);
 }
 //---------------------------------------------------------------------------
 void TCsvGrid::DeleteCell_Up()
@@ -1465,7 +1862,7 @@ void TCsvGrid::DeleteCell_Up()
     DeleteCells_Up(Col,Col,Row,Row);
 
   Modified = true;
-  ReNum();
+  UpdateDataRightBottom(0,0);
 }
 //---------------------------------------------------------------------------
 void TCsvGrid::InsertCells_Right(long Left, long Right, long Top, long Bottom)
@@ -1484,6 +1881,7 @@ void TCsvGrid::InsertCells_Right(long Left, long Right, long Top, long Bottom)
   }
   delete Temp;
   SetSelection(Left, Right, Top, Bottom);
+  UpdateDataRightBottom(0,0);
 }
 //---------------------------------------------------------------------------
 void TCsvGrid::InsertCells_Down(long Left, long Right, long Top, long Bottom)
@@ -1502,6 +1900,7 @@ void TCsvGrid::InsertCells_Down(long Left, long Right, long Top, long Bottom)
   }
   delete Temp;
   SetSelection(Left, Right, Top, Bottom);
+  UpdateDataRightBottom(0,0);
 }
 //---------------------------------------------------------------------------
 void TCsvGrid::DeleteCells_Left(long Left, long Right, long Top, long Bottom)
@@ -1583,17 +1982,33 @@ void __fastcall TCsvGrid::MouseDown(Controls::TMouseButton Button,
   TStringGrid::MouseDown(Button,Shift,X,Y);
 
 
-  if(drgRow < FixedRows) {
+  if(drgRow < FixedRows && drgCol >= FixedCols) {
     int XLeft4, XRight4, YTemp;
     MouseToCell(X-4,Y,XLeft4,YTemp);
     MouseToCell(X+4,Y,XRight4,YTemp);
     ColToResize = XLeft4;
-    MouseDownCellBorder = ((XLeft4 != drgCol) || (XRight4 != drgCol));
+    OldWidthHeight = ColWidths[XLeft4];
+    MouseDownColBorder = ((XLeft4 != drgCol) || (XRight4 != drgCol));
+    if(MouseDownColBorder){ return; }
   }else{
-    MouseDownCellBorder = false;
+    MouseDownColBorder = false;
   }
 
-  if(DragMove && drgCol>=0 && drgRow>=0){
+  if(drgCol < FixedCols && drgRow >= FixedRows) {
+    int YTop4, YBottom4, XTemp;
+    MouseToCell(X,Y-4,XTemp,YTop4);
+    MouseToCell(X,Y+4,XTemp,YBottom4);
+    RowToResize = YTop4;
+    OldWidthHeight = RowHeights[YTop4];
+    MouseDownRowBorder = ((YTop4 != drgRow) || (YBottom4 != drgRow));
+    if(MouseDownRowBorder){ return; }
+  }else{
+    MouseDownRowBorder = false;
+  }
+
+  if(Button == mbRight && (IsRowSelected(drgRow) || IsColSelected(drgCol))){
+    return;
+  }else if(DragMove && drgCol>=0 && drgRow>=0){
     if(drgCol < FixedCols && drgRow < FixedRows) {
       SelectAll();
     }else if(drgCol < FixedCols) {
@@ -1626,12 +2041,10 @@ void __fastcall TCsvGrid::MouseMove(Classes::TShiftState Shift, int X, int Y)
   MouseToCell(X,Y,ACol,ARow);
 
   if(Dragging &&
+     ! MouseDownColBorder && ! MouseDownRowBorder &&
      ((drgRow >= 0 && drgRow < FixedRows) ||
       (drgCol >= 0 && drgCol < FixedCols)) &&
      !DragMove){
-
-//    int ACol, ARow;
-//    MouseToCell(X,Y,ACol,ARow);
 
     if(drgCol < FixedCols && drgRow < FixedRows) {
 
@@ -1676,7 +2089,8 @@ void __fastcall TCsvGrid::MouseMove(Classes::TShiftState Shift, int X, int Y)
     }
 
     if(DblClickOpenURL == 2){
-      if(Cells[ACol][ARow].SubString(1,7) == "http://"){
+      if(ACol >= FixedCols && ARow >= FixedRows &&
+         Cells[ACol][ARow].SubString(1,7) == "http://"){
         Cursor = crHandPoint;
       }else{
         Cursor = crDefault;
@@ -1690,22 +2104,7 @@ void __fastcall TCsvGrid::MouseMove(Classes::TShiftState Shift, int X, int Y)
 void __fastcall TCsvGrid::MouseUp(Controls::TMouseButton Button,
     Classes::TShiftState Shift, int X, int Y)
 {
-  int ACol, ARow;
-  MouseToCell(X,Y,ACol,ARow);
-
   TStringGrid::MouseUp(Button,Shift,X,Y);
-
-  if(DragMove && ACol>=0 && ARow>=0){
-    if(ACol < FixedCols && ARow < FixedRows) {
-      SelectAll();
-    }else if(ACol < FixedCols && drgCol < FixedCols && ARow == drgRow) {
-      if(Shift.Contains(ssShift)) SelectRows(ARow, Row);
-      else SelectRow(ARow);
-    }else if(ARow < FixedRows && drgRow < FixedRows && ACol == drgCol) {
-      if(Shift.Contains(ssShift)) SelectCols(ACol, Col);
-      else SelectColumn(ACol);
-    }
-  }
 
   if(!RangeSelect){
     if(AlwaysShowEditor || SameCellClicking){
@@ -1716,13 +2115,53 @@ void __fastcall TCsvGrid::MouseUp(Controls::TMouseButton Button,
       Options << goEditing;
     }
 
-    if((DblClickOpenURL == 2) && Cells[ACol][ARow].SubString(1,7) == "http://"){
-      OpenURL(Cells[ACol][ARow]);
+    if(DblClickOpenURL == 2){
+      int ACol, ARow;
+      MouseToCell(X,Y,ACol,ARow);
+      if(ACol >= 0 && ARow >= 0 &&
+         Cells[ACol][ARow].SubString(1,7) == "http://"){
+        OpenURL(Cells[ACol][ARow]);
+      }
+    }
+  }else if(MouseDownColBorder){
+    if(Selection.Left <= ColToResize && Selection.Right >= ColToResize &&
+      Selection.Top == FixedRows && Selection.Bottom == RowCount-1){
+      double scale = (double) ColWidths[ColToResize] / (double) OldWidthHeight;
+      for(int i=Selection.Left; i<=Selection.Right; i++){
+        if(i != ColToResize){
+          int newWidth = ColWidths[i] * scale;
+          if(newWidth >= ClientWidth - ColWidths[0]){ //広すぎないように
+            newWidth = ClientWidth - ColWidths[0] - 2 * GridLineWidth;
+          }
+          if(newWidth < 16){ newWidth = 16; } //狭すぎないように
+          ColWidths[i] = newWidth;
+        }
+      }
+    }
+  }else if(MouseDownRowBorder){
+    if(Selection.Top <= RowToResize && Selection.Bottom >= RowToResize &&
+       Selection.Left == FixedCols && Selection.Right == ColCount-1){
+      double scale = (double) RowHeights[RowToResize] / (double) OldWidthHeight;
+      for(int j=Selection.Top; j<=Selection.Bottom; j++){
+        if(j != RowToResize){
+          int newHeight = RowHeights[j] * scale;
+          if(newHeight > (ClientHeight - RowHeights[0]) / 2){ //広すぎないように
+            newHeight = (ClientHeight - RowHeights[0]) / 2;
+          }
+          if(newHeight < 16){ newHeight = 16; }  //狭すぎないように
+          RowHeights[j] = newHeight;
+        }
+      }
     }
   }
 
   Dragging = false;
-  ReNum();
+  UpdateDataRightBottom(0,0);
+
+  if(DragMove && (ShowColCounter || ShowRowCounter)){
+    // 行・列を移動すると番号が狂う
+    ReNum();
+  }
 }
 //---------------------------------------------------------------------------
 void __fastcall TCsvGrid::RowMoved(int FromIndex, int ToIndex)
@@ -1741,17 +2180,36 @@ void __fastcall TCsvGrid::ColumnMoved(int FromIndex, int ToIndex)
 //---------------------------------------------------------------------------
 void __fastcall TCsvGrid::DblClick(void)
 {
-  if(MouseDownCellBorder){
-     SetWidth(ColToResize);
+  if(MouseDownColBorder){
+    if(Selection.Left <= ColToResize && Selection.Right >= ColToResize &&
+       Selection.Top == FixedRows && Selection.Bottom == RowCount-1){
+      for(int i=Selection.Left; i<=Selection.Right; i++){
+        SetWidth(i);
+      }
+    }else{
+      SetWidth(ColToResize);
+    }
+  }else if(MouseDownRowBorder){
+    if(Selection.Top <= RowToResize && Selection.Bottom >= RowToResize &&
+       Selection.Left == FixedCols && Selection.Right == ColCount-1){
+      for(int j=Selection.Top; j<=Selection.Bottom; j++){
+        SetHeight(j);
+      }
+    }else{
+      SetHeight(RowToResize);
+    }
   }else if(Selection.Top == FixedRows &&
      Selection.Bottom == RowCount-1 &&
-     Selection.Left == Selection.Right)
-  {
+     Selection.Left == Selection.Right) {
     if(ColWidths[Selection.Left] > 16) {
       ColWidths[Selection.Left] = 16;
     }else{
       SetWidth(Selection.Left);
     }
+  }else if(Selection.Left == FixedCols &&
+     Selection.Right == ColCount-1 &&
+     Selection.Top == Selection.Bottom) {
+      SetHeight(Selection.Top);
   }else if(EditorMode == false){
     Options << goEditing << goAlwaysShowEditor;
     ShowEditor();
@@ -1803,22 +2261,60 @@ void __fastcall TCsvGrid::MouseWheelDown(System::TObject* Sender,
 #define drThisCol 1
 #define drAll 2
 //---------------------------------------------------------------------------
-int FindHit(AnsiString CellText,AnsiString FindText,bool Asterisk, bool Back, int *Length)
+int FindHit(AnsiString CellText,AnsiString FindText,
+        bool Case, bool Regex, bool Back, int *Length)
 {
-  *Length = FindText.Length();
-  if(Back){
-    for(int i=CellText.Length() - FindText.Length() + 1; i>0; i--){
-      if(CellText.SubString(i, FindText.Length()) == FindText){
-        return i;
+  if(!Case){
+    CellText = CellText.LowerCase();
+    FindText = FindText.LowerCase();
+  }
+
+  if(Regex){
+    for(int i=FindText.Length() - 1; i>0; i--){
+      if(FindText[i] == '\\' && FindText[i+1] == 'n'){
+        FindText.Insert("\\r?", i);
       }
     }
-    return 0;
+    if(Back){
+      TRegexp regex(FindText.c_str());
+      size_t len;
+      int hit = 0;
+      while(true){
+        int hittest = regex.find(CellText.c_str(), &len, hit) + 1;
+        if(hittest > 0){
+          hit = hittest;
+          *Length = len;
+        }else{
+          break;
+        }
+      }
+      return hit;
+    }else{
+      TRegexp regex(FindText.c_str());
+      size_t len;
+      int hit = regex.find(CellText.c_str(), &len, 0) + 1;
+      *Length = len;
+      return hit;
+    }
   }else{
-    return (CellText.AnsiPos(FindText));
+    *Length = FindText.Length();
+    if(Back){
+      for(int i=CellText.Length() - FindText.Length() + 1; i>0; i--){
+        if(!CellText.IsTrailByte(i)){
+          if(CellText.SubString(i, FindText.Length()) == FindText){
+            return i;
+          }
+        }
+      }
+      return 0;
+    }else{
+      return (CellText.AnsiPos(FindText));
+    }
   }
 }
 //---------------------------------------------------------------------------
-bool TCsvGrid::Find(AnsiString FindText, int Range, bool Asterisk, bool Word, bool Back)
+bool TCsvGrid::Find(AnsiString FindText,
+        int Range, bool Case, bool Regex, bool Word, bool Back)
 {
   int Hit, Len;
 
@@ -1829,14 +2325,21 @@ bool TCsvGrid::Find(AnsiString FindText, int Range, bool Asterisk, bool Word, bo
   if(!ipEd){ return(false); }
 
   AnsiString InCellText = "";
-  if(Back){
-    InCellText = ipEd->Text.SubString(1, ipEd->SelStart);
-  }else if(!Word || (ipEd->SelStart + ipEd->SelLength == 0)){
-    InCellText = ipEd->Text.SubString(ipEd->SelStart + ipEd->SelLength + 1, ipEd->Text.Length());
+
+  if(!Word){
+    if(Back){
+      InCellText = ipEd->Text.SubString(1, ipEd->SelStart);
+    }else{
+      InCellText = ipEd->Text.SubString(ipEd->SelStart + ipEd->SelLength + 1, ipEd->Text.Length());
+    }
+    if(Regex){
+      if(!Back && FindText[1] == '^'){ InCellText = ""; }
+      else if(Back && *(FindText.AnsiLastChar()) == '$'){ InCellText = ""; }
+    }
   }
 
   if(InCellText != ""){
-    Hit = FindHit(InCellText, FindText, Asterisk, Back, &Len);
+    Hit = FindHit(InCellText, FindText, Case, Regex, Back, &Len);
     if(Hit>0){
       if(Back){
         ipEd->SelStart = Hit - 1;
@@ -1849,32 +2352,63 @@ bool TCsvGrid::Find(AnsiString FindText, int Range, bool Asterisk, bool Word, bo
     }
   }
 
+  if(Regex && Word){
+    if(FindText[1] != '^'){ FindText.Insert("^", 1); }
+    if(*(FindText.AnsiLastChar()) != '$'){ FindText += "$"; }
+  }
+
   int step = (Back ? -1 : 1);
   int YStart = Row;
   int YEnd = (Back ? DataTop : RowCount);
-  if(Range == drThisRow) YEnd = Row;
-  else if(Range == drThisCol) YStart = Row+step;
+  if(Range == drThisRow){
+    YEnd = Row;
+  }else if(Range == drThisCol){
+    if(Word && !Back && (ipEd->SelStart + ipEd->SelLength == 0)){
+      YStart = Row;
+    }else{
+      YStart = Row+step;
+    }
+  }
 
   for(int y=YStart; y*step<=YEnd*step; y+=step)
   {
     int XStart = (Back ? ColCount : DataLeft);
     int XEnd   = (Back ? DataLeft : ColCount);
-    if(Range == drThisCol){ XStart = Col;  XEnd = Col; }
-    else if(y == Row){ XStart = Col+step; }
+    if(Range == drThisCol){
+      XStart = Col;  XEnd = Col;
+    }else if(y == Row){
+      if(Word && !Back && (ipEd->SelStart + ipEd->SelLength == 0)){
+        XStart = Col;
+      }else{
+        XStart = Col+step;
+      }
+    }
 
     for(int x=XStart; x*step<=XEnd*step; x+=step)
     {
-      if(Word){
-        if(Cells[x][y] == FindText){ Hit=1; Len=FindText.Length(); }
-        else Hit = 0;
+      if(Word && !Regex){
+        Hit = 0;
+        if(Case){
+          if(Cells[x][y] == FindText){
+            Hit=1; Len=FindText.Length();
+          }
+        }else{
+          if(Cells[x][y].LowerCase() == FindText.LowerCase()){
+            Hit=1; Len=FindText.Length();
+          }
+        }
       }else{
-        Hit = FindHit(Cells[x][y], FindText, Asterisk, Back, &Len);
+        Hit = FindHit(Cells[x][y], FindText, Case, Regex, Back, &Len);
+        if(Word){
+          // 「$」が改行にもヒットするのを防ぐ。
+          if(Len < Cells[x][y].Length()){ Hit = 0; }
+        }
       }
       if(Hit>0){
         if(x >= FixedCols){
-  	  Row=y; Col=x;
-	  ipEd->SelStart = Hit - 1;
-	  ipEd->SelLength = Len;
+          Row=y; Col=x;
+          ipEd->SelStart = Hit - 1;
+          ipEd->SelLength = Len;
         }else{
           Row=y; Col=FixedCols;
           EditorMode = true;
@@ -1882,7 +2416,7 @@ bool TCsvGrid::Find(AnsiString FindText, int Range, bool Asterisk, bool Word, bo
           ipEd->SelLength = 0;
         }
         ipEd->SetFocus();
-	return(true);
+        return(true);
       }
     }
   }
@@ -1890,19 +2424,41 @@ bool TCsvGrid::Find(AnsiString FindText, int Range, bool Asterisk, bool Word, bo
 }
 //---------------------------------------------------------------------------
 bool TCsvGrid::Replace(AnsiString FindText , AnsiString ReplaceText,
-                       int Range, bool Asterisk, bool Word, bool Back)
+        int Range, bool Case, bool Regex, bool Word, bool Back)
 {
+  AnsiString FindTextAll = FindText;
+  if(Regex){
+    if(FindTextAll[1] != '^'){ FindTextAll.Insert("^", 1); }
+    if(*(FindTextAll.AnsiLastChar()) != '$'){ FindTextAll += "$"; }
+
+    for(int i=1; i<ReplaceText.Length(); i++){
+      if(ReplaceText[i] == '\\' && ReplaceText[i+1] == 'n'){
+        ReplaceText[i] = '\r';
+        ReplaceText[i+1] = '\n';
+      }else if(ReplaceText[i] == '\\' && ReplaceText[i+1] == 't'){
+        ReplaceText[i] = '\t';
+        ReplaceText.Delete(i+1, 1);
+      }else if(ReplaceText[i] == '\\' && ReplaceText[i+1] == '\\'){
+        ReplaceText[i] = '\\';
+        ReplaceText.Delete(i+1, 1);
+      }
+    }
+  }
+
   TInplaceEdit *ipEd = InplaceEditor;
-  if(ReplaceText != FindText && ipEd){
-    if(Word){
-      if(ipEd->Text == FindText){
+  if((Regex || ReplaceText != FindText) && ipEd){
+    ipEd->SetFocus();
+    if(Word && !Regex){
+      if((Case && (ipEd->Text == FindTextAll)) ||
+         (!Case && (ipEd->Text.LowerCase() == FindTextAll.LowerCase()))){
         SetUndoMacro();
         ipEd->Text = ReplaceText;
         Modified = true;
       }
     }else{
+      if(Word){ ipEd->SelectAll(); }
       int Hit,Len;
-      Hit = FindHit(ipEd->SelText, FindText, Asterisk, Back, &Len);
+      Hit = FindHit(ipEd->SelText, FindTextAll, Case, Regex, Back, &Len);
       if(Hit == 1 && Len == ipEd->SelText.Length()) {
         SetUndoMacro();
         ipEd->SelText = ReplaceText;
@@ -1911,11 +2467,11 @@ bool TCsvGrid::Replace(AnsiString FindText , AnsiString ReplaceText,
     }
   }
 
-  return(Find(FindText,Range,Asterisk,Word,Back));
+  return(Find(FindText,Range,Case,Regex,Word,Back));
 }
 //---------------------------------------------------------------------------
 void TCsvGrid::AllReplace(AnsiString FindText , AnsiString ReplaceText,
-                          int Range, bool Asterisk, bool Word, bool Back)
+        int Range, bool Case, bool Regex, bool Word, bool Back)
 {
   int C = Col, R = Row;
   Options << goEditing << goAlwaysShowEditor;
@@ -1935,7 +2491,7 @@ void TCsvGrid::AllReplace(AnsiString FindText , AnsiString ReplaceText,
       ipEd->SelLength = 0; ipEd->SelStart = ipEd->Text.Length();
     }
   }
-  while(Replace(FindText,ReplaceText, Range, Asterisk, Word, Back)){}
+  while(Replace(FindText,ReplaceText, Range, Case, Regex, Word, Back)){}
   Col = C; Row = R;
 }
 //---------------------------------------------------------------------------
@@ -2019,7 +2575,7 @@ void __fastcall TCsvGrid::KeyDown(Word &Key, Classes::TShiftState Shift)
   }
 
 
-  SpreadRightBottom();
+  UpdateDataRightBottom(Col, Row);
   TStringGrid::KeyDown(Key,Shift);
 }
 //---------------------------------------------------------------------------
@@ -2052,21 +2608,23 @@ void __fastcall TCsvGrid::KeyDownSub(System::TObject* Sender,
         break;
     }
   }
-  else if(!Shift.Contains(ssShift) &&
-     InplaceEditor->SelLength == InplaceEditor->Text.Length())
-  {
-    if(Key == VK_LEFT && !LeftArrowInCell && Col > FixedCols){
+
+  if(Key == VK_LEFT && !Shift.Contains(ssShift)){
+    if(InplaceEditor->SelLength == InplaceEditor->Text.Length() &&
+       Col > FixedCols && !LeftArrowInCell){
       Col--; Key = '\0';
-    }else if(Key == VK_RIGHT && Col < ColCount-1){
+    }
+  }else if(Key == VK_RIGHT && !Shift.Contains(ssShift)){
+    if(InplaceEditor->SelLength == InplaceEditor->Text.Length() ||
+       (InplaceEditor->SelStart == InplaceEditor->Text.Length() &&
+        InplaceEditor->SelLength == 0)){
+      if(Col == ColCount-1){ ChangeColCount(ColCount+1); ReNum(); }
       Col++; Key = '\0';
     }
-  }
-  else if(Key == VK_RIGHT && !Shift.Contains(ssShift) &&
-     InplaceEditor->SelStart == InplaceEditor->Text.Length() &&
-     InplaceEditor->SelLength == 0 &&
-     Col < ColCount-1)
-  {
-    Col++; Key = '\0';
+  }else if(Key == VK_DOWN &&
+           !Shift.Contains(ssShift) && !Shift.Contains(ssCtrl)){
+    if(Row == RowCount-1){ ChangeRowCount(RowCount+1); ReNum(); }
+    Row++; Key = '\0';
   }
 }
 //---------------------------------------------------------------------------
@@ -2076,7 +2634,7 @@ void __fastcall TCsvGrid::KeyPress(char &Key)
     if(Key != '\n' && Key != '\r' && Key != '\t' && Key != '\x1B'){
       Modified = true; SetUndoMacro();
     }
-    SpreadRightBottom();
+    UpdateDataRightBottom(Col, Row);
     TStringGrid::KeyPress(Key);
   }
 }
@@ -2110,12 +2668,12 @@ void TCsvGrid::SetUndoCsv(bool inRedo)
   if(UndoMacro){ delete UndoMacro; UndoMacro = NULL; }
   if(!UndoCsv){ delete[] UndoCsv; }
 
-  UndoCsvWidth = ColCount - DataLeft;
-  UndoCsvHeight = RowCount - DataTop;
+  UndoCsvWidth = DataRight - DataLeft + 1;
+  UndoCsvHeight = DataBottom - DataTop + 1;
   UndoCsv = new AnsiString[UndoCsvWidth * UndoCsvHeight];
   AnsiString *p = UndoCsv;
-  for(int y=DataTop; y<RowCount; y++){
-    for(int x=DataLeft; x<ColCount; x++){
+  for(int y=DataTop; y<=DataBottom; y++){
+    for(int x=DataLeft; x<=DataRight; x++){
       *p = Cells[x][y];
       p++;
     }
@@ -2150,19 +2708,22 @@ void TCsvGrid::Undo()
     Row = Dat.ToInt() + DataTop;
     SetRedoMacro();
     Cells[Col][Row] = Macro;
+    Modified = true;
     UndoMacro->Delete(0);
     if(UndoMacro->Count == 0){ delete UndoMacro; UndoMacro = NULL; }
   }
   else if(UndoCsv)
   {
     SetRedoCsv();
+    // EOFマーカーの削除
+    Objects[DataLeft+DataRight][DataTop+DataBottom] = NULL;
     for(int i=1; i <= ColCount; i++)
       Cols[i]->Clear();
 
     int RC = DataTop+UndoCsvHeight;
     int CC = DataLeft+UndoCsvWidth;
-    ChangeRowCount(RC);
-    ChangeColCount(CC);
+    ChangeRowCount(RC+1);
+    ChangeColCount(CC+1);
     AnsiString *p = UndoCsv;
     for(int y=DataTop; y<RC; y++){
       for(int x=DataLeft; x<CC; x++){
@@ -2170,8 +2731,12 @@ void TCsvGrid::Undo()
         p++;
       }
     }
+    if(TypeOption->DummyEof) {
+      Objects[CC][RC] = EOFMarker;
+    }
+    Modified = true;
     delete[] UndoCsv; UndoCsv = NULL;
-    ReNum();
+    UpdateDataRightBottom(0,0);
   }
 }
 //---------------------------------------------------------------------------
@@ -2191,13 +2756,13 @@ void TCsvGrid::SetRedoMacro()
 //---------------------------------------------------------------------------
 void TCsvGrid::SetRedoCsv()
 {
-  if(!RedoCsv){ delete[] RedoCsv; }
-  RedoCsvWidth = ColCount - DataLeft;
-  RedoCsvHeight = RowCount - DataTop;
+  if(!RedoCsv){ delete[] RedoCsv; RedoCsv = NULL; }
+  RedoCsvWidth = DataRight - DataLeft + 1;
+  RedoCsvHeight = DataBottom - DataTop + 1;
   RedoCsv = new AnsiString[RedoCsvWidth * RedoCsvHeight];
   AnsiString *p = RedoCsv;
-  for(int y=DataTop; y<RowCount; y++){
-    for(int x=DataLeft; x<ColCount; x++){
+  for(int y=DataTop; y<=DataBottom; y++){
+    for(int x=DataLeft; x<=DataRight; x++){
       *p = Cells[x][y];
       p++;
     }
@@ -2208,13 +2773,15 @@ void TCsvGrid::Redo()
 {
   if(RedoCsv){   
     SetUndoCsv(true);
+    // EOFマーカーの削除
+    Objects[DataLeft+DataRight][DataTop+DataBottom] = NULL;
     for(int i=1; i <= ColCount; i++)
       Cols[i]->Clear();
 
     int RC = DataTop+RedoCsvHeight;
     int CC = DataLeft+RedoCsvWidth;
-    ChangeRowCount(RC);
-    ChangeColCount(CC);
+    ChangeRowCount(RC+1);
+    ChangeColCount(CC+1);
     AnsiString *p = RedoCsv;
     for(int y=DataTop; y<RC; y++){
       for(int x=DataLeft; x<CC; x++){
@@ -2222,8 +2789,11 @@ void TCsvGrid::Redo()
         p++;
       }
     }
+    if(TypeOption->DummyEof) {
+      Objects[CC][RC] = EOFMarker;
+    }
+    Modified = true;
     delete[] RedoCsv; RedoCsv = NULL;
-    ReNum();
   } else if(RedoMacro) {
     AnsiString Macro = RedoMacro->Strings[0];
     int Sep = Macro.Pos(",");
@@ -2236,9 +2806,11 @@ void TCsvGrid::Redo()
     Row = Dat.ToInt() + DataTop;
     SetUndoMacro(true);
     Cells[Col][Row] = Macro;
+    Modified = true;
     RedoMacro->Delete(0);
     if(RedoMacro->Count == 0){ delete RedoMacro; RedoMacro = NULL; }
   }
+  UpdateDataRightBottom(0,0);
 }
 //---------------------------------------------------------------------------
 namespace Csvgrid

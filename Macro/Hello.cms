@@ -1,1 +1,1 @@
-write("Hello, World!!!");
+[x,y] = "Hello, World!";

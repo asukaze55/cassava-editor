@@ -41,21 +41,28 @@ private:
     int drgRow , drgCol;
     bool Dragging;
     int ColToResize;
-    bool MouseDownCellBorder;
+    int RowToResize;
+    int OldWidthHeight;
+    bool MouseDownColBorder;
+    bool MouseDownRowBorder;
     bool GetRangeSelect() {
       return(Selection.Top  != Selection.Bottom
-	  || Selection.Left != Selection.Right);
+      || Selection.Left != Selection.Right);
     };
     TNotifyEvent FOnChangeModified;
     bool FModified;
-    void SetModified(bool Value) {
-      bool Before = FModified;
-      FModified = Value;
-      if(FModified != Before && OnChangeModified) OnChangeModified(this);
-    };
+    void SetModified(bool Value);
     bool GetSelected(int ACol,int ARow) {
       return (ARow>=Selection.Top  && ARow<=Selection.Bottom &&
-	      ACol>=Selection.Left && ACol<=Selection.Right);
+          ACol>=Selection.Left && ACol<=Selection.Right);
+    }
+    bool IsRowSelected(int ARow) {
+      return (ARow>=Selection.Top && ARow<=Selection.Bottom &&
+          FixedCols>=Selection.Left && ColCount-1<=Selection.Right);
+    }
+    bool IsColSelected(int ACol) {
+      return (FixedRows>=Selection.Top && RowCount-1<=Selection.Bottom &&
+          ACol>=Selection.Left && ACol<=Selection.Right);
     }
     int GetSelLeft() {
       if(Selection.Right-Selection.Left+1 == ColCount-FixedCols)
@@ -70,13 +77,17 @@ private:
 
     int GetDataLeft(){ return (ShowRowCounter ? 1 : 0); }
     int GetDataTop() { return (ShowColCounter ? 1 : 0); }
-    int GetDataRight();
-    int GetDataBottom();
+    int FDataRight, FDataBottom;
+    TObject *EOFMarker;
+
+    int FLineMargin;
+    void SetLineMargin(int Value){
+      FLineMargin = Value;
+      DefaultRowHeight = Font->Size * Screen->PixelsPerInch / 72 + Value + 4;
+    }
 
     AnsiString GetACells(int ACol, int ARow);
-    void SetACells(int ACol, int ARow, AnsiString Val){
-      Cells[ACol+DataLeft-1][ARow+DataTop-1] = Val;
-    }
+    void SetACells(int ACol, int ARow, AnsiString Val);
 
     double SelectSum(int *Count);
     bool FDragMove;
@@ -89,43 +100,48 @@ private:
     void SetShowRowCounter(bool Value);
     void SetShowColCounter(bool Value);
 
+    bool FExecCellMacro;
+    TStringList *CalculatedCellCache;
+    TStringList *UsingCellMacro;
+    void SetExecCellMacro(bool Value);
+    void ClearCalcCache();
+    void ErrorCalcLoop();
+
     TStrings *UndoMacro;
     AnsiString *UndoCsv;
     int UndoCsvWidth, UndoCsvHeight;
     TStrings *RedoMacro;
-    AnsiString *RedoCsv;             
+    AnsiString *RedoCsv;
     int RedoCsvWidth, RedoCsvHeight;
     void SetUndoMacro(bool inRedo=false);
     void SetRedoMacro();
     void ClearUndo();
 
-    void SaveToNotSjisFile(AnsiString FileName, char *sjis, int length);
     TDropCsvFiles FOnDropFiles;
     bool FDragDropAccept;
     void __fastcall SetDragDropAccept(bool Accept);
 
-    //int CommaCount, TabCount;
-
     int TextWidth(TCanvas *cnvs, AnsiString str);
+    TRect DrawTextRect(TCanvas *Canvas, TRect Rect, AnsiString Str,
+                       bool Wrap, bool MeasureOnly=false);
 
 protected:
     void PasteCSV(TStrings *List , int Left=1 , int Top=1 , int Way=2 ,
-		  int ClipCols=0 , int ClipRows=0);
+        int ClipCols=0 , int ClipRows=0);
     AnsiString StringsToCSV(TStrings* Data, TTypeOption *Format);
-    void GridToCSV(TStrings *Lines, TTypeOption *Format);
-    void GridToHtml(TStrings *Lines);
+    void WriteGrid(TStream *Stream, TTypeOption *Format);
     DYNAMIC void __fastcall MouseDown(Controls::TMouseButton Button,
-    	Classes::TShiftState Shift, int X, int Y);
+        Classes::TShiftState Shift, int X, int Y);
     DYNAMIC void __fastcall MouseMove(Classes::TShiftState Shift, int X, int Y);
     DYNAMIC void __fastcall MouseUp(Controls::TMouseButton Button,
-	    Classes::TShiftState Shift, int X, int Y);
+        Classes::TShiftState Shift, int X, int Y);
     DYNAMIC void __fastcall DblClick(void);
     DYNAMIC void __fastcall KeyDown(Word &Key, Classes::TShiftState Shift);
     DYNAMIC void __fastcall KeyPress(char &Key);
     DYNAMIC void __fastcall RowMoved(int FromIndex, int ToIndex);
     DYNAMIC void __fastcall ColumnMoved(int FromIndex, int ToIndex);
     void __fastcall DrawCell(int ACol, int ARow,
-      const TRect &ARect, TGridDrawState AState);
+        const TRect &ARect, TGridDrawState AState);
     void InsertCells_Right(long Left, long Right, long Top, long Bottom);
     void InsertCells_Down(long Left, long Right, long Top, long Bottom);
     void DeleteCells_Left(long Left, long Right, long Top, long Bottom);
@@ -133,7 +149,7 @@ protected:
 
     void __fastcall DropCsvFiles(TWMDropFiles inMsg);
     BEGIN_MESSAGE_MAP
-    	MESSAGE_HANDLER(WM_DROPFILES, TWMDropFiles, DropCsvFiles)
+        MESSAGE_HANDLER(WM_DROPFILES, TWMDropFiles, DropCsvFiles)
     END_MESSAGE_MAP(TStringGrid)
 
 
@@ -145,7 +161,7 @@ __published:
       = {read=FOnChangeModified, write=FOnChangeModified};
     __property TDropCsvFiles OnDropFiles = {read=FOnDropFiles,write=FOnDropFiles};
 
-public:         
+public:
     __property bool RangeSelect = {read=GetRangeSelect};
     __property bool Modified = {read=FModified, write=SetModified};
     void __fastcall ShowEditor(){
@@ -159,17 +175,21 @@ public:
 
     __property int DataLeft   = {read=GetDataLeft};
     __property int DataTop    = {read=GetDataTop};
-    __property int DataRight  = {read=GetDataRight};
-    __property int DataBottom = {read=GetDataBottom};
+    __property int DataRight  = {read=FDataRight};
+    __property int DataBottom = {read=FDataBottom};
     __property bool DragDrogAccept = {read=FDragDropAccept,
                                       write=SetDragDropAccept};
 
-    __property AnsiString ACells[int ACol][int ARow]
-                            = {read=GetACells, write=SetACells};
-    __fastcall TCsvGrid(TComponent* Owner);
-    __fastcall ~TCsvGrid(){ ClearUndo(); };
+    __property int LineMargin = {read=FLineMargin, write=SetLineMargin};
+    int CellLineMargin;
 
-    void Clear(int AColCount=4, int ARowCount=4);
+    __property AnsiString ACells[int ACol][int ARow]
+      = {read=GetACells, write=SetACells};
+
+    __fastcall TCsvGrid(TComponent* Owner);
+    __fastcall ~TCsvGrid();
+
+    void Clear(int AColCount=4, int ARowCount=4, bool UpdateRightBottom=false);
     void ReNum();
     void SetWidth(int i);
     void SetWidth();
@@ -179,9 +199,11 @@ public:
                       TCanvas *Cnvs = NULL);
     void ShowAllColumn();
     void Cut();
-    void SpreadRightBottom();
+    void UpdateDataRight();
+    void UpdateDataBottom();
+    void UpdateDataRightBottom(int modx, int mody, bool updateTableSize=true);
     bool LoadFromFile(AnsiString FileName, int KanjiCode=CHARCODE_AUTO);
-    void SaveToFile(AnsiString FileName, TTypeOption *Format, bool html=false);
+    void SaveToFile(AnsiString FileName, TTypeOption *Format, bool SetModifiedFalse=true);
     void CopyToClipboard(bool Cut = false);
     void CutToClipboard();
     void PasteFromClipboard();
@@ -190,52 +212,53 @@ public:
     TTypeList TypeList;
     int TypeIndex;
     TTypeOption *TypeOption;
-//    AnsiString SepChars;
-//    AnsiString WeakSepChars;
-//    AnsiString QuoteChars;
     int PasteOption;
     int DefWay;
-//    int SaveOption;
-//    bool OmitComma;
     bool CheckKanji;
     int KanjiCode;
-    #define LFCR '\0'
+    bool UnicodeWindowsMapping;
+#define LFCR '\0'
     char ReturnCode;
-//    #define sfCSV 1
-//    #define sfHTML 2
-//    #define sfTSV 3
-//    int SaveFormat;
-//    bool CommaSeparated, TabSeparated;
     bool LeftArrowInCell;
-    #define cssv_taLeft 0
-    #define cssv_taNumRight 1
+#define cssv_taLeft 0
+#define cssv_taNumRight 1
     int TextAlignment;
     bool AlwaysShowEditor;
     bool WheelMoveCursol;
     int EnterMove;
-    #define cssv_EnterNone 0
-    #define cssv_EnterDown 1
-    #define cssv_EnterRight 2
+#define cssv_EnterNone 0
+#define cssv_EnterDown 1
+#define cssv_EnterRight 2
 
     int DblClickOpenURL;
     bool ShowURLBlue;
+    bool WordWrap;
     AnsiString BrowserFileName;
     void OpenURL(AnsiString FileName);
 
-    int  DefaultViewMode;
-    #define cssv_viewallcolumn 0
-    #define cssv_viewalltext   1
+    int DefaultViewMode;
+#define cssv_viewallcolumn 0
+#define cssv_viewalltext   1
     int NumberComma;
 
+    __property bool ExecCellMacro
+        = {read=FExecCellMacro, write=SetExecCellMacro};
+
     bool IsNumber(AnsiString Str);
-    bool IsNumberAt(int X, int Y){ return IsNumber(ACells[X][Y]); };
+    bool IsNumberAtACell(int X, int Y){ return IsNumber(GetACells(X,Y)); };
     void Sort(int SLeft, int STop, int SRight, int SBottom,
               int SCol, bool Shoujun, bool NumSort);
+    double GetSum(int l, int t, int r, int b, int *Count=NULL);
+    double GetAvr(int l, int t, int r, int b);
     void CopySum();
     void CopyAvr();
 
     void ChangeRowCount(int Count);
     void ChangeColCount(int Count);
+    void InsertRow(int Top, int Bottom);
+    void InsertColumn(int Left, int Right);
+    void DeleteRow(int Top, int Bottom);
+    void DeleteColumn(int Left, int Right);
     void __fastcall InsertRow(int Index);
     void __fastcall InsertColumn(int Index);
     void __fastcall DeleteRow(int ARow);
@@ -250,6 +273,13 @@ public:
     void TransChar(int Type);
     void TransKana(int Type);
     void Sequence(bool Inc);
+
+#define CALC_NOTEXPR '\x01'
+#define CALC_OK '\x02'
+#define CALC_NG '\x04'
+#define CALC_LOOP '\x0c'
+    AnsiString GetCalculatedCell(int ACol, int ARow);
+    AnsiString (__closure *OnGetCalculatedCell)(AnsiString Str, int ACol, int ARow);
 
     void SelectRow(long Index){
       SetSelection(ColCount-1, FixedCols, Index, Index);
@@ -267,11 +297,12 @@ public:
       SetSelection(ColCount-1, FixedCols, RowCount-1, FixedRows);
     };
 
-    bool Find(AnsiString FindText, int Range, bool Asterisk, bool Word, bool Back);
+    bool Find(AnsiString FindText,
+            int Range, bool Case, bool Regex, bool Word, bool Back);
     bool Replace(AnsiString FindText , AnsiString ReplaceText,
-                 int Range, bool Asterisk, bool Word, bool Back);
+            int Range, bool Case, bool Regex, bool Word, bool Back);
     void AllReplace(AnsiString FindText , AnsiString ReplaceText,
-                 int Range, bool Asterisk, bool Word, bool Back);
+            int Range, bool Case, bool Regex, bool Word, bool Back);
     bool NumFind(double *Min, double *Max, int Range, bool Back);
 
     __property bool DragMove = {read=FDragMove, write=SetDragMove};
@@ -296,6 +327,12 @@ public:
     void __fastcall MouseWheelDown(System::TObject* Sender,
       Classes::TShiftState Shift, const Types::TPoint &MousePos, bool &Handled);
 
+    TColor FixFgColor;
+    TColor DummyBgColor;
+    TColor CalcFgColor;
+    TColor CalcBgColor;
+    TColor CalcErrorFgColor;
+    TColor CalcErrorBgColor;
 };
 //---------------------------------------------------------------------------
 #endif

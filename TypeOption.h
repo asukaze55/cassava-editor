@@ -31,8 +31,8 @@ public:
     WeakSepChars = " ";
     QuoteChars = "\"";
     QuoteOption = 1;
-    OmitComma = true;
-    DummyEof = false;
+    OmitComma = false;
+    DummyEof = true;
   }
   TTypeOption() {
     init();

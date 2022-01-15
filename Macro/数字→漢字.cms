@@ -2,7 +2,7 @@ B = Bottom;
 
 x = InputBox("•ÏŠ·‚·‚é—ñ‚ðŽw’è‚µ‚Ä‚­‚¾‚³‚¢B", x);
 
-For(y to B){
+for(y=1; y<=B; y++){
   str = [x,y];
   str = replace(str, "1", "ˆê");
   str = replace(str, "‚P", "ˆê");

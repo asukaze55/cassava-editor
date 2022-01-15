@@ -65,7 +65,9 @@ void TfmKey::SetMSC(TMenuShortCut *MSC)
         }
         else MSC->Key = '\0';
         break;
-      case 2: MSC->Key = static_cast<Word>(VK_F1 + csFNumber->Value - 1); break;
+	  case 2:
+	    MSC->Key = static_cast<Word>(VK_F1 + udFNumber->Position - 1);
+		break;
       case 3: MSC->Key = VK_RETURN; break;
       case 4: MSC->Key = VK_SPACE; break;
       case 5: MSC->Key = VK_INSERT; break;
@@ -118,6 +120,7 @@ void __fastcall TfmKey::tvMenuChange(TObject *Sender, TTreeNode *Node)
 
   edSCKey->Enabled = false;
   csFNumber->Enabled = false;
+  udFNumber->Enabled = false;
 
   if(SCKey == '\0'){
     rgSCKey->ItemIndex = 0;
@@ -139,8 +142,9 @@ void __fastcall TfmKey::tvMenuChange(TObject *Sender, TTreeNode *Node)
         edSCKey->Text = (char)SCKey;
       }
     } else if(ii == 2){
-      csFNumber->Enabled = true;
-      csFNumber->Value = static_cast<long>(SCKey - VK_F1) + 1;
+	  csFNumber->Enabled = true;
+	  udFNumber->Enabled = true;
+      csFNumber->Text = AnsiString(static_cast<long>(SCKey - VK_F1) + 1);
     }
   }
 }
@@ -175,6 +179,7 @@ void __fastcall TfmKey::rgSCKeyClick(TObject *Sender)
   int ii = rgSCKey->ItemIndex;
   edSCKey->Enabled = (ii == 1);
   csFNumber->Enabled = (ii == 2);
+  udFNumber->Enabled = (ii == 2);
   if((ii == 1) && rgSCKey->Focused()) edSCKey->SetFocus();
   else if((ii == 2) && rgSCKey->Focused()) csFNumber->SetFocus();
 }

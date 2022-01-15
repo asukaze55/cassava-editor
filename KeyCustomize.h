@@ -21,8 +21,7 @@ __published:	// IDE 管理のコンポーネント
         TBitBtn *btnCancel;
         TCheckBox *cbCtrl;
         TCheckBox *cbShift;
-        TRadioGroup *rgSCKey;
-        TCSpinEdit *csFNumber;
+		TRadioGroup *rgSCKey;
         TEdit *edSCKey;
         TCheckBox *cbAlt;
         TStaticText *StaticText1;
@@ -32,6 +31,8 @@ __published:	// IDE 管理のコンポーネント
         TOpenDialog *dlgOpen;
         TEdit *edSelected;
   TSaveDialog *dlgSave;
+	TEdit *csFNumber;
+	TUpDown *udFNumber;
         void __fastcall FormShow(TObject *Sender);
         void __fastcall tvMenuChange(TObject *Sender, TTreeNode *Node);
         void __fastcall rgSCKeyClick(TObject *Sender);

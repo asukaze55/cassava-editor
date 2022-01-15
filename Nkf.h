@@ -10,6 +10,25 @@
 #define CHARCODE_UTF16LE (4)
 #define CHARCODE_UTF16BE (5)
 //---------------------------------------------------------------------------
-int NkfConvertSafe(LPSTR outStr,DWORD nOutBufferLength, LPDWORD lpBytesReturned, LPCSTR inStr,DWORD nInBufferLength, LPCSTR optStr);
+typedef int CALLBACK funcSetNkfOption(LPCSTR optStr);
+typedef BOOL WINAPI funcNkfConvertSafe(LPSTR outStr,DWORD nOutBufferLength /*in Bytes*/,LPDWORD lpBytesReturned /*in Bytes*/, LPCSTR inStr,DWORD nInBufferLength /*in Bytes*/);
+typedef int CALLBACK funcNkfGetKanjiCode();
+//---------------------------------------------------------------------------
+class TNkf {
+private:
+  HINSTANCE dll;
+  funcSetNkfOption *setopt;
+  funcNkfConvertSafe *conv;
+  funcNkfGetKanjiCode *getkc;
+  bool ready; 
+public:
+  TNkf();
+  virtual ~TNkf();
+  int Convert(LPSTR outStr,DWORD nOutBufferLength, LPDWORD lpBytesReturned,
+              LPCSTR inStr,DWORD nInBufferLength, LPCSTR optStr);
+};
+//---------------------------------------------------------------------------
+int NkfConvertSafe(LPSTR outStr,DWORD nOutBufferLength, LPDWORD lpBytesReturned,
+                   LPCSTR inStr,DWORD nInBufferLength, LPCSTR optStr);
 //---------------------------------------------------------------------------
 #endif

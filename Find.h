@@ -31,12 +31,15 @@ __published:	// IDE 管理のコンポーネント
         TRadioGroup *rgRange;
         TRadioGroup *rgDirection;
         TEdit *edReplaceText;
+  TCheckBox *cbRegex;
+  TCheckBox *cbCase;
         void __fastcall btnSearchFromTopClick(TObject *Sender);
         void __fastcall btnNextClick(TObject *Sender);
         void __fastcall btnReplaceClick(TObject *Sender);
         void __fastcall btnAllReplaceClick(TObject *Sender);
         void __fastcall btnCancelClick(TObject *Sender);
         void __fastcall PageControlChange(TObject *Sender);
+  void __fastcall FormShow(TObject *Sender);
 private:	// ユーザー宣言
 public:		// ユーザー宣言
         __fastcall TfmFind(TComponent* Owner);

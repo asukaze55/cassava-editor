@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="euc-jp" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="ja" xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=euc-jp" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <title>オプションメニュー - Cassava Editor ヘルプ</title>
+  <link rel="stylesheet" type="text/css" href="cassava.css" />
+</head>
+<body>
+
+<!-- HEAD LINE -->
+<div class="headline">
+  <a href="http://www.asukaze.net/">
+    <img src="asukaze.png" width="88" height="31"
+      alt="[あすかぜ・ねっと]" title="あすかぜ・ねっと"
+      class="headline" />あすかぜ・ねっと</a> ＞
+  <a href="http://www.asukaze.net/soft/index.html">自作ソフト</a> ＞
+  <a href="http://www.asukaze.net/soft/cassava/index.html">Cassava</a> ＞
+  <a href="index.html">ヘルプ</a> ＞
+  オプションメニュー
+</div>
+
+<h1>オプションメニュー</h1>
+
+<!-- MAIN VIEW -->
+<div class="mainview">
+
+<p>
+オプションメニューでは、各種設定とマクロの実行ができます。
+</p>
+
+<h2>各メニューの説明</h2>
+
+<h3>オプション</h3>
+  <ul>
+  <li>オプションウィンドウを表示します。</li>
+  <li>詳細は各説明ページを参照してください。</li>
+  </ul>
+<h3>キーカスタマイズ</h3>
+  <ul>
+  <li>各メニューへのショートカットキーを変更できます。</li>
+  <li>メニューを左のツリーから選び、右側でキーの組み合わせを指定してください。</li>
+  <li>キー割り当てはファイルに保存できます。
+      変更時には自動的に「AutoKey.csv」に保存されます。</li>
+  </ul>
+<h3>セーブ時文字コード</h3>
+  <ul>
+  <li>出力時（保存・エクスポート）の漢字コードと改行コードを指定します。</li>
+  <li>読み込み時に文字コードを自動認識して設定するので、
+      ここを変えなければ読み込んだときと同じ文字コードで書き込まれます。</li>
+  <li>Shift-JIS・LF+CR を設定している時が最も速く、メモリ消費も少なくてすみます。</li>
+  </ul>
+<h3>外部アプリケーション</h3>
+  <ul>
+  <li>編集中のファイルを他のアプリケーションで開くことができます。</li>
+  <li>アプリケーションはオプションダイアログの「外部アプリ連携」で設定します。</li>
+  <li>外部ソフトを呼び出すとCassavaは終了するので注意してください。</li>
+  </ul>
+
+<h3>マクロ</h3>
+  <ul>
+  <li>マクロフォルダ内のマクロが検索され、メニューに表示されます。
+      実行したいマクロを選択してください。</li>
+  </ul>
+  <dl>
+  <dt>マクロの検索</dt>
+  <dd>マクロフォルダ内のマクロを検索してメニューを更新します。</dd>
+  <dt>マクロフォルダを開く</dt>
+  <dd>エクスプローラでマクロフォルダを開きます。</dd>
+  <dt>指定したマクロを実行</dt>
+  <dd>任意の場所のマクロを実行できます。</dd>
+  </dl>
+
+</div>
+
+<!-- SIDE PANE -->
+<div class="sidepane">
+
+<h2 class="sectitle">Menu</h2>
+
+<div class="MainMenu"><a href="index.html">Cassava ヘルプ</a></div>
+<div class="MainMenu"><a href="about.html">Cassavaとは</a></div>
+<div class="MainMenu"><a href="install.html">インストール</a></div>
+<div class="MainMenuSel">メニュー</div>
+  <ul class="MainMenu">
+    <li><a href="filemenu.html" title="[ファイル]メニュー">ファイル</a></li>
+    <li><a href="editmenu.html" title="[編集]メニュー">編集</a></li>
+    <li><a href="insdelmenu.html" title="[挿入・削除]メニュー">挿入・削除</a></li>
+    <li><a href="findmenu.html" title="[検索]メニュー">検索</a></li>
+    <li><a href="viewmenu.html" title="[表示]メニュー">表示</a></li>
+    <li><span class="Sel">オプション</span>
+      <ul class="MainMenu">
+        <li><a href="dataoption.html" title="[データ形式]オプション">データ形式</a></li>
+        <li><a href="fileoption.html" title="[ファイル]オプション">ファイル</a></li>
+        <li><a href="behavioroption.html" title="[動作]オプション">動作</a></li>
+        <li><a href="backupoption.html" title="[バックアップ]オプション">バックアップ</a></li>
+        <li><a href="applioption.html" title="[外部アプリ連携]オプション">外部アプリ連携</a></li>
+        <li><a href="coloroption.html" title="[フォント・色]オプション">フォント・色</a></li>
+      </ul>
+    </li>
+    <li><a href="helpmenu.html" title="[ヘルプ]メニュー">ヘルプ</a></li>
+  </ul>
+<div class="MainMenu"><a href="key.html">キー操作</a></div>
+<div class="MainMenu"><a href="macro.html">マクロ</a></div>
+  <ul class="MainMenu">
+    <li><a href="macroref.html">リファレンス</a></li>
+  </ul>
+<div class="MainMenu"><a href="letter.html">はがき印刷</a></div>
+<div class="MainMenu"><a href="contact.html">著作権・連絡先</a></div>
+
+</div>
+
+<!-- SIGN -->
+<br style="clear: both;" />
+<address>
+  Copyright (C) 2000-2007 asukaze, Some Rights Reserved.<br />
+  mail (at) asukaze.net
+</address>
+<!-- ==== -->
+
+</body>
+</html>

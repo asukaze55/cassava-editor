@@ -1,8 +1,8 @@
-For(x to Right){
+for(x=1; x<=Right; x++){
   [x,1] = "#";
   [x,Bottom] = "#";
 }
-For(y to Bottom){
+for(y=1; y<=Bottom; y++){
   [1,y] = "#";
   [Right, y] = "#";
 }

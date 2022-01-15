@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="euc-jp" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="ja" xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=euc-jp" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <title>外部アプリ連携オプション - Cassava Editor ヘルプ</title>
+  <link rel="stylesheet" type="text/css" href="cassava.css" />
+</head>
+<body>
+
+<!-- HEAD LINE -->
+<div class="headline">
+  <a href="http://www.asukaze.net/">
+    <img src="asukaze.png" width="88" height="31"
+      alt="[あすかぜ・ねっと]" title="あすかぜ・ねっと"
+      class="headline" />あすかぜ・ねっと</a> ＞
+  <a href="http://www.asukaze.net/soft/index.html">自作ソフト</a> ＞
+  <a href="http://www.asukaze.net/soft/cassava/index.html">Cassava</a> ＞
+  <a href="index.html">ヘルプ</a> ＞
+  外部アプリ連携オプション
+</div>
+
+<h1>外部アプリ連携オプション</h1>
+
+<!-- MAIN VIEW -->
+<div class="mainview">
+
+<p>
+外部アプリ連携オプションでは、
+[オプション]-[外部アプリケーション]メニューで起動する外部アプリケーションと、
+起動するWebブラウザを設定できます。
+</p>
+
+<h2>各オプションの説明</h2>
+
+<h3>外部アプリケーション</h3>
+  <ul>
+  <li>[オプション]-[外部アプリケーション]メニューで起動する外部アプリケーションを設定します。</li>
+  <li>右側の入力欄にアプリケーションのフルパスを入力します。
+      フォルダのアイコンの描かれたボタンを押してダイアログから選択することもできます。
+      CSVファイルを読めるソフト（表計算ソフト、テキストエディタ）の実行ファイルを指定してください。</li>
+  <li>右側のテキストボックスを空欄にすることで設定を消去できます。 </li>
+  <li>左側の入力欄は右側の入力欄を記入すると編集可能となります。
+      ここには、メニューに表示されるアプリケーション名を入力してください</li>
+  </ul>
+<h3>ファイルの右クリックに関連付ける</h3>
+  <ul>
+  <li>CSV/TSVファイルの右クリックメニューに、ここで指定した外部アプリケーションを登録します。</li>
+  <li>ファイルオプションで関連付けを設定している場合のみ実行できます。
+      ファイルオプションで関連付けを無効にすると設定は削除されます。</li>
+  <li>この設定はレジストリの値を書き換えます。</li>
+  </ul>
+<h3>Webブラウザ</h3>
+  <ul>
+  <li>URLデータに関連付けて開くWebブラウザを指定します。</li>
+  <li>何も指定しない場合、Windowsで「.html」ファイルに関連付けられたブラウザを使用します。</li>
+  </ul>
+<h3>URLデータ</h3>
+  <ul>
+  <li>「http://」から始まるデータからブラウザを開けるようにするかどうかを指定します。</li>
+  </ul>
+  <dl>
+  <dt>マウスからブラウザを起動しない</dt>
+  <dd>クリックやダブルクリックではブラウザを起動しません。
+      この設定でも、F5キーでブラウザを起動できます。</dd>
+  <dt>ダブルクリックでブラウザを起動する</dt>
+  <dd>URLデータをダブルクリックすることでブラウザを起動します。
+      URLデータは青色＋下線で表示されます。</dd>
+  <dt>シングルクリックでブラウザを起動する</dt>
+  <dd>URLデータをクリックすることでブラウザを起動します。
+      URLデータは青色＋下線で表示され、マウスポインタが手のひらの形に変わります。</dd>
+  </dl>
+
+</div>
+
+<!-- SIDE PANE -->
+<div class="sidepane">
+
+<h2 class="sectitle">Menu</h2>
+
+<div class="MainMenu"><a href="index.html">Cassava ヘルプ</a></div>
+<div class="MainMenu"><a href="about.html">Cassavaとは</a></div>
+<div class="MainMenu"><a href="install.html">インストール</a></div>
+<div class="MainMenuSel">メニュー</div>
+  <ul class="MainMenu">
+    <li><a href="filemenu.html" title="[ファイル]メニュー">ファイル</a></li>
+    <li><a href="editmenu.html" title="[編集]メニュー">編集</a></li>
+    <li><a href="insdelmenu.html" title="[挿入・削除]メニュー">挿入・削除</a></li>
+    <li><a href="findmenu.html" title="[検索]メニュー">検索</a></li>
+    <li><a href="viewmenu.html" title="[表示]メニュー">表示</a></li>
+    <li><a href="optionmenu.html" title="[オプション]メニュー">オプション</a>
+      <ul class="MainMenu">
+        <li><a href="dataoption.html" title="[データ形式]オプション">データ形式</a></li>
+        <li><a href="fileoption.html" title="[ファイル]オプション">ファイル</a></li>
+        <li><a href="behavioroption.html" title="[動作]オプション">動作</a></li>
+        <li><a href="backupoption.html" title="[バックアップ]オプション">バックアップ</a></li>
+        <li class="Sel">外部アプリ連携</li>
+        <li><a href="coloroption.html" title="[フォント・色]オプション">フォント・色</a></li>
+      </ul>
+    </li>
+    <li><a href="helpmenu.html" title="[ヘルプ]メニュー">ヘルプ</a></li>
+  </ul>
+<div class="MainMenu"><a href="key.html">キー操作</a></div>
+<div class="MainMenu"><a href="macro.html">マクロ</a></div>
+  <ul class="MainMenu">
+    <li><a href="macroref.html">リファレンス</a></li>
+  </ul>
+<div class="MainMenu"><a href="letter.html">はがき印刷</a></div>
+<div class="MainMenu"><a href="contact.html">著作権・連絡先</a></div>
+
+</div>
+
+<!-- SIGN -->
+<br style="clear: both;" />
+<address>
+  Copyright (C) 2000-2007 asukaze, Some Rights Reserved.<br />
+  mail (at) asukaze.net
+</address>
+<!-- ==== -->
+
+</body>
+</html>

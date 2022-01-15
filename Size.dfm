@@ -12,6 +12,7 @@ object fmSize: TfmSize
   Font.Name = 'MS UI Gothic'
   Font.Style = []
   OldCreateOrder = False
+  Position = poMainFormCenter
   PixelsPerInch = 96
   TextHeight = 16
   object Label1: TLabel
@@ -28,30 +29,12 @@ object fmSize: TfmSize
     Height = 16
     Caption = #21015#25968#65306
   end
-  object seHeight: TCSpinEdit
-    Left = 56
-    Top = 14
-    Width = 52
-    Height = 26
-    MaxValue = 268435455
-    TabOrder = 0
-    Value = 4
-  end
-  object seWidth: TCSpinEdit
-    Left = 160
-    Top = 14
-    Width = 52
-    Height = 26
-    MaxValue = 268435455
-    TabOrder = 1
-    Value = 4
-  end
   object btnCancel: TBitBtn
     Left = 128
     Top = 56
     Width = 105
     Height = 33
-    TabOrder = 2
+    TabOrder = 0
     Kind = bkCancel
   end
   object btnOK: TBitBtn
@@ -60,7 +43,45 @@ object fmSize: TfmSize
     Width = 108
     Height = 33
     Caption = #20316#25104
-    TabOrder = 3
+    TabOrder = 1
     Kind = bkOK
+  end
+  object seHeight: TEdit
+    Left = 60
+    Top = 15
+    Width = 36
+    Height = 24
+    TabOrder = 2
+    Text = '3'
+  end
+  object udHeight: TUpDown
+    Left = 96
+    Top = 15
+    Width = 16
+    Height = 24
+    Associate = seHeight
+    Min = 1
+    Max = 32767
+    Position = 3
+    TabOrder = 3
+  end
+  object seWidth: TEdit
+    Left = 168
+    Top = 15
+    Width = 36
+    Height = 24
+    TabOrder = 4
+    Text = '3'
+  end
+  object udWidth: TUpDown
+    Left = 204
+    Top = 15
+    Width = 16
+    Height = 24
+    Associate = seWidth
+    Min = 1
+    Max = 32767
+    Position = 3
+    TabOrder = 5
   end
 end

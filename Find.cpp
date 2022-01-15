@@ -13,6 +13,18 @@ __fastcall TfmFind::TfmFind(TComponent* Owner)
 {
 }
 //---------------------------------------------------------------------------
+void __fastcall TfmFind::FormShow(TObject *Sender)
+{
+  int left = fmMain->Left;
+  int top = fmMain->Top + fmMain->Height;
+  if(top > Screen->Height - Height){
+    top = Screen->Height - Height;
+  }
+  Left = left + 8;
+  Top = top - 8;
+  edFindText->SetFocus();
+}
+//---------------------------------------------------------------------------
 void __fastcall TfmFind::btnSearchFromTopClick(TObject *Sender)
 {
   fmMain->MainGrid->Options << goEditing << goAlwaysShowEditor;
@@ -45,7 +57,8 @@ void __fastcall TfmFind::btnNextClick(TObject *Sender)
 {
   if(PageControl->TabIndex == 0){
     fmMain->MainGrid->Find(edFindText->Text,rgRange->ItemIndex,
-      false, cbWordSearch->Checked, (rgDirection->ItemIndex == 0));
+      cbCase->Checked, cbRegex->Checked, cbWordSearch->Checked,
+      (rgDirection->ItemIndex == 0));
   }else{
     double Min,Max;
     double *pMin, *pMax;
@@ -67,8 +80,8 @@ void __fastcall TfmFind::btnNextClick(TObject *Sender)
 void __fastcall TfmFind::btnReplaceClick(TObject *Sender)
 {
   fmMain->MainGrid->Replace(edFindText->Text,edReplaceText->Text,
-                            rgRange->ItemIndex,false,
-                            cbWordSearch->Checked, (rgDirection->ItemIndex == 0));
+    rgRange->ItemIndex, cbCase->Checked, cbRegex->Checked,
+    cbWordSearch->Checked, (rgDirection->ItemIndex == 0));
   fmMain->MainGrid->SetFocus();
 }
 //---------------------------------------------------------------------------
@@ -76,8 +89,8 @@ void __fastcall TfmFind::btnAllReplaceClick(TObject *Sender)
 {
   if(edFindText->Text != edReplaceText->Text)
     fmMain->MainGrid->AllReplace(edFindText->Text,edReplaceText->Text,
-                                 rgRange->ItemIndex,false,
-                                 cbWordSearch->Checked, (rgDirection->ItemIndex == 0));
+      rgRange->ItemIndex, cbCase->Checked, cbRegex->Checked,
+      cbWordSearch->Checked, (rgDirection->ItemIndex == 0));
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmFind::btnCancelClick(TObject *Sender)

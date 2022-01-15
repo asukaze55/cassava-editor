@@ -33,27 +33,28 @@ __fastcall TfmLetter::TfmLetter(TComponent* Owner)
   }
   
   fmPreview = new TfmPreview(Application);
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmLetter::FormShow(TObject *Sender)
+{
+  int max = fmMain->MainGrid->ColCount-1;
+  udToNumber->Max = max;
+  udToAddress1->Max = max;
+  udToAddress2->Max = max;
+  udToName->Max = max;
+  udToName2->Max = max;
+  udToNote->Max = max;
+  max = fmMain->MainGrid->RowCount-1;
+  udTop->Max = max;
+  edTop->Text = fmMain->MainGrid->Selection.Top;
+  udBottom->Max = max;
+  edBottom->Text = fmMain->MainGrid->Selection.Bottom;
+  udMyDataInCsv->Max = max;
 
   DataSetDefault();
   if(FileExists(fmMain->FullPath + "Auto.dat")) {
     DataRead(fmMain->FullPath + "Auto.dat");
   }
-}
-//---------------------------------------------------------------------------
-void __fastcall TfmLetter::FormShow(TObject *Sender)
-{
-  int Max = fmMain->MainGrid->ColCount-1;
-  edToNumber->MaxValue = Max;
-  edToAddress1->MaxValue = Max;
-  edToAddress2->MaxValue = Max;
-  edToName->MaxValue = Max;
-  edToNote->MaxValue = Max;
-  Max = fmMain->MainGrid->RowCount-1;
-  edTop->MaxValue = Max;
-  edTop->Value = fmMain->MainGrid->Selection.Top;
-  edBottom->MaxValue = Max;
-  edBottom->Value = fmMain->MainGrid->Selection.Bottom;
-  edMyDataInCsv->MaxValue = Max;
 
   PreView();
 }
@@ -72,18 +73,18 @@ void __fastcall TfmLetter::imPreviewClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void TfmLetter::PrintOut()
 {
-  if(edTop->Value > edBottom->Value) {
-    edBottom->Value = edTop->Value;
+  if(udTop->Position > udBottom->Position) {
+    udBottom->Position = udTop->Position;
     return;
   }
 
   btnPrint->Enabled = false;
   btnClose->Enabled = false;
   Printer()->Title = "Cassava";
-  Printer()->Copies = seCopies->Value;
+  Printer()->Copies = udCopies->Position;
   Printer()->BeginDoc();
   bool NewPage = false;
-  for(int i = edTop->Value; i<=edBottom->Value; i++)
+  for(int i = udTop->Position; i<=udBottom->Position; i++)
   {
     if(NewPage) Printer()->NewPage();
     // fmMain->MainGrid->TopRow = i;
@@ -106,7 +107,7 @@ void TfmLetter::PreView()
   fmPreview->imPreview->Height = 148 * mmPt;
        fmPreview->ClientHeight = 148 * mmPt;
 		   Bmp->Height = 148 * mmPt;
-  Print(Bmp->Canvas,edTop->Value);
+  Print(Bmp->Canvas, udTop->Position);
 
   fmPreview->imPreview->Picture->Assign(Bmp);
 
@@ -169,40 +170,40 @@ bool TfmLetter::Print(TCanvas *Canvas, int Index)
 {
 if(cbMyDataInCsv->Checked)
 {
-  int MyDat = edMyDataInCsv->Value;
-  edMyName->Text = fmMain->MainGrid->ACells[edToName->Value][MyDat];
-  edMyName2->Text = fmMain->MainGrid->ACells[edToName2->Value][MyDat];
-  edMyNumber->Text = fmMain->MainGrid->ACells[edToNumber->Value][MyDat];
-  edMyAddress1->Text = fmMain->MainGrid->ACells[edToAddress1->Value][MyDat];
-  edMyAddress2->Text = fmMain->MainGrid->ACells[edToAddress2->Value][MyDat];
+  int MyDat = udMyDataInCsv->Position;
+  edMyName->Text = fmMain->MainGrid->ACells[udToName->Position][MyDat];
+  edMyName2->Text = fmMain->MainGrid->ACells[udToName2->Position][MyDat];
+  edMyNumber->Text = fmMain->MainGrid->ACells[udToNumber->Position][MyDat];
+  edMyAddress1->Text = fmMain->MainGrid->ACells[udToAddress1->Position][MyDat];
+  edMyAddress2->Text = fmMain->MainGrid->ACells[udToAddress2->Position][MyDat];
 }
 
 AnsiString Number[2];        //宛先or自分
-Number[0] = fmMain->MainGrid->ACells[edToNumber->Value][Index];
+Number[0] = fmMain->MainGrid->ACells[udToNumber->Position][Index];
 Number[1] = edMyNumber->Text;
 AnsiString Box[2][2][2];    //[住所名前][宛先自分][右左]
 int Name2Pos[2];
-Box[0][0][0] = Tate(fmMain->MainGrid->ACells[edToAddress1->Value][Index]);
-Box[0][0][1] = Tate(fmMain->MainGrid->ACells[edToAddress2->Value][Index]);
+Box[0][0][0] = Tate(fmMain->MainGrid->ACells[udToAddress1->Position][Index]);
+Box[0][0][1] = Tate(fmMain->MainGrid->ACells[udToAddress2->Position][Index]);
 Box[0][1][0] = Tate(edMyAddress1->Text);
 Box[0][1][1] = Tate(edMyAddress2->Text);
-AnsiString NameTmp = fmMain->MainGrid->ACells[edToName->Value][Index];
+AnsiString NameTmp = fmMain->MainGrid->ACells[udToName->Position][Index];
 Box[1][0][0] = Tate(NameTmp + edPrefix->Text);
 Name2Pos[0] = Name2Indent(NameTmp);
-NameTmp = fmMain->MainGrid->ACells[edToName2->Value][Index];
+NameTmp = fmMain->MainGrid->ACells[udToName2->Position][Index];
 if(NameTmp == ""){
   Box[1][0][1] = "";
 }else{
-  Box[1][0][1] = Tate(fmMain->MainGrid->ACells[edToName2->Value][Index]
+  Box[1][0][1] = Tate(fmMain->MainGrid->ACells[udToName2->Position][Index]
                + edPrefix->Text);
 }
 Box[1][1][0] = Tate(edMyName->Text);
 Box[1][1][1] = Tate(edMyName2->Text);
 Name2Pos[1] = Name2Indent(edMyName->Text);
-AnsiString Note = fmMain->MainGrid->ACells[edToNote->Value][Index];
+AnsiString Note = fmMain->MainGrid->ACells[udToNote->Position][Index];
 
-const int PX = edHorz->Value;
-const int PY = edVert->Value;
+const int PX = udHorz->Position;
+const int PY = udVert->Position;
 
 const float mmPt = Canvas->Font->PixelsPerInch / 25.4;
 
@@ -370,7 +371,7 @@ AnsiString TfmLetter::Tate(AnsiString Source)
       else if(S == "、")         St += "　";
       else                       St += S;
     }else if(cbHorzNum->Checked && IsNumericChar(c)){
-      int r = i + seHorzNumMax->Value;
+      int r = i + udHorzNumMax->Position;
       if(!longnumber && r <= L){
         longnumber = true;
         for(int j=r; j>i; j--){
@@ -437,25 +438,25 @@ void TfmLetter::DataSave(AnsiString FileName)
   Ini->WriteString("差出人","Address1",edMyAddress1->Text);
   Ini->WriteString("差出人","Address2",edMyAddress2->Text);
   Ini->WriteBool("差出人","UseDataInCsv",cbMyDataInCsv->Checked);
-  Ini->WriteInteger("差出人","DataInCsv",edMyDataInCsv->Value);
+  Ini->WriteString("差出人","DataInCsv",edMyDataInCsv->Text);
   Ini->WriteBool("差出人","Nenga",cbNenga->Checked);
-  Ini->WriteInteger("宛先","Name",edToName->Value);
-  Ini->WriteInteger("宛先","Name2",edToName2->Value);
+  Ini->WriteString("宛先","Name",edToName->Text);
+  Ini->WriteString("宛先","Name2",edToName2->Text);
   if(edPrefix->Text != "" && edPrefix->Text[1] == ' ')
   { AnsiString Str = edPrefix->Text; Str[1] = '_'; edPrefix->Text = Str; }
   Ini->WriteString("宛先","Prefix",edPrefix->Text);
-  Ini->WriteInteger("宛先","Number",edToNumber->Value);
-  Ini->WriteInteger("宛先","Address1",edToAddress1->Value);
-  Ini->WriteInteger("宛先","Address2",edToAddress2->Value);
-  Ini->WriteInteger("宛先","Note",edToNote->Value);
+  Ini->WriteString("宛先","Number",edToNumber->Text);
+  Ini->WriteString("宛先","Address1",edToAddress1->Text);
+  Ini->WriteString("宛先","Address2",edToAddress2->Text);
+  Ini->WriteString("宛先","Note",edToNote->Text);
   Ini->WriteBool("備考","Use",cbUseNote->Checked);
   Ini->WriteString("備考","KeyWord",edUseNote->Text);
   Ini->WriteInteger("備考","How",cbxHowUseNote->ItemIndex);
   Ini->WriteBool("フォント","HorzNum",cbHorzNum->Checked);
-  Ini->WriteInteger("フォント","HorzNumMax",seHorzNumMax->Value);
+  Ini->WriteString("フォント","HorzNumMax",seHorzNumMax->Text);
   Ini->WriteInteger("フォント","Font",cbxFont->ItemIndex);
-  Ini->WriteInteger("微調整","Horz",edHorz->Value);
-  Ini->WriteInteger("微調整","Vert",edVert->Value);
+  Ini->WriteString("微調整","Horz",edHorz->Text);
+  Ini->WriteString("微調整","Vert",edVert->Text);
 
   for(int i=0; i<2; i++){
     AnsiString Section = (i==0 ? "印刷位置：宛先" : "印刷位置：差出人");
@@ -498,24 +499,24 @@ void TfmLetter::DataRead(AnsiString FileName)
   edMyAddress1->Text = Ini->ReadString("差出人","Address1",edMyAddress1->Text);
   edMyAddress2->Text = Ini->ReadString("差出人","Address2",edMyAddress2->Text);
   cbMyDataInCsv->Checked = Ini->ReadBool("差出人","UseDataInCsv",cbMyDataInCsv->Checked);
-  edMyDataInCsv->Value = Ini->ReadInteger("差出人","DataInCsv",edMyDataInCsv->Value);
+  edMyDataInCsv->Text = Ini->ReadString("差出人","DataInCsv",edMyDataInCsv->Text);
   cbNenga->Checked = Ini->ReadBool("差出人","Nenga",cbNenga->Checked);
-  edToName->Value = Ini->ReadInteger("宛先","Name",edToName->Value);
-  edToName2->Value = Ini->ReadInteger("宛先","Name2",edToName2->Value);
+  edToName->Text = Ini->ReadString("宛先","Name",edToName->Text);
+  edToName2->Text = Ini->ReadString("宛先","Name2",edToName2->Text);
   edPrefix->Text = Ini->ReadString("宛先","Prefix",edPrefix->Text);
-  edToNumber->Value = Ini->ReadInteger("宛先","Number",edToNumber->Value);
-  edToAddress1->Value = Ini->ReadInteger("宛先","Address1",edToAddress1->Value);
-  edToAddress2->Value = Ini->ReadInteger("宛先","Address2",edToAddress2->Value);
-  edToNote->Value = Ini->ReadInteger("宛先","Note",edToNote->Value);
+  edToNumber->Text = Ini->ReadString("宛先","Number",edToNumber->Text);
+  edToAddress1->Text = Ini->ReadString("宛先","Address1",edToAddress1->Text);
+  edToAddress2->Text = Ini->ReadString("宛先","Address2",edToAddress2->Text);
+  edToNote->Text = Ini->ReadString("宛先","Note",edToNote->Text);
   cbUseNote->Checked = Ini->ReadBool("備考","Use",cbUseNote->Checked);
   edUseNote->Text = Ini->ReadString("備考","KeyWord",edUseNote->Text);
   cbxHowUseNote->ItemIndex = Ini->ReadInteger("備考","How",cbxHowUseNote->ItemIndex);
   cbHorzNum->Checked = Ini->ReadBool("フォント","HorzNum",cbHorzNum->Checked);
-  seHorzNumMax->Value = Ini->ReadInteger("フォント","HorzNumMax",seHorzNumMax->Value);
+  seHorzNumMax->Text = Ini->ReadString("フォント","HorzNumMax",seHorzNumMax->Text);
   cbxFont->ItemIndex = Ini->ReadInteger("フォント","Font",cbxFont->ItemIndex);
   lbFont->Font->Name = cbxFont->Text;
-  edHorz->Value = Ini->ReadInteger("微調整","Horz",edHorz->Value);
-  edVert->Value = Ini->ReadInteger("微調整","Vert",edVert->Value);
+  edHorz->Text = Ini->ReadString("微調整","Horz",edHorz->Text);
+  edVert->Text = Ini->ReadString("微調整","Vert",edVert->Text);
 
   for(int i=0; i<2; i++){
     AnsiString Section = (i==0 ? "印刷位置：宛先" : "印刷位置：差出人");

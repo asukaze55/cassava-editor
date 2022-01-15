@@ -6,12 +6,13 @@
     <PROJECT value="Cassava.exe"/>
     <OBJFILES value="Cassava.obj CsvGrid.obj Letter.obj MainForm.obj Preview.obj 
       ..\OpenFile\AutoOpen.obj KeyCustomize.obj Option.obj Print.obj Size.obj 
-      FormattedFileName.obj Macro.obj Compiler.obj TypeOption.obj Nkf.obj Find.obj"/>
+      FormattedFileName.obj Macro.obj Compiler.obj TypeOption.obj Nkf.obj 
+      Find.obj PasteDlg.obj"/>
     <RESFILES value="Cassava.res"/>
     <IDLFILES value=""/>
     <DEFFILE value=""/>
     <RESDEPEN value="$(RESFILES) Letter.dfm MainForm.dfm Preview.dfm KeyCustomize.dfm 
-      Option.dfm Print.dfm Size.dfm Find.dfm"/>
+      Option.dfm Print.dfm Size.dfm Find.dfm PasteDlg.dfm"/>
     <LIBFILES value=""/>
     <LIBRARIES value="vclx.lib bcbsmp.lib vcl.lib rtl.lib"/>
     <SPARELIBS value="rtl.lib vcl.lib bcbsmp.lib vclx.lib"/>
@@ -64,6 +65,7 @@
       <FILE FILENAME="TypeOption.cpp" FORMNAME="" UNITNAME="TypeOption" CONTAINERID="C/C++ コンパイラ" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="Nkf.cpp" FORMNAME="" UNITNAME="Nkf" CONTAINERID="C/C++ コンパイラ" DESIGNCLASS="" LOCALCOMMAND=""/>
       <FILE FILENAME="Find.cpp" FORMNAME="fmFind" UNITNAME="Find" CONTAINERID="C/C++ コンパイラ" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="PasteDlg.cpp" FORMNAME="fmPasteDialog" UNITNAME="PasteDlg" CONTAINERID="C/C++ コンパイラ" DESIGNCLASS="" LOCALCOMMAND=""/>
   </FILELIST>
   <BUILDTOOLS>
   </BUILDTOOLS>
@@ -73,9 +75,9 @@
 IncludeVerInfo=1
 AutoIncBuild=1
 MajorVer=1
-MinorVer=4
-Release=6
-Build=68
+MinorVer=5
+Release=0
+Build=47
 Debug=0
 PreRelease=0
 Special=0
@@ -87,7 +89,7 @@ CodePage=932
 [Version Info Keys]
 CompanyName=
 FileDescription=Cassava
-FileVersion=1.4.6.68
+FileVersion=1.5.0.47
 InternalName=
 LegalCopyright=あすかぜ
 LegalTrademarks=
@@ -126,7 +128,7 @@ Item2=_DEBUG
 DebugSourceDirs=$(BCB)\source\vcl
 
 [Parameters]
-RunParams=
+RunParams=&quot;D:\My Projects\Cassava old\Release\Cassava\Sample.csv&quot;
 Launcher=
 UseLauncher=0
 DebugCWD=

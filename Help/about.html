@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="euc-jp" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="ja" xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=euc-jp" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <title>Cassavaとは - Cassava Editor ヘルプ</title>
+  <link rel="stylesheet" type="text/css" href="cassava.css" />
+</head>
+<body>
+
+<!-- HEAD LINE -->
+<div class="headline">
+  <a href="http://www.asukaze.net/">
+    <img src="asukaze.png" width="88" height="31"
+      alt="[あすかぜ・ねっと]" title="あすかぜ・ねっと"
+      class="headline" />あすかぜ・ねっと</a> ＞
+  <a href="http://www.asukaze.net/soft/index.html">自作ソフト</a> ＞
+  <a href="http://www.asukaze.net/soft/cassava/index.html">Cassava</a> ＞
+  <a href="index.html">ヘルプ</a> ＞
+  Cassavaとは
+</div>
+
+<h1>Cassavaとは</h1>
+
+<!-- MAIN VIEW -->
+<div class="mainview">
+
+<blockquote>
+キャッサバ (cassava) は、フウロソウ目トウダイグサ科イモノキ属の熱帯低木。
+芋はタピオカの原料であり、世界中の熱帯にて栽培される。
+葉は5〜10小葉からなり、茎は垂直に立ち上がる。
+茎の根元にはゆるい同心円を描いて数本の芋（根）が付く。芋は両端が尖った細長い形状である。
+<cite>
+（<a href="http://ja.wikipedia.org/wiki/%E3%82%AD%E3%83%A3%E3%83%83%E3%82%B5%E3%83%90">Wikipedia</a>より引用）
+</cite>
+</blockquote>
+<p>
+Cassava Editor は、Windows向けフリーウェアのCSVエディターです。
+「C」「S」「V」を含む単語を辞書で探したらキャッサバが見つかったのでこの名前になりました。
+</p>
+<p>
+このソフトはCSVファイル（Comma Separated Value）を編集します。
+CSVファイルとは以下の形式で表を保存したテキストファイルです。
+</p>
+<p>
+なお、特定の１文字でセルが区切られるテキストデータなら、
+これ以外の形式でも設定すれば扱えるようになります。
+標準でCSV以外にTSV（タブ区切り）に対応しています。
+</p>
+
+<h2>標準読み込み形式</h2>
+<dl>
+  <dt>改行</dt>
+  <dd>[CR]+[LF]（通常の改行コード）またはその片方。</dd>
+  <dt>セルの区切り</dt>
+  <dd>カンマ、タブ</dd>
+</dl>
+<p>
+「,"」から次の「"」までは区切り文字を無視して一つのセルとする。
+この場合、「"」はデータとみなされない。「""」を「"」を表すデータとして処理する。
+</p>
+
+<h2>標準書き込み形式</h2>
+<dl>
+  <dt>改行</dt>
+  <dd>[CR]+[LF]</dd>
+  <dt>セルの区切り</dt>
+  <dd>カンマ</dd>
+</dl>
+<p>
+セル内に区切り文字や「"」がある場合セルは「"」で囲まれ、「"」は「""」に変換される。
+設定により、数字以外のセルをすべて「"」で囲む、すべてのセルを「"」で囲む、ということも可能。
+</p>
+
+</div>
+
+<!-- SIDE PANE -->
+<div class="sidepane">
+
+<h2 class="sectitle">Menu</h2>
+
+<div class="MainMenu"><a href="index.html">Cassava ヘルプ</a></div>
+<div class="MainMenuSel">Cassavaとは</div>
+<div class="MainMenu"><a href="install.html">インストール</a></div>
+<div class="MainMenu">メニュー</div>
+  <ul class="MainMenu">
+    <li><a href="filemenu.html" title="[ファイル]メニュー">ファイル</a></li>
+    <li><a href="editmenu.html" title="[編集]メニュー">編集</a></li>
+    <li><a href="insdelmenu.html" title="[挿入・削除]メニュー">挿入・削除</a></li>
+    <li><a href="findmenu.html" title="[検索]メニュー">検索</a></li>
+    <li><a href="viewmenu.html" title="[表示]メニュー">表示</a></li>
+    <li><a href="optionmenu.html" title="[オプション]メニュー">オプション</a>
+      <ul class="MainMenu">
+        <li><a href="dataoption.html" title="[データ形式]オプション">データ形式</a></li>
+        <li><a href="fileoption.html" title="[ファイル]オプション">ファイル</a></li>
+        <li><a href="behavioroption.html" title="[動作]オプション">動作</a></li>
+        <li><a href="backupoption.html" title="[バックアップ]オプション">バックアップ</a></li>
+        <li><a href="applioption.html" title="[外部アプリ連携]オプション">外部アプリ連携</a></li>
+        <li><a href="coloroption.html" title="[フォント・色]オプション">フォント・色</a></li>
+      </ul>
+    </li>
+    <li><a href="helpmenu.html" title="[ヘルプ]メニュー">ヘルプ</a></li>
+  </ul>
+<div class="MainMenu"><a href="key.html">キー操作</a></div>
+<div class="MainMenu"><a href="macro.html">マクロ</a></div>
+  <ul class="MainMenu">
+    <li><a href="macroref.html">リファレンス</a></li>
+  </ul>
+<div class="MainMenu"><a href="letter.html">はがき印刷</a></div>
+<div class="MainMenu"><a href="contact.html">著作権・連絡先</a></div>
+
+</div>
+
+<!-- SIGN -->
+<br style="clear: both;" />
+<address>
+  Copyright (C) 2000-2007 asukaze, Some Rights Reserved.<br />
+  mail (at) asukaze.net
+</address>
+<!-- ==== -->
+
+</body>
+</html>

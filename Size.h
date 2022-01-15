@@ -9,16 +9,19 @@
 #include <Forms.hpp>
 #include "CSPIN.h"
 #include <Buttons.hpp>
+#include <ComCtrls.hpp>
 //---------------------------------------------------------------------------
 class TfmSize : public TForm
 {
 __published:	// IDE 管理のコンポーネント
-        TCSpinEdit *seHeight;
-        TLabel *Label1;
-        TCSpinEdit *seWidth;
-        TLabel *Label2;
+		TLabel *Label1;
+		TLabel *Label2;
         TBitBtn *btnCancel;
         TBitBtn *btnOK;
+	TEdit *seHeight;
+	TUpDown *udHeight;
+	TEdit *seWidth;
+	TUpDown *udWidth;
 private:	// ユーザー宣言
 public:		// ユーザー宣言
         __fastcall TfmSize(TComponent* Owner);

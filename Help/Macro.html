@@ -1,224 +1,305 @@
-<html>
+<?xml version="1.0" encoding="euc-jp" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="ja" xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
-  <link rel="stylesheet" HREF="cassava.css">
-  <title>儅僋儘 - Cassava Editor</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=euc-jp" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <title>マクロ - Cassava Editor ヘルプ</title>
+  <link rel="stylesheet" type="text/css" href="cassava.css" />
 </head>
 <body>
 
-<h1>儅僋儘</h1>
+<!-- HEAD LINE -->
+<div class="headline">
+  <a href="http://www.asukaze.net/">
+    <img src="asukaze.png" width="88" height="31"
+      alt="[あすかぜˇねっと]" title="あすかぜˇねっと"
+      class="headline" />あすかぜˇねっと</a> ′
+  <a href="http://www.asukaze.net/soft/index.html">极侯ソフト</a> ′
+  <a href="http://www.asukaze.net/soft/cassava/index.html">Cassava</a> ′
+  <a href="index.html">ヘルプ</a> ′
+  マクロ
+</div>
 
-娙扨側寁嶼傗掕宆摦嶌傪儅僋儘傪巊偭偰幚峴偡傞偙偲偑偱偒傑偡丅
+<h1>マクロ</h1>
 
-<h3>婎杮摦嶌</h3>
+<!-- MAIN VIEW -->
+<div class="mainview">
+
 <p>
-丂婲摦帪傗乽儅僋儘偺専嶕乿偺幚峴帪偵乽Macro乿僼僅儖僟偑僗僉儍儞偝傟丄
-乽*.cms乿僼傽僀儖偺堦棗偑乽儅僋儘乿儊僯儏乕偵捛壛偝傟傑偡丅
-乽儅僋儘乿儊僯儏乕偐傜崁栚傪慖傇偲丄
-懳墳偡傞CMS僼傽僀儖偐傜CMB僼傽僀儖偑惢嶌偝傟丄幚峴偝傟傑偡丅
-CMB僼傽僀儖偼徚偟偰傕壗偺栤戣傕偁傝傑偣傫丅
-僄儔乕張棟偼揔摉側偺偱偁傑傝僄儔乕儊僢僙乕僕偼弌偢偵岆摦嶌偟傑偡丅
-廳梫側僼傽僀儖偵懳偟偰偼偁傑傝巊傢側偄偱偔偩偝偄丅
+词帽な纷换や年房瓢侯をマクロを蝗って悸乖することができます。
+</p>
+
+<h2>答塑瓢侯</h2>
+<p>
+弹瓢箕や≈マクロの浮瑚∽の悸乖箕に≈Macro∽フォルダがスキャンされ、
+≈*.cms∽ファイルの办枉が≈マクロ∽メニュ〖に纳裁されます。
+≈マクロ∽メニュ〖から灌誊を联ぶことで悸乖できます。
+エラ〖借妄は努碰なのであまりエラ〖メッセ〖ジは叫ずに疙瓢侯します。
+脚妥なファイルに滦してはあまり蝗わないでください。
 </p>
 <p>
-丂乽Macro乿僼僅儖僟撪偵乽!startup.cms乿偲偄偆僼傽僀儖柤偱儅僋儘傪抲偄偰偍偔偲丄
-婲摦帪偵帺摦揑偵幚峴偝傟傑偡丅
+≈Macro∽フォルダ柒に≈!startup.cms∽というファイル叹でマクロを弥いておくと、
+弹瓢箕に极瓢弄に悸乖されます。
+</p>
+<p>
+また、セル柒のデ〖タとして≈=∽に鲁けて及を今くことで、词帽な山纷换も材墙です。
+この怠墙を蝗うには、[山绩]-[セル柒纷换及を借妄] をチェックしてください。
 </p>
 
-<h3>暥朄</h3>
-丂偙偺儅僋儘偼俠尵岅乛JavaScript尵岅傪娙棯壔偟偮偮
-BASIC偺塭嬁傕庴偗偨撈帺尵岅偱彂偐傟傑偡丅
-僥僉僗僩宍幃側偺偱僥僉僗僩僄僨傿僞偱CMS僼傽僀儖傪曇廤偟偰偔偩偝偄丅<br />
-婎杮揑偵偼乽<code>娭悢柤(堷悢,堷悢乧);</code>乿偐
-乽<code>曄悢 = 抣;</code>乿偲偄偆宍偺暥偺梾楍偵側傝傑偡丅<br />
-嵟屻偺乽;乿傪朰傟側偄傛偆偵偟偰偔偩偝偄丅
-戝暥帤偲彫暥帤偼嬫暿偝傟傑偡丅<br />
+<h2>矢恕</h2>
+<p>
+このマクロはＣ咐胳】JavaScript咐胳を词维步しつつ
+BASICの逼读も减けた迫极咐胳で今かれます。
+テキスト妨及なのでテキストエディタでCMSファイルを试礁してください。
+答塑弄には≈<code>簇眶叹(苞眶,苞眶∧);</code>∽か
+≈<code>恃眶 = 猛;</code>∽という妨の矢の湾误になります。
+呵稿の≈;∽を撕れないようにしてください。
+络矢机と井矢机は惰侍されます。
+</p>
 
-<h3>悢帤</h3>
-丂乽0乿乣乽9乿乽.乿偺暥帤偺楢懕傪悢帤偲偟偰擣幆偟傑偡丅
-丂撪晹揑偵偼惍悢丒彫悢偲傕double宆偱寁嶼偝傟傑偡丅
+<h2>眶机</h2>
+<p>
+≈0∽×≈9∽≈.∽の矢机の息鲁を眶机として千急します。
+柒婶弄には腊眶ˇ井眶ともdouble房で纷换されます。
+</p>
 
-<h3>暥帤楍</h3>
-丂乽"乿偱埻傑傟偨晹暘傪暥帤楍偲偟偰擣幆偟傑偡丅
-乽\乿偼僄僗働乕僾僔乕働儞僗偱丄乽\"乿偼乽"乿傪丄乽\n乿偼夵峴乮LF乯傪丄
-乽\t乿偼僞僽傪丄乽\\乿偼乽\乿傪昞偟傑偡丅
-乽\xHH乿宍幃偱丄暥帤僐乕僪 HH 偺暥帤傪昞偟傑偡丅
-HH 偼俀寘偺16恑悢乮0乣9,A乣F,a乣f乯偱偡丅
-<h3>曄悢</h3>
-丂敿妏塸帤偱巒傑傞丄敿妏塸悢帤偺楢懕傪曄悢柤偲偟偰擣幆偟傑偡丅
-愰尵偼晄梫偱丄堦搙嶌偭偨曄悢偼儅僋儘廔椆帪傑偱懚嵼偟懕偗傑偡丅
-娭悢埲奜偱偼僗僐乕僾偼懚嵼偟側偄偺偱丄
-摨偠柤慜偺曄悢偼忢偵摨偠傕偺傪昞偟傑偡丅<br />
-<br />
-x, y 偺俀偮偺曄悢偵偼儅僋儘奐巒帪偵僇乕僜儖偺嵗昗偑僙僢僩偝傟傑偡丅
-x, y 傪曄峏偟偰傕僇乕僜儖埵抲偼曄峏偝傟側偄偺偱丄
-晛捠偺曄悢偲偟偰傕巊偊傑偡丅<br />
-<br />
-埲壓偺曄悢偼摿暿側堄枴傪帩偪傑偡丅
-抣傪曄峏偡傞偲僇乕僜儖埵抲傗慖戰斖埻偑曄傢傝傑偡丅
-傕偪傠傫抣偺嶲徠傕壜擻偱偡丅
+<h2>矢机误</h2>
+<p>
+≈"∽で跋まれた婶尸を矢机误として千急します。
+≈\∽はエスケ〖プシ〖ケンスで、≈\"∽は≈"∽を、≈\n∽は猖乖を、
+≈\t∽はタブを、≈\\∽は≈\∽を山します。
+≈\xHH∽妨及で、矢机コ〖ド HH の矢机を山します。
+HH は2峰の16渴眶∈0×9,A×F,a×f∷です。
+</p>
+<p>
+瘦赂箕の肋年に簇わらず、セル柒猖乖は≈\n∽で山されます。
+</p>
+
+<h2>恃眶</h2>
+<p>
+染逞毖机で幌まる、染逞毖眶机の息鲁を恃眶叹として千急します。
+离咐は稍妥で、办刨侯った恃眶はマクロ姜位箕まで赂哼し鲁けます。
+簇眶笆嘲ではスコ〖プは赂哼しないので、票じ叹涟の恃眶は票じものを山します。
+簇眶柒は侍のスコ〖プとなり、トップレベルの恃眶も徊救できません。
+</p>
+<p>
+x, y の 2 つの恃眶にはマクロ倡幌箕にカ〖ソルの郝筛がセットされます
+∈セル柒纷换及の眷圭にはそのセルの郝筛∷。
+x, y を恃构してもカ〖ソル疤弥は恃构されないので、舍奶の恃眶としても蝗えます。
+</p>
+<p>
+笆布の恃眶は泼侍な罢蹋を积ちます。
+猛を恃构するとカ〖ソル疤弥や联买认跋が恃わります。
+猛の徊救も材墙です。
+</p>
 <dl>
 <dt><code>Col</code></dt>
-<dd>僇乕僜儖埵抲偺 x 嵗昗</dd>
+<dd>カ〖ソル疤弥の x 郝筛</dd>
 <dt><code>Row</code></dt>
-<dd>僇乕僜儖埵抲偺 y 嵗昗</dd>
+<dd>カ〖ソル疤弥の y 郝筛</dd>
 <dt><code>Right</code></dt>
-<dd>僨乕僞偑壗楍栚傑偱偁傞偐乮堦斣塃偺嬻敀楍偼悢偊側偄乯</dd>
+<dd>デ〖タが部误誊まであるか∈办戎宝のダミ〖误は眶えない∷</dd>
 <dt><code>Bottom</code></dt>
-<dd>僨乕僞偑壗峴栚傑偱偁傞偐乮堦斣壓偺嬻敀峴偼悢偊側偄乯</dd>
+<dd>デ〖タが部乖誊まであるか∈办戎布のダミ〖乖は眶えない∷</dd>
 <dt><code>SelLeft</code></dt>
-<dd>慖戰斖埻偺嵍抂偺 x 嵗昗</dd>
+<dd>联买认跋の焊眉の x 郝筛</dd>
 <dt><code>SelTop</code></dt>
-<dd>慖戰斖埻偺忋抂偺 y 嵗昗</dd>
+<dd>联买认跋の惧眉の y 郝筛</dd>
 <dt><code>SelRight</code></dt>
-<dd>慖戰斖埻偺塃抂偺 x 嵗昗</dd>
+<dd>联买认跋の宝眉の x 郝筛</dd>
 <dt><code>SelBottom</code></dt>
-<dd>慖戰斖埻偺壓抂偺 y 嵗昗</dd>
+<dd>联买认跋の布眉の y 郝筛</dd>
 </dl>
-<br />
-埲壓偺掕悢丒梊栺岅偼曄悢柤偵巊偊傑偣傫丅<br>
-<blockquote><code>
+<p>
+笆布の年眶ˇ徒腆胳は恃眶叹に蝗えません。
+</p>
+<blockquote><p><code>
   if else while for For function return
   true True TRUE false False FALSE null Null NULL
   MB_ABORTRETRYIGNORE MB_OK MB_OKCANCEL MB_RETRYCANCEL MB_YESNO MB_YESNOCANCEL
   IDABORT IDCANCEL IDIGNORE IDNO IDOK IDRETRY IDYES
-</code></blockquote>
+</code></p></blockquote>
 
-<h3>僙儖憖嶌</h3>
-<blockquote><code>val = [x,y];</code></blockquote>
-偲彂偔偲 y 峴 x 楍偺僨乕僞偑 val 偵戙擖偝傟傑偡丅媡偵
-<blockquote><code>[x,y] = val;</code></blockquote>
-偲彂偔偲 val 偺撪梕偑 y 峴 x 楍偵彂偐傟傑偡丅
-丂埲壓偺昞婰傕壜擻偱偡丅
-<blockquote><code>val = cell(x,y);<br />cell(x,y) = val;</code></blockquote>
+<h2>セル拎侯</h2>
+<blockquote><pre><code>val = [x,y];</code></pre></blockquote>
+<p>と今くと y 乖 x 误のデ〖タが val に洛掐されます。嫡に</p>
+<blockquote><pre><code>[x,y] = val;</code></pre></blockquote>
+<p>と今くと val の柒推が y 乖 x 误に今かれます。</p>
+<p>笆布の山淡も材墙です。</p>
+<blockquote><pre><code>
+val = cell(x,y);
+cell(x,y) = val;
+</code></pre></blockquote>
 
-<h3>墘嶼巕</h3>
-丂悢抣偵娭偟偰偼丄乽+乿乽-乿乽*乿乽/乿偺巐懃墘嶼偑偱偒傑偡丅
-惍悢偱偼乽%乿偱妱偭偨梋傝偑媮傔傜傟傑偡丅<br />
-丂曄悢偵懳偟偰偼丄乽=乿偱戙擖丄
-乽++乿偱侾傪懌偡丄乽--乿偱侾傪堷偔偙偲偑偱偒傑偡丅
-乽=乿,乽++乿,乽--乿偼抣傪曉偝側偄偺偱拲堄偟偰偔偩偝偄丅<br />
-丂忦審暥偵偼埲壓偺僽乕儖墘嶼巕偑巊偊傑偡丅<br />
-乽==乿乮摍偟偄乯乽!=乿乮摍偟偔側偄乯
-乽&lt;乿乽&gt;乿乽&lt;=乿乽&gt;=乿乮悢抣偺戝彫斾妑乯
-乽!乿乮NOT乯乽&&乿乮AND乯乽||乿乮OR乯<br />
+
+<h2>遍换灰</h2>
+<p>
+眶猛に滦しては、≈+∽≈-∽≈*∽≈/∽の煌搂遍换ができます。
+腊眶では≈%∽で充った途りが滇められます。
+</p>
+<p>
+矢机误に滦しては、≈+∽で矢机误息冯ができます。
+</p>
+<p>
+恃眶に滦しては、≈=∽で洛掐、
+≈++∽で 1 を颅す、≈--∽で 1 を苞くことができます。
+≈=∽,≈++∽,≈--∽は猛を手さないので庙罢してください。
+</p>
+<p>
+掘凤矢には笆布のブ〖ル遍换灰が蝗えます。
+</p>
+<blockquote><p>
+≈<code>==</code>∽∈霹しい∷≈<code>!=</code>∽∈霹しくない∷
+≈<code>&lt;</code>∽≈<code>&gt;</code>∽
+≈<code>&lt;=</code>∽≈<code>&gt;=</code>∽∈眶猛の络井孺秤∷
+≈<code>!</code>∽∈NOT∷≈<code>&amp;&amp;</code>∽∈AND∷≈<code>||</code>∽∈OR∷
+</p></blockquote>
 
 	
 	
-<h3>慻傒崬傒娭悢</h3>
-儅僋儘偵慻傒崬傑傟偨僐儅儞僪丒娭悢偲丄儊僯儏乕傪幚峴偡傞傕偺偑偁傝傑偡丅
+<h2>寥み哈み簇眶</h2>
+<p>
+マクロに寥み哈まれたコマンドˇ簇眶と、メニュ〖を悸乖するものがあります。
+</p>
 
-<h4>僐儅儞僪</h4>
+<h3>コマンド</h3>
 
 <dl>
 <dt><code>write(str);</code></dt>
-<dd>僇乕僜儖埵抲偺僙儖偺撪梕傪str偵偟丄僇乕僜儖傪塃偵堏摦偟傑偡丅<br />
-    僄僋僗億乕僩儅僋儘拞偱偼僼傽僀儖偵彂偒弌偟傑偡丅</dd>
+<dd>カ〖ソル疤弥のセルの柒推をstrにし、カ〖ソルを宝に败瓢します。
+    エクスポ〖トマクロ面ではファイルに今き叫します。</dd>
 <dt><code>writeln(str);</code></dt>
-<dd>僇乕僜儖埵抲偺僙儖偺撪梕傪str偵偟丄僇乕僜儖傪師偺峴偵堏摦偟傑偡丅<br />
-    僄僋僗億乕僩儅僋儘拞偱偼僼傽僀儖偵彂偒弌偟傑偡丅</dd>
+<dd>カ〖ソル疤弥のセルの柒推をstrにし、カ〖ソルを肌の乖に败瓢します。
+    エクスポ〖トマクロ面ではファイルに今き叫します。</dd>
 <dt><code>move(vx, vy);</code></dt>
-<dd>僇乕僜儖埵抲傪(vx,vy)偩偗堏摦偟傑偡丅</dd>
+<dd>カ〖ソル疤弥を(vx,vy)だけ败瓢します。</dd>
 <dt><code>moveto(x,y);</code></dt>
-<dd>僇乕僜儖埵抲傪(x,y)偵愝掕偟傑偡丅</dd>
+<dd>カ〖ソル疤弥を(x,y)に肋年します。</dd>
 <dt><code>swap(a,b);</code></dt>
-<dd>a 偲 b 偺抣傪岎姺偟傑偡丅</dd>
+<dd>a と b の猛を蛤垂します。</dd>
 <dt><code>InsertRow(y);</code></dt>
-<dd>y 峴栚偵怴偟偄峴傪憓擖偟傑偡丅</dd>
+<dd>y 乖誊に糠しい乖を赁掐します。</dd>
 <dt><code>DeleteRow(y);</code></dt>
-<dd>y 峴栚傪嶍彍偟傑偡丅</dd>
+<dd>y 乖誊を猴近します。</dd>
 <dt><code>InsertCol(x);</code></dt>
-<dd>x 楍栚偵怴偟偄楍傪憓擖偟傑偡丅</dd>
+<dd>x 误誊に糠しい误を赁掐します。</dd>
 <dt><code>DeleteCol(x);</code></dt>
-<dd>x 楍栚傪嶍彍偟傑偡丅</dd>
+<dd>x 误誊を猴近します。</dd>
 <dt><code>mid(str1,x,y) = str2;</code></dt>
-<dd>暥帤楍 str1 偺 x 暥帤栚偐傜 y 暥帤傪 str2 偵抲偒姺偊傑偡丅
-    嵟弶偺暥帤偺僀儞僨僢僋僗偼侾偱偡丅</dd>
+<dd>矢机误 str1 の x 矢机誊から y 矢机を str2 に弥き垂えます。
+    呵介の矢机のインデックスは 1 です。
+    链逞矢机を1矢机と眶えます。</dd>
 <dt><code>SetRowHeight(y,h);</code></dt>
-<dd>y 峴栚偺崅偝傪 h 偵愝掕偟傑偡丅</dd>
+<dd>y 乖誊の光さを h に肋年します。</dd>
 <dt><code>SetRowHeight(h);</code></dt>
-<dd>慡偰偺峴偺崅偝傪 h 偵愝掕偟傑偡丅</dd>
+<dd>链ての乖の光さを h に肋年します。</dd>
 <dt><code>SetColWidth(x,w);</code></dt>
-<dd>x 楍栚偺暆傪 w 偵愝掕偟傑偡丅</dd>
+<dd>x 误誊の升を w に肋年します。</dd>
 <dt><code>SetColWidth(w);</code></dt>
-<dd>慡偰偺楍偺暆傪 w 偵愝掕偟傑偡丅</dd>
+<dd>链ての误の升を w に肋年します。</dd>
 </dl>
 
-<h4>娭悢</h4>
+<h3>簇眶</h3>
 
 <dl>
 <dt><code>cell(x,y) / [x,y]</code></dt>
-<dd>(x,y)偺僙儖偺撪梕偱偡丅撉傒彂偒偲傕偱偒傑偡丅</dd>
+<dd>(x,y)のセルの柒推です。粕み今きともできます。</dd>
+<dt><code>int(x)</code></dt>
+<dd>xの猛を0数羹に摧めた眶猛を手します。
+    intの手す猛に滦して≈+∽遍换灰を努脱すると裁换となります。</dd>
+<dt><code>double(x)</code></dt>
+<dd>xと票じ猛の眶猛を手します。<code>(x - 0)</code>と票じ跟蔡です。
+    doubleの手す猛に滦して≈+∽遍换灰を努脱すると裁换となります。</dd>
+<dt><code>str(x)</code></dt>
+<dd>xと票じ猛の矢机误を手します。<code>(x + "")</code>と票じ跟蔡です。
+    strの手す猛に滦して≈+∽遍换灰を努脱すると矢机误息冯となります。</dd>
 <dt><code>max(a,b,...)</code></dt>
-<dd>堷悢偵搉偟偨傕偺偺偆偪嵟戝偺抣傪曉偟傑偡丅</dd>
+<dd>苞眶に畔したもののうち呵络の猛を手します。</dd>
 <dt><code>min(a,b,...)</code></dt>
-<dd>堷悢偵搉偟偨傕偺偺偆偪嵟彫偺抣傪曉偟傑偡丅</dd>
+<dd>苞眶に畔したもののうち呵井の猛を手します。</dd>
 <dt><code>len(str)</code></dt>
-<dd>暥帤楍 str 偺挿偝傪曉偟傑偡丅</dd>
+<dd>矢机误 str の墓さを手します。链逞矢机を1矢机と眶えます。</dd>
+<dt><code>lenB(str)</code></dt>
+<dd>矢机误 str の墓さを手します。链逞矢机を2矢机と眶えます。</dd>
 <dt><code>left(str,x)</code></dt>
-<dd>暥帤楍 str 偺嵟弶 x 暥帤傪愗傝弌偟偰曉偟傑偡丅</dd>
+<dd>矢机误 str の呵介 x 矢机を磊り叫して手します。链逞矢机を1矢机と眶えます。</dd>
 <dt><code>right(str,x)</code></dt>
-<dd>暥帤楍 str 偺嵟屻 x 暥帤傪愗傝弌偟偰曉偟傑偡丅</dd>
+<dd>矢机误 str の呵稿 x 矢机を磊り叫して手します。链逞矢机を1矢机と眶えます。</dd>
 <dt><code>mid(str,x,y)</code></dt>
-<dd>暥帤楍 str 偺 x 暥帤栚偐傜 y 暥帤傪愗傝弌偟偰曉偟傑偡丅
-    嵟弶偺暥帤偺僀儞僨僢僋僗偼侾偱偡丅</dd>
+<dd>矢机误 str の x 矢机誊から y 矢机を磊り叫して手します。
+    呵介の矢机のインデックスは 1 です。
+    链逞矢机を1矢机と眶えます。</dd>
 <dt><code>mid(str,x)</code></dt>
-<dd>暥帤楍 str 偺 x 暥帤埲崀傪愗傝弌偟偰曉偟傑偡丅
-    嵟弶偺暥帤偺僀儞僨僢僋僗偼侾偱偡丅</dd>
+<dd>矢机误 str の x 矢机笆惯を磊り叫して手します。
+    呵介の矢机のインデックスは 1 です。
+    链逞矢机を1矢机と眶えます。</dd>
 <dt><code>pos(str1,str2)</code></dt>
-<dd>str1 拞偺 str2 偺埵抲傪曉偟傑偡丅
-    嵟弶偺暥帤偺僀儞僨僢僋僗偼侾偱偡丅
-    str2 偑 str1 偵娷傑傟側偐偭偨応崌丄侽偑曉偝傟傑偡丅</dd>
+<dd>str1 面の str2 の疤弥を手します。
+    呵介の矢机のインデックスは 1 です。
+    str2 が str1 に崔まれなかった眷圭、 0 が手されます。
+    链逞矢机を1矢机と眶えます。</dd>
+<dt><code>posB(str1,str2)</code></dt>
+<dd>str1 面の str2 の疤弥を手します。
+    呵介の矢机のインデックスは 1 です。
+    str2 が str1 に崔まれなかった眷圭、 0 が手されます。
+    链逞矢机を2矢机と眶えます。</dd>
 <dt><code>replace(str1,str2,str3)</code></dt>
-<dd>str1 拞偺 str2 傪慡偰 str3 偵抲姺偟偨暥帤楍傪曉偟傑偡丅
-    尦偺 str1 偼曄壔偟傑偣傫丅</dd>
-<dt><code>GetRowHeight(y)</code></dt>
-<dd>y 峴栚偺崅偝傪曉偟傑偡丅
-    y 傪徣棯偡傞偲昗弨偺峴偺崅偝偑曉偝傟傑偡丅</dd>
-<dt><code>GetColWidth(x)</code></dt>
-<dd>x 楍栚偺暆傪曉偟傑偡丅
-    x 傪徣棯偡傞偲昗弨偺楍偺暆偑曉偝傟傑偡丅</dd>
-<dt><code>GetFileName()</code></dt>
-<dd>曇廤拞偺CSV僼傽僀儖偺僼傽僀儖柤傪曉偟傑偡丅
-    怴婯嶌惉拞偟偨僨乕僞傪曇廤拞偼嬻偺暥帤楍偑曉偝傟傑偡丅</dd>
-<dt><code>GetFilePath()</code></dt>
-<dd>曇廤拞偺CSV僼傽僀儖偺愨懳僷僗傪曉偟傑偡丅
-    怴婯嶌惉拞偟偨僨乕僞傪曇廤拞偼嬻偺暥帤楍偑曉偝傟傑偡丅
-    偦傟埲奜偺応崌丄昁偢乽\乿偱廔傢傞暥帤楍偑曉偝傟傑偡丅
-<dt><code>GetYear()</code></dt>
-<dd>幚峴帪偺擔晅偺乽擭乿傪曉偟傑偡丅係寘偺惍悢偑曉偝傟傑偡丅</dd>
-<dt><code>GetMonth()</code></dt>
-<dd>幚峴帪偺擔晅偺乽寧乿傪曉偟傑偡丅1乣12偺惍悢偑曉偝傟傑偡丅</dd>
-<dt><code>GetDate()</code></dt>
-<dd>幚峴帪偺擔晅偺乽擔乿傪曉偟傑偡丅1乣31偺惍悢偑曉偝傟傑偡丅</dd>
-<dt><code>GetHours()</code></dt>
-<dd>幚峴帪偺帪娫偺乽帪乿傪曉偟傑偡丅0乣23偺惍悢偑曉偝傟傑偡丅</dd>
-<dt><code>GetMinutes()</code></dt>
-<dd>幚峴帪偺帪娫偺乽暘乿傪曉偟傑偡丅0乣59偺惍悢偑曉偝傟傑偡丅</dd>
-<dt><code>GetSeconds()</code></dt>
-<dd>幚峴帪偺帪娫偺乽昩乿傪曉偟傑偡丅0乣59偺惍悢偑曉偝傟傑偡丅</dd>
+<dd>str1 面の str2 を链て str3 に弥垂した矢机误を手します。
+    傅の str1 は恃步しません。</dd>
+<dt><code>sum(l,t,r,b)</code></dt>
+<dd>t乖l误からb乖r误までの认跋の眶猛デ〖タの圭纷猛を手します。</dd>
+<dt><code>avr(l,t,r,b)</code></dt>
+<dd>t乖l误からb乖r误までの认跋の眶猛デ〖タの士堆猛を手します。</dd>
 <dt><code>random(x)</code></dt>
-<dd>0埲忋x枹枮偺惍悢傪儔儞僟儉偵曉偟傑偡丅</dd>
+<dd>0笆惧x踏塔の腊眶をランダムに手します。</dd>
+<dt><code>GetRowHeight(y)</code></dt>
+<dd>y 乖誊の光さを手します。
+    y を臼维すると筛洁の乖の光さが手されます。</dd>
+<dt><code>GetColWidth(x)</code></dt>
+<dd>x 误誊の升を手します。
+    x を臼维すると筛洁の误の升が手されます。</dd>
+<dt><code>GetFileName()</code></dt>
+<dd>试礁面のCSVファイルのファイル叹を手します。
+    糠惮侯喇面したデ〖タを试礁面は鄂の矢机误が手されます。</dd>
+<dt><code>GetFilePath()</code></dt>
+<dd>试礁面のCSVファイルの冷滦パスを手します。
+    糠惮侯喇面したデ〖タを试礁面は鄂の矢机误が手されます。
+    それ笆嘲の眷圭、涩ず≈\∽で姜わる矢机误が手されます。</dd>
+<dt><code>GetYear()</code></dt>
+<dd>悸乖箕の泣烧の≈钳∽を手します。4峰の腊眶が手されます。</dd>
+<dt><code>GetMonth()</code></dt>
+<dd>悸乖箕の泣烧の≈奉∽を手します。1×12の腊眶が手されます。</dd>
+<dt><code>GetDate()</code></dt>
+<dd>悸乖箕の泣烧の≈泣∽を手します。1×31の腊眶が手されます。</dd>
+<dt><code>GetHours()</code></dt>
+<dd>悸乖箕の箕粗の≈箕∽を手します。0×23の腊眶が手されます。</dd>
+<dt><code>GetMinutes()</code></dt>
+<dd>悸乖箕の箕粗の≈尸∽を手します。0×59の腊眶が手されます。</dd>
+<dt><code>GetSeconds()</code></dt>
+<dd>悸乖箕の箕粗の≈擅∽を手します。0×59の腊眶が手されます。</dd>
 </dl>
 
-<h4>儊僢僙乕僕儃僢僋僗</h4>
-
-MessageBox 娭悢偼儊僢僙乕僕儃僢僋僗傪昞帵偟丄墴偝傟偨儃僞儞傪曉偟傑偡丅
-
+<h3>メッセ〖ジボックス</h3>
+<p>
+MessageBox 簇眶はメッセ〖ジボックスを山绩し、病されたボタンを手します。
+</p>
 <dl>
 <dt><code>MessageBox(str);</code></dt>
-<dd>str 傪昞帵偟傑偡丅OK儃僞儞偺傒昞帵偝傟傑偡丅</dd>
+<dd>str を山绩します。OKボタンのみ山绩されます。</dd>
 <dt><code>MessageBox(str, flag);</code></dt>
-<dd>str 傪昞帵偟傑偡丅儃僞儞偺庬椶傪 flag 偱巜掕偟傑偡丅</dd>
+<dd>str を山绩します。ボタンの硷梧を flag で回年します。</dd>
 <dt><code>MessageBox(str1, str2, flag);</code></dt>
-<dd>儊僢僙乕僕儃僢僋僗撪偵 str1 傪丄僞僀僩儖偵 str2 傪昞帵偟傑偡丅
-    儃僞儞偺庬椶傪 flag 偱巜掕偟傑偡丅</dd>
+<dd>メッセ〖ジボックス柒に str1 を、タイトルに str2 を山绩します。
+    ボタンの硷梧を flag で回年します。</dd>
 </dl>
 
-flag 偵偼埲壓偺掕悢傪巊梡偟偰偔偩偝偄丅
+<p>
+flag には笆布の年眶を蝗脱してください。
 <code>MessageBox("test", MB_YESNO);</code>
-偺傛偆偵丄乽""乿側偳偼偮偗偢捈愙彂偄偰偔偩偝偄丅
-堄枴偼掕悢柤傪尒傟偽偩偄偨偄傢偐傞偐偲巚偄傑偡丅
+のように、≈""∽などはつけず木儡今いてください。
+</p>
 <ul>
   <li>MB_ABORTRETRYIGNORE</li>
   <li>MB_OK</li>
@@ -228,9 +309,9 @@ flag 偵偼埲壓偺掕悢傪巊梡偟偰偔偩偝偄丅
   <li>MB_YESNOCANCEL</li>
 </ul>
 
-栠傝抣偼墴偝傟偨儃僞儞偵傛偭偰埲壓偺抣偑曉偝傟傑偡丅
-偙傟傕堄枴偼掕悢柤傪尒傟偽偩偄偨偄傢偐傞偐偲巚偄傑偡丅
-
+<p>
+提り猛は病されたボタンによって笆布の猛が手されます。
+</p>
 <ul>
   <li>IDABORT</li>
   <li>IDCANCEL</li>
@@ -241,126 +322,197 @@ flag 偵偼埲壓偺掕悢傪巊梡偟偰偔偩偝偄丅
   <li>IDYES</li>
 </ul>
 
-<br /><br />
-InputBox 娭悢偼僀儞僾僢僩儃僢僋僗傪昞帵偟丄擖椡偝傟偨暥帤楍傪曉偟傑偡丅
-
+<p>
+InputBox 簇眶はインプットボックスを山绩し、掐蜗された矢机误を手します。
+</p>
 <dl>
 <dt><code>InputBox(str);</code></dt>
-<dd>str 傪昞帵偟傑偡丅
-    乽OK乿偑墴偝傟傟偽擖椡偝傟偨暥帤楍傪丄
-    乽僉儍儞僙儖乿偑墴偝傟傟偽 "" 傪曉偟傑偡丅</dd>
+<dd>str を山绩します。
+    ≈OK∽が病されれば掐蜗された矢机误を、
+    ≈キャンセル∽が病されれば "" を手します。</dd>
 <dt><code>InputBox(str, def);</code></dt>
-<dd>str 傪昞帵偟傑偡丅
-    乽OK乿偑墴偝傟傟偽擖椡偝傟偨暥帤楍傪丄
-    乽僉儍儞僙儖乿偑墴偝傟傟偽 def 傪曉偟傑偡丅</dd>
+<dd>str を山绩します。
+    ≈OK∽が病されれば掐蜗された矢机误を、
+    ≈キャンセル∽が病されれば def を手します。</dd>
 <dt><code>InputBox(str1, str2, def);</code></dt>
-<dd>僀儞僾僢僩儃僢僋僗撪偵 str1 傪丄僞僀僩儖偵 str2 傪昞帵偟傑偡丅
-    乽OK乿偑墴偝傟傟偽擖椡偝傟偨暥帤楍傪丄
-    乽僉儍儞僙儖乿偑墴偝傟傟偽 def 傪曉偟傑偡丅</dd>
+<dd>インプットボックス柒に str1 を、タイトルに str2 を山绩します。
+    ≈OK∽が病されれば掐蜗された矢机误を、
+    ≈キャンセル∽が病されれば def を手します。</dd>
 </dl>
 
-
-<h4>儊僯儏乕僐儅儞僪</h4>
-
-丂僉乕僇僗僞儅僀僘偺僨乕僞傪曐懚偟偰丄偦偺csv僼傽僀儖傪奐偄偰傒偰偔偩偝偄丅
-俀楍栚偺撪梕偺丄摢偺乽mn乿傪彍偄偨傕偺偑娭悢柤偵側傝傑偡丅<br />
-堷悢傪搉偡偙偲偼偱偒傑偣傫丅乽();乿偩偗傪偮偗偰偔偩偝偄丅<br />
-偙傟偱丄儊僯儏乕偺僋儕僢僋摦嶌傪峴偆偙偲偑偱偒傑偡丅<br />
+<h3>メニュ〖コマンド</h3>
+<p>
+キ〖カスタマイズのデ〖タを瘦赂して、そのcsvファイルを倡いてみてください。
+2误誊の柒推の、片の≈mn∽を近いたものが簇眶叹になります。
+苞眶を畔すことはできません。≈();∽だけをつけてください。
+これで、メニュ〖のクリック瓢侯を乖うことができます。
+</p>
 
 <dl>
 <dt><code>New();</code></dt>
-<dd>怴婯僥乕僽儖偺嶌惉</dd>
+<dd>糠惮テ〖ブルの侯喇</dd>
 <dt><code>CutRow();</code></dt>
-<dd>侾峴嶍彍</dd>
+<dd> 1 乖猴近</dd>
 <dt><code>InsertCellRight();</code></dt>
-<dd>僙儖偺憓擖</dd>
+<dd>セルの赁掐</dd>
 <dt><code>Refresh();</code></dt>
-<dd>楍暆傪挷惍偟偰嵞昤夋</dd>
+<dd>误升を拇腊して浩闪茶</dd>
 </dl>
-側偳偱偡丅
-丂僟僀傾儘僌傪奐偔傛偆側儊僯儏乕傕懡偄偱偡偑丄
-儅僋儘偐傜偼僟僀傾儘僌偺擖椡傪峴偊傑偣傫丅
+などです。
+ダイアログを倡くようなメニュ〖も驴いですが、
+マクロからはダイアログの掐蜗を乖えません。
 
-<h3>峔暥</h3>
-<blockquote><code>
-if(忦審){<br />
-丂僽儘僢僋;<br />
-}<br />
-</code></blockquote>
-忦審偑0埲奜側傜幚峴偝傟傑偡丅
-
-<blockquote><code>
-if(忦審1){<br />
-丂僽儘僢僋1;<br />
-}else if(忦審2){<br />
-丂僽儘僢僋2;<br />
-}else{<br />
-丂僽儘僢僋3;<br />
+<h2>菇矢</h2>
+<blockquote><pre><code>
+if(掘凤){
+  ブロック;
 }
-</code></blockquote>
-忦審1偑0埲奜側傜僽儘僢僋1偑丄忦審2偑0埲奜側傜僽儘僢僋2偑丄
-偦偆偱側偗傟偽僽儘僢僋3偑幚峴偝傟傑偡丅
+</code></pre></blockquote>
+<p>
+掘凤が0笆嘲なら悸乖されます。
+</p>
 
-<blockquote><code>
-while(忦審){<br />
-丂僽儘僢僋;<br />
-}<br />
-</code></blockquote>
-忦審偑0埲奜偱偁傞娫幚峴偝傟傑偡丅
-堦掕夞悢儖乕僾傪峴偆偲柍尷儖乕僾偲傒側偟偰張棟傪拞抐偟傑偡丅
+<blockquote><pre><code>
+if(掘凤1){
+  ブロック1;
+}else if(掘凤2){
+  ブロック2;
+}else{
+  ブロック3;
+}
+</code></pre></blockquote>
+<p>
+掘凤1が0笆嘲ならブロック1が、掘凤2が0笆嘲ならブロック2が、
+そうでなければブロック3が悸乖されます。
+</p>
 
-<blockquote><code>
-for(暥1;忦審;暥2){<br />
-丂僽儘僢僋;<br />
-}<br />
-</code></blockquote>
-嵟弶偵幃1傪幚峴偟丄忦審偑0埲奜偱偁傞娫幚峴偝傟傑偡丅
-儖乕僾偺嵟屻偱暥2偑幚峴偝傟傑偡丅
-堦掕夞悢儖乕僾傪峴偆偲柍尷儖乕僾偲傒側偟偰張棟傪拞抐偟傑偡丅
+<blockquote><pre><code>
+while(掘凤){
+  ブロック;
+}
+</code></pre></blockquote>
+<p>
+掘凤が0笆嘲である粗悸乖されます。
+</p>
 
-<blockquote><code>
-for(x=1; x&lt;=max; x++){<br />
-丂僽儘僢僋;<br />
-}<br />
-</code></blockquote>
-偼埲壓偺棯婰偑壜擻偱偡丅
-<blockquote><code>
-For(x to max){<br />
-丂僽儘僢僋;<br />
-}<br />
-</code></blockquote>
+<blockquote><pre><code>
+for(矢1;掘凤;矢2){
+  ブロック;
+}
+</code></pre></blockquote>
+<p>
+呵介に及1を悸乖し、掘凤が0笆嘲である粗悸乖されます。
+ル〖プの呵稿で矢2が悸乖されます。
+</p>
 
-<h3>娭悢掕媊</h3>
-丂function 暥偵傛傝丄帺暘偱娭悢傪掕媊偡傞偙偲偑偱偒傑偡丅
-<blockquote><code>
-function 娭悢柤(堷悢柤1, 堷悢柤2,...){<br />
-丂...<br />
-丂return 栠傝抣;<br />
-}<br />
-</code></blockquote>
-偲偄偆宍偵側傝傑偡丅<br />
-丂椺偊偽丄師偺儅僋儘偼 x 偲 y 偺愊傪昞帵偟傑偡丅<br />
-<blockquote><code>
-function mult(x, y){ return x * y; }<br />
-<br />
-MessageBox(mult(x,y));<br />
-</code></blockquote>
-娭悢傪屇傃弌偡晹暘偼娭悢傪掕媊偟偨応強傛傝壓偵抲偄偰偔偩偝偄丅<br />
-<br />
-丂傑偨丄忋偺儅僋儘偑乽Math.cms乿偲偄偆柤慜偱曐懚偝傟偰偄傟偽丄
-懠偺僼傽僀儖偐傜傕乽Math.mult(x,y)乿偺傛偆偵
-乽僼傽僀儖柤乮僷僗丒奼挘巕埲奜乯丏娭悢柤乿偲彂偔偙偲偵傛傝
-棙梡偡傞偙偲偑壜擻偱偡丅<br />
+<blockquote><pre><code>
+for(x=1; x&lt;=max; x++){
+  ブロック;
+}
+</code></pre></blockquote>
+<p>
+は笆布の维淡が材墙です∈夸京されません∷。
+</p>
+<blockquote><pre><code>
+For(x to max){
+  ブロック;
+}
+</code></pre></blockquote>
 
-<h3>僐儊儞僩</h3>
-丂乽//乿偐傜峴枛傑偱偲丄乽/*乿偐傜乽*/乿傑偱偼僐儊儞僩偲側傝傑偡丅
-<blockquote><code>
-// 僐儊儞僩<br />
-<br />
-/* <br />
-&nbsp;* 僐儊儞僩<br />
-&nbsp;*/
-</code></blockquote>
+<h2>簇眶年盗</h2>
+<p>
+function 矢により、极尸で簇眶を年盗することができます。
+</p>
+<blockquote><pre><code>
+function 簇眶叹(苞眶叹1, 苞眶叹2,...){
+  ...
+  return 提り猛;
+}
+</code></pre></blockquote>
+<p>
+という妨になります。
+</p>
+<p>
+毋えば、肌のマクロは x と y の姥を山绩します。
+</p>
+<blockquote><pre><code>
+function mult(x, y){ return x * y; }
+
+MessageBox(mult(x,y));
+</code></pre></blockquote>
+<p>
+簇眶を钙び叫す婶尸は簇眶を年盗した眷疥より布に弥いてください。
+</p>
+<p>
+また、惧のマクロが≈Math.cms∽という叹涟で瘦赂されていれば、
+戮のファイルからも≈Math.mult(x,y)∽のように
+≈ファイル叹∈パスˇ橙磨灰笆嘲∷ˉ簇眶叹∽と今くことにより
+网脱することが材墙です。
+</p>
+<p>
+寥み哈み簇眶と票叹の簇眶年盗があった眷圭、
+ユ〖ザ〖簇眶が庭黎弄に蝗脱されます。
+簇眶叹の涟に≈::∽淡规をつけることで汤绩弄に寥み哈み簇眶を蝗脱できます。
+</p>
+
+<h2>コメント</h2>
+<p>
+≈//∽から乖琐までと、≈/*∽から≈*/∽まではコメントとなります。
+</p>
+<blockquote><pre><code>
+// コメント
+
+/* 
+ * コメント
+ */
+</code></pre></blockquote>
+
+</div>
+
+<!-- SIDE PANE -->
+<div class="sidepane">
+
+<h2 class="sectitle">Menu</h2>
+
+<div class="MainMenu"><a href="index.html">Cassava ヘルプ</a></div>
+<div class="MainMenu"><a href="about.html">Cassavaとは</a></div>
+<div class="MainMenu"><a href="install.html">インスト〖ル</a></div>
+<div class="MainMenu">メニュ〖</div>
+  <ul class="MainMenu">
+    <li><a href="filemenu.html" title="[ファイル]メニュ〖">ファイル</a></li>
+    <li><a href="editmenu.html" title="[试礁]メニュ〖">试礁</a></li>
+    <li><a href="insdelmenu.html" title="[赁掐ˇ猴近]メニュ〖">赁掐ˇ猴近</a></li>
+    <li><a href="findmenu.html" title="[浮瑚]メニュ〖">浮瑚</a></li>
+    <li><a href="viewmenu.html" title="[山绩]メニュ〖">山绩</a></li>
+    <li><a href="optionmenu.html" title="[オプション]メニュ〖">オプション</a>
+      <ul class="MainMenu">
+        <li><a href="dataoption.html" title="[デ〖タ妨及]オプション">デ〖タ妨及</a></li>
+        <li><a href="fileoption.html" title="[ファイル]オプション">ファイル</a></li>
+        <li><a href="behavioroption.html" title="[瓢侯]オプション">瓢侯</a></li>
+        <li><a href="backupoption.html" title="[バックアップ]オプション">バックアップ</a></li>
+        <li><a href="applioption.html" title="[嘲婶アプリ息啡]オプション">嘲婶アプリ息啡</a></li>
+        <li><a href="coloroption.html" title="[フォントˇ咖]オプション">フォントˇ咖</a></li>
+      </ul>
+    </li>
+    <li><a href="helpmenu.html" title="[ヘルプ]メニュ〖">ヘルプ</a></li>
+  </ul>
+<div class="MainMenu"><a href="key.html">キ〖拎侯</a></div>
+<div class="MainMenuSel">マクロ</div>
+  <ul class="MainMenu">
+    <li><a href="macroref.html">リファレンス</a></li>
+  </ul>
+<div class="MainMenu"><a href="letter.html">はがき磅湖</a></div>
+<div class="MainMenu"><a href="contact.html">螟侯涪ˇ息晚黎</a></div>
+
+</div>
+
+<!-- SIGN -->
+<br style="clear: both;" />
+<address>
+  Copyright (C) 2000-2007 asukaze, Some Rights Reserved.<br />
+  mail (at) asukaze.net
+</address>
+<!-- ==== -->
 
 </body>
 </html>

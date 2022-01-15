@@ -11,15 +11,15 @@ writeln("<table border=\"1\">");
 B = Bottom;
 R = Right;
 
-For(y to B){
+for(y=1; y<=B; y++){
   writeln("<tr>");
-  For(x to R){
+  for(x=1; x<=R; x++){
     if([x,y] == ""){
       writeln("  <td><br></td>");
     }else if(left([x,y], 7) == "http://"){
       writeln("  <td><a href=\"" + [x,y] + "\">"+ [x,y] + "</a></td>");
     }else{
-      str = [x,y];
+      str = str([x,y]);
       str = replace(str, "&", "&amp;");
       str = replace(str, "<", "&lt;");
       str = replace(str, ">", "&gt;");

@@ -2,14 +2,11 @@
 #include <windows.h>
 #include <process.h>
 #include <string.h>
+#include <vcl.h>
 #pragma hdrstop
 #include "Nkf.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
-//---------------------------------------------------------------------------
-typedef int CALLBACK funcSetNkfOption(LPCSTR optStr);
-typedef BOOL WINAPI funcNkfConvertSafe(LPSTR outStr,DWORD nOutBufferLength /*in Bytes*/,LPDWORD lpBytesReturned /*in Bytes*/, LPCSTR inStr,DWORD nInBufferLength /*in Bytes*/);
-typedef int CALLBACK funcNkfGetKanjiCode();
 //---------------------------------------------------------------------------
 #define min(x,y) ((x) < (y) ? (x) : (y))
 //---------------------------------------------------------------------------
@@ -29,7 +26,43 @@ void *GetProc(HINSTANCE Dll, const char *ProcName, bool warn)
   return NULL;
 }
 //---------------------------------------------------------------------------
-int NkfConvertSafe(LPSTR outStr,DWORD nOutBufferLength, LPDWORD lpBytesReturned, LPCSTR inStr,DWORD nInBufferLength, LPCSTR optStr){
+TNkf::TNkf()
+{
+  dll = LoadDll("nkf32.dll", false);
+  if(dll){
+    setopt = (funcSetNkfOption *)GetProc(dll, "SetNkfOption", false);
+    conv = (funcNkfConvertSafe *)GetProc(dll, "NkfConvertSafe", false);
+    getkc = (funcNkfGetKanjiCode *)GetProc(dll, "NkfGetKanjiCode", false);
+    ready = (setopt && conv && getkc);
+  }else{
+    ready = false;
+  }
+}
+//---------------------------------------------------------------------------
+TNkf::~TNkf()
+{
+  if(dll){
+    ::FreeLibrary(dll);
+  }
+}
+//---------------------------------------------------------------------------
+int TNkf::Convert(LPSTR outStr,DWORD nOutBufferLength, LPDWORD lpBytesReturned,
+                  LPCSTR inStr,DWORD nInBufferLength, LPCSTR optStr)
+{
+  int charcode = CHARCODE_SJIS;
+  if(ready){
+    setopt(optStr);
+    conv(outStr, nOutBufferLength, lpBytesReturned, inStr, nInBufferLength);
+    charcode = getkc();
+  }else{
+    *lpBytesReturned = min(nOutBufferLength, nInBufferLength);
+    memcpy(outStr, inStr, *lpBytesReturned);
+  }
+  return charcode;
+}
+//---------------------------------------------------------------------------
+int NkfConvertSafe(LPSTR outStr,DWORD nOutBufferLength, LPDWORD lpBytesReturned, LPCSTR inStr,DWORD nInBufferLength, LPCSTR optStr)
+{
   int charcode = CHARCODE_SJIS;
   HINSTANCE dll = LoadDll("nkf32.dll", false);
   if(dll){

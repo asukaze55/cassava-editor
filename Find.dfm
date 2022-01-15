@@ -3,26 +3,23 @@ object fmFind: TfmFind
   Top = 717
   BorderStyle = bsDialog
   Caption = #26908#32034#12539#32622#25563
-  ClientHeight = 247
+  ClientHeight = 258
   ClientWidth = 473
   Color = clBtnFace
-  Font.Charset = SHIFTJIS_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -12
-  Font.Name = #65325#65331' '#65328#12468#12471#12483#12463
-  Font.Style = []
+  ParentFont = True
   FormStyle = fsStayOnTop
   KeyPreview = True
   OldCreateOrder = False
-  Position = poMainFormCenter
+  Position = poDefaultSizeOnly
+  OnShow = FormShow
   PixelsPerInch = 96
-  TextHeight = 12
+  TextHeight = 13
   object btnSearchFromTop: TButton
     Left = 360
     Top = 8
     Width = 105
     Height = 25
-    Caption = #20808#38957#12363#12425#26908#32034
+    Caption = #20808#38957#12363#12425#26908#32034'(&O)'
     TabOrder = 1
     OnClick = btnSearchFromTopClick
   end
@@ -41,7 +38,7 @@ object fmFind: TfmFind
     Top = 72
     Width = 105
     Height = 25
-    Caption = #32622#25563#12375#12390#27425#12395
+    Caption = #32622#25563#12375#12390#27425#12395'(&X)'
     TabOrder = 3
     OnClick = btnReplaceClick
   end
@@ -50,7 +47,7 @@ object fmFind: TfmFind
     Top = 104
     Width = 105
     Height = 25
-    Caption = #20840#12390#32622#25563
+    Caption = #20840#12390#32622#25563'(&A)'
     TabOrder = 4
     OnClick = btnAllReplaceClick
   end
@@ -68,89 +65,111 @@ object fmFind: TfmFind
     Left = 0
     Top = 0
     Width = 353
-    Height = 145
+    Height = 155
     ActivePage = tsTextSearch
-    TabIndex = 0
     TabOrder = 0
     OnChange = PageControlChange
     object tsTextSearch: TTabSheet
-      Caption = #25991#23383#21015#26908#32034
+      Caption = #25991#23383#21015#26908#32034'(&T)'
+      ExplicitHeight = 117
       object Label1: TLabel
         Left = 8
         Top = 20
-        Width = 88
-        Height = 12
-        Caption = #26908#32034#12377#12427#25991#23383#21015#65306
+        Width = 99
+        Height = 13
+        Caption = #26908#32034#12377#12427#25991#23383#21015'(&S)'#65306
+        FocusControl = edFindText
       end
       object Label2: TLabel
         Left = 8
-        Top = 54
-        Width = 90
-        Height = 12
-        Caption = #32622#25563#24460#12398#25991#23383#21015#65306
+        Top = 42
+        Width = 103
+        Height = 13
+        Caption = #32622#25563#24460#12398#25991#23383#21015'(&R)'#65306
+        FocusControl = edReplaceText
       end
       object edFindText: TEdit
         Left = 120
         Top = 16
         Width = 217
-        Height = 20
+        Height = 21
         TabOrder = 0
       end
       object edReplaceText: TEdit
         Left = 120
-        Top = 50
+        Top = 38
         Width = 217
-        Height = 20
+        Height = 21
         TabOrder = 1
       end
       object cbWordSearch: TCheckBox
-        Left = 8
-        Top = 88
+        Left = 3
+        Top = 84
         Width = 241
         Height = 17
-        Caption = #12527#12540#12489#26908#32034#65288#12475#12523#20840#20307#12392#12398#27604#36611#65289
+        Caption = #12527#12540#12489#26908#32034#65288#12475#12523#20840#20307#12392#12398#27604#36611#65289'(&W)'
         TabOrder = 2
+      end
+      object cbRegex: TCheckBox
+        Left = 3
+        Top = 107
+        Width = 241
+        Height = 17
+        Caption = #27491#35215#34920#29694#26908#32034'(&E)'
+        TabOrder = 3
+      end
+      object cbCase: TCheckBox
+        Left = 3
+        Top = 61
+        Width = 241
+        Height = 17
+        Caption = #22823#25991#23383#12392#23567#25991#23383#12434#21306#21029'(&C)'
+        Checked = True
+        State = cbChecked
+        TabOrder = 4
       end
     end
     object tsNumSearch: TTabSheet
-      Caption = #25968#20516#26908#32034
+      Caption = #25968#20516#26908#32034'(&V)'
       ImageIndex = 1
+      ExplicitHeight = 117
       object Label3: TLabel
         Left = 152
         Top = 52
         Width = 30
-        Height = 12
+        Height = 13
         Caption = #8806'x'#8806
       end
       object Label4: TLabel
         Left = 8
         Top = 24
-        Width = 66
-        Height = 12
-        Caption = #25968#20516#12398#31684#22258#65306
+        Width = 79
+        Height = 13
+        Caption = #25968#20516#12398#31684#22258'(&R)'#65306
+        FocusControl = edMin
       end
       object edMin: TEdit
         Left = 24
         Top = 48
         Width = 121
-        Height = 20
+        Height = 21
         TabOrder = 0
       end
       object edMax: TEdit
         Left = 192
         Top = 48
         Width = 121
-        Height = 20
+        Height = 21
         TabOrder = 1
       end
     end
   end
   object rgRange: TRadioGroup
     Left = 96
-    Top = 152
+    Top = 161
     Width = 257
     Height = 41
-    Caption = #26908#32034#23550#35937
+    Caption = #26908#32034#23550#35937'(&G)'
     Columns = 3
     ItemIndex = 2
     Items.Strings = (
@@ -161,10 +180,10 @@ object fmFind: TfmFind
   end
   object rgDirection: TRadioGroup
     Left = 96
-    Top = 200
+    Top = 209
     Width = 177
     Height = 41
-    Caption = #26908#32034#26041#21521
+    Caption = #26908#32034#26041#21521'(&D)'
     Columns = 2
     ItemIndex = 1
     Items.Strings = (
