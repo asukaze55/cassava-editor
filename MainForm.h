@@ -2,7 +2,6 @@
 #ifndef MainFormH
 #define MainFormH
 //---------------------------------------------------------------------------
-#include <vcl\Classes.hpp>
 #include <vcl\Controls.hpp>
 #include <vcl\StdCtrls.hpp>
 #include <vcl\Forms.hpp>
@@ -12,13 +11,16 @@
 #include <vcl\Menus.hpp>
 #include <vcl\Dialogs.hpp>
 
-#include "CsvGrid.h"
+#include "MainGrid.h"
 #include "Preference.h"
 #include "CSPIN.h"
 #include <ComCtrls.hpp>
 #include <ToolWin.hpp>
 #include <ImgList.hpp>
 #include <ActnList.hpp>
+#include <System.Actions.hpp>
+#include <System.Classes.hpp>
+#include <System.ImageList.hpp>
 //---------------------------------------------------------------------------
 class TfmMain : public TForm
 {
@@ -155,7 +157,6 @@ __published:	// IDE 管理のコンポーネント
   TMenuItem *mnPasteFormat;
   TMenuItem *mnPasteFormatDefault;
   TMenuItem *mnpPasteFormat;
-  TMenuItem *mnMacroSearch;
   TMenuItem *mnMacroOpenFolder;
   TMenuItem *mnMacroExecute;
   TMenuItem *N2;
@@ -235,6 +236,10 @@ __published:	// IDE 管理のコンポーネント
     TAction *acCut;
     TAction *acCopy;
     TAction *acPaste;
+  TMenuItem *mnpKugiri2;
+  TMenuItem *mnCutFormat;
+  TMenuItem *mnCutFormatDefault;
+  TMenuItem *mnpCutFormat;
   void __fastcall mnNewClick(TObject *Sender);
   void __fastcall mnOpenClick(TObject *Sender);
   void __fastcall mnEndClick(TObject *Sender);
@@ -294,7 +299,6 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall mnMacroExecClick(TObject *Sender);
   void __fastcall mnMacroUserExecClick(TObject *Sender);
   void __fastcall mnPasteFormatDefaultClick(TObject *Sender);
-  void __fastcall mnMacroSearchClick(TObject *Sender);
   void __fastcall mnMacroOpenFolderClick(TObject *Sender);
   void __fastcall mnMacroExecuteClick(TObject *Sender);
   void __fastcall mnStayOnTopClick(TObject *Sender);
@@ -331,6 +335,8 @@ __published:	// IDE 管理のコンポーネント
     void __fastcall acCutUpdate(TObject *Sender);
     void __fastcall acCopyUpdate(TObject *Sender);
     void __fastcall acPasteUpdate(TObject *Sender);
+  void __fastcall mnCutFormatDefaultClick(TObject *Sender);
+  void __fastcall mnMacroClick(TObject *Sender);
 
 private:    // ユーザー宣言
   void OpenFile(String OpenFileName, int KCode=CHARCODE_AUTO);
@@ -342,10 +348,11 @@ private:    // ユーザー宣言
   void AddCheckedMenus(TStringList *list, TMenuItem* item);
   void RestoreCheckedMenus(TStringList *list);
   void RestoreCheckedMenus(TStringList *list, TMenuItem* item);
+  void SearchMacro();
 
 
 public:     // ユーザー宣言
-  TCsvGrid *MainGrid;
+  TMainGrid *MainGrid;
   __fastcall TfmMain(TComponent* Owner);
   __fastcall virtual ~TfmMain();
   bool IfModifiedThenSave();
@@ -376,6 +383,7 @@ public:     // ユーザー宣言
   void SetHistory(String S);
   void SetFilter();
   String MakeId(String prefix, String caption, int i);
+  void SetCutMenu(TMenuItem *Item);
   void SetCopyMenu(TMenuItem *Item);
   void SetPasteMenu(TMenuItem *Item);
   void SetGridFont(TFont *AFont);

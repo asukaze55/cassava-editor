@@ -79,6 +79,7 @@ object frOptionView: TfrOptionView
       Top = 50
       Width = 73
       Height = 21
+      NumbersOnly = True
       TabOrder = 2
       Text = '0'
     end
@@ -103,6 +104,7 @@ object frOptionView: TfrOptionView
       Top = 104
       Width = 73
       Height = 21
+      NumbersOnly = True
       TabOrder = 6
       Text = '0'
     end
@@ -119,6 +121,7 @@ object frOptionView: TfrOptionView
       Top = 77
       Width = 73
       Height = 21
+      NumbersOnly = True
       TabOrder = 4
       Text = '0'
     end
@@ -183,8 +186,93 @@ object frOptionView: TfrOptionView
       Top = 116
       Width = 73
       Height = 21
+      NumbersOnly = True
       TabOrder = 5
       Text = '2'
+    end
+  end
+  object gbTooltip: TGroupBox
+    Left = 3
+    Top = 292
+    Width = 354
+    Height = 105
+    Caption = #12484#12540#12523#12481#12483#12503
+    TabOrder = 2
+    object lblHintPause: TLabel
+      Left = 13
+      Top = 52
+      Width = 196
+      Height = 13
+      Caption = #12509#12483#12503#12450#12483#12503#34920#31034#12414#12391#12398#24453#27231#26178#38291#65288#12511#12522#31186#65289#65306
+    end
+    object lblHintHidePause: TLabel
+      Left = 13
+      Top = 77
+      Width = 143
+      Height = 13
+      Caption = #12509#12483#12503#12450#12483#12503#34920#31034#26178#38291#65288#12511#12522#31186#65289#65306
+    end
+    object lblHintPauseMs: TLabel
+      Left = 321
+      Top = 52
+      Width = 13
+      Height = 13
+      Caption = 'ms'
+    end
+    object lblHintHidePauseMs: TLabel
+      Left = 321
+      Top = 77
+      Width = 13
+      Height = 13
+      Caption = 'ms'
+    end
+    object cbShowToolTipForLongCell: TCheckBox
+      Left = 13
+      Top = 24
+      Width = 337
+      Height = 17
+      Caption = #38263#12356#12475#12523#12398#20869#23481#12434#12509#12483#12503#12450#12483#12503#34920#31034#12377#12427
+      Checked = True
+      State = cbChecked
+      TabOrder = 0
+    end
+    object edHintHidePause: TEdit
+      Left = 226
+      Top = 74
+      Width = 73
+      Height = 21
+      NumbersOnly = True
+      TabOrder = 3
+      Text = '500'
+    end
+    object edHintPause: TEdit
+      Left = 226
+      Top = 47
+      Width = 73
+      Height = 21
+      NumbersOnly = True
+      TabOrder = 1
+      Text = '2,500'
+    end
+    object udHintPause: TUpDown
+      Left = 299
+      Top = 47
+      Width = 16
+      Height = 21
+      Associate = edHintPause
+      Max = 2147483647
+      Position = 2500
+      TabOrder = 2
+    end
+    object udHintHidePause: TUpDown
+      Left = 299
+      Top = 74
+      Width = 16
+      Height = 21
+      Associate = edHintHidePause
+      Max = 2147483647
+      Position = 500
+      TabOrder = 4
     end
   end
 end

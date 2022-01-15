@@ -1,11 +1,10 @@
-<?xml version="1.0" encoding="euc-jp" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
- "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="ja" xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja">
+<!DOCTYPE html>
+<html lang="ja">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=euc-jp" />
-  <meta http-equiv="Content-Style-Type" content="text/css" />
-  <title>�ޥ�����ե���� - Cassava Editor �إ��</title>
+  <meta name="viewport" content="width=device-width" />
+  <meta charset="UTF-8" />
+  <meta http-equiv="content-language" content="ja" />
+  <title>マクロリファレンス - Cassava Editor ヘルプ</title>
   <link rel="stylesheet" type="text/css" href="cassava.css" />
   <style type="text/css">
     th.markupC {
@@ -24,30 +23,50 @@
 <div class="headline">
   <a href="http://www.asukaze.net/">
     <img src="asukaze.png" width="88" height="31"
-      alt="[�����������ͤä�]" title="�����������ͤä�"
-      class="headline" />�����������ͤä�</a> ��
-  <a href="http://www.asukaze.net/soft/index.html">����ե�</a> ��
-  <a href="http://www.asukaze.net/soft/cassava/index.html">Cassava</a> ��
-  <a href="index.html">�إ��</a> ��
-  �ޥ�����ե����
+      alt="[あすかぜ・ねっと]" title="あすかぜ・ねっと"
+      class="headline" />あすかぜ・ねっと</a> ＞
+  <a href="http://www.asukaze.net/soft/index.html">自作ソフト</a> ＞
+  <a href="http://www.asukaze.net/soft/cassava/index.html">Cassava</a> ＞
+  <a href="index.html">ヘルプ</a> ＞
+  マクロリファレンス
 </div>
 
-<h1>�ޥ�����ե����</h1>
+<h1>マクロリファレンス</h1>
 
 <!-- MAIN VIEW -->
 <div class="mainview">
 
 
-<table border="1" summary="�ޥ�����ե����">
+<table border="1" summary="マクロリファレンス">
 
 	<tr>
-		<td class="markupC">�ѿ�</td>
-		<td class="markupC">�ؿ�</td>
-		<td class="markupC">flag�������</td>
-		<td class="markupC">����</td>
-		<td class="markupC">ʸˡ����ʸ</td>
-		<td class="markupC">����</td>
+		<td class="markupC">変数</td>
+		<td class="markupC">関数</td>
+		<td class="markupC">flag・戻り値</td>
+		<td class="markupC">特別</td>
+		<td class="markupC">文法・構文</td>
+		<td class="markupC">説明</td>
 		<td class="markupC">Cassava Ver</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">x</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>-</td>
+		<td>カーソル位置の X 座標。通常の変数としても利用可能。</td>
+		<td>-</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">y</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>-</td>
+		<td>カーソル位置の Y 座標。通常の変数としても利用可能。</td>
+		<td>-</td>
 	</tr>
 
 	<tr>
@@ -56,7 +75,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>-</td>
-		<td>����������֤� X ��ɸ</td>
+		<td>カーソル位置の X 座標</td>
 		<td>-</td>
 	</tr>
 
@@ -66,8 +85,28 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>-</td>
-		<td>����������֤� Y ��ɸ</td>
+		<td>カーソル位置の Y 座標</td>
 		<td>-</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">Left</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>-</td>
+		<td>データが何列目から始まるか（固定セルを含まない）。通常の変数としても利用可能。</td>
+		<td>1.9.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">Top</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>-</td>
+		<td>データが何行目から始まるか（固定セルを含まない）。通常の変数としても利用可能。</td>
+		<td>1.9.0</td>
 	</tr>
 
 	<tr>
@@ -76,7 +115,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>-</td>
-		<td>�ǡ����������ܤޤǤ��뤫 (���ֱ��ζ�����Ͽ����ʤ�)</td>
+		<td>データが何列目まであるか (一番右の空白列は数えない)</td>
 		<td>-</td>
 	</tr>
 
@@ -86,7 +125,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>-</td>
-		<td>�ǡ����������ܤޤǤ��뤫 (���ֲ��ζ���ԤϿ����ʤ�)</td>
+		<td>データが何行目まであるか (一番下の空白行は数えない)</td>
 		<td>-</td>
 	</tr>
 
@@ -96,7 +135,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>-</td>
-		<td>�����ϰϤκ�ü�� X ��ɸ</td>
+		<td>選択範囲の左端の X 座標</td>
 		<td>-</td>
 	</tr>
 
@@ -106,7 +145,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>-</td>
-		<td>�����ϰϤξ�ü�� Y ��ɸ</td>
+		<td>選択範囲の上端の Y 座標</td>
 		<td>-</td>
 	</tr>
 
@@ -116,7 +155,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>-</td>
-		<td>�����ϰϤα�ü�� X ��ɸ</td>
+		<td>選択範囲の右端の X 座標</td>
 		<td>-</td>
 	</tr>
 
@@ -126,7 +165,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>-</td>
-		<td>�����ϰϤβ�ü�� Y ��ɸ</td>
+		<td>選択範囲の下端の Y 座標</td>
 		<td>-</td>
 	</tr>
 
@@ -136,7 +175,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>write(str);</td>
-		<td>����������֤Υ�������Ƥ� str �ˤ�����������򱦤˰�ư���ޤ����������ݡ��ȥޥ�����Ǥϥե�����˽񤭽Ф��ޤ���</td>
+		<td>カーソル位置のセルの内容を str にし、カーソルを右に移動します。エクスポートマクロ中ではファイルに書き出します。</td>
 		<td>-</td>
 	</tr>
 
@@ -146,7 +185,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>writeln(str);</td>
-		<td>����������֤Υ�������Ƥ� str �ˤ�����������򼡤ιԤ˰�ư���ޤ����������ݡ��ȥޥ�����Ǥϥե�����˽񤭽Ф��ޤ���</td>
+		<td>カーソル位置のセルの内容を str にし、カーソルを次の行に移動します。エクスポートマクロ中ではファイルに書き出します。</td>
 		<td>-</td>
 	</tr>
 
@@ -156,7 +195,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>move(vx,vy);</td>
-		<td>����������֤� (vx,vy) ������ư���ޤ���</td>
+		<td>カーソル位置を (vx,vy) だけ移動します。</td>
 		<td>-</td>
 	</tr>
 
@@ -166,7 +205,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>moveto(x,y);</td>
-		<td>����������֤� (x,y) �����ꤷ�ޤ���</td>
+		<td>カーソル位置を (x,y) に設定します。</td>
 		<td>-</td>
 	</tr>
 
@@ -176,7 +215,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>swap(a,b);</td>
-		<td>a �� b ���ͤ�򴹤��ޤ���</td>
+		<td>a と b の値を交換します。</td>
 		<td>-</td>
 	</tr>
 
@@ -186,7 +225,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>InsertRow(y);</td>
-		<td>y ���ܤ˿������Ԥ��������ޤ���</td>
+		<td>y 行目に新しい行を挿入します。</td>
 		<td>-</td>
 	</tr>
 
@@ -196,7 +235,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>DeleteRow(y);</td>
-		<td>y ���ܤ������ޤ���</td>
+		<td>y 行目を削除します。</td>
 		<td>-</td>
 	</tr>
 
@@ -206,7 +245,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>InsertCol(x);</td>
-		<td>x ���ܤ˿���������������ޤ���</td>
+		<td>x 列目に新しい列を挿入します。</td>
 		<td>-</td>
 	</tr>
 
@@ -216,7 +255,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>DeleteCol(x);</td>
-		<td>x ���ܤ������ޤ���</td>
+		<td>x 列目を削除します。</td>
 		<td>-</td>
 	</tr>
 
@@ -226,7 +265,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>mid(str1,x,y) = str2;</td>
-		<td>ʸ���� str1 �� x ʸ���ܤ��� y ʸ���� str2 ���֤������ޤ��� �ǽ��ʸ���Υ���ǥå����� 1 �Ǥ��� ����ʸ����1ʸ���ȿ����ޤ���</td>
+		<td>文字列 str1 の x 文字目から y 文字を str2 に置き換えます。 最初の文字のインデックスは 1 です。 全角文字を1文字と数えます。</td>
 		<td>1.4.0</td>
 	</tr>
 
@@ -236,7 +275,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>SetRowHeight(y,h);</td>
-		<td>y ���ܤι⤵�� h �����ꤷ�ޤ���</td>
+		<td>y 行目の高さを h に設定します。</td>
 		<td>-</td>
 	</tr>
 
@@ -246,7 +285,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>SetRowHeight(h);</td>
-		<td>���ƤιԤι⤵�� h �����ꤷ�ޤ���</td>
+		<td>全ての行の高さを h に設定します。</td>
 		<td>-</td>
 	</tr>
 
@@ -256,7 +295,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>AdjustRowHeight(y);</td>
-		<td>y ���ܤι⤵�򥻥����Ƥ˹�碌�ƺ�Ŭ�����ޤ���</td>
+		<td>y 行目の高さをセル内容に合わせて最適化します。</td>
 		<td>1.7.0</td>
 	</tr>
 
@@ -266,7 +305,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>SetColWidth(x,w);</td>
-		<td>x ���ܤ����� w �����ꤷ�ޤ���</td>
+		<td>x 列目の幅を w に設定します。</td>
 		<td>-</td>
 	</tr>
 
@@ -276,7 +315,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>SetColWidth(w);</td>
-		<td>���Ƥ�������� w �����ꤷ�ޤ���</td>
+		<td>全ての列の幅を w に設定します。</td>
 		<td>-</td>
 	</tr>
 
@@ -286,7 +325,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>AdjustColWidth(x);</td>
-		<td>x ���ܤ����򥻥����Ƥ˹�碌�ƺ�Ŭ�����ޤ���</td>
+		<td>x 列目の幅をセル内容に合わせて最適化します。</td>
 		<td>1.7.0</td>
 	</tr>
 
@@ -296,7 +335,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>SaveIniSetting();</td>
-		<td>���ߤ� Cassava �ξ��֤�����ե��������¸���ޤ���</td>
+		<td>現在の Cassava の状態を設定ファイルに保存します。</td>
 		<td>1.6.0</td>
 	</tr>
 
@@ -306,7 +345,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>LoadIniSetting();</td>
-		<td>������¸��������ե�������ɤ߹��ߡ�Cassava �ξ��֤򸵤��ᤷ�ޤ���</td>
+		<td>前回保存した設定ファイルを読み込み、Cassava の状態を元に戻します。</td>
 		<td>1.6.0</td>
 	</tr>
 
@@ -316,7 +355,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>SetIniSetting(sec,key,val);</td>
-		<td>��¸����Ƥ�������ե�����򹹿�����sec ���������� key �������ͤ� val �ˤ��ޤ��� �����ѹ��� LoadIniSetting() �¹Ԥޤ�ȿ�Ǥ���ޤ���</td>
+		<td>保存されている設定ファイルを更新し、sec セクションの key キーの値を val にします。 この変更は LoadIniSetting() 実行まで反映されません。</td>
 		<td>1.6.0</td>
 	</tr>
 
@@ -326,7 +365,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>SetFontName(str);</td>
-		<td>�ե���Ȥ� str ���ѹ����ޤ���</td>
+		<td>フォントを str に変更します。</td>
 		<td>1.6.0</td>
 	</tr>
 
@@ -336,7 +375,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>SetFontSize(x);</td>
-		<td>�ե���ȥ������� x ���ѹ����ޤ���</td>
+		<td>フォントサイズを x に変更します。</td>
 		<td>1.6.0</td>
 	</tr>
 
@@ -346,7 +385,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>ShellOpen(filename);</td>
-		<td>���ꤵ�줿�ե�������Ϣ�դ���줿���ץꥱ�������ǳ����ޤ���</td>
+		<td>指定されたファイルを関連付けられたアプリケーションで開きます。</td>
 		<td>1.7.0</td>
 	</tr>
 
@@ -356,7 +395,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>ShellOpen(appname, filename);</td>
-		<td>filename ��ѥ�᡼���Ȥ��� appname �ǻ��ꤷ�����ץꥱ��������¹Ԥ��ޤ���</td>
+		<td>filename をパラメータとして appname で指定したアプリケーションを実行します。</td>
 		<td>1.7.0</td>
 	</tr>
 
@@ -366,7 +405,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Open(filename);</td>
-		<td>filename �� cassava ���ɤ߹��ߤޤ���</td>
+		<td>filename を Cassava で読み込みます。</td>
 		<td>1.8.1</td>
 	</tr>
 
@@ -376,7 +415,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>SaveAs(filename);</td>
-		<td>���߳����Ƥ���ե������ filename ����¸���ޤ���</td>
+		<td>現在開いているファイルを filename に保存します。</td>
 		<td>1.8.0</td>
 	</tr>
 
@@ -386,7 +425,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>SaveAs(filename, type);</td>
-		<td>���߳����Ƥ���ե������ type �ǻ��ꤷ�������� filename ����¸���ޤ���</td>
+		<td>現在開いているファイルを type で指定した形式で filename に保存します。</td>
 		<td>1.8.0</td>
 	</tr>
 
@@ -396,8 +435,18 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Export(filename, type);</td>
-		<td>���߳����Ƥ���ե������ type �ǻ��ꤷ�������� filename �˥������ݡ��Ȥ��ޤ���</td>
+		<td>現在開いているファイルを type で指定した形式で filename にエクスポートします。</td>
 		<td>1.8.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">Sort</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>Sort(l, t, r, b, x, dir, num, case, zenhan);</td>
+		<td>(l,t) から (r,b) までの範囲を x 列でソートします。第六引数以降は真偽値のフラグで、順に「降順ソート」「数字のセルは数値の大小でソートする」「大文字と小文字を同一視する」「全角と半角を同一視する」を表します。</td>
+		<td>1.9.0</td>
 	</tr>
 
 	<tr>
@@ -406,7 +455,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>[x,y] / cell(x,y)</td>
-		<td>(x,y) �Υ�������ƤǤ����ɤ߽񤭤Ȥ�ˤǤ��ޤ���</td>
+		<td>(x,y) のセルの内容です。読み書きともにできます。</td>
 		<td>-</td>
 	</tr>
 
@@ -416,7 +465,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>int(x)</td>
-		<td>x���ͤ�0�����˴ݤ᤿���ͤ��֤��ޤ��� int���֤��ͤ��Ф��ơ�+�ױ黻�Ҥ�Ŭ�Ѥ���Ȳû��Ȥʤ�ޤ���</td>
+		<td>xの値を0方向に丸めた数値を返します。 intの返す値に対して「+」演算子を適用すると加算となります。</td>
 		<td>1.5.0</td>
 	</tr>
 
@@ -426,7 +475,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>double(x)</td>
-		<td>x��Ʊ���ͤο��ͤ��֤��ޤ���(x - 0)��Ʊ�����̤Ǥ��� double���֤��ͤ��Ф��ơ�+�ױ黻�Ҥ�Ŭ�Ѥ���Ȳû��Ȥʤ�ޤ���</td>
+		<td>xと同じ値の数値を返します。(x - 0)と同じ効果です。 doubleの返す値に対して「+」演算子を適用すると加算となります。</td>
 		<td>1.5.0</td>
 	</tr>
 
@@ -436,7 +485,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>str(x)</td>
-		<td>x��Ʊ���ͤ�ʸ������֤��ޤ���(x + "")��Ʊ�����̤Ǥ��� str���֤��ͤ��Ф��ơ�+�ױ黻�Ҥ�Ŭ�Ѥ����ʸ����Ϣ��Ȥʤ�ޤ���</td>
+		<td>xと同じ値の文字列を返します。(x + "")と同じ効果です。 strの返す値に対して「+」演算子を適用すると文字列連結となります。</td>
 		<td>1.5.0</td>
 	</tr>
 
@@ -446,7 +495,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>max(a,b....)</td>
-		<td>�������Ϥ�����ΤΤ���������ͤ��֤��ޤ���</td>
+		<td>引数に渡したもののうち最大の値を返します。</td>
 		<td>-</td>
 	</tr>
 
@@ -456,7 +505,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>min(a,b....)</td>
-		<td>�������Ϥ�����ΤΤ����Ǿ����ͤ��֤��ޤ���</td>
+		<td>引数に渡したもののうち最小の値を返します。</td>
 		<td>-</td>
 	</tr>
 
@@ -466,7 +515,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>len(str)</td>
-		<td>ʸ���� str ��Ĺ�����֤��ޤ�������ʸ����1ʸ���ȿ����ޤ���</td>
+		<td>文字列 str の長さを返します。全角文字を1文字と数えます。</td>
 		<td>1.5.0</td>
 	</tr>
 
@@ -476,7 +525,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>len(str)</td>
-		<td>ʸ���� str ��Ĺ�����֤��ޤ�������ʸ����2ʸ���ȿ����ޤ���</td>
+		<td>文字列 str の長さを返します。全角文字を2文字と数えます。</td>
 		<td>1.5.0</td>
 	</tr>
 
@@ -486,7 +535,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>left(str,x)</td>
-		<td>ʸ���� str �κǽ� x ʸ�����ڤ�Ф����֤��ޤ�������ʸ����1ʸ���ȿ����ޤ���</td>
+		<td>文字列 str の最初 x 文字を切り出して返します。全角文字を1文字と数えます。</td>
 		<td>1.4.0</td>
 	</tr>
 
@@ -496,7 +545,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>right(str,x)</td>
-		<td>ʸ���� str �κǸ� x ʸ�����ڤ�Ф����֤��ޤ�������ʸ����1ʸ���ȿ����ޤ���</td>
+		<td>文字列 str の最後 x 文字を切り出して返します。全角文字を1文字と数えます。</td>
 		<td>1.4.0</td>
 	</tr>
 
@@ -506,7 +555,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>mid(str,x,y)</td>
-		<td>ʸ���� str �� x ʸ���ܤ��� y ʸ�����ڤ�Ф����֤��ޤ��� �ǽ��ʸ���Υ���ǥå����� 1 �Ǥ��� ����ʸ����1ʸ���ȿ����ޤ���</td>
+		<td>文字列 str の x 文字目から y 文字を切り出して返します。 最初の文字のインデックスは 1 です。 全角文字を1文字と数えます。</td>
 		<td>1.4.0</td>
 	</tr>
 
@@ -516,7 +565,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>mid(str,x)</td>
-		<td>ʸ���� str �� x ʸ���ʹߤ��ڤ�Ф����֤��ޤ��� �ǽ��ʸ���Υ���ǥå����� 1 �Ǥ��� ����ʸ����1ʸ���ȿ����ޤ���</td>
+		<td>文字列 str の x 文字以降を切り出して返します。 最初の文字のインデックスは 1 です。 全角文字を1文字と数えます。</td>
 		<td>1.4.0</td>
 	</tr>
 
@@ -526,7 +575,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>pos(str1,str2)</td>
-		<td>str1 ��� str2 �ΰ��֤��֤��ޤ��� �ǽ��ʸ���Υ���ǥå����� 1 �Ǥ��� str2 �� str1 �˴ޤޤ�ʤ��ä���硢 0 ���֤���ޤ��� ����ʸ����1ʸ���ȿ����ޤ���</td>
+		<td>str1 中の str2 の位置を返します。 最初の文字のインデックスは 1 です。 str2 が str1 に含まれなかった場合、 0 が返されます。 全角文字を1文字と数えます。</td>
 		<td>1.5.0</td>
 	</tr>
 
@@ -536,7 +585,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>posB(str1,str2)</td>
-		<td>str1 ��� str2 �ΰ��֤��֤��ޤ��� �ǽ��ʸ���Υ���ǥå����� 1 �Ǥ��� str2 �� str1 �˴ޤޤ�ʤ��ä���硢 0 ���֤���ޤ��� ����ʸ����2ʸ���ȿ����ޤ���</td>
+		<td>str1 中の str2 の位置を返します。 最初の文字のインデックスは 1 です。 str2 が str1 に含まれなかった場合、 0 が返されます。 全角文字を2文字と数えます。</td>
 		<td>1.5.0</td>
 	</tr>
 
@@ -546,7 +595,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>replace(str1,str2,str3)</td>
-		<td>str1 ��� atr2 ������ str3 ���ִ�����ʸ������֤��ޤ������� str1 ���Ѳ����ޤ���</td>
+		<td>str1 中の atr2 を全て str3 に置換した文字列を返します。元の str1 は変化しません。</td>
 		<td>1.24d</td>
 	</tr>
 
@@ -556,7 +605,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>asc(str)</td>
-		<td>Shift_JIS �� str �� 1 ʸ���ܤΥ����ɥݥ���Ȥ��֤��ޤ���</td>
+		<td>Shift_JIS で str の 1 文字目のコードポイントを返します。</td>
 		<td>1.7.0</td>
 	</tr>
 
@@ -566,7 +615,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>ascW(str)</td>
-		<td>Unicode �� str �� 1 ʸ���ܤΥ����ɥݥ���Ȥ��֤��ޤ���</td>
+		<td>Unicode で str の 1 文字目のコードポイントを返します。</td>
 		<td>1.7.0</td>
 	</tr>
 
@@ -576,7 +625,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>chr(x)</td>
-		<td>Shift_JIS �Υ����ɥݥ���Ȥ� x �Ǥ���ʸ�����֤��ޤ���</td>
+		<td>Shift_JIS のコードポイントが x である文字を返します。</td>
 		<td>1.7.0</td>
 	</tr>
 
@@ -586,7 +635,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>chrW(x)</td>
-		<td>Unicode �Υ����ɥݥ���Ȥ� x �Ǥ���ʸ�����֤��ޤ���</td>
+		<td>Unicode のコードポイントが x である文字を返します。</td>
 		<td>1.7.0</td>
 	</tr>
 
@@ -596,7 +645,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>sum(l,t,r,b)</td>
-		<td>t��l�󤫤�b��r��ޤǤ��ϰϤο��ͥǡ����ι���ͤ��֤��ޤ���</td>
+		<td>t行l列からb行r列までの範囲の数値データの合計値を返します。</td>
 		<td>1.5.0</td>
 	</tr>
 
@@ -606,7 +655,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>avr(l,t,r,b)</td>
-		<td>t��l�󤫤�b��r��ޤǤ��ϰϤο��ͥǡ�����ʿ���ͤ��֤��ޤ���</td>
+		<td>t行l列からb行r列までの範囲の数値データの平均値を返します。</td>
 		<td>1.5.0</td>
 	</tr>
 
@@ -616,8 +665,58 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>random(x)</td>
-		<td>0�ʾ�x̤���Υ�����������ͤ��֤��ޤ���</td>
+		<td>0以上x未満のランダムな整数値を返します。</td>
 		<td>1.26</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">sqrt</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>sqrt(x)</td>
+		<td>x の平方根を返します。</td>
+		<td>1.9.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">sin</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>sin(x)</td>
+		<td>x のサイン（正弦）を返します。</td>
+		<td>1.9.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">cos</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>cos(x)</td>
+		<td>x のコサインを返します。</td>
+		<td>1.9.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">tan</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>tan(x)</td>
+		<td>x のタンジェントを返します。</td>
+		<td>1.9.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">pow</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>pow(x,y)</td>
+		<td>x を y 乗した値を返します。</td>
+		<td>1.9.0</td>
 	</tr>
 
 	<tr>
@@ -626,7 +725,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>GetRowHeight(y)</td>
-		<td>y ���ܤι⤵���֤��ޤ���y ���ά�����ɸ��ιԤι⤵���֤���ޤ���</td>
+		<td>y 行目の高さを返します。y を省略すると標準の行の高さが返されます。</td>
 		<td>-</td>
 	</tr>
 
@@ -636,7 +735,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>GetColWidth(x)</td>
-		<td>x ���ܤ������֤��ޤ���x ���ά�����ɸ�����������֤���ޤ���</td>
+		<td>x 列目の幅を返します。x を省略すると標準の列の幅が返されます。</td>
 		<td>-</td>
 	</tr>
 
@@ -646,7 +745,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>GetFileName()</td>
-		<td>�Խ���� CSV �ե�����Υե�����̾���֤��ޤ����������������ǡ������Խ���϶���ʸ�����֤���ޤ���</td>
+		<td>編集中の CSV ファイルのファイル名を返します。新規作成したデータを編集中は空の文字列が返されます。</td>
 		<td>1.24</td>
 	</tr>
 
@@ -656,7 +755,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>GetFilePath()</td>
-		<td>�Խ���� CSV �ե���������Хѥ����֤��ޤ����������������ǡ������Խ���϶���ʸ�����֤���ޤ�������ʳ��ξ�硢ɬ����\�פǽ����ʸ�����֤���ޤ���</td>
+		<td>編集中の CSV ファイルの絶対パスを返します。新規作成したデータを編集中は空の文字列が返されます。それ以外の場合、必ず「\」で終わる文字列が返されます。</td>
 		<td>1.24</td>
 	</tr>
 
@@ -666,7 +765,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>GetYear()</td>
-		<td>�¹Ի������դΡ�ǯ�פ��֤��ޤ���4 ����������֤���ޤ���</td>
+		<td>実行時の日付の「年」を返します。4 桁の整数が返されます。</td>
 		<td>1.24</td>
 	</tr>
 
@@ -676,7 +775,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>GetMonth()</td>
-		<td>�¹Ի������դΡַ�פ��֤��ޤ���1 �� 12 ���������֤���ޤ���</td>
+		<td>実行時の日付の「月」を返します。1 ～ 12 の整数が返されます。</td>
 		<td>1.24</td>
 	</tr>
 
@@ -686,7 +785,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>GetDate()</td>
-		<td>�¹Ի������դΡ����פ��֤��ޤ���1 �� 31 ���������֤���ޤ���</td>
+		<td>実行時の日付の「日」を返します。1 ～ 31 の整数が返されます。</td>
 		<td>1.24</td>
 	</tr>
 
@@ -696,7 +795,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>GetHours()</td>
-		<td>�¹Ի������դΡֻ��פ��֤��ޤ���0 �� 23 ���������֤���ޤ���</td>
+		<td>実行時の日付の「時」を返します。0 ～ 23 の整数が返されます。</td>
 		<td>1.24</td>
 	</tr>
 
@@ -706,7 +805,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>GetMinutes()</td>
-		<td>�¹Ի������դΡ�ʬ�פ��֤��ޤ���0 �� 59 ���������֤���ޤ���</td>
+		<td>実行時の日付の「分」を返します。0 ～ 59 の整数が返されます。</td>
 		<td>1.24</td>
 	</tr>
 
@@ -716,7 +815,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>GetSeconds()</td>
-		<td>�¹Ի������դΡ��áפ��֤��ޤ���0 �� 59 ���������֤���ޤ���</td>
+		<td>実行時の日付の「秒」を返します。0 ～ 59 の整数が返されます。</td>
 		<td>1.24</td>
 	</tr>
 
@@ -726,7 +825,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>GetIniSetting(sec,key);</td>
-		<td>��¸����Ƥ�������ե�������ɤ߹��ߡ�sec ���������� key �������ͤ�������ޤ��� �����ͤ�����ե��������¸���줿�ͤǤ��ꡢ�ǿ��� Cassava �ξ��֤Ȥϰۤʤ��礬����ޤ���</td>
+		<td>保存されている設定ファイルを読み込み、sec セクションの key キーの値を取得します。 この値は設定ファイルに保存された値であり、最新の Cassava の状態とは異なる場合があります。</td>
 		<td>1.6.0</td>
 	</tr>
 
@@ -736,7 +835,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>GetFontName();</td>
-		<td>�������ꤵ��Ƥ���ե����̾��������ޤ���</td>
+		<td>現在設定されているフォント名を取得します。</td>
 		<td>1.6.0</td>
 	</tr>
 
@@ -746,7 +845,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>GetFontSize();</td>
-		<td>�������ꤵ��Ƥ���ե���ȥ�������������ޤ���</td>
+		<td>現在設定されているフォントサイズを取得します。</td>
 		<td>1.6.0</td>
 	</tr>
 
@@ -756,7 +855,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>MessageBox(str);</td>
-		<td>str ��ɽ�����ޤ���OK �ܥ���Τ�ɽ������ޤ���</td>
+		<td>str を表示します。OK ボタンのみ表示されます。</td>
 		<td>-</td>
 	</tr>
 
@@ -766,7 +865,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>MessageBox(str,flag);</td>
-		<td>str ��ɽ�����ޤ����ܥ���μ���� flag �ǻ��ꤷ�ޤ���</td>
+		<td>str を表示します。ボタンの種類を flag で指定します。</td>
 		<td>-</td>
 	</tr>
 
@@ -776,7 +875,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>MessageBox(str1,str2,flag);</td>
-		<td>��å������ܥå������ str1 �򡢥����ȥ�� str2 ��ɽ�����ޤ����ܥ���μ���� flag �ǻ��ꤷ�ޤ���</td>
+		<td>メッセージボックス内に str1 を、タイトルに str2 を表示します。ボタンの種類を flag で指定します。</td>
 		<td>-</td>
 	</tr>
 
@@ -786,7 +885,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>InputBox(str);</td>
-		<td>str ��ɽ�����ޤ�����OK�פ������������Ϥ��줿ʸ����򡢡֥���󥻥�פ��������� "" ���֤��ޤ���</td>
+		<td>str を表示します。「OK」が押されれば入力された文字列を、「キャンセル」が押されれば "" を返します。</td>
 		<td>-</td>
 	</tr>
 
@@ -796,7 +895,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>InputBox(str,def);</td>
-		<td>str ��ɽ�����ޤ�����OK�פ������������Ϥ��줿ʸ����򡢡֥���󥻥�פ��������� def ���֤��ޤ���</td>
+		<td>str を表示します。「OK」が押されれば入力された文字列を、「キャンセル」が押されれば def を返します。</td>
 		<td>-</td>
 	</tr>
 
@@ -806,7 +905,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>InputBox(str1,str2,def);</td>
-		<td>����ץåȥܥå������ str1 �򡢥����ȥ�� str2 ��ɽ�����ޤ�����OK�פ������������Ϥ��줿ʸ����򡢡֥���󥻥�פ��������� def ���֤��ޤ���</td>
+		<td>インプットボックス内に str1 を、タイトルに str2 を表示します。「OK」が押されれば入力された文字列を、「キャンセル」が押されれば def を返します。</td>
 		<td>-</td>
 	</tr>
 
@@ -816,7 +915,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>InputBoxMultiLine(str);</td>
-		<td>str ��ɽ�����ޤ��� ��OK�פ������������Ϥ��줿ʸ����� �֥���󥻥�פ��������� "" ���֤��ޤ���</td>
+		<td>str を表示します。 「OK」が押されれば入力された文字列を、 「キャンセル」が押されれば "" を返します。</td>
 		<td>1.6.0</td>
 	</tr>
 
@@ -826,7 +925,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>InputBoxMultiLine(str, def);</td>
-		<td>str ��ɽ�����ޤ����ƥ����ȥܥå����Υǥե�����ͤ� def �Ǥ��� ��OK�פ������������Ϥ��줿ʸ����� �֥���󥻥�פ��������� def ���֤��ޤ���</td>
+		<td>str を表示します。テキストボックスのデフォルト値は def です。 「OK」が押されれば入力された文字列を、 「キャンセル」が押されれば def を返します。</td>
 		<td>1.6.0</td>
 	</tr>
 
@@ -836,7 +935,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>InputBoxMultiLine(str1, str2, def);</td>
-		<td>����ץåȥܥå������ str1 �򡢥����ȥ�� str2 ��ɽ�����ޤ��� �ƥ����ȥܥå����Υǥե�����ͤ� def �Ǥ��� ��OK�פ������������Ϥ��줿ʸ����� �֥���󥻥�פ��������� def ���֤��ޤ���</td>
+		<td>インプットボックス内に str1 を、タイトルに str2 を表示します。 テキストボックスのデフォルト値は def です。 「OK」が押されれば入力された文字列を、 「キャンセル」が押されれば def を返します。</td>
 		<td>1.6.0</td>
 	</tr>
 
@@ -846,7 +945,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>InputBoxMultiLine(str1, str2, def1, def2);</td>
-		<td>����ץåȥܥå������ str1 �򡢥����ȥ�� str2 ��ɽ�����ޤ��� �ƥ����ȥܥå����Υǥե�����ͤ� def2 �Ǥ��� ��OK�פ������������Ϥ��줿ʸ����� �֥���󥻥�פ��������� def1 ���֤��ޤ���</td>
+		<td>インプットボックス内に str1 を、タイトルに str2 を表示します。 テキストボックスのデフォルト値は def2 です。 「OK」が押されれば入力された文字列を、 「キャンセル」が押されれば def1 を返します。</td>
 		<td>1.6.0</td>
 	</tr>
 
@@ -855,8 +954,8 @@
 		<td class="markupE">-</td>
 		<td class="markupE">MB_ABORTRETRYIGNORE</td>
 		<td class="markupE">-</td>
-		<td>MessageBox, InputBox �ؿ��� flag �˻��Ѥ���</td>
-		<td>����ߡסֺƻ�ԡס�̵��ץܥ�����Ѱդ��ޤ���</td>
+		<td>MessageBox, InputBox 関数の flag に使用する</td>
+		<td>「中止」「再試行」「無視」ボタンを用意します。</td>
 		<td>-</td>
 	</tr>
 
@@ -865,8 +964,8 @@
 		<td class="markupE">-</td>
 		<td class="markupE">MB_OK</td>
 		<td class="markupE">-</td>
-		<td>��</td>
-		<td>��OK�ץܥ�����Ѱդ��ޤ���</td>
+		<td>〃</td>
+		<td>「OK」ボタンを用意します。</td>
 		<td>-</td>
 	</tr>
 
@@ -875,8 +974,8 @@
 		<td class="markupE">-</td>
 		<td class="markupE">MB_OKCANCEL</td>
 		<td class="markupE">-</td>
-		<td>��</td>
-		<td>��OK�ס֥���󥻥�ץܥ�����Ѱդ��ޤ���</td>
+		<td>〃</td>
+		<td>「OK」「キャンセル」ボタンを用意します。</td>
 		<td>-</td>
 	</tr>
 
@@ -885,8 +984,8 @@
 		<td class="markupE">-</td>
 		<td class="markupE">MB_RETRYCANCEL</td>
 		<td class="markupE">-</td>
-		<td>��</td>
-		<td>�ֺƻ�ԡס֥���󥻥�ץܥ�����Ѱդ��ޤ���</td>
+		<td>〃</td>
+		<td>「再試行」「キャンセル」ボタンを用意します。</td>
 		<td>-</td>
 	</tr>
 
@@ -895,8 +994,8 @@
 		<td class="markupE">-</td>
 		<td class="markupE">MB_YESNO</td>
 		<td class="markupE">-</td>
-		<td>��</td>
-		<td>�֤Ϥ��ס֤������ץܥ�����Ѱդ��ޤ���</td>
+		<td>〃</td>
+		<td>「はい」「いいえ」ボタンを用意します。</td>
 		<td>-</td>
 	</tr>
 
@@ -905,8 +1004,8 @@
 		<td class="markupE">-</td>
 		<td class="markupE">MB_YESNOCANCEL</td>
 		<td class="markupE">-</td>
-		<td>��</td>
-		<td>�֤Ϥ��ס֤������ס֥���󥻥�ץܥ�����Ѱդ��ޤ���</td>
+		<td>〃</td>
+		<td>「はい」「いいえ」「キャンセル」ボタンを用意します。</td>
 		<td>-</td>
 	</tr>
 
@@ -915,8 +1014,8 @@
 		<td class="markupE">-</td>
 		<td class="markupE">IDABORT</td>
 		<td class="markupE">-</td>
-		<td>�ѿ�=MessageBox(str,flag); if(�ѿ� ��ӱ黻�� �����){ �֥��å�; }  �ޤ���  if(MessageBox(str,flag) ��ӱ黻�� �����){ �֥��å�; } �ʤ�</td>
-		<td>����ߡץܥ���������</td>
+		<td>変数=MessageBox(str,flag); if(変数 比較演算子 戻り値){ ブロック; }  または  if(MessageBox(str,flag) 比較演算子 戻り値){ ブロック; } など</td>
+		<td>「中止」ボタンの戻り値</td>
 		<td>-</td>
 	</tr>
 
@@ -925,8 +1024,8 @@
 		<td class="markupE">-</td>
 		<td class="markupE">IDCANCEL</td>
 		<td class="markupE">-</td>
-		<td>��</td>
-		<td>�֥���󥻥�ץܥ���������</td>
+		<td>〃</td>
+		<td>「キャンセル」ボタンの戻り値</td>
 		<td>-</td>
 	</tr>
 
@@ -935,8 +1034,8 @@
 		<td class="markupE">-</td>
 		<td class="markupE">IDIGNORE</td>
 		<td class="markupE">-</td>
-		<td>��</td>
-		<td>��̵��ץܥ���������</td>
+		<td>〃</td>
+		<td>「無視」ボタンの戻り値</td>
 		<td>-</td>
 	</tr>
 
@@ -945,8 +1044,8 @@
 		<td class="markupE">-</td>
 		<td class="markupE">IDNO</td>
 		<td class="markupE">-</td>
-		<td>��</td>
-		<td>�֤������ץܥ���������</td>
+		<td>〃</td>
+		<td>「いいえ」ボタンの戻り値</td>
 		<td>-</td>
 	</tr>
 
@@ -955,8 +1054,8 @@
 		<td class="markupE">-</td>
 		<td class="markupE">IDOK</td>
 		<td class="markupE">-</td>
-		<td>��</td>
-		<td>��OK�ץܥ���������</td>
+		<td>〃</td>
+		<td>「OK」ボタンの戻り値</td>
 		<td>-</td>
 	</tr>
 
@@ -965,8 +1064,8 @@
 		<td class="markupE">-</td>
 		<td class="markupE">IDRETRY</td>
 		<td class="markupE">-</td>
-		<td>��</td>
-		<td>�ֺƻ�ԡץܥ���������</td>
+		<td>〃</td>
+		<td>「再試行」ボタンの戻り値</td>
 		<td>-</td>
 	</tr>
 
@@ -975,8 +1074,8 @@
 		<td class="markupE">-</td>
 		<td class="markupE">IDYES</td>
 		<td class="markupE">-</td>
-		<td>��</td>
-		<td>�֤Ϥ��ץܥ���������</td>
+		<td>〃</td>
+		<td>「はい」ボタンの戻り値</td>
 		<td>-</td>
 	</tr>
 
@@ -986,7 +1085,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>New();</td>
-		<td>�����ơ��֥�κ���</td>
+		<td>新規テーブルの作成</td>
 		<td>-</td>
 	</tr>
 
@@ -996,7 +1095,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>NewSize();</td>
-		<td>ɽ����������ꤷ�ƿ����ơ��֥�����</td>
+		<td>表サイズを指定して新規テーブルを作成</td>
 		<td>-</td>
 	</tr>
 
@@ -1006,7 +1105,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Open();</td>
-		<td>����</td>
+		<td>開く</td>
 		<td>-</td>
 	</tr>
 
@@ -1016,7 +1115,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Reload();</td>
-		<td>���ɤ߹���</td>
+		<td>再読み込み</td>
 		<td>-</td>
 	</tr>
 
@@ -1025,8 +1124,8 @@
 		<td class="markupE">OpenHistoryn</td>
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
-		<td>OpenHistoryn(); (�Ǹ�� n �� 0 �� 9 �ο���)</td>
-		<td>���򤫤鳫��</td>
+		<td>OpenHistoryn(); (最後の n は 0 ～ 9 の数字)</td>
+		<td>履歴から開く</td>
 		<td>-</td>
 	</tr>
 
@@ -1036,7 +1135,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>OpenHistoryClear();</td>
-		<td>����򥯥ꥢ</td>
+		<td>履歴をクリア</td>
 		<td>-</td>
 	</tr>
 
@@ -1046,7 +1145,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Save();</td>
-		<td>�����¸</td>
+		<td>上書き保存</td>
 		<td>-</td>
 	</tr>
 
@@ -1056,7 +1155,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>SaveAs();</td>
-		<td>̾����Ĥ�����¸</td>
+		<td>名前をつけて保存</td>
 		<td>-</td>
 	</tr>
 
@@ -1066,7 +1165,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Export();</td>
-		<td>�������ݡ���</td>
+		<td>エクスポート</td>
 		<td>-</td>
 	</tr>
 
@@ -1076,7 +1175,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>OpenCellFile();</td>
-		<td>���ߤΥ���Υե�����򳫤�</td>
+		<td>現在のセルのファイルを開く</td>
 		<td>-</td>
 	</tr>
 
@@ -1086,7 +1185,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Print();</td>
-		<td>����</td>
+		<td>印刷</td>
 		<td>-</td>
 	</tr>
 
@@ -1096,7 +1195,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>LetterPrint();</td>
-		<td>�Ϥ�������</td>
+		<td>はがき印刷</td>
 		<td>-</td>
 	</tr>
 
@@ -1106,17 +1205,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>End();</td>
-		<td>��λ</td>
-		<td>-</td>
-	</tr>
-
-	<tr>
-		<td class="markupE">-</td>
-		<td class="markupE">Edit</td>
-		<td class="markupE">-</td>
-		<td class="markupE">-</td>
-		<td>Edit();</td>
-		<td>�Խ�</td>
+		<td>終了</td>
 		<td>-</td>
 	</tr>
 
@@ -1126,7 +1215,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Undo();</td>
-		<td>�����᤹</td>
+		<td>元に戻す</td>
 		<td>-</td>
 	</tr>
 
@@ -1136,7 +1225,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Redo();</td>
-		<td>���ľ��</td>
+		<td>やり直し</td>
 		<td>-</td>
 	</tr>
 
@@ -1146,7 +1235,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Cut();</td>
-		<td>�ڤ���</td>
+		<td>切り取り</td>
 		<td>-</td>
 	</tr>
 
@@ -1156,7 +1245,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Copy();</td>
-		<td>���ԡ�</td>
+		<td>コピー</td>
 		<td>-</td>
 	</tr>
 
@@ -1166,7 +1255,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Paste();</td>
-		<td>Ž���դ�</td>
+		<td>貼り付け</td>
 		<td>-</td>
 	</tr>
 
@@ -1176,7 +1265,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>SelectAll();</td>
-		<td>���٤�����</td>
+		<td>すべて選択</td>
 		<td>-</td>
 	</tr>
 
@@ -1186,7 +1275,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>PasteNormal();</td>
-		<td>Ž���դ����ץ������ɸ��פ˥��å�</td>
+		<td>貼り付けオプションを「標準」にセット</td>
 		<td>-</td>
 	</tr>
 
@@ -1195,8 +1284,8 @@
 		<td class="markupE">PasteOptionn</td>
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
-		<td>PasteOptionn(); (�Ǹ�� n �� 0 �� 4 �ο���)</td>
-		<td>Ž���դ����ץ������0 : �����ΰ�ȽŤʤä���ʬ�Τߤ�Ž���դ��ס�1 : �����ΰ�ˤ����֤������򤷤�Ž���դ��ס�2 : �ǡ����Υ������Ǿ�񤭡ס�3 : ���Ƥ򱦤˰�ư�����ƥǡ����������ס�4 : ���Ƥ򲼤˰�ư�����ƥǡ����������פ˥��å�</td>
+		<td>PasteOptionn(); (最後の n は 0 ～ 4 の数字)</td>
+		<td>貼り付けオプションを「0 : 選択領域と重なった部分のみに貼り付け」「1 : 選択領域にくり返し処理をして貼り付け」「2 : データのサイズで上書き」「3 : 内容を右に移動させてデータを挿入」「4 : 内容を下に移動させてデータを挿入」にセット</td>
 		<td>-</td>
 	</tr>
 
@@ -1206,7 +1295,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Sort();</td>
-		<td>������</td>
+		<td>ソート</td>
 		<td>-</td>
 	</tr>
 
@@ -1216,7 +1305,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>SelectRow();</td>
-		<td>������</td>
+		<td>行選択</td>
 		<td>-</td>
 	</tr>
 
@@ -1226,7 +1315,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>SelectCol();</td>
-		<td>������</td>
+		<td>列選択</td>
 		<td>-</td>
 	</tr>
 
@@ -1236,7 +1325,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>CopySum();</td>
-		<td>��פ򥳥ԡ�</td>
+		<td>合計をコピー</td>
 		<td>-</td>
 	</tr>
 
@@ -1246,7 +1335,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>CopyAvr();</td>
-		<td>ʿ�Ѥ򥳥ԡ�</td>
+		<td>平均をコピー</td>
 		<td>-</td>
 	</tr>
 
@@ -1255,18 +1344,8 @@
 		<td class="markupE">TransCharn</td>
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
-		<td>TransCharn(); (�Ǹ�� n �� 0 �� 5 �ο���)</td>
-		<td>ʸ���Ѵ� ( 0 : �ѿ��������Ⱦ�Ѥ��Ѵ� / 1 : �ѿ�����������Ѥ��Ѵ� / 2 : �ѻ�����ʸ�����Ѵ� / 3 : �ѻ���ʸ�����Ѵ� / 4 : ���ʤ�Ⱦ�Ѥ��Ѵ� / 5 : ���ʤ����Ѥ��Ѵ�)</td>
-		<td>-</td>
-	</tr>
-
-	<tr>
-		<td class="markupE">-</td>
-		<td class="markupE">Sequence</td>
-		<td class="markupE">-</td>
-		<td class="markupE">-</td>
-		<td>Sequence();</td>
-		<td>Ϣ³�ǡ���</td>
+		<td>TransCharn(); (最後の n は 0 ～ 5 の数字)</td>
+		<td>文字変換 ( 0 : 英数・記号を半角に変換 / 1 : 英数・記号を全角に変換 / 2 : 英字を大文字に変換 / 3 : 英字を小文字に変換 / 4 : カナを半角に変換 / 5 : カナを全角に変換)</td>
 		<td>-</td>
 	</tr>
 
@@ -1276,7 +1355,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>SequenceS();</td>
-		<td>Ϣ�ֺ���</td>
+		<td>連番作成</td>
 		<td>-</td>
 	</tr>
 
@@ -1286,7 +1365,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>SequenceC();</td>
-		<td>1 ���ܤ򥳥ԡ�</td>
+		<td>1 行目をコピー</td>
 		<td>-</td>
 	</tr>
 
@@ -1296,7 +1375,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>InsRow();</td>
-		<td>������</td>
+		<td>行挿入</td>
 		<td>-</td>
 	</tr>
 
@@ -1306,7 +1385,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>InsCol();</td>
-		<td>������</td>
+		<td>列挿入</td>
 		<td>-</td>
 	</tr>
 
@@ -1316,7 +1395,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>CutRow();</td>
-		<td>�Ժ��</td>
+		<td>行削除</td>
 		<td>-</td>
 	</tr>
 
@@ -1326,7 +1405,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>CutCol();</td>
-		<td>����</td>
+		<td>列削除</td>
 		<td>-</td>
 	</tr>
 
@@ -1336,7 +1415,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Enter();</td>
-		<td>��ʬ��</td>
+		<td>行分割</td>
 		<td>-</td>
 	</tr>
 
@@ -1346,7 +1425,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>NewLine();</td>
-		<td>���������</td>
+		<td>セル内改行</td>
 		<td><br /></td>
 	</tr>
 
@@ -1356,7 +1435,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>ConnectCell();</td>
-		<td>���Υ���ȷ��</td>
+		<td>左のセルと結合</td>
 		<td>-</td>
 	</tr>
 
@@ -1366,7 +1445,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>InsertCellRight();</td>
-		<td>���˥��������</td>
+		<td>右にセルを挿入</td>
 		<td>-</td>
 	</tr>
 
@@ -1376,7 +1455,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>InsertCellDown();</td>
-		<td>���˥��������</td>
+		<td>下にセルを挿入</td>
 		<td>-</td>
 	</tr>
 
@@ -1386,7 +1465,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>DeleteCellLeft();</td>
-		<td>���ˤĤ��</td>
+		<td>左につめる</td>
 		<td>-</td>
 	</tr>
 
@@ -1396,7 +1475,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>DeleteCellUp();</td>
-		<td>��ˤĤ��</td>
+		<td>上につめる</td>
 		<td>-</td>
 	</tr>
 
@@ -1406,7 +1485,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>QuickFind();</td>
-		<td>�ʰ׸���</td>
+		<td>簡易検索</td>
 		<td>1.6.0</td>
 	</tr>
 
@@ -1416,7 +1495,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Find();</td>
-		<td>�������ִ�</td>
+		<td>検索・置換</td>
 		<td>-</td>
 	</tr>
 
@@ -1426,7 +1505,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>FindNext();</td>
-		<td>���򸡺�</td>
+		<td>次を検索</td>
 		<td>-</td>
 	</tr>
 
@@ -1436,7 +1515,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>FindBack();</td>
-		<td>���򸡺�</td>
+		<td>前を検索</td>
 		<td><br /></td>
 	</tr>
 
@@ -1446,7 +1525,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Refresh();</td>
-		<td>������Ĵ�����ƺ�����</td>
+		<td>列幅を調整して再描画</td>
 		<td>-</td>
 	</tr>
 
@@ -1456,7 +1535,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>ShowAllColumn();</td>
-		<td>���Ƥ����������ɽ��</td>
+		<td>全ての列を画面内に表示</td>
 		<td>-</td>
 	</tr>
 
@@ -1466,7 +1545,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Font();</td>
-		<td>�ե����</td>
+		<td>フォント</td>
 		<td>-</td>
 	</tr>
 
@@ -1476,7 +1555,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>StayOnTop();</td>
-		<td>��˺����̤�ɽ�����ڤ��ؤ�</td>
+		<td>常に最前面に表示の切り替え</td>
 		<td>-</td>
 	</tr>
 
@@ -1486,7 +1565,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>CalcExpression();</td>
-		<td>������׻��������</td>
+		<td>セル内計算式を処理</td>
 		<td>1.5.0</td>
 	</tr>
 
@@ -1496,7 +1575,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>ShowToolbar();</td>
-		<td>�ġ���С���ɽ�����ڤ��ؤ�</td>
+		<td>ツールバーの表示の切り替え</td>
 		<td>-</td>
 	</tr>
 
@@ -1506,7 +1585,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>ShowStatusbar();</td>
-		<td>���ơ������С���ɽ�����ڤ��ؤ�</td>
+		<td>ステータスバーの表示の切り替え</td>
 		<td>1.6.0</td>
 	</tr>
 
@@ -1516,7 +1595,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>FixFirstRow();</td>
-		<td>1 ���ܤ������ڤ��ؤ�</td>
+		<td>1 行目を固定の切り替え</td>
 		<td>-</td>
 	</tr>
 
@@ -1526,7 +1605,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>FixFirstCol();</td>
-		<td>1 ���ܤ������ڤ��ؤ�</td>
+		<td>1 列目を固定の切り替え</td>
 		<td>-</td>
 	</tr>
 
@@ -1536,7 +1615,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>FixUpLeft();</td>
-		<td>����������֤ޤǤ����</td>
+		<td>カーソル位置までを固定</td>
 		<td>-</td>
 	</tr>
 
@@ -1546,7 +1625,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>UnFix();</td>
-		<td>�������</td>
+		<td>固定を解除</td>
 		<td>-</td>
 	</tr>
 
@@ -1556,7 +1635,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>OptionDlg();</td>
-		<td>���ץ����</td>
+		<td>オプション</td>
 		<td>-</td>
 	</tr>
 
@@ -1566,7 +1645,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Key();</td>
-		<td>�����������ޥ���</td>
+		<td>キーカスタマイズ</td>
 		<td>-</td>
 	</tr>
 
@@ -1576,7 +1655,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Sjis();</td>
-		<td>�����ֻ�ʸ�������ɤ��Shift-JIS�פ�����</td>
+		<td>セーブ時文字コードを「Shift-JIS」に設定</td>
 		<td>-</td>
 	</tr>
 
@@ -1586,7 +1665,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Euc();</td>
-		<td>�����ֻ�ʸ�������ɤ��EUC�פ�����</td>
+		<td>セーブ時文字コードを「EUC」に設定</td>
 		<td>-</td>
 	</tr>
 
@@ -1596,7 +1675,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Jis();</td>
-		<td>�����ֻ�ʸ�������ɤ��JIS�פ�����</td>
+		<td>セーブ時文字コードを「JIS」に設定</td>
 		<td>-</td>
 	</tr>
 
@@ -1606,7 +1685,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Utf8();</td>
-		<td>�����ֻ�ʸ�������ɤ��UTF-8�פ�����</td>
+		<td>セーブ時文字コードを「UTF-8」に設定</td>
 		<td>-</td>
 	</tr>
 
@@ -1616,7 +1695,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Unicode();</td>
-		<td>�����ֻ�ʸ�������ɤ��UTF-16LE�פ�����</td>
+		<td>セーブ時文字コードを「UTF-16LE」に設定</td>
 		<td>-</td>
 	</tr>
 
@@ -1626,7 +1705,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Utf16be();</td>
-		<td>�����ֻ�ʸ�������ɤ��UTF-16BE�פ�����</td>
+		<td>セーブ時文字コードを「UTF-16BE」に設定</td>
 		<td>-</td>
 	</tr>
 
@@ -1636,7 +1715,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Lfcr();</td>
-		<td>�����ֻ����ԥ����ɤ��CR+LF�פ�����</td>
+		<td>セーブ時改行コードを「CR+LF」に設定</td>
 		<td>-</td>
 	</tr>
 
@@ -1646,7 +1725,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Lf();</td>
-		<td>�����ֻ����ԥ����ɤ��LF�פ�����</td>
+		<td>セーブ時改行コードを「LF」に設定</td>
 		<td>-</td>
 	</tr>
 
@@ -1656,7 +1735,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Cr();</td>
-		<td>�����ֻ����ԥ����ɤ��CR�פ�����</td>
+		<td>セーブ時改行コードを「CR」に設定</td>
 		<td>-</td>
 	</tr>
 
@@ -1665,18 +1744,8 @@
 		<td class="markupE">Applin</td>
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
-		<td>Applin(); (�Ǹ�� n �� 0 �� 2 �ο���)</td>
-		<td>�������ץꥱ������� ( 0 : ���ץ� 0 / 1 : ���ץ� 1 / 2 : ���ץ� 2)</td>
-		<td>-</td>
-	</tr>
-
-	<tr>
-		<td class="markupE">-</td>
-		<td class="markupE">MacroSearch</td>
-		<td class="markupE">-</td>
-		<td class="markupE">-</td>
-		<td>MacroSearch();</td>
-		<td>�ޥ����θ���</td>
+		<td>Applin(); (最後の n は 0 ～ 2 の数字)</td>
+		<td>外部アプリケーション ( 0 : アプリ 0 / 1 : アプリ 1 / 2 : アプリ 2)</td>
 		<td>-</td>
 	</tr>
 
@@ -1686,7 +1755,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>MacroOpenUserFolder();</td>
-		<td>�桼�����ޥ����ե�����򳫤�</td>
+		<td>ユーザーマクロフォルダを開く</td>
 		<td>1.6.0</td>
 	</tr>
 
@@ -1696,7 +1765,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>MacroOpenFolder();</td>
-		<td>�ޥ����ե�����򳫤�</td>
+		<td>マクロフォルダを開く</td>
 		<td>-</td>
 	</tr>
 
@@ -1706,7 +1775,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>MacroExecute();</td>
-		<td>���ꤷ���ޥ�����¹�</td>
+		<td>指定したマクロを実行</td>
 		<td>-</td>
 	</tr>
 
@@ -1716,7 +1785,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>MacroTerminate();</td>
-		<td>�ޥ����μ¹Ԥ�����</td>
+		<td>マクロの実行を中断</td>
 		<td>1.7.0</td>
 	</tr>
 
@@ -1726,7 +1795,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Contents();</td>
-		<td>�إ�פ򳫤�</td>
+		<td>ヘルプを開く</td>
 		<td>-</td>
 	</tr>
 
@@ -1736,7 +1805,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>CheckUpdate();</td>
-		<td>Cassava �ι������ǧ</td>
+		<td>Cassava の更新を確認</td>
 		<td>1.7.0</td>
 	</tr>
 
@@ -1746,7 +1815,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>About();</td>
-		<td>Cassava �ΥС����������ɽ��</td>
+		<td>Cassava のバージョン情報を表示</td>
 		<td>-</td>
 	</tr>
 
@@ -1755,10 +1824,10 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td class="markupE">if</td>
-		<td>if(���){<br />
-&nbsp;&nbsp;�֥��å�;<br />
+		<td>if(条件){<br />
+&nbsp;&nbsp;ブロック;<br />
 }</td>
-		<td>��郎 0 �ʳ��ʤ�¹Ԥ���ޤ���</td>
+		<td>条件が 0 以外なら実行されます。</td>
 		<td>-</td>
 	</tr>
 
@@ -1767,14 +1836,14 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td class="markupE">if</td>
-		<td>if(���1){<br />
-&nbsp;&nbsp;�֥��å�1;<br />
-} else if(���2){<br />
-&nbsp;&nbsp;�֥��å�2;<br />
+		<td>if(条件1){<br />
+&nbsp;&nbsp;ブロック1;<br />
+} else if(条件2){<br />
+&nbsp;&nbsp;ブロック2;<br />
 } else {<br />
-&nbsp;&nbsp;�֥��å�3;<br />
+&nbsp;&nbsp;ブロック3;<br />
 }</td>
-		<td>���1 �� 0 �ʳ��ʤ�֥��å�1 �������2 �� 0 �ʳ��ʤ�֥��å�2 ���������Ǥʤ���Х֥��å�3 ���¹Ԥ���ޤ���</td>
+		<td>条件1 が 0 以外ならブロック1 が、条件2 が 0 以外ならブロック2 が、そうでなければブロック3 が実行されます。</td>
 		<td>-</td>
 	</tr>
 
@@ -1783,10 +1852,10 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td class="markupE">while</td>
-		<td>while(���){<br />
-&nbsp;&nbsp;�֥��å�;<br />
+		<td>while(条件){<br />
+&nbsp;&nbsp;ブロック;<br />
 }</td>
-		<td>��郎0�ʳ��Ǥ���ּ¹Ԥ���ޤ���</td>
+		<td>条件が0以外である間実行されます。</td>
 		<td>-</td>
 	</tr>
 
@@ -1795,10 +1864,10 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td class="markupE">for</td>
-		<td>for(ʸ1; ���; ʸ2){<br />
-&nbsp;&nbsp;�֥��å�;<br />
+		<td>for(文1; 条件; 文2){<br />
+&nbsp;&nbsp;ブロック;<br />
 }</td>
-		<td>�ǽ��ʸ1 ��¹Ԥ�����郎 0 �ʳ��Ǥ���ּ¹Ԥ���ޤ����롼�פκǸ��ʸ2 ���¹Ԥ���ޤ���</td>
+		<td>最初に文1 を実行し、条件が 0 以外である間実行されます。ループの最後で文2 が実行されます。</td>
 		<td>-</td>
 	</tr>
 
@@ -1808,9 +1877,9 @@
 		<td class="markupE">-</td>
 		<td class="markupE">For</td>
 		<td>For(x to max){<br />
-&nbsp;&nbsp;�֥��å�;<br />
+&nbsp;&nbsp;ブロック;<br />
 }</td>
-		<td>for(x=1; x&lt;=max; x++){ �֥��å�; } �ξ�ά���ҤǤ���</td>
+		<td>for(x=1; x&lt;=max; x++){ ブロック; } の省略記述です。</td>
 		<td>-</td>
 	</tr>
 
@@ -1819,11 +1888,11 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td class="markupE">function</td>
-		<td>function �ؿ�̾(����̾1, ����̾2....){<br />
+		<td>function 関数名(引数名1, 引数名2....){<br />
 &nbsp;&nbsp;...<br />
-&nbsp;&nbsp;return �����;<br />
+&nbsp;&nbsp;return 戻り値;<br />
 }</td>
-		<td>function ʸ�ˤ�ꡢ��ʬ�Ǵؿ���������뤳�Ȥ��Ǥ��ޤ���</td>
+		<td>function 文により、自分で関数を定義することができます。</td>
 		<td>1.24c</td>
 	</tr>
 
@@ -1832,8 +1901,8 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td class="markupE">//</td>
-		<td>// ������</td>
-		<td>��//�פ�������ޤǤ������ȤȤʤ�ޤ���</td>
+		<td>// コメント</td>
+		<td>「//」から行末までがコメントとなります。</td>
 		<td>-</td>
 	</tr>
 
@@ -1843,9 +1912,9 @@
 		<td class="markupE">-</td>
 		<td class="markupE">/*</td>
 		<td>/*<br />
-&nbsp;* ������<br />
+&nbsp;* コメント<br />
 &nbsp;*/</td>
-		<td>��/*�פ����*/�פޤǤ������ȤȤʤ�ޤ���</td>
+		<td>「/*」から「*/」までがコメントとなります。</td>
 		<td>-</td>
 	</tr>
 
@@ -1855,7 +1924,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>SetStatusBarCount(x)</td>
-		<td>���ơ������С����ɽ���ΰ�θĿ������ꤷ�ޤ���</td>
+		<td>ステータスバー内の表示領域の個数を設定します。</td>
 		<td>1.6.0</td>
 	</tr>
 
@@ -1865,7 +1934,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>SetStatusBarText(x,str)</td>
-		<td>x ���ܤ��ΰ�� str ��ɽ�����ޤ���</td>
+		<td>x 番目の領域に str を表示します。</td>
 		<td>1.6.0</td>
 	</tr>
 
@@ -1875,7 +1944,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>SetStatusBarWidth(x,w)</td>
-		<td>x ���ܤ��ΰ������ w �����ꤷ�ޤ����ǥե�����ͤ� 50 �Ǥ���</td>
+		<td>x 番目の領域の幅を w に設定します。デフォルト値は 50 です。</td>
 		<td>1.6.0</td>
 	</tr>
 
@@ -1885,7 +1954,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>GetStatusBarCount()</td>
-		<td>���ơ������С����ɽ���ΰ�θĿ���������ޤ���</td>
+		<td>ステータスバー内の表示領域の個数を取得します。</td>
 		<td>1.6.0</td>
 	</tr>
 
@@ -1895,7 +1964,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>GetStatusBarText(x)</td>
-		<td>x ���ܤ��ΰ��ɽ�����줿ʸ�����������ޤ���</td>
+		<td>x 番目の領域に表示された文字列を取得します。</td>
 		<td>1.6.0</td>
 	</tr>
 
@@ -1905,7 +1974,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>GetStatusBarWidth(x)</td>
-		<td>x ���ܤ��ΰ������������ޤ���</td>
+		<td>x 番目の領域の幅を取得します。</td>
 		<td>1.6.0</td>
 	</tr>
 
@@ -1918,37 +1987,38 @@
 
 <h2 class="sectitle">Menu</h2>
 
-<div class="MainMenu"><a href="index.html">Cassava �إ��</a></div>
-<div class="MainMenu"><a href="about.html">Cassava�Ȥ�</a></div>
-<div class="MainMenu"><a href="install.html">���󥹥ȡ���</a></div>
-<div class="MainMenu">��˥塼</div>
+<div class="MainMenu"><a href="index.html">Cassava ヘルプ</a></div>
+<div class="MainMenu"><a href="about.html">Cassavaとは</a></div>
+<div class="MainMenu"><a href="install.html">インストール</a></div>
+<div class="MainMenu">メニュー</div>
   <ul class="MainMenu">
-    <li><a href="filemenu.html" title="[�ե�����]��˥塼">�ե�����</a></li>
-    <li><a href="editmenu.html" title="[�Խ�]��˥塼">�Խ�</a></li>
-    <li><a href="insdelmenu.html" title="[���������]��˥塼">���������</a></li>
-    <li><a href="findmenu.html" title="[����]��˥塼">����</a></li>
-    <li><a href="viewmenu.html" title="[ɽ��]��˥塼">ɽ��</a></li>
-    <li><a href="optionmenu.html" title="[���ץ����]��˥塼">���ץ����</a>
+    <li><a href="filemenu.html" title="[ファイル]メニュー">ファイル</a></li>
+    <li><a href="editmenu.html" title="[編集]メニュー">編集</a></li>
+    <li><a href="insdelmenu.html" title="[挿入・削除]メニュー">挿入・削除</a></li>
+    <li><a href="findmenu.html" title="[検索]メニュー">検索</a></li>
+    <li><a href="viewmenu.html" title="[表示]メニュー">表示</a></li>
+    <li><a href="macromenu.html" title="[マクロ]メニュー">マクロ</a></li>
+    <li><a href="optionmenu.html" title="[オプション]メニュー">オプション</a>
       <ul class="MainMenu">
-        <li><a href="dataoption.html" title="[�ǡ�������]���ץ����">�ǡ�������</a></li>
-        <li><a href="fileoption.html" title="[�ե�����]���ץ����">�ե�����</a></li>
-        <li><a href="behavioroption.html" title="[ư��]���ץ����">ư��</a></li>
-        <li><a href="backupoption.html" title="[�Хå����å�]���ץ����">�Хå����å�</a></li>
-        <li><a href="applioption.html" title="[�������ץ�Ϣ��]���ץ����">�������ץ�Ϣ��</a></li>
-        <li><a href="viewoption.html" title="[ɽ��]���ץ����">ɽ��</a></li>
-        <li><a href="coloroption.html" title="[��]���ץ����">��</a></li>
+        <li><a href="dataoption.html" title="[データ形式]オプション">データ形式</a></li>
+        <li><a href="fileoption.html" title="[ファイル]オプション">ファイル</a></li>
+        <li><a href="behavioroption.html" title="[動作]オプション">動作</a></li>
+        <li><a href="backupoption.html" title="[バックアップ]オプション">バックアップ</a></li>
+        <li><a href="applioption.html" title="[外部アプリ連携]オプション">外部アプリ連携</a></li>
+        <li><a href="viewoption.html" title="[表示]オプション">表示</a></li>
+        <li><a href="coloroption.html" title="[色]オプション">色</a></li>
       </ul>
     </li>
-    <li><a href="helpmenu.html" title="[�إ��]��˥塼">�إ��</a></li>
+    <li><a href="helpmenu.html" title="[ヘルプ]メニュー">ヘルプ</a></li>
   </ul>
-<div class="MainMenu"><a href="key.html">�������</a></div>
-<div class="MainMenuSel"><a href="macro.html">�ޥ���</a></div>
+<div class="MainMenu"><a href="key.html">キー操作</a></div>
+<div class="MainMenuSel"><a href="macro.html">マクロ</a></div>
   <ul class="MainMenu">
-    <li class="Sel">��ե����</li>
+    <li class="Sel">リファレンス</li>
   </ul>
-<div class="MainMenu"><a href="toolbar.html">�ġ���С�</a></div>
-<div class="MainMenu"><a href="letter.html">�Ϥ�������</a></div>
-<div class="MainMenu"><a href="contact.html">�����Ϣ����</a></div>
+<div class="MainMenu"><a href="toolbar.html">ツールバー</a></div>
+<div class="MainMenu"><a href="letter.html">はがき印刷</a></div>
+<div class="MainMenu"><a href="contact.html">著作権・連絡先</a></div>
 
 </div>
 
@@ -1959,7 +2029,7 @@
   2003.11.29.<br />
 </address>
 <address>
-  Copyright (C) 2007-2010 asukaze, Some Rights Reserved.<br />
+  Copyright (C) 2007-2017 asukaze, Some Rights Reserved.<br />
   mail (at) asukaze.net<br />
 </address>
 <!-- ==== -->

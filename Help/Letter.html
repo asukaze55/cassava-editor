@@ -1,11 +1,10 @@
-<?xml version="1.0" encoding="euc-jp" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
- "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="ja" xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja">
+<!DOCTYPE html>
+<html lang="ja">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=euc-jp" />
-  <meta http-equiv="Content-Style-Type" content="text/css" />
-  <title>�Ϥ������� - Cassava Editor �إ��</title>
+  <meta name="viewport" content="width=device-width" />
+  <meta charset="UTF-8" />
+  <meta http-equiv="content-language" content="ja" />
+  <title>はがき印刷 - Cassava Editor ヘルプ</title>
   <link rel="stylesheet" type="text/css" href="cassava.css" />
 </head>
 <body>
@@ -14,94 +13,94 @@
 <div class="headline">
   <a href="http://www.asukaze.net/">
     <img src="asukaze.png" width="88" height="31"
-      alt="[�����������ͤä�]" title="�����������ͤä�"
-      class="headline" />�����������ͤä�</a> ��
-  <a href="http://www.asukaze.net/soft/index.html">����ե�</a> ��
-  <a href="http://www.asukaze.net/soft/cassava/index.html">Cassava</a> ��
-  <a href="index.html">�إ��</a> ��
-  �Ϥ�������
+      alt="[あすかぜ・ねっと]" title="あすかぜ・ねっと"
+      class="headline" />あすかぜ・ねっと</a> ＞
+  <a href="http://www.asukaze.net/soft/index.html">自作ソフト</a> ＞
+  <a href="http://www.asukaze.net/soft/cassava/index.html">Cassava</a> ＞
+  <a href="index.html">ヘルプ</a> ＞
+  はがき印刷
 </div>
 
-<h1>�Ϥ�������</h1>
+<h1>はがき印刷</h1>
 
 <!-- MAIN VIEW -->
 <div class="mainview">
 
 <p>
-�ե������˥塼����֤Ϥ��������פ����֤����Ϥ����ǡ�����Ϥ������Ǥ��Ф��ޤ���
+ファイルメニューから「はがき印刷」を選ぶと入力したデータをはがきに打ち出せます。
 </p>
 
-<h2>��������ʸ���ΰ����ˤĤ���</h2>
+<h2>印刷時の文字の扱いについて</h2>
 
 <ul>
-<li>�������ˡ�-�ס֡��ס֡ݡפϽ����ʡ֡áסˤ��Ѵ�����ޤ���</li>
-<li>�֡��פϾõ��ޤ���</li>
-<li>��_�סʥ�������������ˤ�Ⱦ�ѥ��ڡ������Ѵ�����ޤ���</li>
-<li>�����¤٤ʤ�Ⱦ�ѿ��������ѿ������Ѵ�����ޤ���</li>
-<li>Ⱦ�ѥ��ڡ����ʳ������ֳ֤ǰ�������ޤ���</li>
+<li>印刷時に「-」「ー」「−」は縦棒（「｜」）に変換されます。</li>
+<li>「、」は消去されます。</li>
+<li>「_」（アンダースコア）は半角スペースに変換されます。</li>
+<li>横に並べない半角数字は全角数字に変換されます。</li>
+<li>半角スペース以外は等間隔で印刷されます。</li>
 </ul>
 
-<h2>������ܤ�����</h2>
+<h2>設定項目の説明</h2>
 
-<h3>���п�</h3>
+<h3>差出人</h3>
   <ul>
-  <li>��ʬ��̾���Ƚ�������Ϥ��ޤ���</li>
-  <li>CSV�ե�������Υǡ�����Ȥ����Ȥ�Ǥ��ޤ���
-     ���٤ƤΥե�����˼�ʬ�Υǡ���������ʤ���Фʤ�ޤ��󤬡�
-     �ե����뤴�Ȥ˰㤦���пͤ�񤭤����Ȥ��������Ǥ���</li>
+  <li>自分の名前と住所を入力します。</li>
+  <li>CSVファイル中のデータを使うこともできます。
+     すべてのファイルに自分のデータを入れなければなりませんが、
+     ファイルごとに違う差出人を書きたいときに便利です。</li>
   </ul>
-<h3>����ǡ�����</h3>
+<h3>宛先データ列</h3>
   <ul>
-  <li>���Ѥ���ǡ�������ꤷ�ޤ����㤨�а����͹���ֹ椬3���ܤˤ���ʤ��͹���ֹ�����3�ˤ��ޤ���</li>
-  <li>�ɾΤ����ꤷ��ʸ������̾�θ�ˤĤ����ޤ���</li>
-  <li>Ϣ̾��2�ͤ�̾����񤯾�硢̾����2���ܤ����2���ܤ�̾���Τ��������ꤷ�Ƥ���������
-      Ϣ̾�Υǡ����ϡ��ǽ�Υ��ڡ����θ�ˤ������ư�������ޤ���
-      Ϣ̾�ˤ��ʤ�����0�ΤޤޤǤ��ޤ��ޤ���</li>
-  <li>������ϰ�������ޤ��󤬡����������Ƥˤ�äư�������ǡ��������̤Ǥ��ޤ���</li>
+  <li>使用するデータを指定します。例えば宛先の郵便番号が3列目にあるなら「郵便番号」欄を3にします。</li>
+  <li>敬称で設定した文字が宛名の後につけられます。</li>
+  <li>連名で2人の名前を書く場合、名前の2つ目の欄に2人目の名前のある列を指定してください。
+      連名のデータは、最初のスペースの後にそろえて印刷されます。
+      連名にしない場合は0のままでかまいません。</li>
+  <li>備考欄は印刷されませんが、ここの内容によって印刷するデータを選別できます。</li>
   </ul>
-<h3>Ⱦ�ѿ���</h3>
+<h3>半角数字</h3>
   <ul>
-  <li>Ⱦ�ѿ����򲣤��¤٤ư����Ǥ��ޤ������Ѥο����ϱƶ�����ޤ���
-      ���ꤷ��ʸ�����ʾ������³�����⡢���Ѥ�Ʊ�������ǽĤ��¤Ӥޤ���</li>
+  <li>半角数字を横に並べて印刷できます。全角の数字は影響ありません。
+      指定した文字数以上数字が続く場合も、全角と同じ扱いで縦に並びます。</li>
   </ul>
-<h3>�ե����</h3>
+<h3>フォント</h3>
   <ul>
-  <li>���ꡢ̾���ν��Τ���ꤷ�ޤ���͹���ֹ�ν��Τ��ѹ��Ǥ��ޤ���</li>
+  <li>住所、名前の書体を指定します。郵便番号の書体は変更できません。</li>
   </ul>
-<h3>�ġ���������Ĵ��</h3>
+<h3>縦・横方向微調整</h3>
   <ul>
-  <li>�ץ�󥿡��ˤ�äư������֤ˤ��줬������Τǡ�
-      �ƥ��ȥץ��Ȥ򤷤ơ����֤���Ĵ�����Ƥ���������
-      �������˰������֤��ư������Ȥ������ο��ˤʤ�ޤ���</li>
-  <li>���̤���ΰ��֤����ꤷ������硢����ե������ľ���ѹ����Ƥ���������
-      ��Auto.dat�פ�[�������֡�����]��[�������֡����п�]����ʬ�Ǥ���
-      ����Ū�ˤɤ���ľ���Ф������Ϥ����������䤤��碌�Ƥ���������
-      ���Ԥ������ϡ�Auto.dat�פ�������Хǥե���Ȥ����ޤ���</li>
+  <li>プリンターによって印刷位置にずれが生じるので、
+      テストプリントをして、位置を微調整してください。
+      右・下に印刷位置を移動させるときが正の数になります。</li>
+  <li>個別の欄の位置を設定したい場合、設定ファイルを直接変更してください。
+      「Auto.dat」の[印刷位置：宛先]と[印刷位置：差出人]の部分です。
+      具体的にどこを直せばいいかはあすかぜに問い合わせてください。
+      失敗した場合は「Auto.dat」を削除すればデフォルトに戻ります。</li>
   </ul>
-<h3>���������</h3>
+<h3>印刷する行</h3>
   <ul>
-  <li>��������Ԥ���ꤷ�ޤ����ǥե���ȤǸ��ߤ������ϰϤˤʤ�ޤ���</li>
+  <li>印刷する行を指定します。デフォルトで現在の選択範囲になります。</li>
   </ul>
-<h3>�ץ�ӥ塼</h3>
+<h3>プレビュー</h3>
   <ul>
-  <li>������ѹ������麸�Υץ�ӥ塼���̤򥯥�å�����ɽ���򹹿����Ƥ���������
-      �ץ�ӥ塼���̤ˤϺǽ�˰��������ǡ�����ɽ������ޤ���</li>
+  <li>設定を変更したら左のプレビュー画面をクリックして表示を更新してください。
+      プレビュー画面には最初に印刷されるデータが表示されます。</li>
   </ul>
-<h3>�ܥ���</h3>
+<h3>ボタン</h3>
   <dl>
-  <dt>����</dt>
-  <dd>���ꤷ���ϰϤ򤹤٤ư������ޤ���</dd>
-  <dt>�ץ��ѥƥ�</dt>
-  <dd>�ץ�󥿤Υץ��ѥƥ������ꤷ�ޤ���</dd>
-  <dt>������¸</dt>
-  <dd>���ߤ��������¸���ޤ�������ϥ������������Ĥ������ˤ��Auto.dat�פ˼�ư��¸����ޤ���</dd>
-  <dt>�����ɹ�</dt>
-  <dd>��¸�����ǡ������ɤ߹��ߤޤ���</dd>
-  <dt>�إ��</dt>
-  <dd>���Υڡ�����ɽ�����ޤ���</dd>
-  <dt>�Ĥ���</dt>
-  <dd>�����������������Ĥ��ޤ���
-      ��������λ���Ƥ��ʤ��Ƥ⡢�������������Ĥ��Ƥ�����˺����٤�����ޤ���</dd>
+  <dt>印刷</dt>
+  <dd>指定した範囲をすべて印刷します。</dd>
+  <dt>プロパティ</dt>
+  <dd>プリンタのプロパティを設定します。</dd>
+  <dt>設定保存</dt>
+  <dd>現在の設定を保存します。設定はダイアログを閉じた時にも「Auto.dat」に自動保存されます。</dd>
+  <dt>設定読込</dt>
+  <dd>保存したデータを読み込みます。</dd>
+  <dt>ヘルプ</dt>
+  <dd>このページを表示します。</dd>
+  <dt>閉じる</dt>
+  <dd>印刷ダイアログを閉じます。
+      印刷が終了していなくても、ダイアログを閉じても印刷に差し支えありません。</dd>
   </dl>
 
 </div>
@@ -111,37 +110,38 @@
 
 <h2 class="sectitle">Menu</h2>
 
-<div class="MainMenu"><a href="index.html">Cassava �إ��</a></div>
-<div class="MainMenu"><a href="about.html">Cassava�Ȥ�</a></div>
-<div class="MainMenu"><a href="install.html">���󥹥ȡ���</a></div>
-<div class="MainMenu">��˥塼</div>
+<div class="MainMenu"><a href="index.html">Cassava ヘルプ</a></div>
+<div class="MainMenu"><a href="about.html">Cassavaとは</a></div>
+<div class="MainMenu"><a href="install.html">インストール</a></div>
+<div class="MainMenu">メニュー</div>
   <ul class="MainMenu">
-    <li><a href="filemenu.html" title="[�ե�����]��˥塼">�ե�����</a></li>
-    <li><a href="editmenu.html" title="[�Խ�]��˥塼">�Խ�</a></li>
-    <li><a href="insdelmenu.html" title="[���������]��˥塼">���������</a></li>
-    <li><a href="findmenu.html" title="[����]��˥塼">����</a></li>
-    <li><a href="viewmenu.html" title="[ɽ��]��˥塼">ɽ��</a></li>
-    <li><a href="optionmenu.html" title="[���ץ����]��˥塼">���ץ����</a>
+    <li><a href="filemenu.html" title="[ファイル]メニュー">ファイル</a></li>
+    <li><a href="editmenu.html" title="[編集]メニュー">編集</a></li>
+    <li><a href="insdelmenu.html" title="[挿入・削除]メニュー">挿入・削除</a></li>
+    <li><a href="findmenu.html" title="[検索]メニュー">検索</a></li>
+    <li><a href="viewmenu.html" title="[表示]メニュー">表示</a></li>
+    <li><a href="macromenu.html" title="[マクロ]メニュー">マクロ</a></li>
+    <li><a href="optionmenu.html" title="[オプション]メニュー">オプション</a>
       <ul class="MainMenu">
-        <li><a href="dataoption.html" title="[�ǡ�������]���ץ����">�ǡ�������</a></li>
-        <li><a href="fileoption.html" title="[�ե�����]���ץ����">�ե�����</a></li>
-        <li><a href="behavioroption.html" title="[ư��]���ץ����">ư��</a></li>
-        <li><a href="backupoption.html" title="[�Хå����å�]���ץ����">�Хå����å�</a></li>
-        <li><a href="applioption.html" title="[�������ץ�Ϣ��]���ץ����">�������ץ�Ϣ��</a></li>
-        <li><a href="viewoption.html" title="[ɽ��]���ץ����">ɽ��</a></li>
-        <li><a href="coloroption.html" title="[��]���ץ����">��</a></li>
+        <li><a href="dataoption.html" title="[データ形式]オプション">データ形式</a></li>
+        <li><a href="fileoption.html" title="[ファイル]オプション">ファイル</a></li>
+        <li><a href="behavioroption.html" title="[動作]オプション">動作</a></li>
+        <li><a href="backupoption.html" title="[バックアップ]オプション">バックアップ</a></li>
+        <li><a href="applioption.html" title="[外部アプリ連携]オプション">外部アプリ連携</a></li>
+        <li><a href="viewoption.html" title="[表示]オプション">表示</a></li>
+        <li><a href="coloroption.html" title="[色]オプション">色</a></li>
       </ul>
     </li>
-    <li><a href="helpmenu.html" title="[�إ��]��˥塼">�إ��</a></li>
+    <li><a href="helpmenu.html" title="[ヘルプ]メニュー">ヘルプ</a></li>
   </ul>
-<div class="MainMenu"><a href="key.html">�������</a></div>
-<div class="MainMenu"><a href="macro.html">�ޥ���</a></div>
+<div class="MainMenu"><a href="key.html">キー操作</a></div>
+<div class="MainMenu"><a href="macro.html">マクロ</a></div>
   <ul class="MainMenu">
-    <li><a href="macroref.html">��ե����</a></li>
+    <li><a href="macroref.html">リファレンス</a></li>
   </ul>
-<div class="MainMenu"><a href="toolbar.html">�ġ���С�</a></div>
-<div class="MainMenuSel">�Ϥ�������</div>
-<div class="MainMenu"><a href="contact.html">�����Ϣ����</a></div>
+<div class="MainMenu"><a href="toolbar.html">ツールバー</a></div>
+<div class="MainMenuSel">はがき印刷</div>
+<div class="MainMenu"><a href="contact.html">著作権・連絡先</a></div>
 
 </div>
 

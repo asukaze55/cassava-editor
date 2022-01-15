@@ -1,10 +1,8 @@
 //---------------------------------------------------------------------------
-#ifndef CsvGridH
-#define CsvGridH
+#ifndef MainGridH
+#define MainGridH
 //---------------------------------------------------------------------------
-#include <vcl\SysUtils.hpp>
 #include <vcl\Controls.hpp>
-#include <vcl\Classes.hpp>
 #include <vcl\Forms.hpp>
 #include <vcl\Grids.hpp>
 #include "EncodedWriter.h"
@@ -13,7 +11,7 @@
 typedef void __fastcall (__closure *TDropCsvFiles)
     (System::TObject *Sender, int iFiles, System::String *DropFileNames);
 //---------------------------------------------------------------------------
-class TCsvGrid : public TStringGrid
+class TMainGrid : public TStringGrid
 {
 private:
     int drgRow , drgCol;
@@ -115,6 +113,7 @@ protected:
         Classes::TShiftState Shift, int X, int Y);
     DYNAMIC void __fastcall DblClick(void);
     DYNAMIC void __fastcall KeyDown(Word &Key, Classes::TShiftState Shift);
+    DYNAMIC void __fastcall KeyUp(Word &Key, Classes::TShiftState Shift);
     TInplaceEdit* __fastcall CreateEditor();
     DYNAMIC void __fastcall SetEditText(int ACol, int ARow, String Value);
     DYNAMIC void __fastcall RowMoved(int FromIndex, int ToIndex);
@@ -167,11 +166,10 @@ public:
     __property String ACells[int ACol][int ARow]
       = {read=GetACells, write=SetACells};
 
-    __fastcall TCsvGrid(TComponent* Owner);
-    __fastcall ~TCsvGrid();
+    __fastcall TMainGrid(TComponent* Owner);
+    __fastcall ~TMainGrid();
 
     void Clear(int AColCount=4, int ARowCount=4, bool UpdateRightBottom=false);
-    void ReNum();
     void SetWidth(int i);
     void SetWidth();
     void SetHeight(int i);
@@ -229,6 +227,7 @@ public:
     int DecimalDigits;
     int MinColWidth;
     bool CalcWidthForAllRow;
+    bool ShowToolTipForLongCell;
 
     __property bool ExecCellMacro
         = {read=FExecCellMacro, write=SetExecCellMacro};

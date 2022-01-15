@@ -1,11 +1,10 @@
-<?xml version="1.0" encoding="euc-jp" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
- "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="ja" xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja">
+<!DOCTYPE html>
+<html lang="ja">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=euc-jp" />
-  <meta http-equiv="Content-Style-Type" content="text/css" />
-  <title>ư��ץ���� - Cassava Editor �إ��</title>
+  <meta name="viewport" content="width=device-width" />
+  <meta charset="UTF-8" />
+  <meta http-equiv="content-language" content="ja" />
+  <title>動作オプション - Cassava Editor ヘルプ</title>
   <link rel="stylesheet" type="text/css" href="cassava.css" />
 </head>
 <body>
@@ -14,94 +13,94 @@
 <div class="headline">
   <a href="http://www.asukaze.net/">
     <img src="asukaze.png" width="88" height="31"
-      alt="[�����������ͤä�]" title="�����������ͤä�"
-      class="headline" />�����������ͤä�</a> ��
-  <a href="http://www.asukaze.net/soft/index.html">����ե�</a> ��
-  <a href="http://www.asukaze.net/soft/cassava/index.html">Cassava</a> ��
-  <a href="index.html">�إ��</a> ��
-  ư��ץ����
+      alt="[あすかぜ・ねっと]" title="あすかぜ・ねっと"
+      class="headline" />あすかぜ・ねっと</a> ＞
+  <a href="http://www.asukaze.net/soft/index.html">自作ソフト</a> ＞
+  <a href="http://www.asukaze.net/soft/cassava/index.html">Cassava</a> ＞
+  <a href="index.html">ヘルプ</a> ＞
+  動作オプション
 </div>
 
-<h1>ư��ץ����</h1>
+<h1>動作オプション</h1>
 
 <!-- MAIN VIEW -->
 <div class="mainview">
 
 <p>
-ư��ץ����Ǥϡ��Խ�����Cassava�ε�ư���ѹ��Ǥ��ޤ���
+動作オプションでは、編集時のCassavaの挙動を変更できます。
 </p>
 
-<h2>�ƥ��ץ���������</h2>
+<h2>各オプションの説明</h2>
 
-<h3>���ꥻ��ɥ�å�����ư��</h3>
+<h3>固定セルドラッグ時の動作</h3>
   <ul>
-  <li>ɽ�ΰ��־塦���ֺ��ˤ�����ꥻ���ɥ�å������Ȥ���ư����ѹ����ޤ���</li>
+  <li>表の一番上・一番左にある固定セルをドラッグしたときの動作を変更します。</li>
   </ul>
   <dl>
-  <dt>�Ԏ���ΰ�ư</dt>
-  <dd>���ꥻ���Ĥ���ǡ��ԡ���������ؤ��뤳�Ȥ��Ǥ��ޤ���</dd>
-  <dt>ʣ���ԡ�������</dt>
-  <dd>���ꥻ��Υɥ�å��ǡ�ʣ���ԡ����ޤȤ������Ǥ��ޤ���</dd>
+  <dt>行・列の移動</dt>
+  <dd>固定セルをつかんで、行・列を入れ替えることができます。</dd>
+  <dt>複数行・列選択</dt>
+  <dd>固定セルのドラッグで、複数行・列をまとめて選択できます。</dd>
   </dl>
-<h3>Enter�����ǤΥ����ư</h3>
+<h3>Enterキーでのセル移動</h3>
   <ul>
-  <li>Enter�����򲡤����Ȥ��ˡ����⤷���ϱ��Υ���˰�ư���뤳�Ȥ��Ǥ��ޤ���</li>
+  <li>Enterキーを押したときに、下もしくは右のセルに移動することができます。</li>
   </ul>
   <dl>
-  <dt>��ư���ʤ�</dt>
-  <dd>������ư������������Υƥ����Ȥ��������������ޤ���</dd>
-  <dt>���ذ�ư</dt>
-  <dd>����Ѥ����˼��ιԤ˿ʤߤޤ���</dd>
-  <dt>���ذ�ư</dt>
-  <dd>�Ԥ��Ѥ����˼�����˿ʤߤޤ���</dd>
-  <dt>���ιԤذ�ư</dt>
-  <dd>���ιԤΰ��ֺ��˰�ư���ޤ���</dd>
-  <dt>���֥�����Ϣư</dt>
-  <dd>���ιԤ˿ʤߡ����ߤιԤǺǽ�˥��֥����򲡤�����˰�ư���ޤ���</dd>
+  <dt>移動しない</dt>
+  <dd>セルを移動せず、セル内のテキストを選択／選択解除します。</dd>
+  <dt>下へ移動</dt>
+  <dd>列を変えずに次の行に進みます。</dd>
+  <dt>右へ移動</dt>
+  <dd>行を変えずに次の列に進みます。</dd>
+  <dt>次の行へ移動</dt>
+  <dd>次の行の一番左に移動します。</dd>
+  <dt>タブキーと連動</dt>
+  <dd>次の行に進み、現在の行で最初にタブキーを押した列に移動します。</dd>
   </dl>
-<h3>���������륭���ǥ�������ư����</h3>
+<h3>左カーソルキーでセル内を移動する</h3>
   <ul>
-  <li>�Խ��⡼�ɤǺ��������륭���򲡤�����硢������Υ���������֤��ư���ޤ���
-      �����å���Ϥ�������硢1�ĤΥ������Τ����򤷤ƺ��������륭���򲡤���
-      ���Υ���˰�ư���ޤ��ʥ�������ư����ˤ�Enter������F2�����򲡤��Ƥ��������ˡ�</li>
+  <li>編集モードで左カーソルキーを押した場合、セル内のカーソル位置を移動します。
+      チェックをはずした場合、1つのセル全体を選択して左カーソルキーを押すと
+      左のセルに移動します（セル内を移動するにはEnterキーかF2キーを押してください）。</li>
   </ul>
-<h3>ñ�쥻��������Ϥ������Խ��⡼�ɤ�����</h3>
+<h3>単一セル選択時はすぐに編集モードに入る</h3>
   <ul>
-  <li>����å��䥫�������ư��ñ�쥻��Τߤ����򤷤���硢�ΰ�����⡼�ɤǤϤʤ��Խ��⡼�ɤ�����ޤ���
-      �����å���Ϥ�������硢Enter������F2���������֥륯��å����Խ��򳫻Ϥ���ޤǤ�
-      �ΰ�����⡼�ɤȤʤꡢ�Խ���ESC�������ΰ�����⡼�ɤ����ޤ���</li>
+  <li>クリックやカーソル移動で単一セルのみを選択した場合、領域選択モードではなく編集モードに入ります。
+      チェックをはずした場合、EnterキーかF2キーかダブルクリックで編集を開始するまでは
+      領域選択モードとなり、編集後ESCキーで領域選択モードに戻ります。</li>
   </ul>
-<h3>ñ��������������Τ򥽡���</h3>
+<h3>単一列選択時は全体をソート</h3>
   <ul>
-  <li>�����ϰϤ�ñ����Τߤξ�硢ɽ���Τ򥽡��Ȥ��оݤȤ��ޤ���
-      �����å���Ϥ���������ʣ�����������ϡ������ϰϤΤߤ������Ȥ��оݤȤʤ�ޤ���</li>
+  <li>選択範囲が単一列のみの場合、表全体をソートの対象とします。
+      チェックをはずした場合や複数列の選択時は、選択範囲のみがソートの対象となります。</li>
   </ul>
-<h3>����Ĵ���ϲ��̳��ιԤ��оݤȤ���</h3>
+<h3>列幅調整は画面外の行も対象とする</h3>
   <ul>
-  <li>��ɽ���ι����פ�����Ƥ����������ɽ���פǤ�����Ĵ�����ˡ�
-      ���ƤιԤΥƥ����Ȥ�Ĺ����ȿ�Ǥ�����������ꤷ�ޤ���
-      �����å���Ϥ�������硢���λ����ǲ��̤�ɽ������Ƥ����ϰϤΤߤ�ȿ�Ǥ���ޤ���</li>
+  <li>「表示の更新」や「全ての列を画面内に表示」での列幅調整時に、
+      全ての行のテキストの長さを反映して列幅を決定します。
+      チェックをはずした場合、その時点で画面に表示されている範囲のみが反映されます。</li>
   </ul>
-<h3>�ޥ����ۥ��������ư��</h3>
+<h3>マウスホイール時の動作</h3>
   <ul>
-  <li>�ޥ����ۥ�����ǥ���������ư���뤫���������뤹�뤫����ꤷ�ޤ���</li>
+  <li>マウスホイールでカーソルを移動するかスクロールするかを指定します。</li>
   </ul>
   <dl>
-  <dt>���̤Τߥ���������</dt>
-  <dd>����Ū�ʥ���������֤�ư�������˥��������뤷�ޤ���</dd>
-  <dt>����������ư</dt>
-  <dd>����������ư�����������뤬���̳��˰�ư����Ȥ��Τߥ��������뤷�ޤ���</dd>
-  <dt>��������ɽ�����֤����</dt>
-  <dd>���̾�Υ���������֤�ư�������˥��������뤷�ޤ���</dd>
+  <dt>画面のみスクロール</dt>
+  <dd>論理的なカーソル位置を動かさずにスクロールします。</dd>
+  <dt>カーソルを移動</dt>
+  <dd>カーソルを移動し、カーソルが画面外に移動するときのみスクロールします。</dd>
+  <dt>カーソル表示位置を固定</dt>
+  <dd>画面上のカーソル位置を動かさずにスクロールします。</dd>
   </dl>
-<h3>�ޥ����ۥ�����ΰ�ư�Կ�</h3>
+<h3>マウスホイールの移動行数</h3>
   <ul>
-  <li>1 ��Υޥ����ۥ������ư����Կ������ꤷ�ޤ���</li>
+  <li>1 回のマウスホイール移動する行数を設定します。</li>
   </ul>
-<h3>�������Υ롼�פǥޥ���������λ����</h3>
+<h3>指定回数のループでマクロを強制終了する</h3>
   <ul>
-  <li>�������Υ롼�פ򸡽Ф���ȥޥ���������λ����褦�ˤ��ޤ���
-      whileʸ��forʸ�ϥ�����Ȥ���ޤ������ؿ��κƵ��ƤӽФ��ϥ�����Ȥ���ޤ���</li>
+  <li>一定回数のループを検出するとマクロを強制終了するようにします。
+      while文・for文はカウントされますが、関数の再帰呼び出しはカウントされません。</li>
   </ul>
 </div>
 
@@ -110,37 +109,38 @@
 
 <h2 class="sectitle">Menu</h2>
 
-<div class="MainMenu"><a href="index.html">Cassava �إ��</a></div>
-<div class="MainMenu"><a href="about.html">Cassava�Ȥ�</a></div>
-<div class="MainMenu"><a href="install.html">���󥹥ȡ���</a></div>
-<div class="MainMenuSel">��˥塼</div>
+<div class="MainMenu"><a href="index.html">Cassava ヘルプ</a></div>
+<div class="MainMenu"><a href="about.html">Cassavaとは</a></div>
+<div class="MainMenu"><a href="install.html">インストール</a></div>
+<div class="MainMenuSel">メニュー</div>
   <ul class="MainMenu">
-    <li><a href="filemenu.html" title="[�ե�����]��˥塼">�ե�����</a></li>
-    <li><a href="editmenu.html" title="[�Խ�]��˥塼">�Խ�</a></li>
-    <li><a href="insdelmenu.html" title="[���������]��˥塼">���������</a></li>
-    <li><a href="findmenu.html" title="[����]��˥塼">����</a></li>
-    <li><a href="viewmenu.html" title="[ɽ��]��˥塼">ɽ��</a></li>
-    <li><a href="optionmenu.html" title="[���ץ����]��˥塼">���ץ����</a>
+    <li><a href="filemenu.html" title="[ファイル]メニュー">ファイル</a></li>
+    <li><a href="editmenu.html" title="[編集]メニュー">編集</a></li>
+    <li><a href="insdelmenu.html" title="[挿入・削除]メニュー">挿入・削除</a></li>
+    <li><a href="findmenu.html" title="[検索]メニュー">検索</a></li>
+    <li><a href="viewmenu.html" title="[表示]メニュー">表示</a></li>
+    <li><a href="macromenu.html" title="[マクロ]メニュー">マクロ</a></li>
+    <li><a href="optionmenu.html" title="[オプション]メニュー">オプション</a>
       <ul class="MainMenu">
-        <li><a href="dataoption.html" title="[�ǡ�������]���ץ����">�ǡ�������</a></li>
-        <li><a href="fileoption.html" title="[�ե�����]���ץ����">�ե�����</a></li>
-        <li class="Sel">ư��</li>
-        <li><a href="backupoption.html" title="[�Хå����å�]���ץ����">�Хå����å�</a></li>
-        <li><a href="applioption.html" title="[�������ץ�Ϣ��]���ץ����">�������ץ�Ϣ��</a></li>
-        <li><a href="viewoption.html" title="[ɽ��]���ץ����">ɽ��</a></li>
-        <li><a href="coloroption.html" title="[��]���ץ����">��</a></li>
+        <li><a href="dataoption.html" title="[データ形式]オプション">データ形式</a></li>
+        <li><a href="fileoption.html" title="[ファイル]オプション">ファイル</a></li>
+        <li class="Sel">動作</li>
+        <li><a href="backupoption.html" title="[バックアップ]オプション">バックアップ</a></li>
+        <li><a href="applioption.html" title="[外部アプリ連携]オプション">外部アプリ連携</a></li>
+        <li><a href="viewoption.html" title="[表示]オプション">表示</a></li>
+        <li><a href="coloroption.html" title="[色]オプション">色</a></li>
       </ul>
     </li>
-    <li><a href="helpmenu.html" title="[�إ��]��˥塼">�إ��</a></li>
+    <li><a href="helpmenu.html" title="[ヘルプ]メニュー">ヘルプ</a></li>
   </ul>
-<div class="MainMenu"><a href="key.html">�������</a></div>
-<div class="MainMenu"><a href="macro.html">�ޥ���</a></div>
+<div class="MainMenu"><a href="key.html">キー操作</a></div>
+<div class="MainMenu"><a href="macro.html">マクロ</a></div>
   <ul class="MainMenu">
-    <li><a href="macroref.html">��ե����</a></li>
+    <li><a href="macroref.html">リファレンス</a></li>
   </ul>
-<div class="MainMenu"><a href="toolbar.html">�ġ���С�</a></div>
-<div class="MainMenu"><a href="letter.html">�Ϥ�������</a></div>
-<div class="MainMenu"><a href="contact.html">�����Ϣ����</a></div>
+<div class="MainMenu"><a href="toolbar.html">ツールバー</a></div>
+<div class="MainMenu"><a href="letter.html">はがき印刷</a></div>
+<div class="MainMenu"><a href="contact.html">著作権・連絡先</a></div>
 
 </div>
 

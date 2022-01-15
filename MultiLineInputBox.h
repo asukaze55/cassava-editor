@@ -8,10 +8,7 @@
 #include <vcl\Controls.hpp>
 #include <vcl\Forms.hpp>
 #include <vcl\Graphics.hpp>
-#include <vcl\Classes.hpp>
-#include <vcl\SysUtils.hpp>
-#include <vcl\Windows.hpp>
-#include <vcl\System.hpp>
+#include <System.Classes.hpp>
 //----------------------------------------------------------------------------
 class TfmMultiLineInputBox : public TForm
 {

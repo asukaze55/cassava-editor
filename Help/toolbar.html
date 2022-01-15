@@ -1,11 +1,10 @@
-<?xml version="1.0" encoding="euc-jp" ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
- "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="ja" xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja">
+<!DOCTYPE html>
+<html lang="ja">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=euc-jp" />
-  <meta http-equiv="Content-Style-Type" content="text/css" />
-  <title>�ġ���С��������ޥ��� - Cassava Editor �إ��</title>
+  <meta name="viewport" content="width=device-width" />
+  <meta charset="UTF-8" />
+  <meta http-equiv="content-language" content="ja" />
+  <title>ツールバーカスタマイズ - Cassava Editor ヘルプ</title>
   <link rel="stylesheet" type="text/css" href="cassava.css" />
 </head>
 <body>
@@ -14,152 +13,152 @@
 <div class="headline">
   <a href="http://www.asukaze.net/">
     <img src="asukaze.png" width="88" height="31"
-      alt="[�����������ͤä�]" title="�����������ͤä�"
-      class="headline" />�����������ͤä�</a> ��
-  <a href="http://www.asukaze.net/soft/index.html">����ե�</a> ��
-  <a href="http://www.asukaze.net/soft/cassava/index.html">Cassava</a> ��
-  <a href="index.html">�إ��</a> ��
-  �ġ���С��������ޥ���
+      alt="[あすかぜ・ねっと]" title="あすかぜ・ねっと"
+      class="headline" />あすかぜ・ねっと</a> ＞
+  <a href="http://www.asukaze.net/soft/index.html">自作ソフト</a> ＞
+  <a href="http://www.asukaze.net/soft/cassava/index.html">Cassava</a> ＞
+  <a href="index.html">ヘルプ</a> ＞
+  ツールバーカスタマイズ
 </div>
 
-<h1>�ġ���С��������ޥ���</h1>
+<h1>ツールバーカスタマイズ</h1>
 
 <!-- MAIN VIEW -->
 <div class="mainview">
 
 <p>
-����ե�������Ѱդ��뤳�Ȥǥġ���С��򥫥����ޥ����Ǥ��ޤ���
-���ΤȤ��� GUI �ǤΥ������ޥ������ʤ��Ѱդ��Ƥ��ޤ���
+設定ファイルを用意することでツールバーをカスタマイズできます。
+今のところ GUI でのカスタマイズ手段は用意していません。
 </p>
 <p>
-����ե�����ϡ����Υڡ�������������񼰤˽��äƺ�������
-��ToolBar.csv�פȤ���̾���� Cassava.ini ��Ʊ���ե�������֤��Ƥ���������
-Cassava.ini �ϥ桼���ե������� AppData\Roaming\Asukaze\Cassava��
-�⤷���� Cassava.exe ��Ʊ�����ˤ���ޤ���
+設定ファイルは、このページで説明する書式に従って作成し、
+「ToolBar.csv」という名前で Cassava.ini と同じフォルダに置いてください。
+Cassava.ini はユーザフォルダ内の AppData\Roaming\Asukaze\Cassava、
+もしくは Cassava.exe と同じ場所にあります。
 </p>
 
-<h2>ToolBar.csv �Υե����ޥå�</h2>
+<h2>ToolBar.csv のフォーマット</h2>
 
-ToolBar.csv ����� 3 �� CSV �ե�����Ǥ���
-<a href="#FILETYPE_DECL">�ե�����������</a>��
-<a href="#TOOLBAR_DEF">�ġ���С����</a>��
-<a href="#BUTTON_DEF">�ܥ������</a> ���鹽������ޤ���
+ToolBar.csv は列数 3 の CSV ファイルです。
+<a href="#FILETYPE_DECL">ファイル形式宣言</a>、
+<a href="#TOOLBAR_DEF">ツールバー定義</a>、
+<a href="#BUTTON_DEF">ボタン定義</a> から構成されます。
 
-<h3 id="FILETYPE_DECL">�ե�����������</h3>
+<h3 id="FILETYPE_DECL">ファイル形式宣言</h3>
 
 <p>
-�ե����뤬 Cassava Editor �Υġ���С�����Ǥ��뤳�Ȥ�������ޤ���
-1 ���ܤ� 1 ���ܡʥե��������Ƭ�ˤˡ�(Cassava-ToolBarSetting)�פȵ��Ҥ��Ƥ���������
-������������פ��ʤ���硢�ե������̵�뤵��ޤ���
-2 ���ܤ� 3 ���ܤϲ��⵭�Ҥ��ޤ���
+ファイルが Cassava Editor のツールバー設定であることを宣言します。
+1 行目の 1 列目（ファイルの先頭）に「(Cassava-ToolBarSetting)」と記述してください。
+この宣言が一致しない場合、ファイルは無視されます。
+2 列目と 3 列目は何も記述しません。
 </p>
 <table border="1">
-<caption>�ե�����������</caption>
-<tr><th>1 ����</th><th>2 ����</th><th>3 ����</th><th>����</th></tr>
+<caption>ファイル形式宣言</caption>
+<tr><th>1 列目</th><th>2 列目</th><th>3 列目</th><th>説明</th></tr>
 <tr><td>(Cassava-ToolBarSetting)</td><td></td><td></td>
-    <td>1 ���ܤ�ɬ�����Ҥ��ޤ�</td></tr>
+    <td>1 行目に必ず記述します</td></tr>
 </table>
 
-<h3 id="TOOLBAR_DEF">�ġ���С����</h3>
+<h3 id="TOOLBAR_DEF">ツールバー定義</h3>
 
 <p>
-�ġ���С��ʥܥ�����֤����ѥͥ�ˤ�������ޤ���
-�¹���ϥġ���С���ñ�̤Ǿ���ư�������Ȥ��Ǥ��ޤ���
-�ġ���С�����ϡ�1 ���ܤˡ�#�פ���Ϥޤ�ġ���С�̾��񤭤ޤ���
-2���ܤˡ��ġ���С���ɽ������ӥåȥޥåײ�������ꤷ�ޤ���
-3 ���ܤϲ��⵭�Ҥ��ޤ���
+ツールバー（ボタンの置かれるパネル）を定義します。
+実行中はツールバーの単位で場所を動かすことができます。
+ツールバー定義は、1 列目に「#」から始まるツールバー名を書きます。
+2列目に、ツールバーに表示するビットマップ画像を指定します。
+3 列目は何も記述しません。
 </p>
 <p>
-�����ե�����ϡ���16�ԥ�����ǡ�ɬ�פʿ����� 16x16 �Υ������β����򲣤��¤٤Ƥ���������
-����(C0C0C0�ˤ�Ʃ�����Ȥʤ�ޤ���
+画像ファイルは、縦16ピクセルで、必要な数だけ 16x16 のサイズの画像を横に並べてください。
+灰色(C0C0C0）が透明色となります。
 </p>
 <p>
-ɸ��Υġ���С���Ȥ���硢�ġ���С�̾���#1�פޤ��ϡ�#2�פȤ��ޤ���
-�ġ���С�̾���#1�פȤ���ȡ��ֿ��������פ���֤��ľ���פޤǤ� 8 �ĤΥܥ��󤬰���Ū�˺���ޤ���
-�ġ���С�̾���#1�פȤ���ȡ��֥����ȡפ����1 ���ܤ����פޤǤ� 13 �ĤΥܥ��󤬰���Ū�˺���ޤ���
-ɸ��Υġ���С��Ǥϲ����ե�����̾�Ͼ�ά��ǽ�Ǥ�����¾�β����ե��������ꤷ�Ƥ⤫�ޤ��ޤ���
-ɸ��Υġ���С��˥ܥ�����ɲä��뤳�Ȥ�Ǥ��ޤ���
-��������ɸ��Υġ���С���ʣ������ʡ�#1�פ� 2 ��ʾ�񤯡ˤ��ȤϤǤ��ޤ���
+標準のツールバーを使う場合、ツールバー名を「#1」または「#2」とします。
+ツールバー名を「#1」とすると、「新規作成」から「やり直し」までの 8 個のボタンが暗黙的に作られます。
+ツールバー名を「#1」とすると、「ソート」から「1 列目を固定」までの 13 個のボタンが暗黙的に作られます。
+標準のツールバーでは画像ファイル名は省略可能ですが、他の画像ファイルを指定してもかまいません。
+標準のツールバーにボタンを追加することもできます。
+ただし、標準のツールバーを複製する（「#1」を 2 回以上書く）ことはできません。
 </p>
 <p>
-�����ե�����̾�Ȥ��� 2 ���ܤˡ�#1�פޤ��ϡ�#2�פȵ��Ҥ���ȡ�
-ɸ��Υġ���С��β�����Ȥ����Ȥ��Ǥ��ޤ���
+画像ファイル名として 2 列目に「#1」または「#2」と記述すると、
+標準のツールバーの画像を使うことができます。
 </p>
 <p>
-�ġ���С��򲼤ιԤ����֤���ˤϡ�1���ܤˡ�====�פȵ������ޤ���
+ツールバーを下の行に配置するには、1列目に「====」と記入します。
 </p>
 <table border="1">
-<caption>�ġ���С����</caption>
-<tr><th>1 ����</th><th>2 ����</th><th>3 ����</th><th>����</th></tr>
-<tr><td>#�ġ���С�̾</td><td>�����ե�����̾, #1, #2</td><td></td>
-    <td>�����ġ���С������֤��ޤ�</td></tr>
-<tr><td>#1, #2</td><td>�����ե�����̾�ʾ�ά�ġ�</td><td></td>
-    <td>ɸ��Υġ���С������֤��ޤ�</td></tr>
+<caption>ツールバー定義</caption>
+<tr><th>1 列目</th><th>2 列目</th><th>3 列目</th><th>説明</th></tr>
+<tr><td>#ツールバー名</td><td>画像ファイル名, #1, #2</td><td></td>
+    <td>新規ツールバーを配置します</td></tr>
+<tr><td>#1, #2</td><td>画像ファイル名（省略可）</td><td></td>
+    <td>標準のツールバーを配置します</td></tr>
 <tr><td>====</td><td></td><td></td>
-    <td>�ʹߤΥġ���С��� 1 �Ĳ��ιԤ����֤���ޤ�</td></tr>
+    <td>以降のツールバーは 1 つ下の行に配置されます</td></tr>
 </table>
 
-<h3 id="BUTTON_DEF">�ܥ������</h3>
+<h3 id="BUTTON_DEF">ボタン定義</h3>
 <p>
-1 �� 1 �ĤΥܥ����������ޤ���
-1���ܤ˲������ֹ�ʰ��ֺ���0�ˤ�2���ܤ˥ܥ����̾����3���ܤ˽�����񤭤ޤ���
+1 つ 1 つのボタンを定義します。
+1列目に画像の番号（一番左が0）を、2列目にボタンの名前を、3列目に処理を書きます。
 </p>
 <p>
-�ܥ����̾���ϥܥ���˥ޥ�����褻���ɽ������ޤ���
-�ޤ����ܥ����̾�����-�פȤ���ȥ��ѥ졼���Ȥʤ�ޤ���
+ボタンの名前はボタンにマウスを乗せると表示されます。
+また、ボタンの名前を「-」とするとセパレータとなります。
 </p>
 <p>
-3���ܤ���˥塼��̾���ʥ����������ޥ����ѤΥե�����˽��Ϥ�����Τ���
-��mn�פ��������ΡˤȰ��פ����硢���Υ�˥塼���¹Ԥ���ޤ���
-3���ܤ��ޥ����ե������Υե�����̾�Ȱ��פ����硢���Υե�����Υޥ������¹Ԥ���ޤ���
-����ʳ��ξ�硢3���ܤ����Ƥ��ޥ����Ȥ��Ƽ¹Ԥ���ޤ���
+3列目がメニューの名前（キーカスタマイズ用のファイルに出力されるものから
+「mn」を除いたもの）と一致する場合、そのメニューが実行されます。
+3列目がマクロフォルダ内のファイル名と一致する場合、そのファイルのマクロが実行されます。
+それ以外の場合、3列目の内容がマクロとして実行されます。
 </p>
 <table border="1">
-<caption>�ܥ������</caption>
-<tr><th>1 ����</th><th>2 ����</th><th>3 ����</th><th>����</th></tr>
+<caption>ボタン定義</caption>
+<tr><th>1 列目</th><th>2 列目</th><th>3 列目</th><th>説明</th></tr>
 <tr>
-  <td rowspan="3">�����ֹ�</td>
-  <td rowspan="3">�ܥ���̾</td>
-  <td>��˥塼��̾��</td>
-  <td>����å�����ȥ�˥塼��¹Ԥ��ޤ�</td>
+  <td rowspan="3">画像番号</td>
+  <td rowspan="3">ボタン名</td>
+  <td>メニューの名前</td>
+  <td>クリックするとメニューを実行します</td>
 </tr>
-<tr><td>�ޥ����ե�����̾</td><td>����å�����ȳ����ե������ޥ����Ȥ��Ƽ¹Ԥ��ޤ�</td></tr>
-<tr><td>�ޥ���������ץ�</td><td>����å�����ȵ��Ҥ��줿���Ƥ�ޥ����Ȥ��Ƽ¹Ԥ��ޤ�</td></tr>
-<tr><td></td><td>-</td><td></td><td>�ܥ���ȥܥ���δ֤˥��ѥ졼�����������ޤ�</td></tr>
+<tr><td>マクロファイル名</td><td>クリックすると該当ファイルをマクロとして実行します</td></tr>
+<tr><td>マクロスクリプト</td><td>クリックすると記述された内容をマクロとして実行します</td></tr>
+<tr><td></td><td>-</td><td></td><td>ボタンとボタンの間にセパレータを挿入します</td></tr>
 </table>
 <p>
-3���ܤ˥�˥塼̾����ꤷ����硢�ܥ����ͭ����̵���ϥ�˥塼��Ʊ�����ޤ���
-�ޤ�����OpenHistory�פ���ꤷ����硢�ե���������Υɥ��åץ�����ܥ���ɽ������ޤ���
+3列目にメニュー名を指定した場合、ボタンの有効／無効はメニューと同期します。
+また、「OpenHistory」を指定した場合、ファイル履歴のドロップダウンボタンが表示されます。
 </p>
 
 
-<h2>����ץ�����ե�����</h2>
+<h2>サンプル設定ファイル</h2>
 <ul>
-<li><a href="ToolBar.csv">����ץ�����ե����� (ToolBar.csv)</a></li>
-<li>����ץ�����ե����롧<a href="sample.bmp"><img src="sample.bmp"
-  width="48" height="16" alt="[�ܥ������]" title="�ܥ������" border="0" /></a></li>
+<li><a href="ToolBar.csv">サンプル設定ファイル (ToolBar.csv)</a></li>
+<li>サンプル画像ファイル：<a href="sample.bmp"><img src="sample.bmp"
+  width="48" height="16" alt="[ボタン画像]" title="ボタン画像" border="0" /></a></li>
 </ul>
 
 <table border="1">
-<tr><th>1 ����</th><th>2 ����</th><th>3 ����</th><th>����</th></tr>
+<tr><th>1 列目</th><th>2 列目</th><th>3 列目</th><th>説明</th></tr>
 <tr><td>(Cassava-ToolBarSetting)</td><td></td><td></td>
-    <td>�ե�����������</td></tr>
+    <td>ファイル形式宣言</td></tr>
 <tr><td>#1</td><td></td><td></td>
-    <td>ɸ��Υġ���С�</td></tr>
+    <td>標準のツールバー</td></tr>
 <tr><td>#2</td><td></td><td></td>
-    <td>ɸ��Υġ���С�</td></tr>
+    <td>標準のツールバー</td></tr>
 <tr><td>====</td><td></td><td></td>
-    <td>#Sample �ϼ��ιԤ����֤����</td></tr>
+    <td>#Sample は次の行に配置される</td></tr>
 <tr><td>#Sample</td><td>sample.bmp</td><td></td>
-    <td>�����ġ���С�</td></tr>
+    <td>新規ツールバー</td></tr>
 <tr><td>1</td><td>Hello, World</td><td>MessageBox("Hello, World!");</td>
-    <td>�ޥ���������ץȤ�ľ�ܵ���</td></tr>
-<tr><td>0</td><td>��������</td><td>Calendar.cms</td>
-    <td>�ޥ����ե�����̾�����</td></tr>
+    <td>マクロスクリプトを直接記述</td></tr>
+<tr><td>0</td><td>カレンダー</td><td>Calendar.cms</td>
+    <td>マクロファイル名を指定</td></tr>
 <tr><td></td><td>-</td><td></td>
-    <td>���ѥ졼��</td></tr>
-<tr><td>2</td><td>�ޥ����Խ�</td><td>MacroOpenFolder</td>
-    <td>��˥塼̾�����</td></tr>
+    <td>セパレータ</td></tr>
+<tr><td>2</td><td>マクロ編集</td><td>MacroOpenFolder</td>
+    <td>メニュー名を指定</td></tr>
 </table>
 
 </div>
@@ -169,37 +168,38 @@ ToolBar.csv ����� 3 �� CSV �ե�����Ǥ���
 
 <h2 class="sectitle">Menu</h2>
 
-<div class="MainMenu"><a href="index.html">Cassava �إ��</a></div>
-<div class="MainMenu"><a href="about.html">Cassava�Ȥ�</a></div>
-<div class="MainMenu"><a href="install.html">���󥹥ȡ���</a></div>
-<div class="MainMenu">��˥塼</div>
+<div class="MainMenu"><a href="index.html">Cassava ヘルプ</a></div>
+<div class="MainMenu"><a href="about.html">Cassavaとは</a></div>
+<div class="MainMenu"><a href="install.html">インストール</a></div>
+<div class="MainMenu">メニュー</div>
   <ul class="MainMenu">
-    <li><a href="filemenu.html" title="[�ե�����]��˥塼">�ե�����</a></li>
-    <li><a href="editmenu.html" title="[�Խ�]��˥塼">�Խ�</a></li>
-    <li><a href="insdelmenu.html" title="[���������]��˥塼">���������</a></li>
-    <li><a href="findmenu.html" title="[����]��˥塼">����</a></li>
-    <li><a href="viewmenu.html" title="[ɽ��]��˥塼">ɽ��</a></li>
-    <li><a href="optionmenu.html" title="[���ץ����]��˥塼">���ץ����</a>
+    <li><a href="filemenu.html" title="[ファイル]メニュー">ファイル</a></li>
+    <li><a href="editmenu.html" title="[編集]メニュー">編集</a></li>
+    <li><a href="insdelmenu.html" title="[挿入・削除]メニュー">挿入・削除</a></li>
+    <li><a href="findmenu.html" title="[検索]メニュー">検索</a></li>
+    <li><a href="viewmenu.html" title="[表示]メニュー">表示</a></li>
+    <li><a href="macromenu.html" title="[マクロ]メニュー">マクロ</a></li>
+    <li><a href="optionmenu.html" title="[オプション]メニュー">オプション</a>
       <ul class="MainMenu">
-        <li><a href="dataoption.html" title="[�ǡ�������]���ץ����">�ǡ�������</a></li>
-        <li><a href="fileoption.html" title="[�ե�����]���ץ����">�ե�����</a></li>
-        <li><a href="behavioroption.html" title="[ư��]���ץ����">ư��</a></li>
-        <li><a href="backupoption.html" title="[�Хå����å�]���ץ����">�Хå����å�</a></li>
-        <li><a href="applioption.html" title="[�������ץ�Ϣ��]���ץ����">�������ץ�Ϣ��</a></li>
-        <li><a href="viewoption.html" title="[ɽ��]���ץ����">ɽ��</a></li>
-        <li><a href="coloroption.html" title="[��]���ץ����">��</a></li>
+        <li><a href="dataoption.html" title="[データ形式]オプション">データ形式</a></li>
+        <li><a href="fileoption.html" title="[ファイル]オプション">ファイル</a></li>
+        <li><a href="behavioroption.html" title="[動作]オプション">動作</a></li>
+        <li><a href="backupoption.html" title="[バックアップ]オプション">バックアップ</a></li>
+        <li><a href="applioption.html" title="[外部アプリ連携]オプション">外部アプリ連携</a></li>
+        <li><a href="viewoption.html" title="[表示]オプション">表示</a></li>
+        <li><a href="coloroption.html" title="[色]オプション">色</a></li>
       </ul>
     </li>
-    <li><a href="helpmenu.html" title="[�إ��]��˥塼">�إ��</a></li>
+    <li><a href="helpmenu.html" title="[ヘルプ]メニュー">ヘルプ</a></li>
   </ul>
-<div class="MainMenu"><a href="key.html">�������</a></div>
-<div class="MainMenu"><a href="macro.html">�ޥ���</a></div>
+<div class="MainMenu"><a href="key.html">キー操作</a></div>
+<div class="MainMenu"><a href="macro.html">マクロ</a></div>
   <ul class="MainMenu">
-    <li><a href="macroref.html">��ե����</a></li>
+    <li><a href="macroref.html">リファレンス</a></li>
   </ul>
-<div class="MainMenuSel">�ġ���С�</div>
-<div class="MainMenu"><a href="letter.html">�Ϥ�������</a></div>
-<div class="MainMenu"><a href="contact.html">�����Ϣ����</a></div>
+<div class="MainMenuSel">ツールバー</div>
+<div class="MainMenu"><a href="letter.html">はがき印刷</a></div>
+<div class="MainMenu"><a href="contact.html">著作権・連絡先</a></div>
 
 </div>
 

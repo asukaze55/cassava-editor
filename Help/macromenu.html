@@ -4,7 +4,7 @@
   <meta name="viewport" content="width=device-width" />
   <meta charset="UTF-8" />
   <meta http-equiv="content-language" content="ja" />
-  <title>ファイルメニュー - Cassava Editor ヘルプ</title>
+  <title>マクロメニュー - Cassava Editor ヘルプ</title>
   <link rel="stylesheet" type="text/css" href="cassava.css" />
 </head>
 <body>
@@ -18,81 +18,39 @@
   <a href="http://www.asukaze.net/soft/index.html">自作ソフト</a> ＞
   <a href="http://www.asukaze.net/soft/cassava/index.html">Cassava</a> ＞
   <a href="index.html">ヘルプ</a> ＞
-  ファイルメニュー
+  マクロメニュー
 </div>
 
-<h1>ファイルメニュー</h1>
+<h1>マクロメニュー</h1>
 
 <!-- MAIN VIEW -->
 <div class="mainview">
 
 <p>
-ファイルメニューでは、ファイルの新規作成・開く・保存・終了などができます。
+マクロメニューでは、マクロを実行できます。
+マクロフォルダ内のマクロが検索され、メニューに表示されるので、実行したいマクロを選択してください。
+マクロフォルダにはユーザーマクロフォルダ (C:\Users\(ユーザ名)\AppData\Roaming\Asukaze\Cassava\Macro) と
+共有マクロフォルダ（Cassava.exe のあるフォルダ内の「Macro」フォルダ）があり、どちらに保存したマクロも実行できます。
 </p>
 
 <h2>各メニューの説明</h2>
 
-<h3>新規作成</h3>
+<h3>ユーザーマクロフォルダを開く</h3>
   <ul>
-  <li>現在の内容を破棄し、データを初期化します。</li>
+  <li>エクスプローラでユーザーごとのマクロフォルダ (C:\Users\(ユーザ名)\AppData\Roaming\Asukaze\Cassava\Macro) を開きます。</li>
   </ul>
-<h3>表サイズを指定して作成</h3>
+<h3>共有マクロフォルダを開く</h3>
   <ul>
-  <li>行数・列数を指定して新規作成します。</li>
-  <li>一番下と一番右にダミーの行・列ができるため、
-      表のサイズは入力した行数・列数よりも1ずつ大きくなります。</li>
+  <li>エクスプローラで Cassava Editor のインストール場所にあるマクロフォルダを開きます。</li>
   </ul>
-<h3>開く</h3>
+<h3>指定したマクロを実行</h3>
   <ul>
-  <li>保存したCSVファイルを読み込みます。</li>
+  <li>任意の場所のマクロを実行できます。</li>
   </ul>
-<h3>再読み込み</h3>
+<h3>実行を中断</h3>
   <ul>
-  <li>変更内容を破棄し、今開いているファイルをもう一度読み込みます。</li>
+  <li>マクロの実行を中断します。キーカスタマイズ設定と関係なく、Ctrl+Break キーでも中断できます。</li>
   </ul>
-<h3>開き直す</h3>
-  <ul>
-  <li>最近開いたファイルを開きます。</li>
-  </ul>
-<h3>文字コード指定再読込</h3>
-  <ul>
-  <li>文字コードを指定して、今開いているファイルをもう一度読み込みます。</li>
-  </ul>
-<h3>上書き保存</h3>
-  <ul>
-  <li>変更内容を保存します。</li>
-  </ul>
-<h3>名前を付けて保存</h3>
-  <ul>
-  <li>現在の内容に名前をつけて保存します。</li>
-  </ul>
-<h3>エクスポート</h3>
-  <ul>
-  <li>HTMLの&lt;table&gt;タグで出力します。</li>
-  <li>Exportフォルダ内にマクロファイルを置くことで、HTML以外の形式にも対応できます。</li>
-  </ul>
-<h3>現在のセルのファイルを開く</h3>
-  <ul>
-  <li>簡易ランチャーのような機能です。</li>
-  <li>カーソルのあるセルのデータがファイル名の場合、関連付けられたソフトで開きます</li>
-  <li>データが「http://」もしくは「https://」から始まる場合、
-      オプションダイアログの「外部アプリ連携」ページで指定したブラウザで開きます。
-      ブラウザを指定していない場合、標準のブラウザで開きます</li>
-  </ul>
-<h3>印刷</h3>
-  <ul>
-  <li>データを印刷します。「<strong>一応</strong>」印刷できる、程度のものです。</li>
-  <li>余白は設定よりも大きくなります。</li>
-  </ul>
-<h3>はがき印刷</h3>
-  <ul>
-  <li>住所録データを読み込んである場合、<a href="letter.html">はがきに宛名を印刷できます。</a></li>
-  </ul>
-<h3>終了</h3>
-  <ul>
-  <li>Cassavaを終了します。</li>
-  </ul>
-
 
 </div>
 
@@ -106,13 +64,13 @@
 <div class="MainMenu"><a href="install.html">インストール</a></div>
 <div class="MainMenuSel">メニュー</div>
   <ul class="MainMenu">
-    <li class="Sel">ファイル</li>
+    <li><a href="filemenu.html" title="[ファイル]メニュー">ファイル</a></li>
     <li><a href="editmenu.html" title="[編集]メニュー">編集</a></li>
     <li><a href="insdelmenu.html" title="[挿入・削除]メニュー">挿入・削除</a></li>
     <li><a href="findmenu.html" title="[検索]メニュー">検索</a></li>
     <li><a href="viewmenu.html" title="[表示]メニュー">表示</a></li>
-    <li><a href="macromenu.html" title="[マクロ]メニュー">マクロ</a></li>
-    <li><a href="optionmenu.html" title="[オプション]メニュー">オプション</a>
+    <li><span class="Sel">マクロ</span>
+    <li><a href="optionmenu.html" title="[オプション]メニュー">オプション</a></li>
       <ul class="MainMenu">
         <li><a href="dataoption.html" title="[データ形式]オプション">データ形式</a></li>
         <li><a href="fileoption.html" title="[ファイル]オプション">ファイル</a></li>
@@ -139,7 +97,7 @@
 <!-- SIGN -->
 <br style="clear: both;" />
 <address>
-  Copyright (C) 2000-2009 asukaze, Some Rights Reserved.<br />
+  Copyright (C) 2000-2017 asukaze, Some Rights Reserved.<br />
   mail (at) asukaze.net
 </address>
 <!-- ==== -->

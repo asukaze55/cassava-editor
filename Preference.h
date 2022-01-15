@@ -2,7 +2,7 @@
 #ifndef PreferenceH
 #define PreferenceH
 //---------------------------------------------------------------------------
-#include <vcl\inifiles.hpp>
+#include <System.IniFiles.hpp>
 //---------------------------------------------------------------------------
 class Preference
 {

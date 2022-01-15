@@ -1,387 +1,448 @@
-﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-		<PropertyGroup>
-			<ProjectGuid>{55FBEE8D-1C32-49B8-9E7D-33673015F197}</ProjectGuid>
-			<ProjectType>CppVCLApplication</ProjectType>
-			<MainSource>Cassava.cpp</MainSource>
-			<Config Condition="'$(Config)'==''">リリース</Config>
-			<ProjectVersion>12.0</ProjectVersion>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
-			<Base>true</Base>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Config)'=='デバッグ' or '$(Cfg_1)'!=''">
-			<Cfg_1>true</Cfg_1>
-			<CfgParent>Base</CfgParent>
-			<Base>true</Base>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Config)'=='リリース' or '$(Cfg_2)'!=''">
-			<Cfg_2>true</Cfg_2>
-			<CfgParent>Base</CfgParent>
-			<Base>true</Base>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Base)'!=''">
-			<BCC_wpar>false</BCC_wpar>
-			<_TCHARMapping>wchar_t</_TCHARMapping>
-			<LinkPackageStatics>rtl.lib;vcl.lib;bcbsmp.lib;vclx.lib</LinkPackageStatics>
-			<ILINK_AppType>Windows</ILINK_AppType>
-			<PackageImports>rtl.bpi;vcl.bpi;vclx.bpi;bcbsmp.bpi</PackageImports>
-			<TASM_Defines>CssvMacro;$(TASM_Defines)</TASM_Defines>
-			<DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
-			<DCC_UnitSearchPath>$(BDS)\ObjRepos\Cpp;..\OpenFile;.\;$(BDS)\lib;$(BDS)\lib\obj;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-			<DCC_ResourcePath>$(BDS)\ObjRepos\Cpp;..\OpenFile;$(DCC_ResourcePath)</DCC_ResourcePath>
-			<BCC_IncludePath>$(BDS)\ObjRepos\Cpp;$(BDS)\Add\referbutton;..\Jis2k;$(BDS)\Projects;..\OpenFile;$(BDS)\include;$(BDS)\include\vcl;$(BDS)\include\dinkumware;$(BCC_IncludePath)</BCC_IncludePath>
-			<BRCC_IncludePath>$(BDS)\Add\referbutton;..\Jis2k;$(BDS)\Projects;..\OpenFile;$(BDS)\include;$(BDS)\include\vcl;$(BDS)\include\dinkumware;$(BRCC_IncludePath)</BRCC_IncludePath>
-			<BCC_OptimizeForSpeed>true</BCC_OptimizeForSpeed>
-			<BRCC_Defines>CssvMacro;$(BRCC_Defines)</BRCC_Defines>
-			<TASM_IncludePath>$(BDS)\Add\referbutton;..\Jis2k;$(BDS)\Projects;..\OpenFile;$(BDS)\include;$(BDS)\include\vcl;$(BDS)\include\dinkumware;$(TASM_IncludePath)</TASM_IncludePath>
-			<DCC_IncludePath>$(BDS)\ObjRepos\Cpp;..\OpenFile;.\;$(BDS)\lib;$(BDS)\lib\obj;$(DCC_IncludePath)</DCC_IncludePath>
-			<BCC_Defines>CssvMacro;$(BCC_Defines)</BCC_Defines>
-			<BCC_GenerateMultithreaded>true</BCC_GenerateMultithreaded>
-			<BCC_GenerateWindowsApp>true</BCC_GenerateWindowsApp>
-			<TASM_AdditionalSwitches> /w2</TASM_AdditionalSwitches>
-			<ILINK_ObjectSearchPath>$(BDS)\ObjRepos\Cpp;..\OpenFile;$(ILINK_ObjectSearchPath)</ILINK_ObjectSearchPath>
-			<AllPackageLibs>rtl.lib;vcl.lib;bcbsmp.lib;vclx.lib</AllPackageLibs>
-			<ILINK_LibraryPath>$(BDS)\ObjRepos\Cpp;$(BDS)\lib\obj;$(ILINK_LibraryPath)</ILINK_LibraryPath>
-			<DCC_ObjPath>$(BDS)\ObjRepos\Cpp;..\OpenFile;$(DCC_ObjPath)</DCC_ObjPath>
-			<BCC_UserSuppliedOptions> -5 -Vx -Ve</BCC_UserSuppliedOptions>
-			<OutputExt>exe</OutputExt>
-			<DCC_AdditionalSwitches> -M</DCC_AdditionalSwitches>
-			<Multithreaded>true</Multithreaded>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Cfg_1)'!=''">
-			<BCC_MonitorGlobalAndStackData>true</BCC_MonitorGlobalAndStackData>
-			<BCC_MonitorThis>true</BCC_MonitorThis>
-			<BCC_MonitorInlinePtrAccess>true</BCC_MonitorInlinePtrAccess>
-			<BCC_Defines>_DEBUG;NO_WIN32_LEAN_AND_MEAN;$(BCC_Defines);$(BCC_Defines)</BCC_Defines>
-			<BCC_UserSuppliedOptions> -5 -Vx -Ve -k</BCC_UserSuppliedOptions>
-			<ILINK_LibraryPath>$(BDS)\lib\debug;$(ILINK_LibraryPath);$(ILINK_LibraryPath)</ILINK_LibraryPath>
-			<DCC_Define>DEBUG;$(DCC_Define);$(DCC_Define)</DCC_Define>
-			<BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
-			<IntermediateOutputDir>Debug_Build</IntermediateOutputDir>
-			<ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
-			<TASM_DisplaySourceLines>true</TASM_DisplaySourceLines>
-			<ILINK_DisableIncrementalLinking>true</ILINK_DisableIncrementalLinking>
-			<BCC_DisableOptimizations>true</BCC_DisableOptimizations>
-			<TASM_Debugging>Full</TASM_Debugging>
-			<DCC_AdditionalSwitches> -M -V</DCC_AdditionalSwitches>
-			<BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
-			<DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
-			<BCC_InlineFunctionExpansion>false</BCC_InlineFunctionExpansion>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Cfg_1)'!='' And '$(FileToCompile)'=='MainForm.cpp'"/>
-		<PropertyGroup Condition="'$(Cfg_2)'!=''">
-			<FinalOutputDir>Release_Build</FinalOutputDir>
-			<BCC_UserSuppliedOptions> -5 -Vx -Ve -r</BCC_UserSuppliedOptions>
-			<BCC_Defines>NDEBUG;NO_WIN32_LEAN_AND_MEAN;$(BCC_Defines);$(BCC_Defines)</BCC_Defines>
-			<IntermediateOutputDir>Release_Build</IntermediateOutputDir>
-			<TASM_Debugging>None</TASM_Debugging>
-			<DCC_AdditionalSwitches> -M -$O+</DCC_AdditionalSwitches>
-			<ILINK_LibraryPath>$(BDS)\lib\release;$(ILINK_LibraryPath);$(ILINK_LibraryPath)</ILINK_LibraryPath>
-		</PropertyGroup>
-		<PropertyGroup Condition="'$(Cfg_2)'!='' And '$(FileToCompile)'=='MainForm.cpp'"/>
-		<ItemGroup>
-			<CppCompile Include="Size.cpp">
-				<BuildOrder>8</BuildOrder>
-				<Form>fmSize</Form>
-				<DependentOn>Size.h</DependentOn>
-				<BuildOrder>27</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="Compiler.cpp">
-				<BuildOrder>22</BuildOrder>
-				<DependentOn>Compiler.h</DependentOn>
-				<BuildOrder>11</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="FormattedFileName.cpp">
-				<BuildOrder>9</BuildOrder>
-				<DependentOn>FormattedFileName.h</DependentOn>
-				<BuildOrder>28</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="Print.cpp">
-				<BuildOrder>7</BuildOrder>
-				<Form>fmPrint</Form>
-				<DependentOn>Print.h</DependentOn>
-				<BuildOrder>26</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="Cassava.cpp">
-				<BuildOrder>-1</BuildOrder>
-				<BuildOrder>0</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="Letter.cpp">
-				<BuildOrder>3</BuildOrder>
-				<Form>fmLetter</Form>
-				<DependentOn>Letter.h</DependentOn>
-				<BuildOrder>18</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="CsvGrid.cpp">
-				<BuildOrder>21</BuildOrder>
-				<DependentOn>CsvGrid.h</DependentOn>
-				<BuildOrder>2</BuildOrder>
-			</CppCompile>
-			<ResFiles Include="Cassava.res">
-				<BuildOrder>-1</BuildOrder>
-				<BuildOrder>1</BuildOrder>
-			</ResFiles>
-			<CppCompile Include="MainForm.cpp">
-				<BuildOrder>4</BuildOrder>
-				<Form>fmMain</Form>
-				<DependentOn>MainForm.h</DependentOn>
-				<BuildOrder>15</BuildOrder>
-				<OptionOverrides>true</OptionOverrides>
-			</CppCompile>
-			<CppCompile Include="CsvReader.cpp">
-				<DependentOn>CsvReader.h</DependentOn>
-				<BuildOrder>28</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="EncodingDetector.cpp">
-				<DependentOn>EncodingDetector.h</DependentOn>
-				<BuildOrder>33</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="Version.cpp">
-				<DependentOn>Version.h</DependentOn>
-				<BuildOrder>31</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="Preview.cpp">
-				<BuildOrder>5</BuildOrder>
-				<Form>fmPreview</Form>
-				<DependentOn>Preview.h</DependentOn>
-				<BuildOrder>16</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="Macro.cpp">
-				<BuildOrder>25</BuildOrder>
-				<DependentOn>Macro.h</DependentOn>
-				<BuildOrder>10</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="Sort.cpp">
-				<Form>fmSort</Form>
-				<DependentOn>Sort.h</DependentOn>
-				<BuildOrder>32</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="TypeList.cpp">
-				<BuildOrder>23</BuildOrder>
-				<DependentOn>TypeList.h</DependentOn>
-				<BuildOrder>12</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="KeyCustomize.cpp">
-				<BuildOrder>6</BuildOrder>
-				<Form>fmKey</Form>
-				<DependentOn>KeyCustomize.h</DependentOn>
-				<BuildOrder>17</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="Option.cpp">
-				<BuildOrder>6</BuildOrder>
-				<Form>fmOption</Form>
-				<DependentOn>Option.h</DependentOn>
-				<BuildOrder>17</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="AutoOpen.cpp">
-				<BuildOrder>5</BuildOrder>
-				<DependentOn>AutoOpen.h</DependentOn>
-				<BuildOrder>16</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="EncodedWriter.cpp">
-				<BuildOrder>24</BuildOrder>
-				<DependentOn>EncodedWriter.h</DependentOn>
-				<BuildOrder>13</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="OptionDataFormat.cpp">
-				<BuildOrder>3</BuildOrder>
-				<Form>frOptionDataFormat</Form>
-				<DesignClass>TFrame</DesignClass>
-				<DependentOn>OptionDataFormat.h</DependentOn>
-				<BuildOrder>18</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="OptionBehavior.cpp">
-				<BuildOrder>21</BuildOrder>
-				<Form>frOptionBehavior</Form>
-				<DesignClass>TFrame</DesignClass>
-				<DependentOn>OptionBehavior.h</DependentOn>
-				<BuildOrder>2</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="OptionLaunch.cpp">
-				<BuildOrder>20</BuildOrder>
-				<Form>frOptionLaunch</Form>
-				<DesignClass>TFrame</DesignClass>
-				<DependentOn>OptionLaunch.h</DependentOn>
-				<BuildOrder>1</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="OptionBackUp.cpp">
-				<BuildOrder>19</BuildOrder>
-				<Form>frOptionBackUp</Form>
-				<DesignClass>TFrame</DesignClass>
-				<DependentOn>OptionBackUp.h</DependentOn>
-				<BuildOrder>0</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="OptionFile.cpp">
-				<BuildOrder>23</BuildOrder>
-				<Form>frOptionFile</Form>
-				<DesignClass>TFrame</DesignClass>
-				<DependentOn>OptionFile.h</DependentOn>
-				<BuildOrder>12</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="Find.cpp">
-				<Form>fmFind</Form>
-				<DependentOn>Find.h</DependentOn>
-				<BuildOrder>14</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="PasteDlg.cpp">
-				<BuildOrder>4</BuildOrder>
-				<Form>fmPasteDialog</Form>
-				<DependentOn>PasteDlg.h</DependentOn>
-				<BuildOrder>15</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="FileOpenThread.cpp">
-				<BuildOrder>7</BuildOrder>
-				<DependentOn>FileOpenThread.h</DependentOn>
-				<BuildOrder>26</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="OptionView.cpp">
-				<Form>frOptionView</Form>
-				<DesignClass>TFrame</DesignClass>
-				<DependentOn>OptionView.h</DependentOn>
-				<BuildOrder>29</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="MultiLineInputBox.cpp">
-				<BuildOrder>9</BuildOrder>
-				<Form>fmMultiLineInputBox</Form>
-				<DependentOn>MultiLineInputBox.h</DependentOn>
-				<BuildOrder>28</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="OptionColor.cpp">
-				<BuildOrder>22</BuildOrder>
-				<Form>frOptionColor</Form>
-				<DesignClass>TFrame</DesignClass>
-				<DependentOn>OptionColor.h</DependentOn>
-				<BuildOrder>11</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="HTTPConnection.cpp">
-				<DependentOn>HTTPConnection.h</DependentOn>
-				<BuildOrder>30</BuildOrder>
-			</CppCompile>
-			<CppCompile Include="Preference.cpp">
-				<BuildOrder>25</BuildOrder>
-				<DependentOn>Preference.h</DependentOn>
-				<BuildOrder>10</BuildOrder>
-			</CppCompile>
-			<FormResources Include="Size.dfm"/>
-			<FormResources Include="Print.dfm"/>
-			<FormResources Include="Letter.dfm"/>
-			<FormResources Include="MainForm.dfm"/>
-			<FormResources Include="Preview.dfm"/>
-			<FormResources Include="Sort.dfm"/>
-			<FormResources Include="KeyCustomize.dfm"/>
-			<FormResources Include="Option.dfm"/>
-			<FormResources Include="OptionDataFormat.dfm"/>
-			<FormResources Include="OptionBehavior.dfm"/>
-			<FormResources Include="OptionLaunch.dfm"/>
-			<FormResources Include="OptionBackUp.dfm"/>
-			<FormResources Include="OptionFile.dfm"/>
-			<FormResources Include="Find.dfm"/>
-			<FormResources Include="PasteDlg.dfm"/>
-			<FormResources Include="OptionView.dfm"/>
-			<FormResources Include="MultiLineInputBox.dfm"/>
-			<FormResources Include="OptionColor.dfm"/>
-			<BuildConfiguration Include="Base">
-				<Key>Base</Key>
-			</BuildConfiguration>
-			<BuildConfiguration Include="リリース">
-				<Key>Cfg_2</Key>
-				<CfgParent>Base</CfgParent>
-			</BuildConfiguration>
-			<BuildConfiguration Include="デバッグ">
-				<Key>Cfg_1</Key>
-				<CfgParent>Base</CfgParent>
-			</BuildConfiguration>
-		</ItemGroup>
-		<Import Project="$(BDS)\Bin\CodeGear.Cpp.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Cpp.Targets')"/>
-		<ProjectExtensions>
-			<Borland.Personality>CPlusPlusBuilder.Personality.12</Borland.Personality>
-			<Borland.ProjectType>CppVCLApplication</Borland.ProjectType>
-			<BorlandProject>
-				<CPlusPlusBuilder.Personality>
-					<VersionInfo>
-						<VersionInfo Name="IncludeVerInfo">True</VersionInfo>
-						<VersionInfo Name="AutoIncBuild">True</VersionInfo>
-						<VersionInfo Name="MajorVer">1</VersionInfo>
-						<VersionInfo Name="MinorVer">8</VersionInfo>
-						<VersionInfo Name="Release">5</VersionInfo>
-						<VersionInfo Name="Build">703</VersionInfo>
-						<VersionInfo Name="Debug">False</VersionInfo>
-						<VersionInfo Name="PreRelease">False</VersionInfo>
-						<VersionInfo Name="Special">False</VersionInfo>
-						<VersionInfo Name="Private">False</VersionInfo>
-						<VersionInfo Name="DLL">False</VersionInfo>
-						<VersionInfo Name="Locale">1041</VersionInfo>
-						<VersionInfo Name="CodePage">932</VersionInfo>
-					</VersionInfo>
-					<VersionInfoKeys>
-						<VersionInfoKeys Name="CompanyName"/>
-						<VersionInfoKeys Name="FileDescription">Cassava Editor</VersionInfoKeys>
-						<VersionInfoKeys Name="FileVersion">1.8.5.703</VersionInfoKeys>
-						<VersionInfoKeys Name="InternalName"/>
-						<VersionInfoKeys Name="LegalCopyright">あすかぜ</VersionInfoKeys>
-						<VersionInfoKeys Name="LegalTrademarks"/>
-						<VersionInfoKeys Name="OriginalFilename"/>
-						<VersionInfoKeys Name="ProductName">Cassava Editor</VersionInfoKeys>
-						<VersionInfoKeys Name="ProductVersion">1.8.0</VersionInfoKeys>
-						<VersionInfoKeys Name="Comments"/>
-					</VersionInfoKeys>
-					<HistoryLists_hlIncludePath>
-						<HistoryLists_hlIncludePath Name="Count">5</HistoryLists_hlIncludePath>
-						<HistoryLists_hlIncludePath Name="Item0">$(BCB)\Add\referbutton;..\Jis2k;$(BCB)\Projects;..\OpenFile;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath>
-						<HistoryLists_hlIncludePath Name="Item1">$(BCB)\Add\referbutton;..\Jis2k;..\..\Program Files\Borland\CBuilder4\Projects;..\OpenFile;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath>
-						<HistoryLists_hlIncludePath Name="Item2">..\Jis2k;..\..\Program Files\Borland\CBuilder4\Projects;..\OpenFile;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath>
-						<HistoryLists_hlIncludePath Name="Item3">..\..\Program Files\Borland\CBuilder4\Projects;..\OpenFile;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath>
-						<HistoryLists_hlIncludePath Name="Item4">..\OpenFile;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath>
-					</HistoryLists_hlIncludePath>
-					<HistoryLists_hlLibraryPath>
-						<HistoryLists_hlLibraryPath Name="Count">5</HistoryLists_hlLibraryPath>
-						<HistoryLists_hlLibraryPath Name="Item0">$(BCB)\Projects\Lib;$(BCB)\Add\referbutton;..\Jis2k;$(BCB)\Projects;..\OpenFile;$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath>
-						<HistoryLists_hlLibraryPath Name="Item1">$(BCB)\Projects\Lib;$(BCB)\Add\referbutton;..\Jis2k;..\..\Program Files\Borland\CBuilder4\Projects;..\OpenFile;$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath>
-						<HistoryLists_hlLibraryPath Name="Item2">..\Jis2k;..\..\Program Files\Borland\CBuilder4\Projects;..\OpenFile;$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath>
-						<HistoryLists_hlLibraryPath Name="Item3">..\..\Program Files\Borland\CBuilder4\Projects;..\OpenFile;$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath>
-						<HistoryLists_hlLibraryPath Name="Item4">..\OpenFile;$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath>
-					</HistoryLists_hlLibraryPath>
-					<HistoryLists_hlDebugSourcePath>
-						<HistoryLists_hlDebugSourcePath Name="Count">1</HistoryLists_hlDebugSourcePath>
-						<HistoryLists_hlDebugSourcePath Name="Item0">$(BCB)\source\vcl</HistoryLists_hlDebugSourcePath>
-					</HistoryLists_hlDebugSourcePath>
-					<HistoryLists_hlConditionals>
-						<HistoryLists_hlConditionals Name="Count">3</HistoryLists_hlConditionals>
-						<HistoryLists_hlConditionals Name="Item0">CssvMacro</HistoryLists_hlConditionals>
-						<HistoryLists_hlConditionals Name="Item1">CssvMacro;_DEBUG</HistoryLists_hlConditionals>
-						<HistoryLists_hlConditionals Name="Item2">_DEBUG</HistoryLists_hlConditionals>
-					</HistoryLists_hlConditionals>
-					<Debugging>
-						<Debugging Name="DebugSourceDirs">$(BCB)\source\vcl</Debugging>
-					</Debugging>
-					<Parameters>
-						<Parameters Name="RunParams"/>
-						<Parameters Name="Launcher"/>
-						<Parameters Name="UseLauncher">False</Parameters>
-						<Parameters Name="DebugCWD"/>
-						<Parameters Name="HostApplication"/>
-						<Parameters Name="RemoteHost"/>
-						<Parameters Name="RemotePath"/>
-						<Parameters Name="RemoteParams"/>
-						<Parameters Name="RemoteLauncher"/>
-						<Parameters Name="UseRemoteLauncher">False</Parameters>
-						<Parameters Name="RemoteCWD"/>
-						<Parameters Name="RemoteDebug">False</Parameters>
-						<Parameters Name="Debug Symbols Search Path"/>
-						<Parameters Name="LoadAllSymbols">True</Parameters>
-						<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
-					</Parameters>
-					<Excluded_Packages/>
-					<Source>
-						<Source Name="MainSource">Cassava.cpp</Source>
-					</Source>
-					<ProjectProperties>
-						<ProjectProperties Name="AutoShowDeps">False</ProjectProperties>
-						<ProjectProperties Name="ManagePaths">True</ProjectProperties>
-						<ProjectProperties Name="VerifyPackages">True</ProjectProperties>
-					</ProjectProperties>
-				</CPlusPlusBuilder.Personality>
-			</BorlandProject>
-			<ProjectFileVersion>12</ProjectFileVersion>
-		</ProjectExtensions>
-	</Project>
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{55FBEE8D-1C32-49B8-9E7D-33673015F197}</ProjectGuid>
+        <ProjectType>CppVCLApplication</ProjectType>
+        <MainSource>Cassava.cpp</MainSource>
+        <Config Condition="'$(Config)'==''">リリース</Config>
+        <ProjectVersion>18.2</ProjectVersion>
+        <FrameworkType>VCL</FrameworkType>
+        <Base>True</Base>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <TargetedPlatforms>1</TargetedPlatforms>
+        <AppType>Application</AppType>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Base)'=='true') or '$(Base_Win32)'!=''">
+        <Base_Win32>true</Base_Win32>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='デバッグ' or '$(Cfg_1)'!=''">
+        <Cfg_1>true</Cfg_1>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''">
+        <Cfg_1_Win32>true</Cfg_1_Win32>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='リリース' or '$(Cfg_2)'!=''">
+        <Cfg_2>true</Cfg_2>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
+        <Cfg_2_Win32>true</Cfg_2_Win32>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base)'!=''">
+        <VerInfo_MinorVer>9</VerInfo_MinorVer>
+        <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
+        <VerInfo_Keys>CompanyName=;FileDescription=Cassava Editor;FileVersion=1.9.0.707;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductName=Cassava Editor;ProductVersion=1.8.0;Comments=</VerInfo_Keys>
+        <VerInfo_AutoGenVersion>true</VerInfo_AutoGenVersion>
+        <VerInfo_Locale>1041</VerInfo_Locale>
+        <VerInfo_Build>707</VerInfo_Build>
+        <SanitizedProjectName>Cassava</SanitizedProjectName>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <IncludePath>$(BDS)\include\boost_1_39;$(IncludePath)</IncludePath>
+        <BCC_wpar>false</BCC_wpar>
+        <_TCHARMapping>wchar_t</_TCHARMapping>
+        <LinkPackageStatics>rtl.lib;vcl.lib;bcbsmp.lib;vclx.lib</LinkPackageStatics>
+        <ILINK_AppType>Windows</ILINK_AppType>
+        <PackageImports>rtl.bpi;vcl.bpi;vclx.bpi;bcbsmp.bpi;$(PackageImports)</PackageImports>
+        <DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
+        <DCC_UnitSearchPath>$(BDS)\ObjRepos\Cpp;..\OpenFile;.\;$(BDS)\lib;$(BDS)\lib\obj;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_ResourcePath>$(BDS)\ObjRepos\Cpp;..\OpenFile;$(DCC_ResourcePath)</DCC_ResourcePath>
+        <BCC_IncludePath>$(BDS)\include;$(BCC_IncludePath)</BCC_IncludePath>
+        <BRCC_IncludePath>$(BDS)\Add\referbutton;..\Jis2k;$(BDS)\Projects;..\OpenFile;$(BDS)\include;$(BDS)\include\vcl;$(BRCC_IncludePath)</BRCC_IncludePath>
+        <BCC_OptimizeForSpeed>true</BCC_OptimizeForSpeed>
+        <TASM_IncludePath>$(BDS)\Add\referbutton;..\Jis2k;$(BDS)\Projects;..\OpenFile;$(BDS)\include;$(BDS)\include\vcl;$(TASM_IncludePath)</TASM_IncludePath>
+        <DCC_IncludePath>$(BDS)\ObjRepos\Cpp;..\OpenFile;.\;$(BDS)\lib;$(BDS)\lib\obj;$(DCC_IncludePath)</DCC_IncludePath>
+        <BCC_GenerateMultithreaded>true</BCC_GenerateMultithreaded>
+        <BCC_GenerateWindowsApp>true</BCC_GenerateWindowsApp>
+        <TASM_AdditionalSwitches> /w2</TASM_AdditionalSwitches>
+        <ILINK_ObjectSearchPath>$(BDS)\ObjRepos\Cpp;..\OpenFile;$(ILINK_ObjectSearchPath)</ILINK_ObjectSearchPath>
+        <AllPackageLibs>rtl.lib;vcl.lib;bcbsmp.lib;vclx.lib</AllPackageLibs>
+        <ILINK_LibraryPath>$(BDS)\lib\obj;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <DCC_ObjPath>$(BDS)\ObjRepos\Cpp;..\OpenFile;$(DCC_ObjPath)</DCC_ObjPath>
+        <DCC_AdditionalSwitches> -M</DCC_AdditionalSwitches>
+        <Multithreaded>true</Multithreaded>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win32)'!=''">
+        <UWP_CppLogo150>$(BDS)\bin\Artwork\Windows\UWP\cppreg_UwpDefault_150.png</UWP_CppLogo150>
+        <UWP_CppLogo44>$(BDS)\bin\Artwork\Windows\UWP\cppreg_UwpDefault_44.png</UWP_CppLogo44>
+        <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
+        <BCC_UserSuppliedOptions> -5 -Vx -Ve</BCC_UserSuppliedOptions>
+        <IncludePath>$(BDSINCLUDE)\windows;$(IncludePath)</IncludePath>
+        <BCC_Defines>CssvMacro;$(BCC_Defines)</BCC_Defines>
+        <VerInfo_Build>708</VerInfo_Build>
+        <OutputExt>exe</OutputExt>
+        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+        <TASM_Defines>CssvMacro;$(TASM_Defines)</TASM_Defines>
+        <Icon_MainIcon>Cassava_Icon1.ico</Icon_MainIcon>
+        <BRCC_Defines>CssvMacro;$(BRCC_Defines)</BRCC_Defines>
+        <VerInfo_Keys>CompanyName=;FileVersion=1.9.0.708;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=1.9.0.708;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
+        <VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1)'!=''">
+        <BCC_MonitorGlobalAndStackData>true</BCC_MonitorGlobalAndStackData>
+        <BCC_MonitorThis>true</BCC_MonitorThis>
+        <BCC_MonitorInlinePtrAccess>true</BCC_MonitorInlinePtrAccess>
+        <ILINK_LibraryPath>$(BDS)\lib\debug;$(ILINK_LibraryPath);$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <DCC_Define>DEBUG;$(DCC_Define);$(DCC_Define)</DCC_Define>
+        <BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
+        <IntermediateOutputDir>Debug_Build</IntermediateOutputDir>
+        <ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
+        <TASM_DisplaySourceLines>true</TASM_DisplaySourceLines>
+        <ILINK_DisableIncrementalLinking>true</ILINK_DisableIncrementalLinking>
+        <BCC_DisableOptimizations>true</BCC_DisableOptimizations>
+        <TASM_Debugging>Full</TASM_Debugging>
+        <DCC_AdditionalSwitches> -M -V</DCC_AdditionalSwitches>
+        <BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
+        <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
+        <BCC_InlineFunctionExpansion>false</BCC_InlineFunctionExpansion>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
+        <BCC_Defines>_DEBUG;NO_WIN32_LEAN_AND_MEAN;$(BCC_Defines);$(BCC_Defines)</BCC_Defines>
+        <BCC_UserSuppliedOptions> -5 -Vx -Ve -k</BCC_UserSuppliedOptions>
+        <AppEnableHighDPI>true</AppEnableHighDPI>
+        <VerInfo_Build>708</VerInfo_Build>
+        <VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
+        <VerInfo_Keys>CompanyName=;FileVersion=1.9.0.708;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=1.9.0.708;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
+        <DynamicRTL>true</DynamicRTL>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2)'!=''">
+        <FinalOutputDir>Release_Build</FinalOutputDir>
+        <IntermediateOutputDir>Release_Build</IntermediateOutputDir>
+        <TASM_Debugging>None</TASM_Debugging>
+        <DCC_AdditionalSwitches> -M -$O+</DCC_AdditionalSwitches>
+        <ILINK_LibraryPath>$(BDS)\lib\release;$(ILINK_LibraryPath);$(ILINK_LibraryPath)</ILINK_LibraryPath>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
+        <BCC_Defines>NDEBUG;NO_WIN32_LEAN_AND_MEAN;$(BCC_Defines);$(BCC_Defines)</BCC_Defines>
+        <VerInfo_Build>714</VerInfo_Build>
+        <BCC_UserSuppliedOptions> -5 -Vx -Ve -r</BCC_UserSuppliedOptions>
+        <VerInfo_Keys>CompanyName=;FileVersion=1.9.5.714;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=1.9.4.714;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
+        <AppEnableHighDPI>true</AppEnableHighDPI>
+        <VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
+        <VerInfo_Release>5</VerInfo_Release>
+    </PropertyGroup>
+    <ItemGroup>
+        <CppCompile Include="AutoOpen.cpp">
+            <BuildOrder>5</BuildOrder>
+            <DependentOn>AutoOpen.h</DependentOn>
+            <BuildOrder>16</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="Cassava.cpp">
+            <BuildOrder>-1</BuildOrder>
+            <BuildOrder>0</BuildOrder>
+        </CppCompile>
+        <ResFiles Include="Cassava.res">
+            <BuildOrder>-1</BuildOrder>
+            <BuildOrder>1</BuildOrder>
+        </ResFiles>
+        <CppCompile Include="Compiler.cpp">
+            <BuildOrder>22</BuildOrder>
+            <DependentOn>Compiler.h</DependentOn>
+            <BuildOrder>11</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="CsvReader.cpp">
+            <DependentOn>CsvReader.h</DependentOn>
+            <BuildOrder>28</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="EncodedWriter.cpp">
+            <BuildOrder>24</BuildOrder>
+            <DependentOn>EncodedWriter.h</DependentOn>
+            <BuildOrder>13</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="EncodingDetector.cpp">
+            <DependentOn>EncodingDetector.h</DependentOn>
+            <BuildOrder>33</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="FileOpenThread.cpp">
+            <BuildOrder>7</BuildOrder>
+            <DependentOn>FileOpenThread.h</DependentOn>
+            <BuildOrder>26</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="Find.cpp">
+            <Form>fmFind</Form>
+            <DependentOn>Find.h</DependentOn>
+            <BuildOrder>14</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="FormattedFileName.cpp">
+            <BuildOrder>9</BuildOrder>
+            <DependentOn>FormattedFileName.h</DependentOn>
+            <BuildOrder>28</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="HTTPConnection.cpp">
+            <DependentOn>HTTPConnection.h</DependentOn>
+            <BuildOrder>30</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="KeyCustomize.cpp">
+            <BuildOrder>6</BuildOrder>
+            <Form>fmKey</Form>
+            <DependentOn>KeyCustomize.h</DependentOn>
+            <BuildOrder>17</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="Letter.cpp">
+            <BuildOrder>3</BuildOrder>
+            <Form>fmLetter</Form>
+            <DependentOn>Letter.h</DependentOn>
+            <BuildOrder>18</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="Macro.cpp">
+            <BuildOrder>25</BuildOrder>
+            <DependentOn>Macro.h</DependentOn>
+            <BuildOrder>10</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="MainForm.cpp">
+            <BuildOrder>4</BuildOrder>
+            <Form>fmMain</Form>
+            <DependentOn>MainForm.h</DependentOn>
+            <BuildOrder>15</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="MainGrid.cpp">
+            <BuildOrder>21</BuildOrder>
+            <DependentOn>MainGrid.h</DependentOn>
+            <BuildOrder>2</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="MultiLineInputBox.cpp">
+            <BuildOrder>9</BuildOrder>
+            <Form>fmMultiLineInputBox</Form>
+            <DependentOn>MultiLineInputBox.h</DependentOn>
+            <BuildOrder>28</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="Option.cpp">
+            <BuildOrder>6</BuildOrder>
+            <Form>fmOption</Form>
+            <DependentOn>Option.h</DependentOn>
+            <BuildOrder>17</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="OptionBackUp.cpp">
+            <BuildOrder>19</BuildOrder>
+            <Form>frOptionBackUp</Form>
+            <DesignClass>TFrame</DesignClass>
+            <DependentOn>OptionBackUp.h</DependentOn>
+            <BuildOrder>0</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="OptionBehavior.cpp">
+            <BuildOrder>21</BuildOrder>
+            <Form>frOptionBehavior</Form>
+            <DesignClass>TFrame</DesignClass>
+            <DependentOn>OptionBehavior.h</DependentOn>
+            <BuildOrder>2</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="OptionColor.cpp">
+            <BuildOrder>22</BuildOrder>
+            <Form>frOptionColor</Form>
+            <DesignClass>TFrame</DesignClass>
+            <DependentOn>OptionColor.h</DependentOn>
+            <BuildOrder>11</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="OptionDataFormat.cpp">
+            <BuildOrder>3</BuildOrder>
+            <Form>frOptionDataFormat</Form>
+            <DesignClass>TFrame</DesignClass>
+            <DependentOn>OptionDataFormat.h</DependentOn>
+            <BuildOrder>18</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="OptionFile.cpp">
+            <BuildOrder>23</BuildOrder>
+            <Form>frOptionFile</Form>
+            <DesignClass>TFrame</DesignClass>
+            <DependentOn>OptionFile.h</DependentOn>
+            <BuildOrder>12</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="OptionLaunch.cpp">
+            <BuildOrder>20</BuildOrder>
+            <Form>frOptionLaunch</Form>
+            <DesignClass>TFrame</DesignClass>
+            <DependentOn>OptionLaunch.h</DependentOn>
+            <BuildOrder>1</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="OptionView.cpp">
+            <Form>frOptionView</Form>
+            <DesignClass>TFrame</DesignClass>
+            <DependentOn>OptionView.h</DependentOn>
+            <BuildOrder>29</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="PasteDlg.cpp">
+            <BuildOrder>4</BuildOrder>
+            <Form>fmPasteDialog</Form>
+            <DependentOn>PasteDlg.h</DependentOn>
+            <BuildOrder>15</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="Preference.cpp">
+            <BuildOrder>25</BuildOrder>
+            <DependentOn>Preference.h</DependentOn>
+            <BuildOrder>10</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="Preview.cpp">
+            <BuildOrder>5</BuildOrder>
+            <Form>fmPreview</Form>
+            <DependentOn>Preview.h</DependentOn>
+            <BuildOrder>16</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="Print.cpp">
+            <BuildOrder>7</BuildOrder>
+            <Form>fmPrint</Form>
+            <DependentOn>Print.h</DependentOn>
+            <BuildOrder>26</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="Size.cpp">
+            <BuildOrder>8</BuildOrder>
+            <Form>fmSize</Form>
+            <DependentOn>Size.h</DependentOn>
+            <BuildOrder>27</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="Sort.cpp">
+            <Form>fmSort</Form>
+            <DependentOn>Sort.h</DependentOn>
+            <BuildOrder>32</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="TypeList.cpp">
+            <BuildOrder>23</BuildOrder>
+            <DependentOn>TypeList.h</DependentOn>
+            <BuildOrder>12</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="Version.cpp">
+            <DependentOn>Version.h</DependentOn>
+            <BuildOrder>31</BuildOrder>
+        </CppCompile>
+        <FormResources Include="OptionFile.dfm"/>
+        <FormResources Include="OptionDataFormat.dfm"/>
+        <FormResources Include="OptionView.dfm"/>
+        <FormResources Include="OptionLaunch.dfm"/>
+        <FormResources Include="OptionBackUp.dfm"/>
+        <FormResources Include="Option.dfm"/>
+        <FormResources Include="OptionColor.dfm"/>
+        <FormResources Include="OptionBehavior.dfm"/>
+        <FormResources Include="Sort.dfm"/>
+        <FormResources Include="Size.dfm"/>
+        <FormResources Include="PasteDlg.dfm"/>
+        <FormResources Include="Print.dfm"/>
+        <FormResources Include="Preview.dfm"/>
+        <FormResources Include="MultiLineInputBox.dfm"/>
+        <FormResources Include="Letter.dfm"/>
+        <FormResources Include="MainForm.dfm"/>
+        <FormResources Include="Find.dfm"/>
+        <FormResources Include="KeyCustomize.dfm"/>
+        <BuildConfiguration Include="リリース">
+            <Key>Cfg_2</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Base">
+            <Key>Base</Key>
+        </BuildConfiguration>
+        <BuildConfiguration Include="デバッグ">
+            <Key>Cfg_1</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+    </ItemGroup>
+    <Import Project="$(BDS)\Bin\CodeGear.Cpp.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Cpp.Targets')"/>
+    <ProjectExtensions>
+        <Borland.Personality>CPlusPlusBuilder.Personality.12</Borland.Personality>
+        <Borland.ProjectType>CppVCLApplication</Borland.ProjectType>
+        <BorlandProject>
+            <CPlusPlusBuilder.Personality>
+                <VersionInfo>
+                    <VersionInfo Name="IncludeVerInfo">True</VersionInfo>
+                    <VersionInfo Name="AutoIncBuild">True</VersionInfo>
+                    <VersionInfo Name="MajorVer">1</VersionInfo>
+                    <VersionInfo Name="MinorVer">9</VersionInfo>
+                    <VersionInfo Name="Release">0</VersionInfo>
+                    <VersionInfo Name="Build">707</VersionInfo>
+                    <VersionInfo Name="Debug">False</VersionInfo>
+                    <VersionInfo Name="PreRelease">False</VersionInfo>
+                    <VersionInfo Name="Special">False</VersionInfo>
+                    <VersionInfo Name="Private">False</VersionInfo>
+                    <VersionInfo Name="DLL">False</VersionInfo>
+                    <VersionInfo Name="Locale">1041</VersionInfo>
+                    <VersionInfo Name="CodePage">932</VersionInfo>
+                </VersionInfo>
+                <VersionInfoKeys>
+                    <VersionInfoKeys Name="CompanyName"/>
+                    <VersionInfoKeys Name="FileDescription">Cassava Editor</VersionInfoKeys>
+                    <VersionInfoKeys Name="FileVersion">1.9.0.707</VersionInfoKeys>
+                    <VersionInfoKeys Name="InternalName"/>
+                    <VersionInfoKeys Name="LegalCopyright">あすかぜ</VersionInfoKeys>
+                    <VersionInfoKeys Name="LegalTrademarks"/>
+                    <VersionInfoKeys Name="OriginalFilename"/>
+                    <VersionInfoKeys Name="ProductName">Cassava Editor</VersionInfoKeys>
+                    <VersionInfoKeys Name="ProductVersion">1.8.0</VersionInfoKeys>
+                    <VersionInfoKeys Name="Comments"/>
+                </VersionInfoKeys>
+                <HistoryLists_hlIncludePath>
+                    <HistoryLists_hlIncludePath Name="Count">5</HistoryLists_hlIncludePath>
+                    <HistoryLists_hlIncludePath Name="Item0">$(BCB)\Add\referbutton;..\Jis2k;$(BCB)\Projects;..\OpenFile;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath>
+                    <HistoryLists_hlIncludePath Name="Item1">$(BCB)\Add\referbutton;..\Jis2k;..\..\Program Files\Borland\CBuilder4\Projects;..\OpenFile;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath>
+                    <HistoryLists_hlIncludePath Name="Item2">..\Jis2k;..\..\Program Files\Borland\CBuilder4\Projects;..\OpenFile;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath>
+                    <HistoryLists_hlIncludePath Name="Item3">..\..\Program Files\Borland\CBuilder4\Projects;..\OpenFile;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath>
+                    <HistoryLists_hlIncludePath Name="Item4">..\OpenFile;$(BCB)\include;$(BCB)\include\vcl</HistoryLists_hlIncludePath>
+                </HistoryLists_hlIncludePath>
+                <HistoryLists_hlLibraryPath>
+                    <HistoryLists_hlLibraryPath Name="Count">5</HistoryLists_hlLibraryPath>
+                    <HistoryLists_hlLibraryPath Name="Item0">$(BCB)\Projects\Lib;$(BCB)\Add\referbutton;..\Jis2k;$(BCB)\Projects;..\OpenFile;$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath>
+                    <HistoryLists_hlLibraryPath Name="Item1">$(BCB)\Projects\Lib;$(BCB)\Add\referbutton;..\Jis2k;..\..\Program Files\Borland\CBuilder4\Projects;..\OpenFile;$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath>
+                    <HistoryLists_hlLibraryPath Name="Item2">..\Jis2k;..\..\Program Files\Borland\CBuilder4\Projects;..\OpenFile;$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath>
+                    <HistoryLists_hlLibraryPath Name="Item3">..\..\Program Files\Borland\CBuilder4\Projects;..\OpenFile;$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath>
+                    <HistoryLists_hlLibraryPath Name="Item4">..\OpenFile;$(BCB)\lib\obj;$(BCB)\lib</HistoryLists_hlLibraryPath>
+                </HistoryLists_hlLibraryPath>
+                <HistoryLists_hlDebugSourcePath>
+                    <HistoryLists_hlDebugSourcePath Name="Count">1</HistoryLists_hlDebugSourcePath>
+                    <HistoryLists_hlDebugSourcePath Name="Item0">$(BCB)\source\vcl</HistoryLists_hlDebugSourcePath>
+                </HistoryLists_hlDebugSourcePath>
+                <HistoryLists_hlConditionals>
+                    <HistoryLists_hlConditionals Name="Count">3</HistoryLists_hlConditionals>
+                    <HistoryLists_hlConditionals Name="Item0">CssvMacro</HistoryLists_hlConditionals>
+                    <HistoryLists_hlConditionals Name="Item1">CssvMacro;_DEBUG</HistoryLists_hlConditionals>
+                    <HistoryLists_hlConditionals Name="Item2">_DEBUG</HistoryLists_hlConditionals>
+                </HistoryLists_hlConditionals>
+                <Debugging>
+                    <Debugging Name="DebugSourceDirs">$(BCB)\source\vcl</Debugging>
+                </Debugging>
+                <Parameters>
+                    <Parameters Name="RunParams"/>
+                    <Parameters Name="Launcher"/>
+                    <Parameters Name="UseLauncher">False</Parameters>
+                    <Parameters Name="DebugCWD"/>
+                    <Parameters Name="HostApplication"/>
+                    <Parameters Name="RemoteHost"/>
+                    <Parameters Name="RemotePath"/>
+                    <Parameters Name="RemoteParams"/>
+                    <Parameters Name="RemoteLauncher"/>
+                    <Parameters Name="UseRemoteLauncher">False</Parameters>
+                    <Parameters Name="RemoteCWD"/>
+                    <Parameters Name="RemoteDebug">False</Parameters>
+                    <Parameters Name="Debug Symbols Search Path"/>
+                    <Parameters Name="LoadAllSymbols">True</Parameters>
+                    <Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
+                </Parameters>
+                <Excluded_Packages/>
+                <Source>
+                    <Source Name="MainSource">Cassava.cpp</Source>
+                </Source>
+                <ProjectProperties>
+                    <ProjectProperties Name="AutoShowDeps">False</ProjectProperties>
+                    <ProjectProperties Name="ManagePaths">True</ProjectProperties>
+                    <ProjectProperties Name="VerifyPackages">True</ProjectProperties>
+                    <ProjectProperties Name="IndexFiles">False</ProjectProperties>
+                </ProjectProperties>
+            </CPlusPlusBuilder.Personality>
+            <Platforms>
+                <Platform value="Win32">True</Platform>
+            </Platforms>
+        </BorlandProject>
+        <ProjectFileVersion>12</ProjectFileVersion>
+    </ProjectExtensions>
+    <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
+</Project>

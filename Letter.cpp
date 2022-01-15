@@ -1,7 +1,6 @@
 //---------------------------------------------------------------------------
 #include <vcl\vcl.h>
 #include <vcl\printers.hpp>
-#include <vcl\inifiles.hpp>
 #include <tchar.h>
 #pragma hdrstop
 
@@ -591,7 +590,7 @@ void __fastcall TfmLetter::edTopChange(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmLetter::btnHelpClick(TObject *Sender)
 {
-  AutoOpen(fmMain->FullPath + "Help\\Letter.html");
+  AutoOpen("Help\\Letter.html", fmMain->FullPath);
 }
 //---------------------------------------------------------------------------
 

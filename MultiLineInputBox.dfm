@@ -26,7 +26,7 @@ object fmMultiLineInputBox: TfmMultiLineInputBox
     Caption = 'OK'
     Default = True
     ModalResult = 1
-    TabOrder = 0
+    TabOrder = 1
   end
   object CancelBtn: TButton
     Left = 301
@@ -36,7 +36,7 @@ object fmMultiLineInputBox: TfmMultiLineInputBox
     Cancel = True
     Caption = #12461#12515#12531#12475#12523
     ModalResult = 2
-    TabOrder = 1
+    TabOrder = 2
   end
   object Memo1: TMemo
     Left = 8
@@ -45,6 +45,6 @@ object fmMultiLineInputBox: TfmMultiLineInputBox
     Height = 108
     Lines.Strings = (
       'Memo1')
-    TabOrder = 2
+    TabOrder = 0
   end
 end

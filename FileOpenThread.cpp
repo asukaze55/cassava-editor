@@ -30,7 +30,7 @@
 class FileOpenThread : public TThread
 {
 private:
-  TCsvGrid *FGrid;
+  TMainGrid *FGrid;
   String FFileName;
   String Data;
   int x;
@@ -44,18 +44,18 @@ private:
 protected:
   void __fastcall Execute();
 public:
-  __fastcall FileOpenThread(bool, TCsvGrid *, String, String);
-  __property TCsvGrid *Grid = { read=FGrid, write=FGrid };
+  __fastcall FileOpenThread(bool, TMainGrid *, String, String);
+  __property TMainGrid *Grid = { read=FGrid, write=FGrid };
   __property String FileName = { read=FFileName, write=FFileName };
 };
 //---------------------------------------------------------------------------
-TThread *ThreadFileOpen(TCsvGrid *AGrid, String AFileName, String AData)
+TThread *ThreadFileOpen(TMainGrid *AGrid, String AFileName, String AData)
 {
   return new FileOpenThread(true, AGrid, AFileName, AData);
 }
 //---------------------------------------------------------------------------
 __fastcall FileOpenThread::FileOpenThread(bool CreateSuspended,
-    TCsvGrid *AGrid, String AFileName, String AData)
+    TMainGrid *AGrid, String AFileName, String AData)
   : TThread(CreateSuspended), FGrid(AGrid), FFileName(AFileName), Data(AData)
 {
 }
@@ -100,6 +100,7 @@ void __fastcall FileOpenThread::UpdateWidthHeight()
     Grid->SetWidth();
     Grid->SetHeight();
   }
+  Grid->Invalidate();
 }
 //---------------------------------------------------------------------------
 String __fastcall FileOpenThread::NormalizeCRLF(String Val)

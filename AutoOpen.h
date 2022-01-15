@@ -3,6 +3,6 @@
 #define AutoOpenH
 //---------------------------------------------------------------------------
 bool isUrl(String FileName);
-bool AutoOpen(String FileName);
+bool AutoOpen(String FileName, String BasePath);
 //---------------------------------------------------------------------------
 #endif

@@ -101,6 +101,7 @@ object frOptionColor: TfrOptionColor
       Top = 27
       Width = 145
       Height = 22
+      Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames]
       TabOrder = 0
       OnChange = cbFgColorChange
       OnCloseUp = cbFgColorChange
@@ -112,6 +113,7 @@ object frOptionColor: TfrOptionColor
       Top = 83
       Width = 145
       Height = 22
+      Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames]
       TabOrder = 2
       OnChange = cbBgColorChange
       OnCloseUp = cbBgColorChange
@@ -123,6 +125,7 @@ object frOptionColor: TfrOptionColor
       Top = 111
       Width = 145
       Height = 22
+      Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames]
       TabOrder = 3
     end
     object cbFixBgColor: TColorBox
@@ -130,6 +133,7 @@ object frOptionColor: TfrOptionColor
       Top = 139
       Width = 145
       Height = 22
+      Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames]
       TabOrder = 4
     end
     object cbCalcFgColor: TColorBox
@@ -137,6 +141,7 @@ object frOptionColor: TfrOptionColor
       Top = 251
       Width = 145
       Height = 22
+      Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames]
       TabOrder = 8
     end
     object cbCalcBgColor: TColorBox
@@ -144,6 +149,7 @@ object frOptionColor: TfrOptionColor
       Top = 279
       Width = 145
       Height = 22
+      Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames]
       TabOrder = 9
     end
     object cbCalcErrorFgColor: TColorBox
@@ -151,6 +157,7 @@ object frOptionColor: TfrOptionColor
       Top = 307
       Width = 145
       Height = 22
+      Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames]
       TabOrder = 10
     end
     object cbCalcErrorBgColor: TColorBox
@@ -158,6 +165,7 @@ object frOptionColor: TfrOptionColor
       Top = 335
       Width = 145
       Height = 22
+      Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames]
       TabOrder = 11
     end
     object cbDummyBgColor: TColorBox
@@ -165,6 +173,7 @@ object frOptionColor: TfrOptionColor
       Top = 223
       Width = 145
       Height = 22
+      Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames]
       TabOrder = 7
     end
     object cbUrlColor: TColorBox
@@ -172,6 +181,7 @@ object frOptionColor: TfrOptionColor
       Top = 55
       Width = 145
       Height = 22
+      Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames]
       TabOrder = 1
       OnChange = cbFgColorChange
       OnCloseUp = cbFgColorChange
@@ -183,6 +193,7 @@ object frOptionColor: TfrOptionColor
       Top = 195
       Width = 145
       Height = 22
+      Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames]
       TabOrder = 6
     end
     object cbCurrentRowBgColor: TColorBox
@@ -190,6 +201,7 @@ object frOptionColor: TfrOptionColor
       Top = 167
       Width = 145
       Height = 22
+      Style = [cbStandardColors, cbExtendedColors, cbSystemColors, cbCustomColor, cbPrettyNames]
       TabOrder = 5
     end
   end

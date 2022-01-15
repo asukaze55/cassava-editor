@@ -1,7 +1,6 @@
 //---------------------------------------------------------------------------
 #include <vcl\vcl.h>
 #include <vcl\clipbrd.hpp>
-#include <vcl\inifiles.hpp>
 #include <process.h>
 #include <stdio.h>
 #include <map>
@@ -37,7 +36,7 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
   if(*(FullPath.LastChar()) != '\\') FullPath += "\\";
   Pref = new Preference(FullPath);
 
-  MainGrid = new TCsvGrid(this);
+  MainGrid = new TMainGrid(this);
   MainGrid->Parent = MainPanel;
   MainGrid->Align = alClient;
   MainGrid->PopupMenu = PopMenu;
@@ -176,13 +175,25 @@ void TfmMain::ReadIni()
 
     Show();
 #ifdef CssvMacro
-    mnMacroSearchClick(this);
+    SearchMacro();
 #endif
 
     Height = Ini->ReadInteger("Position","Height",Height);
     WindowState = (TWindowState)Ini->ReadInteger("Position","Mode",wsNormal);
     MainGrid->Font->Name = Ini->ReadString("Font","Name", "‚l‚r ‚oƒSƒVƒbƒN");
     MainGrid->Font->Size = Ini->ReadInteger("Font","Size", 12);
+    if (Ini->ReadBool("Font","Bold", false)) {
+      MainGrid->Font->Style = MainGrid->Font->Style << fsBold;
+    }
+    if (Ini->ReadBool("Font","Italic", false)) {
+      MainGrid->Font->Style = MainGrid->Font->Style << fsItalic;
+    }
+    if (Ini->ReadBool("Font","Underline", false)) {
+      MainGrid->Font->Style = MainGrid->Font->Style << fsUnderline;
+    }
+    if (Ini->ReadBool("Font","StrikeOut", false)) {
+      MainGrid->Font->Style = MainGrid->Font->Style << fsStrikeOut;
+    }
     MainGrid->TBMargin = Ini->ReadInteger("Font","TBMargin", 2);
     MainGrid->LRMargin = Ini->ReadInteger("Font","LRMargin", 2);
     MainGrid->CellLineMargin = Ini->ReadInteger("Font","CellLineMargin", 0);
@@ -232,6 +243,8 @@ void TfmMain::ReadIni()
       }
     }
     SetFilter();
+    SetCutMenu(mnCutFormat);
+    SetCutMenu(mnpCutFormat);
     SetCopyMenu(mnCopyFormat);
     SetCopyMenu(mnpCopyFormat);
     SetPasteMenu(mnPasteFormat);
@@ -276,6 +289,8 @@ void TfmMain::ReadIni()
       if(STB != mnShowToolbar->Checked) mnShowToolbarClick(this);
     bool SSB = Ini->ReadBool("Mode","ShowStatusbar",true);
       if(SSB != mnShowStatusbar->Checked) mnShowStatusbarClick(this);
+    MainGrid->ShowToolTipForLongCell
+      = Ini->ReadBool("Mode", "ShowToolTipForLongCell", true);
     Application->HintPause
       = Ini->ReadInteger("Mode","HintPause",Application->HintPause);
     Application->HintHidePause
@@ -360,6 +375,10 @@ void TfmMain::WriteIni(bool PosSlide)
     }
     Ini->WriteString("Font","Name",MainGrid->Font->Name);
     Ini->WriteInteger("Font","Size",MainGrid->Font->Size);
+    Ini->WriteInteger("Font","Bold",MainGrid->Font->Style.Contains(fsBold));
+    Ini->WriteInteger("Font","Italic",MainGrid->Font->Style.Contains(fsItalic));
+    Ini->WriteInteger("Font","Underline",MainGrid->Font->Style.Contains(fsUnderline));
+    Ini->WriteInteger("Font","StrikeOut",MainGrid->Font->Style.Contains(fsStrikeOut));
     Ini->WriteInteger("Font","TBMargin",MainGrid->TBMargin);
     Ini->WriteInteger("Font","LRMargin",MainGrid->LRMargin);
     Ini->WriteInteger("Font","CellLineMargin",MainGrid->CellLineMargin);
@@ -423,6 +442,8 @@ void TfmMain::WriteIni(bool PosSlide)
       MainGrid->ShowRowCounter ? 0 : MainGrid->FixedCols);
     Ini->WriteBool("Mode","ShowToolbar",mnShowToolbar->Checked);
     Ini->WriteBool("Mode","ShowStatusbar",mnShowStatusbar->Checked);
+    Ini->WriteBool("Mode", "ShowToolTipForLongCell",
+      MainGrid->ShowToolTipForLongCell);
     Ini->WriteInteger("Mode","HintPause",Application->HintPause);
     Ini->WriteInteger("Mode","HintHidePause",Application->HintHidePause);
     Ini->WriteBool("Mode","LeftArrowInCell",MainGrid->LeftArrowInCell);
@@ -680,6 +701,21 @@ String TfmMain::MakeId(String prefix, String caption, int i)
     }
   }
   return id + "_" + i;
+}
+//---------------------------------------------------------------------------
+void TfmMain::SetCutMenu(TMenuItem *Item)
+{
+  Item->Clear();
+  for(int i=0; i<MainGrid->TypeList.Count; i++){
+    TMenuItem *MI = new TMenuItem(Item->Owner);
+    MI->Caption = MainGrid->TypeList.Items(i)->Name;
+    if(Item == mnCutFormat){
+      MI->Name = MakeId("cutformat", MI->Caption, i);
+    }
+    MI->Tag = i;
+    MI->OnClick = mnCutFormatDefaultClick;
+    Item->Add(MI);
+  }
 }
 //---------------------------------------------------------------------------
 void TfmMain::SetCopyMenu(TMenuItem *Item)
@@ -1370,11 +1406,11 @@ void __fastcall TfmMain::mnOpenHistoryClearClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnOpenCellFileClick(TObject *Sender)
 {
-  AnsiString FileName = MainGrid->Cells[MainGrid->Col][MainGrid->Row];
-  if(isUrl(FileName)){
-    MainGrid->OpenURL(FileName);
+  String CellFileName = MainGrid->Cells[MainGrid->Col][MainGrid->Row];
+  if(isUrl(CellFileName)){
+    MainGrid->OpenURL(CellFileName);
   }else{
-    AutoOpen(FileName);
+    AutoOpen(CellFileName, ExtractFilePath(FileName));
   }
 }
 //---------------------------------------------------------------------------
@@ -1560,6 +1596,18 @@ void __fastcall TfmMain::acPasteUpdate(TObject *Sender)
   }else{
     acPaste->Enabled = false;
   }
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmMain::mnCutFormatDefaultClick(TObject *Sender)
+{
+  int XTypeIndex = MainGrid->TypeIndex;
+  MainGrid->TypeIndex = static_cast<TMenuItem *>(Sender)->Tag;
+  MainGrid->TypeOption = MainGrid->TypeList.Items(MainGrid->TypeIndex);
+
+  MainGrid->CutToClipboard();
+
+  MainGrid->TypeIndex = XTypeIndex;
+  MainGrid->TypeOption = MainGrid->TypeList.Items(MainGrid->TypeIndex);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnCopyFormatDefaultClick(TObject *Sender)
@@ -1748,24 +1796,25 @@ void __fastcall TfmMain::mnpNarrowClick(TObject *Sender)
 void __fastcall TfmMain::mnRefreshClick(TObject *Sender)
 {
   MainGrid->Cut();
-  MainGrid->ReNum();
   MainGrid->SetWidth();
   MainGrid->SetHeight();
+  MainGrid->Invalidate();
   UpdateStatusbar();
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnShowAllColumnClick(TObject *Sender)
 {
   MainGrid->Cut();
-  MainGrid->ReNum();
   MainGrid->ShowAllColumn();
   MainGrid->SetHeight();
+  MainGrid->Invalidate();
   UpdateStatusbar();
 }
 //---------------------------------------------------------------------------
 void TfmMain::SetGridFont(TFont *AFont)
 {
   MainGrid->Font = AFont;
+  MainGrid->Canvas->Font = AFont;
   MainGrid->UpdateDefaultRowHeight();
 }
 //---------------------------------------------------------------------------
@@ -1971,11 +2020,16 @@ void __fastcall TfmMain::mnAppliClick(TObject *Sender)
   }
 }
 //---------------------------------------------------------------------------
-void __fastcall TfmMain::mnMacroSearchClick(TObject *Sender)
+void __fastcall TfmMain::mnMacroClick(TObject *Sender)
+{
+  SearchMacro();
+}
+//---------------------------------------------------------------------------
+void TfmMain::SearchMacro()
 {
 #ifdef CssvMacro
   std::map<String, TMenuItem *> oldItems;
-  for(int i=mnMacro->Count - 1; i>=6; i--){
+  for(int i=mnMacro->Count - 1; i>=5; i--){
     TMenuItem *oldItem = mnMacro->Items[i];
     mnMacro->Delete(i);
     oldItems[oldItem->Name] = oldItem;
@@ -2316,7 +2370,10 @@ void __fastcall TfmMain::mnKeyClick(TObject *Sender)
 void __fastcall TfmMain::mnKCodeClick(TObject *Sender)
 {
   TMenuItem *Menu = static_cast<TMenuItem *>(Sender);
-  Menu->Checked = true;
+  if (!Menu->Checked) {
+    Menu->Checked = true;
+    MainGrid->Modified = true;
+  }
 }
 //---------------------------------------------------------------------------
 bool __fastcall TfmMain::FormHelp(WORD Command, int Data, bool &CallHelp)
@@ -2327,7 +2384,7 @@ bool __fastcall TfmMain::FormHelp(WORD Command, int Data, bool &CallHelp)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnHelpContentsClick(TObject *Sender)
 {
-  AutoOpen(FullPath + "Help\\index.html");
+  AutoOpen("Help\\index.html", FullPath);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnCheckUpdateClick(TObject *Sender)

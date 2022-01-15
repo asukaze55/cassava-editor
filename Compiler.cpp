@@ -25,6 +25,8 @@
 #define prEOF -1
 
 #define CMCEOF CMCElement("",prEOF,tpStructure)
+
+static const int INT_SIZE = sizeof(int);
 //---------------------------------------------------------------------------
 class CMCElement{
 public:
@@ -375,7 +377,7 @@ void TCompiler::GetIf()
   GetSentence(')');
   fout->Write("i",1);
   int bp1fr = fout->Position;
-  fout->Seek(sizeof(int), soFromCurrent);
+  fout->Seek(INT_SIZE, soFromCurrent);
   fout->Write("-?",2);
   GetSentence(';');
 
@@ -383,24 +385,24 @@ void TCompiler::GetIf()
     lex->Get(); // else
     fout->Write("i",1);
     int bp2fr = fout->Position;
-    fout->Seek(sizeof(int), soFromCurrent);
+    fout->Seek(INT_SIZE, soFromCurrent);
     fout->Write("-g",2);
 
     int bp1to = fout->Position;
     fout->Position = bp1fr;
-    fout->Write(&bp1to, sizeof(int));
+    fout->Write(&bp1to, INT_SIZE);
     fout->Position = bp1to;
 
     GetSentence(';');
 
     int bp2to = fout->Position;
     fout->Position = bp2fr;
-    fout->Write(&bp2to, sizeof(int));
+    fout->Write(&bp2to, INT_SIZE);
     fout->Position = bp2to;
   }else{
     int bp1to = fout->Position;
     fout->Position = bp1fr;
-    fout->Write(&bp1to, sizeof(int));
+    fout->Write(&bp1to, INT_SIZE);
     fout->Position = bp1to;
   }
 }
@@ -412,15 +414,15 @@ void TCompiler::GetWhile()
   GetSentence(')');
   fout->Write("i",1);
   int bp2fr = fout->Position;
-  fout->Seek(sizeof(int), soFromCurrent);
+  fout->Seek(INT_SIZE, soFromCurrent);
   fout->Write("-?",2);
   GetSentence(';');
   fout->Write("i",1);
-  fout->Write(&bp1to, sizeof(int));
+  fout->Write(&bp1to, INT_SIZE);
   fout->Write("-g",2);
   int bp2to = fout->Position;
   fout->Position = bp2fr;
-  fout->Write(&bp2to, sizeof(int));
+  fout->Write(&bp2to, INT_SIZE);
   fout->Position = bp2to;
 }
 //---------------------------------------------------------------------------
@@ -432,7 +434,7 @@ void TCompiler::GetFor()
   GetSentence(';'); // 条件部
   fout->Write("i",1);
   int bp2fr = fout->Position; // ループから外へ
-  fout->Seek(sizeof(int), soFromCurrent);
+  fout->Seek(INT_SIZE, soFromCurrent);
   fout->Write("-?",2);
 
   TStream *fs = fout;
@@ -446,11 +448,11 @@ void TCompiler::GetFor()
   delete ms;
 
   fout->Write("i",1);
-  fout->Write(&bp1to, sizeof(int));
+  fout->Write(&bp1to, INT_SIZE);
   fout->Write("-g",2);
   int bp2to = fout->Position;
   fout->Position = bp2fr;
-  fout->Write(&bp2to, sizeof(int));
+  fout->Write(&bp2to, INT_SIZE);
   fout->Position = bp2to;
 }
 //---------------------------------------------------------------------------
@@ -466,7 +468,7 @@ void TCompiler::GetBasicFor()
   int istt = 1;
   Output(evar);
   fout->Write("i",1);
-  fout->Write(&istt, sizeof(int));
+  fout->Write(&istt, INT_SIZE);
   fout->Write("-=",2);
   int bp1to = fout->Position; // ここに戻ってループ
 
@@ -474,18 +476,18 @@ void TCompiler::GetBasicFor()
   GetSentence(')');     // 最大値
   fout->Write("-Li",3); // "-L" は "<="
   int bp2fr = fout->Position; // ループから外へ
-  fout->Seek(sizeof(int), soFromCurrent);
+  fout->Seek(INT_SIZE, soFromCurrent);
   fout->Write("-?",2);
 
   GetSentence(';');     // ループ本体
 
   Output(evar);
   fout->Write("-ii",3);  // "-i" は "++"
-  fout->Write(&bp1to, sizeof(int));
+  fout->Write(&bp1to, INT_SIZE);
   fout->Write("-g",2);
   int bp2to = fout->Position;
   fout->Position = bp2fr;
-  fout->Write(&bp2to, sizeof(int));
+  fout->Write(&bp2to, INT_SIZE);
   fout->Position = bp2to;
 }
 //---------------------------------------------------------------------------
@@ -598,12 +600,12 @@ void TCompiler::Output(CMCElement e)
       break;
     case 'i': {
       int i = e.str.ToInt();
-      fout->Write(&i, sizeof(int));
+      fout->Write(&i, INT_SIZE);
       break;
     }
     case 'd': {
       double d = e.str.ToDouble();
-      fout->Write(&d, sizeof(double));
+      fout->Write(&d, (int)sizeof(double));
       break;
     }
   }

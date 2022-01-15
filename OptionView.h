@@ -34,6 +34,16 @@ __published:	// IDE 管理のコンポーネント
   TEdit *edCellLineMargin;
   TUpDown *udCellLineMargin;
   TLabel *lblCellLineMarginPt;
+  TGroupBox *gbTooltip;
+  TCheckBox *cbShowToolTipForLongCell;
+  TLabel *lblHintPause;
+  TLabel *lblHintHidePause;
+  TEdit *edHintPause;
+  TUpDown *udHintPause;
+  TEdit *edHintHidePause;
+  TUpDown *udHintHidePause;
+  TLabel *lblHintPauseMs;
+  TLabel *lblHintHidePauseMs;
     void __fastcall btnFontClick(TObject *Sender);
 private:	// ユーザー宣言
 public:		// ユーザー宣言

@@ -3,8 +3,8 @@
 #define FileOpenThreadH
 //---------------------------------------------------------------------------
 #include <Classes.hpp>
-#include "CsvGrid.h"
+#include "MainGrid.h"
 //---------------------------------------------------------------------------
-TThread *ThreadFileOpen(TCsvGrid *AGrid, String AFileName, String AData);
+TThread *ThreadFileOpen(TMainGrid *AGrid, String AFileName, String AData);
 //---------------------------------------------------------------------------
 #endif

@@ -2,11 +2,11 @@
 #ifndef PreviewH
 #define PreviewH
 //---------------------------------------------------------------------------
-#include <vcl\Classes.hpp>
 #include <vcl\Controls.hpp>
 #include <vcl\StdCtrls.hpp>
 #include <vcl\Forms.hpp>
 #include <vcl\ExtCtrls.hpp>
+#include <System.Classes.hpp>
 //---------------------------------------------------------------------------
 class TfmPreview : public TForm
 {

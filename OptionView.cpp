@@ -30,6 +30,10 @@ void TfrOptionView::RestoreFromMainForm()
   int decimalDigits = fmMain->MainGrid->DecimalDigits;
   cbOmitDecimal->Checked = (decimalDigits >= 0);
   udOmitDigits->Position = (decimalDigits >= 0 ? decimalDigits : 2);
+
+  cbShowToolTipForLongCell->Checked = fmMain->MainGrid->ShowToolTipForLongCell;
+  udHintPause->Position = Application->HintPause;
+  udHintHidePause->Position = Application->HintHidePause;
 }
 //---------------------------------------------------------------------------
 void TfrOptionView::StoreToMainForm()
@@ -46,6 +50,10 @@ void TfrOptionView::StoreToMainForm()
   fmMain->MainGrid->NumberComma = (cbNum3->Checked ? 3 : 0);
   fmMain->MainGrid->DecimalDigits = (cbOmitDecimal->Checked ?
     udOmitDigits->Position : -1);
+
+  fmMain->MainGrid->ShowToolTipForLongCell = cbShowToolTipForLongCell->Checked;
+  Application->HintPause = udHintPause->Position;
+  Application->HintHidePause = udHintHidePause->Position;
 }
 //---------------------------------------------------------------------------
 void __fastcall TfrOptionView::btnFontClick(TObject *Sender)

@@ -52,7 +52,7 @@ void __fastcall TfmSort::btnSortClick(TObject *Sender)
   fmMain->MainGrid->UndoSetLock--;
 
   fmMain->MainGrid->SetFocus();
-  fmMain->MainGrid->ReNum();
+  fmMain->MainGrid->Invalidate();
 
   Close();
 }

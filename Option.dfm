@@ -103,9 +103,10 @@ object fmOption: TfmOption
       Width = 97
       Height = 27
       Anchors = [akRight, akBottom]
-      DoubleBuffered = True
-      Kind = bkOK
-      ParentDoubleBuffered = False
+      Caption = 'OK'
+      Default = True
+      ModalResult = 1
+      NumGlyphs = 2
       TabOrder = 0
       OnClick = btnOKClick
     end
@@ -115,9 +116,10 @@ object fmOption: TfmOption
       Width = 95
       Height = 27
       Anchors = [akRight, akBottom]
-      DoubleBuffered = True
-      Kind = bkCancel
-      ParentDoubleBuffered = False
+      Cancel = True
+      Caption = #12461#12515#12531#12475#12523
+      ModalResult = 2
+      NumGlyphs = 2
       TabOrder = 1
     end
   end

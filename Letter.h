@@ -2,7 +2,6 @@
 #ifndef LetterH
 #define LetterH
 //---------------------------------------------------------------------------
-#include <vcl\Classes.hpp>
 #include <vcl\Controls.hpp>
 #include <vcl\StdCtrls.hpp>
 #include <vcl\Forms.hpp>
@@ -10,6 +9,7 @@
 #include <vcl\Dialogs.hpp>
 #include "CSPIN.h"
 #include <ComCtrls.hpp>
+#include <System.Classes.hpp>
 //---------------------------------------------------------------------------
 class TfmLetter : public TForm
 {

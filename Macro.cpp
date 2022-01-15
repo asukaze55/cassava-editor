@@ -1,6 +1,7 @@
 //---------------------------------------------------------------------------
 #ifdef CssvMacro
 //---------------------------------------------------------------------------
+#include <cmath>
 #include <map>
 #include <process.h>
 #pragma hdrstop
@@ -27,6 +28,8 @@ using namespace std;
 #define MGRow (fmMain->MainGrid->Row - fmMain->MainGrid->DataTop  + 1)
 #define RXtoAX(x)                 (x - fmMain->MainGrid->DataLeft + 1)
 #define RYtoAY(y)                 (y - fmMain->MainGrid->DataTop  + 1)
+#define AXtoRX(x)                 (x + fmMain->MainGrid->DataLeft - 1)
+#define AYtoRY(y)                 (y + fmMain->MainGrid->DataTop  - 1)
 //---------------------------------------------------------------------------
 class TMacro;
 //---------------------------------------------------------------------------
@@ -90,18 +93,18 @@ public:
 static int RunningCount = 0;
 static bool RunningOk = true;
 //---------------------------------------------------------------------------
-void CsvGridGoTo(TCsvGrid *g, int x, int y){
+void CsvGridGoTo(TMainGrid *g, int x, int y){
   x += g->DataLeft - 1;
   y += g->DataTop  - 1;
   if(x < g->FixedCols){
     x = g->FixedCols;
   }else if(x >= g->ColCount){
-    g->ChangeColCount(x+1); g->ReNum();
+    g->ChangeColCount(x+1);
   }
   if(y < g->FixedRows){
     y = g->FixedRows;
   }else if(y >= g->RowCount){
-    g->ChangeRowCount(y+1); g->ReNum();
+    g->ChangeRowCount(y+1);
   }
   g->Col = x;
   g->Row = y;
@@ -113,7 +116,7 @@ void Write(int x, int y, String str, bool IsCellMacro)
 	throw MacroException("Cell Macro Can't Update Cells.", ME_SECURITY);
   }
   if(x < 1 || y < 1) return;
-  TCsvGrid *g = fmMain->MainGrid;
+  TMainGrid *g = fmMain->MainGrid;
   g->ACells[x][y] = str;
   g->Modified = true;
 }
@@ -199,7 +202,7 @@ void Element::Sbst(Element e)
 
   if(Type == etSystem){
     int v = GetVar(st).Val();
-    TCsvGrid *g = fmMain->MainGrid;
+    TMainGrid *g = fmMain->MainGrid;
     if     (st == "Col")       { CsvGridGoTo(g, v, MGRow); }
     else if(st == "Row")       { CsvGridGoTo(g, MGCol, v); }
     else if(st == "Right")     { g->ChangeColCount(v + g->DataLeft); }
@@ -318,6 +321,11 @@ String NormalizeNewLine(String Val)
 #define VAL2 ope[2]->Val()
 #define STR3 ope[3]->Str()
 #define VAL3 ope[3]->Val()
+#define VAL4 ope[4]->Val()
+#define VAL5 ope[5]->Val()
+#define VAL6 ope[6]->Val()
+#define VAL7 ope[7]->Val()
+#define VAL8 ope[8]->Val()
 //---------------------------------------------------------------------------
 void TMacro::ExecFnc(String s){
   int H = s[1];
@@ -546,6 +554,16 @@ void TMacro::ExecFnc(String s){
         minval = min(minval, ope[i]->Val());
       }
       Stack->Add(new Element(minval, this));
+    }else if(s == "sqrt" && H == 1){
+      Stack->Add(new Element(sqrt(VAL0), this));
+    }else if(s == "sin" && H == 1){
+      Stack->Add(new Element(sin(VAL0), this));
+    }else if(s == "cos" && H == 1){
+      Stack->Add(new Element(cos(VAL0), this));
+    }else if(s == "tan" && H == 1){
+      Stack->Add(new Element(tan(VAL0), this));
+    }else if(s == "pow" && H == 2){
+      Stack->Add(new Element(pow(VAL0, VAL1), this));
     }else if(s == "len" && H == 1){
       Stack->Add(new Element(STR0.Length(), this));
     }else if(s == "lenB" && H == 1){
@@ -651,7 +669,7 @@ void TMacro::ExecFnc(String s){
       if(isUrl(FileName)){
         fmMain->MainGrid->OpenURL(FileName);
       }else{
-        AutoOpen(FileName);
+        AutoOpen(FileName, ExtractFilePath(fmMain->FileName));
       }
     }else if(s == "ShellOpen" && H > 1){
       wchar_t **argv = new wchar_t*[H+1];
@@ -698,6 +716,19 @@ void TMacro::ExecFnc(String s){
     }else if(s == "Export" && H == 2){
       fmMain->UpdateKCode();
       fmMain->Export(STR0, STR1);
+    }else if(s == "Sort" && H >= 1 && H <= 9) {
+      int left = VAL0;
+      int top = (H > 1 ? VAL1 : 1);
+      int right = (H > 2 ? VAL2 : fmMain->MainGrid->DataRight);
+      int bottom = (H > 3 ? VAL3 : fmMain->MainGrid->DataBottom);
+      int col = (H > 4 ? VAL4 : left);
+      bool direction = (H > 5 ? VAL5 : false);
+      bool numSort = (H > 6 ? VAL6 : false);
+      bool ignoreCase = (H > 7 ? VAL7 : false);
+      bool ignoreZenhan = (H > 8 ? VAL8 : false);
+      fmMain->MainGrid->Sort(AXtoRX(left), AYtoRY(top), AXtoRX(right),
+          AYtoRY(bottom), AXtoRX(col), !direction, numSort, ignoreCase,
+          ignoreZenhan);
     }else{
       throw MacroException("’è‹`‚³‚ê‚Ä‚¢‚È‚¢ŠÖ”‚Å‚·:" + s + "/" + H);
     }
@@ -844,6 +875,10 @@ Element *TMacro::Do(String FileName, TList *AStack, int x, int y){
     Var.clear();
     Var["x"] = Element(((x >= 0) ? x : MGCol), this);
     Var["y"] = Element(((y >= 0) ? y : MGRow), this);
+    Var["Left"] = Element(fmMain->MainGrid->ShowRowCounter ?
+        1 : fmMain->MainGrid->FixedCols + 1, this);
+    Var["Top"] = Element(fmMain->MainGrid->ShowColCounter ?
+        1 : fmMain->MainGrid->FixedRows + 1, this);
     char Type;
     LoopCount = 0;
     while(fs->Read(&Type, 1) > 0) {

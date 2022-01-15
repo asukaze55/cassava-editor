@@ -8,12 +8,12 @@
 //---------------------------------------------------------------------------
 String Version::Current()
 {
-  return "1.8.5";
+  return "1.9.5";
 }
 //---------------------------------------------------------------------------
 String Version::CurrentDate()
 {
-  return "2015/02/28";
+  return "2018/06/03";
 }
 //---------------------------------------------------------------------------
 bool Version::CurrentIsBeta()
@@ -81,7 +81,7 @@ void __fastcall UpdateCheckThread::Execute()
       + newUrl + "を開きますか？";
     int mr = Application->MessageBox(message.c_str(), title, MB_OKCANCEL);
     if(mr == IDOK){
-      AutoOpen(newUrl);
+      AutoOpen(newUrl, "");
     }
   }else{
     Application->MessageBox(TEXT("更新は見つかりませんでした。"), title, 0);
