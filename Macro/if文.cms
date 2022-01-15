@@ -1,0 +1,14 @@
+cell(2,1) = "";
+cell(2,2) = "";
+cell(2,3) = "";
+
+if(cell(1,1)){
+	cell(2,1) = "<- Hit!";
+}
+if(cell(1,2)){
+	cell(2,2) = "<- Hit!";
+}
+if(cell(1,3)){
+	cell(2,3) = "<- Hit!";
+}
+

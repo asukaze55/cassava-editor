@@ -1,0 +1,366 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+  <link rel="stylesheet" HREF="cassava.css">
+  <title>マクロ - Cassava Editor</title>
+</head>
+<body>
+
+<h1>マクロ</h1>
+
+簡単な計算や定型動作をマクロを使って実行することができます。
+
+<h3>基本動作</h3>
+<p>
+　起動時や「マクロの検索」の実行時に「Macro」フォルダがスキャンされ、
+「*.cms」ファイルの一覧が「マクロ」メニューに追加されます。
+「マクロ」メニューから項目を選ぶと、
+対応するCMSファイルからCMBファイルが製作され、実行されます。
+CMBファイルは消しても何の問題もありません。
+エラー処理は適当なのであまりエラーメッセージは出ずに誤動作します。
+重要なファイルに対してはあまり使わないでください。
+</p>
+<p>
+　「Macro」フォルダ内に「!startup.cms」というファイル名でマクロを置いておくと、
+起動時に自動的に実行されます。
+</p>
+
+<h3>文法</h3>
+　このマクロはＣ言語／JavaScript言語を簡略化しつつ
+BASICの影響も受けた独自言語で書かれます。
+テキスト形式なのでテキストエディタでCMSファイルを編集してください。<br />
+基本的には「<code>関数名(引数,引数…);</code>」か
+「<code>変数 = 値;</code>」という形の文の羅列になります。<br />
+最後の「;」を忘れないようにしてください。
+大文字と小文字は区別されます。<br />
+
+<h3>数字</h3>
+　「0」～「9」「.」の文字の連続を数字として認識します。
+　内部的には整数・小数ともdouble型で計算されます。
+
+<h3>文字列</h3>
+　「"」で囲まれた部分を文字列として認識します。
+「\」はエスケープシーケンスで、「\"」は「"」を、「\n」は改行（LF）を、
+「\t」はタブを、「\\」は「\」を表します。
+「\xHH」形式で、文字コード HH の文字を表します。
+HH は２桁の16進数（0～9,A～F,a～f）です。
+<h3>変数</h3>
+　半角英字で始まる、半角英数字の連続を変数名として認識します。
+宣言は不要で、一度作った変数はマクロ終了時まで存在し続けます。
+関数以外ではスコープは存在しないので、
+同じ名前の変数は常に同じものを表します。<br />
+<br />
+x, y の２つの変数にはマクロ開始時にカーソルの座標がセットされます。
+x, y を変更してもカーソル位置は変更されないので、
+普通の変数としても使えます。<br />
+<br />
+以下の変数は特別な意味を持ちます。
+値を変更するとカーソル位置や選択範囲が変わります。
+もちろん値の参照も可能です。
+<dl>
+<dt><code>Col</code></dt>
+<dd>カーソル位置の x 座標</dd>
+<dt><code>Row</code></dt>
+<dd>カーソル位置の y 座標</dd>
+<dt><code>Right</code></dt>
+<dd>データが何列目まであるか（一番右の空白列は数えない）</dd>
+<dt><code>Bottom</code></dt>
+<dd>データが何行目まであるか（一番下の空白行は数えない）</dd>
+<dt><code>SelLeft</code></dt>
+<dd>選択範囲の左端の x 座標</dd>
+<dt><code>SelTop</code></dt>
+<dd>選択範囲の上端の y 座標</dd>
+<dt><code>SelRight</code></dt>
+<dd>選択範囲の右端の x 座標</dd>
+<dt><code>SelBottom</code></dt>
+<dd>選択範囲の下端の y 座標</dd>
+</dl>
+<br />
+以下の定数・予約語は変数名に使えません。<br>
+<blockquote><code>
+  if else while for For function return
+  true True TRUE false False FALSE null Null NULL
+  MB_ABORTRETRYIGNORE MB_OK MB_OKCANCEL MB_RETRYCANCEL MB_YESNO MB_YESNOCANCEL
+  IDABORT IDCANCEL IDIGNORE IDNO IDOK IDRETRY IDYES
+</code></blockquote>
+
+<h3>セル操作</h3>
+<blockquote><code>val = [x,y];</code></blockquote>
+と書くと y 行 x 列のデータが val に代入されます。逆に
+<blockquote><code>[x,y] = val;</code></blockquote>
+と書くと val の内容が y 行 x 列に書かれます。
+　以下の表記も可能です。
+<blockquote><code>val = cell(x,y);<br />cell(x,y) = val;</code></blockquote>
+
+<h3>演算子</h3>
+　数値に関しては、「+」「-」「*」「/」の四則演算ができます。
+整数では「%」で割った余りが求められます。<br />
+　変数に対しては、「=」で代入、
+「++」で１を足す、「--」で１を引くことができます。
+「=」,「++」,「--」は値を返さないので注意してください。<br />
+　条件文には以下のブール演算子が使えます。<br />
+「==」（等しい）「!=」（等しくない）
+「&lt;」「&gt;」「&lt;=」「&gt;=」（数値の大小比較）
+「!」（NOT）「&&」（AND）「||」（OR）<br />
+
+	
+	
+<h3>組み込み関数</h3>
+マクロに組み込まれたコマンド・関数と、メニューを実行するものがあります。
+
+<h4>コマンド</h4>
+
+<dl>
+<dt><code>write(str);</code></dt>
+<dd>カーソル位置のセルの内容をstrにし、カーソルを右に移動します。<br />
+    エクスポートマクロ中ではファイルに書き出します。</dd>
+<dt><code>writeln(str);</code></dt>
+<dd>カーソル位置のセルの内容をstrにし、カーソルを次の行に移動します。<br />
+    エクスポートマクロ中ではファイルに書き出します。</dd>
+<dt><code>move(vx, vy);</code></dt>
+<dd>カーソル位置を(vx,vy)だけ移動します。</dd>
+<dt><code>moveto(x,y);</code></dt>
+<dd>カーソル位置を(x,y)に設定します。</dd>
+<dt><code>swap(a,b);</code></dt>
+<dd>a と b の値を交換します。</dd>
+<dt><code>InsertRow(y);</code></dt>
+<dd>y 行目に新しい行を挿入します。</dd>
+<dt><code>DeleteRow(y);</code></dt>
+<dd>y 行目を削除します。</dd>
+<dt><code>InsertCol(x);</code></dt>
+<dd>x 列目に新しい列を挿入します。</dd>
+<dt><code>DeleteCol(x);</code></dt>
+<dd>x 列目を削除します。</dd>
+<dt><code>mid(str1,x,y) = str2;</code></dt>
+<dd>文字列 str1 の x 文字目から y 文字を str2 に置き換えます。
+    最初の文字のインデックスは１です。</dd>
+<dt><code>SetRowHeight(y,h);</code></dt>
+<dd>y 行目の高さを h に設定します。</dd>
+<dt><code>SetRowHeight(h);</code></dt>
+<dd>全ての行の高さを h に設定します。</dd>
+<dt><code>SetColWidth(x,w);</code></dt>
+<dd>x 列目の幅を w に設定します。</dd>
+<dt><code>SetColWidth(w);</code></dt>
+<dd>全ての列の幅を w に設定します。</dd>
+</dl>
+
+<h4>関数</h4>
+
+<dl>
+<dt><code>cell(x,y) / [x,y]</code></dt>
+<dd>(x,y)のセルの内容です。読み書きともできます。</dd>
+<dt><code>max(a,b,...)</code></dt>
+<dd>引数に渡したもののうち最大の値を返します。</dd>
+<dt><code>min(a,b,...)</code></dt>
+<dd>引数に渡したもののうち最小の値を返します。</dd>
+<dt><code>len(str)</code></dt>
+<dd>文字列 str の長さを返します。</dd>
+<dt><code>left(str,x)</code></dt>
+<dd>文字列 str の最初 x 文字を切り出して返します。</dd>
+<dt><code>right(str,x)</code></dt>
+<dd>文字列 str の最後 x 文字を切り出して返します。</dd>
+<dt><code>mid(str,x,y)</code></dt>
+<dd>文字列 str の x 文字目から y 文字を切り出して返します。
+    最初の文字のインデックスは１です。</dd>
+<dt><code>mid(str,x)</code></dt>
+<dd>文字列 str の x 文字以降を切り出して返します。
+    最初の文字のインデックスは１です。</dd>
+<dt><code>pos(str1,str2)</code></dt>
+<dd>str1 中の str2 の位置を返します。
+    最初の文字のインデックスは１です。
+    str2 が str1 に含まれなかった場合、０が返されます。</dd>
+<dt><code>replace(str1,str2,str3)</code></dt>
+<dd>str1 中の str2 を全て str3 に置換した文字列を返します。
+    元の str1 は変化しません。</dd>
+<dt><code>GetRowHeight(y)</code></dt>
+<dd>y 行目の高さを返します。
+    y を省略すると標準の行の高さが返されます。</dd>
+<dt><code>GetColWidth(x)</code></dt>
+<dd>x 列目の幅を返します。
+    x を省略すると標準の列の幅が返されます。</dd>
+<dt><code>GetFileName()</code></dt>
+<dd>編集中のCSVファイルのファイル名を返します。
+    新規作成中したデータを編集中は空の文字列が返されます。</dd>
+<dt><code>GetFilePath()</code></dt>
+<dd>編集中のCSVファイルの絶対パスを返します。
+    新規作成中したデータを編集中は空の文字列が返されます。
+    それ以外の場合、必ず「\」で終わる文字列が返されます。
+<dt><code>GetYear()</code></dt>
+<dd>実行時の日付の「年」を返します。４桁の整数が返されます。</dd>
+<dt><code>GetMonth()</code></dt>
+<dd>実行時の日付の「月」を返します。1～12の整数が返されます。</dd>
+<dt><code>GetDate()</code></dt>
+<dd>実行時の日付の「日」を返します。1～31の整数が返されます。</dd>
+<dt><code>GetHours()</code></dt>
+<dd>実行時の時間の「時」を返します。0～23の整数が返されます。</dd>
+<dt><code>GetMinutes()</code></dt>
+<dd>実行時の時間の「分」を返します。0～59の整数が返されます。</dd>
+<dt><code>GetSeconds()</code></dt>
+<dd>実行時の時間の「秒」を返します。0～59の整数が返されます。</dd>
+<dt><code>random(x)</code></dt>
+<dd>0以上x未満の整数をランダムに返します。</dd>
+</dl>
+
+<h4>メッセージボックス</h4>
+
+MessageBox 関数はメッセージボックスを表示し、押されたボタンを返します。
+
+<dl>
+<dt><code>MessageBox(str);</code></dt>
+<dd>str を表示します。OKボタンのみ表示されます。</dd>
+<dt><code>MessageBox(str, flag);</code></dt>
+<dd>str を表示します。ボタンの種類を flag で指定します。</dd>
+<dt><code>MessageBox(str1, str2, flag);</code></dt>
+<dd>メッセージボックス内に str1 を、タイトルに str2 を表示します。
+    ボタンの種類を flag で指定します。</dd>
+</dl>
+
+flag には以下の定数を使用してください。
+<code>MessageBox("test", MB_YESNO);</code>
+のように、「""」などはつけず直接書いてください。
+意味は定数名を見ればだいたいわかるかと思います。
+<ul>
+  <li>MB_ABORTRETRYIGNORE</li>
+  <li>MB_OK</li>
+  <li>MB_OKCANCEL</li>
+  <li>MB_RETRYCANCEL</li>
+  <li>MB_YESNO</li>
+  <li>MB_YESNOCANCEL</li>
+</ul>
+
+戻り値は押されたボタンによって以下の値が返されます。
+これも意味は定数名を見ればだいたいわかるかと思います。
+
+<ul>
+  <li>IDABORT</li>
+  <li>IDCANCEL</li>
+  <li>IDIGNORE</li>
+  <li>IDNO</li>
+  <li>IDOK</li>
+  <li>IDRETRY</li>
+  <li>IDYES</li>
+</ul>
+
+<br /><br />
+InputBox 関数はインプットボックスを表示し、入力された文字列を返します。
+
+<dl>
+<dt><code>InputBox(str);</code></dt>
+<dd>str を表示します。
+    「OK」が押されれば入力された文字列を、
+    「キャンセル」が押されれば "" を返します。</dd>
+<dt><code>InputBox(str, def);</code></dt>
+<dd>str を表示します。
+    「OK」が押されれば入力された文字列を、
+    「キャンセル」が押されれば def を返します。</dd>
+<dt><code>InputBox(str1, str2, def);</code></dt>
+<dd>インプットボックス内に str1 を、タイトルに str2 を表示します。
+    「OK」が押されれば入力された文字列を、
+    「キャンセル」が押されれば def を返します。</dd>
+</dl>
+
+
+<h4>メニューコマンド</h4>
+
+　キーカスタマイズのデータを保存して、そのcsvファイルを開いてみてください。
+２列目の内容の、頭の「mn」を除いたものが関数名になります。<br />
+引数を渡すことはできません。「();」だけをつけてください。<br />
+これで、メニューのクリック動作を行うことができます。<br />
+
+<dl>
+<dt><code>New();</code></dt>
+<dd>新規テーブルの作成</dd>
+<dt><code>CutRow();</code></dt>
+<dd>１行削除</dd>
+<dt><code>InsertCellRight();</code></dt>
+<dd>セルの挿入</dd>
+<dt><code>Refresh();</code></dt>
+<dd>列幅を調整して再描画</dd>
+</dl>
+などです。
+　ダイアログを開くようなメニューも多いですが、
+マクロからはダイアログの入力を行えません。
+
+<h3>構文</h3>
+<blockquote><code>
+if(条件){<br />
+　ブロック;<br />
+}<br />
+</code></blockquote>
+条件が0以外なら実行されます。
+
+<blockquote><code>
+if(条件1){<br />
+　ブロック1;<br />
+}else if(条件2){<br />
+　ブロック2;<br />
+}else{<br />
+　ブロック3;<br />
+}
+</code></blockquote>
+条件1が0以外ならブロック1が、条件2が0以外ならブロック2が、
+そうでなければブロック3が実行されます。
+
+<blockquote><code>
+while(条件){<br />
+　ブロック;<br />
+}<br />
+</code></blockquote>
+条件が0以外である間実行されます。
+一定回数ループを行うと無限ループとみなして処理を中断します。
+
+<blockquote><code>
+for(文1;条件;文2){<br />
+　ブロック;<br />
+}<br />
+</code></blockquote>
+最初に式1を実行し、条件が0以外である間実行されます。
+ループの最後で文2が実行されます。
+一定回数ループを行うと無限ループとみなして処理を中断します。
+
+<blockquote><code>
+for(x=1; x&lt;=max; x++){<br />
+　ブロック;<br />
+}<br />
+</code></blockquote>
+は以下の略記が可能です。
+<blockquote><code>
+For(x to max){<br />
+　ブロック;<br />
+}<br />
+</code></blockquote>
+
+<h3>関数定義</h3>
+　function 文により、自分で関数を定義することができます。
+<blockquote><code>
+function 関数名(引数名1, 引数名2,...){<br />
+　...<br />
+　return 戻り値;<br />
+}<br />
+</code></blockquote>
+という形になります。<br />
+　例えば、次のマクロは x と y の積を表示します。<br />
+<blockquote><code>
+function mult(x, y){ return x * y; }<br />
+<br />
+MessageBox(mult(x,y));<br />
+</code></blockquote>
+関数を呼び出す部分は関数を定義した場所より下に置いてください。<br />
+<br />
+　また、上のマクロが「Math.cms」という名前で保存されていれば、
+他のファイルからも「Math.mult(x,y)」のように
+「ファイル名（パス・拡張子以外）．関数名」と書くことにより
+利用することが可能です。<br />
+
+<h3>コメント</h3>
+　「//」から行末までと、「/*」から「*/」まではコメントとなります。
+<blockquote><code>
+// コメント<br />
+<br />
+/* <br />
+&nbsp;* コメント<br />
+&nbsp;*/
+</code></blockquote>
+
+</body>
+</html>

@@ -1,0 +1,28 @@
+B = Bottom;
+
+x = InputBox("•ÏŠ·‚·‚é—ñ‚ğw’è‚µ‚Ä‚­‚¾‚³‚¢B", x);
+
+For(y to B){
+  str = [x,y];
+  str = replace(str, "1", "ˆê");
+  str = replace(str, "‚P", "ˆê");
+  str = replace(str, "2", "“ñ");
+  str = replace(str, "‚Q", "“ñ");
+  str = replace(str, "3", "O");
+  str = replace(str, "‚R", "O");
+  str = replace(str, "4", "l");
+  str = replace(str, "‚S", "l");
+  str = replace(str, "5", "ŒÜ");
+  str = replace(str, "‚T", "ŒÜ");
+  str = replace(str, "6", "˜Z");
+  str = replace(str, "‚U", "˜Z");
+  str = replace(str, "7", "µ");
+  str = replace(str, "‚V", "µ");
+  str = replace(str, "8", "”ª");
+  str = replace(str, "‚W", "”ª");
+  str = replace(str, "9", "‹ã");
+  str = replace(str, "‚X", "‹ã");
+  str = replace(str, "0", "›");
+  str = replace(str, "‚O", "›");
+  [x,y] = str;
+}

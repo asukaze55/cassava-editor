@@ -1,0 +1,144 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!-- C++Builder XML Project -->
+<PROJECT>
+  <MACROS>
+    <VERSION value="BCB.06.00"/>
+    <PROJECT value="Cassava.exe"/>
+    <OBJFILES value="Cassava.obj CsvGrid.obj Letter.obj MainForm.obj Preview.obj 
+      ..\OpenFile\AutoOpen.obj KeyCustomize.obj Option.obj Print.obj Size.obj 
+      FormattedFileName.obj Macro.obj Compiler.obj TypeOption.obj Nkf.obj Find.obj"/>
+    <RESFILES value="Cassava.res"/>
+    <IDLFILES value=""/>
+    <DEFFILE value=""/>
+    <RESDEPEN value="$(RESFILES) Letter.dfm MainForm.dfm Preview.dfm KeyCustomize.dfm 
+      Option.dfm Print.dfm Size.dfm Find.dfm"/>
+    <LIBFILES value=""/>
+    <LIBRARIES value="vclx.lib bcbsmp.lib vcl.lib rtl.lib"/>
+    <SPARELIBS value="rtl.lib vcl.lib bcbsmp.lib vclx.lib"/>
+    <PACKAGES value="rtl.bpi vcl.bpi vclx.bpi bcbsmp.bpi dclocx.bpi"/>
+    <PATHCPP value=".;..\OpenFile"/>
+    <PATHPAS value=".;"/>
+    <PATHRC value=".;"/>
+    <PATHASM value=".;"/>
+    <DEBUGLIBPATH value="$(BCB)\lib\debug"/>
+    <RELEASELIBPATH value="$(BCB)\lib\release"/>
+    <LINKER value="ilink32"/>
+    <USERDEFINES value="CssvMacro"/>
+    <SYSDEFINES value="NO_STRICT"/>
+    <MAINSOURCE value="Cassava.cpp"/>
+    <INCLUDEPATH value="$(BCB)\Add\referbutton;..\Jis2k;$(BCB)\Projects;..\OpenFile;$(BCB)\include;$(BCB)\include\vcl"/>
+    <LIBPATH value="$(BCB)\Projects\Lib;$(BCB)\Add\referbutton;..\Jis2k;$(BCB)\Projects;..\OpenFile;$(BCB)\lib\obj;$(BCB)\lib"/>
+    <WARNINGS value="-w-par -w-8027 -w-8026"/>
+    <WARNOPTSTR value=""/>
+    <OTHERFILES value=""/>
+  </MACROS>
+  <OPTIONS>
+    <CFLAG1 value="-O2 -Vx -Ve -X- -a8 -5 -b- -k- -vi -c -tW -tWM"/>
+    <PFLAGS value="-$Y- -$L- -$D- -$A8 -v -JPHNE -M"/>
+    <RFLAGS value=""/>
+    <AFLAGS value="/mx /w2 /zd"/>
+    <LFLAGS value="-D&quot;&quot; -aa -Tpe -x -Gn"/>
+    <OTHERFILES value=""/>
+  </OPTIONS>
+  <LINKER>
+    <ALLOBJ value="c0w32.obj sysinit.obj $(OBJFILES)"/>
+    <ALLRES value="$(RESFILES)"/>
+    <ALLLIB value="$(LIBFILES) $(LIBRARIES) import32.lib cp32mt.lib"/>
+    <OTHERFILES value=""/>
+  </LINKER>
+  <FILELIST>
+      <FILE FILENAME="Cassava.cpp" FORMNAME="" UNITNAME="Cassava" CONTAINERID="C/C++ コンパイラ" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="Cassava.res" FORMNAME="" UNITNAME="Cassava" CONTAINERID="ResTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="CsvGrid.cpp" FORMNAME="" UNITNAME="CsvGrid" CONTAINERID="C/C++ コンパイラ" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="Letter.cpp" FORMNAME="fmLetter" UNITNAME="Letter" CONTAINERID="C/C++ コンパイラ" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="MainForm.cpp" FORMNAME="fmMain" UNITNAME="MainForm" CONTAINERID="C/C++ コンパイラ" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="Preview.cpp" FORMNAME="fmPreview" UNITNAME="Preview" CONTAINERID="C/C++ コンパイラ" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\OpenFile\AutoOpen.cpp" FORMNAME="" UNITNAME="AutoOpen" CONTAINERID="C/C++ コンパイラ" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="KeyCustomize.cpp" FORMNAME="fmKey" UNITNAME="KeyCustomize" CONTAINERID="C/C++ コンパイラ" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="Option.cpp" FORMNAME="fmOption" UNITNAME="Option" CONTAINERID="C/C++ コンパイラ" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="Print.cpp" FORMNAME="fmPrint" UNITNAME="Print" CONTAINERID="C/C++ コンパイラ" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="Size.cpp" FORMNAME="fmSize" UNITNAME="Size" CONTAINERID="C/C++ コンパイラ" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="FormattedFileName.cpp" FORMNAME="" UNITNAME="FormattedFileName" CONTAINERID="C/C++ コンパイラ" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="Macro.cpp" FORMNAME="" UNITNAME="Macro" CONTAINERID="C/C++ コンパイラ" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="Compiler.cpp" FORMNAME="" UNITNAME="Compiler" CONTAINERID="C/C++ コンパイラ" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="TypeOption.cpp" FORMNAME="" UNITNAME="TypeOption" CONTAINERID="C/C++ コンパイラ" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="Nkf.cpp" FORMNAME="" UNITNAME="Nkf" CONTAINERID="C/C++ コンパイラ" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="Find.cpp" FORMNAME="fmFind" UNITNAME="Find" CONTAINERID="C/C++ コンパイラ" DESIGNCLASS="" LOCALCOMMAND=""/>
+  </FILELIST>
+  <BUILDTOOLS>
+  </BUILDTOOLS>
+
+  <IDEOPTIONS>
+[Version Info]
+IncludeVerInfo=1
+AutoIncBuild=1
+MajorVer=1
+MinorVer=4
+Release=6
+Build=68
+Debug=0
+PreRelease=0
+Special=0
+Private=0
+DLL=0
+Locale=1041
+CodePage=932
+
+[Version Info Keys]
+CompanyName=
+FileDescription=Cassava
+FileVersion=1.4.6.68
+InternalName=
+LegalCopyright=あすかぜ
+LegalTrademarks=
+OriginalFilename=
+ProductName=Cassava Editor
+ProductVersion=1.0.0.0
+Comments=
+
+[HistoryLists\hlIncludePath]
+Count=5
+Item0=$(BCB)\Add\referbutton;..\Jis2k;$(BCB)\Projects;..\OpenFile;$(BCB)\include;$(BCB)\include\vcl
+Item1=$(BCB)\Add\referbutton;..\Jis2k;..\..\Program Files\Borland\CBuilder4\Projects;..\OpenFile;$(BCB)\include;$(BCB)\include\vcl
+Item2=..\Jis2k;..\..\Program Files\Borland\CBuilder4\Projects;..\OpenFile;$(BCB)\include;$(BCB)\include\vcl
+Item3=..\..\Program Files\Borland\CBuilder4\Projects;..\OpenFile;$(BCB)\include;$(BCB)\include\vcl
+Item4=..\OpenFile;$(BCB)\include;$(BCB)\include\vcl
+
+[HistoryLists\hlLibraryPath]
+Count=5
+Item0=$(BCB)\Projects\Lib;$(BCB)\Add\referbutton;..\Jis2k;$(BCB)\Projects;..\OpenFile;$(BCB)\lib\obj;$(BCB)\lib
+Item1=$(BCB)\Projects\Lib;$(BCB)\Add\referbutton;..\Jis2k;..\..\Program Files\Borland\CBuilder4\Projects;..\OpenFile;$(BCB)\lib\obj;$(BCB)\lib
+Item2=..\Jis2k;..\..\Program Files\Borland\CBuilder4\Projects;..\OpenFile;$(BCB)\lib\obj;$(BCB)\lib
+Item3=..\..\Program Files\Borland\CBuilder4\Projects;..\OpenFile;$(BCB)\lib\obj;$(BCB)\lib
+Item4=..\OpenFile;$(BCB)\lib\obj;$(BCB)\lib
+
+[HistoryLists\hlDebugSourcePath]
+Count=1
+Item0=$(BCB)\source\vcl
+
+[HistoryLists\hlConditionals]
+Count=3
+Item0=CssvMacro
+Item1=CssvMacro;_DEBUG
+Item2=_DEBUG
+
+[Debugging]
+DebugSourceDirs=$(BCB)\source\vcl
+
+[Parameters]
+RunParams=
+Launcher=
+UseLauncher=0
+DebugCWD=
+HostApplication=
+RemoteHost=
+RemotePath=
+RemoteLauncher=
+RemoteCWD=
+RemoteDebug=0
+
+[Compiler]
+ShowInfoMsgs=0
+LinkDebugVcl=0
+  </IDEOPTIONS>
+</PROJECT>

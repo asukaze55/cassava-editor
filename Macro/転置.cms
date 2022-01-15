@@ -1,0 +1,12 @@
+W = Right;
+H = Bottom;
+size = max(W,H);
+
+for(y=1; y<=size; y++){
+  for(x=y+1; x<=size; x++){
+    swap([x,y],[y,x]);
+  }
+}
+
+Right = H + 1;
+Bottom = W + 1;

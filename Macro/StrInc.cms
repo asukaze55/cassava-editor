@@ -1,0 +1,2 @@
+[x,y] = Lib.StrInc([x,y]);
+[x+1,y] = Lib.StrDec([x,y]);

@@ -1,0 +1,13 @@
+T = SelTop;
+B = SelBottom;
+Interval = InputBox(T + "行目から" + B + 
+  "行目まで間引き処理を行います。\n間隔を指定してください。");
+
+if(Interval != ""){
+  for(y=B; y>=T; y--){
+    if(((y-T) % Interval) != 0){
+      DeleteRow(y);
+    }
+  }
+  Refresh();
+}

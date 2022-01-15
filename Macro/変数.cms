@@ -1,0 +1,18 @@
+New();
+a = 9;
+b = 3;
+
+c = a+b;
+d = a-b;
+e = a*b;
+f = a/b;
+g = a*100+b;
+
+cell(1,1) = a;
+cell(2,1) = b;
+cell(1,2) = c;
+cell(2,2) = d;
+cell(3,2) = e;
+cell(4,2) = f;
+cell(a,b) = g;
+Refresh();

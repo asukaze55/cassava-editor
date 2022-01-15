@@ -1,0 +1,23 @@
+// エラトステネスのふるい
+
+Max = InputBox("素数を求める最大値を入力して下さい。");
+if(Max > 0){
+  Bottom = Max - 1;
+  for(i=1; i<Max; i++){
+    [1,i] = i+1;
+    [2,i] = "○";
+  }
+  for(i=1; i<=Bottom; i++){
+    if([2,i] == "○"){
+      prime = [1,i] - 0;
+      for(j=i+prime; j<=Bottom; j=j+prime){
+        [2,j] = "×";
+      }
+    }else{
+      DeleteRow(i);
+      i--;
+    }
+  }
+  DeleteCol(2);
+  Refresh();
+}

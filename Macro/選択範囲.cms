@@ -1,0 +1,14 @@
+For(x to Right){
+  [x,1] = "#";
+  [x,Bottom] = "#";
+}
+For(y to Bottom){
+  [1,y] = "#";
+  [Right, y] = "#";
+}
+
+for(y=SelTop; y<=SelBottom; y++){
+  for(x=SelLeft; x<=SelRight; x++){
+    [x,y] = "*";
+  }
+}

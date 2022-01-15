@@ -1,0 +1,72 @@
+  html, body {
+    background: #ffffff;
+    color: #000000;
+  }
+  h1 {
+    color: #0066ff;
+    font-size: 130%;
+    font-weight: bold;
+    margin-left: 10px;
+  }
+  h2 { 
+    border-bottom: 3px solid #99ff66;
+    color: #006600;
+    font-size: 110%;
+    font-weight: bold;
+  }
+  h3 { 
+    border-bottom: 3px solid #ffcc66;
+    color: #993300;
+    font-size: 110%;
+    font-weight: bold;
+    margin-left: 40px;
+  }
+
+  div.sign, address {
+    background-color: #ccffff;
+    text-align: right;
+    font-style: normal;
+  }
+
+  a.noul       { text-decoration: none; }
+
+  .sidepane { float: left; padding: 5px; }
+  div.sectitle {
+    background-color: #cccccc;
+    border-bottom: 1px solid #999999;
+    border-right: 1px solid #999999;
+    font-weight: bold; 
+    padding: 2px;
+  }
+  div.MainMenu {
+    background-color: #99ccff;
+    border-bottom: 1px solid #6699cc;
+    border-left: 1px solid #ccffff;
+    border-right: 1px solid #6699cc;
+    border-top: 1px solid #ccffff;
+    font-weight: bold; 
+    word-break: keep-all;
+    padding: 3px 3px 3px 3px;
+  }
+  div.MainMenuSel {
+    background-color: #66ccff;
+    font-weight: bold; 
+    padding: 3px 30px 3px 5px;
+  }
+  ul.MainMenu {
+    background-color: #ccffff;
+    list-style-type: none;
+    margin: 0px;
+    padding: 2px 10px;
+  }
+  .MainMenu a, .MainMenuSel a {
+    text-decoration: none;
+    color: #0000ff;
+  }
+  .MainMenu a:hover, .MainMenuSel a:hover {
+    text-decoration: underline;
+    color: #ff3300
+  }
+  .Sel { font-weight: bold; }
+  .Comment { font-size: 80%; margin-left: 10px; margin-right: 10px; }
+
