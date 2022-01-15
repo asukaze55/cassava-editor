@@ -1,32 +1,20 @@
-# Prerequisites
-*.d
-
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
+.*
+__astcache
+__history
+__recovery
+Debug_Build
+PasteDlg
+Release_Build
+Test
 *.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
+*.dsk
 *.exe
-*.out
-*.app
+*.ilc
+*.ild
+*.ilf
+*.ils
+*.local
+*.map
+*.res
+*.stat
+*.tds
