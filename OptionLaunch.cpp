@@ -85,18 +85,19 @@ void __fastcall TfrOptionLaunch::sbReferClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 void TfrOptionLaunch::SetKanrenLaunch(TRegistry *Reg,
-        AnsiString CassavaTypePath)
+        AnsiString CassavaType)
 {
-  if(Reg->OpenKey(CassavaTypePath, false)){
+  if(Reg->OpenKey("\\Software\\Classes\\" + CassavaType, false)){
     if(Application->MessageBox("ŠÖ˜A•t‚¯‚ðÝ’è‚µ‚Ü‚·",
-                               CassavaTypePath.c_str() + 1,
-                               MB_OKCANCEL)==IDOK){
-      Reg->DeleteKey(CassavaTypePath + "\\shell");
-      Reg->OpenKey(CassavaTypePath + "\\shell",true);
-        Reg->OpenKey("open",true);
-        Reg->WriteString("", "Cassava");
-          Reg->OpenKey("command",true);
-          Reg->WriteString("", (AnsiString)'\"'+ParamStr(0)+"\" \"%1\"");
+        CassavaType.c_str(), MB_OKCANCEL)==IDOK){
+      Reg->DeleteKey("\\Software\\Classes\\" + CassavaType + "\\shell");
+      Reg->OpenKey("\\Software\\Classes\\" + CassavaType + "\\shell", true);
+      Reg->OpenKey("open", true);
+      Reg->WriteString("", "Cassava Editor ‚ÅŠJ‚­");
+      Reg->OpenKey("command",true);
+      Reg->WriteString("", (AnsiString)'\"'+ParamStr(0)+"\" \"%1\"");
+      Reg->CloseKey();
+
       for(int i=0; i<3; i++){
         AnsiString Nm, Lc;
         switch(i){
@@ -105,9 +106,9 @@ void TfrOptionLaunch::SetKanrenLaunch(TRegistry *Reg,
           case 2: Nm = edLaunchName2->Text; Lc = edLaunch2->Text; break;
         }
         if(Lc != ""){
-          Reg->OpenKey(CassavaTypePath + "\\shell",true);
-          Reg->OpenKey(Nm,true);
-          Reg->OpenKey("command",true);
+          Reg->OpenKey("\\Software\\Classes\\" + CassavaType + "\\shell", true);
+          Reg->OpenKey(Nm, true);
+          Reg->OpenKey("command", true);
           Reg->WriteString("", (AnsiString)'\"'+Lc+"\" \"%1\"");
         }
       }
@@ -119,9 +120,9 @@ void TfrOptionLaunch::SetKanrenLaunch(TRegistry *Reg,
 void __fastcall TfrOptionLaunch::btnKanrenRClick(TObject *Sender)
 {
   TRegistry *Reg = new TRegistry;
-  Reg->RootKey = HKEY_CLASSES_ROOT;
-  SetKanrenLaunch(Reg, "\\Cassava.CSV");
-  SetKanrenLaunch(Reg, "\\Cassava.TSV");
+  Reg->RootKey = HKEY_CURRENT_USER;
+  SetKanrenLaunch(Reg, "Cassava.CSV");
+  SetKanrenLaunch(Reg, "Cassava.TSV");
   delete Reg;
 }
 //---------------------------------------------------------------------------

@@ -46,7 +46,9 @@ object frOptionBehavior: TfrOptionBehavior
     Items.Strings = (
       #31227#21205#12375#12394#12356
       #19979#12408#31227#21205
-      #21491#12408#31227#21205)
+      #21491#12408#31227#21205
+      #27425#12398#34892#12408#31227#21205
+      #12479#12502#12461#12540#12392#36899#21205)
   end
   object cbLeftArrowInCell: TCheckBox
     Left = 8
@@ -74,7 +76,7 @@ object frOptionBehavior: TfrOptionBehavior
   end
   object GroupBox2: TGroupBox
     Left = 4
-    Top = 185
+    Top = 208
     Width = 353
     Height = 81
     Caption = #12510#12463#12525
@@ -114,5 +116,13 @@ object frOptionBehavior: TfrOptionBehavior
     Height = 17
     Caption = #21336#19968#21015#36984#25246#26178#12399#20840#20307#12434#12477#12540#12488
     TabOrder = 6
+  end
+  object cbCalcWidthForAllRow: TCheckBox
+    Left = 8
+    Top = 173
+    Width = 337
+    Height = 17
+    Caption = #21015#24133#35519#25972#12399#30011#38754#22806#12398#34892#12418#23550#35937#12392#12377#12427
+    TabOrder = 7
   end
 end

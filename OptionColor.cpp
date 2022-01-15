@@ -1,5 +1,4 @@
 //---------------------------------------------------------------------------
-
 #include <vcl.h>
 #pragma hdrstop
 
@@ -26,6 +25,7 @@ void TfrOptionColor::RestoreFromMainForm()
   cbNoMarginInCellLines->Checked = (fmMain->MainGrid->CellLineMargin == 0);
 
   cbFgColor->Selected = fmMain->MainGrid->Font->Color;
+  cbUrlColor->Selected = fmMain->MainGrid->UrlColor;
   cbBgColor->Selected = fmMain->MainGrid->Color;
   cbFixFgColor->Selected = fmMain->MainGrid->FixFgColor;
   cbFixBgColor->Selected = fmMain->MainGrid->FixedColor;
@@ -38,11 +38,8 @@ void TfrOptionColor::RestoreFromMainForm()
 //---------------------------------------------------------------------------
 void TfrOptionColor::StoreToMainForm()
 {
-  if(stFont->Font->Size <= 12){
-    fmMain->Font->Size = stFont->Font->Size;
-  }
+  fmMain->SetGridFont(stFont->Font);
 
-  fmMain->MainGrid->Font = stFont->Font;
   fmMain->MainGrid->LineMargin = udLineMargin->Position;
   fmMain->MainGrid->CellLineMargin = (cbNoMarginInCellLines->Checked ? 0 :
     udLineMargin->Position);
@@ -50,6 +47,7 @@ void TfrOptionColor::StoreToMainForm()
   fmMain->MainGrid->Font->Color = cbFgColor->Selected;
   fmMain->MainGrid->Color = cbBgColor->Selected;
   fmMain->MainGrid->InplaceEditor->Brush->Color = cbBgColor->Selected;
+  fmMain->MainGrid->UrlColor = cbUrlColor->Selected;
   fmMain->MainGrid->FixFgColor = cbFixFgColor->Selected;
   fmMain->MainGrid->FixedColor = cbFixBgColor->Selected;
   fmMain->MainGrid->DummyBgColor = cbDummyBgColor->Selected;
@@ -64,9 +62,9 @@ void __fastcall TfrOptionColor::btnFontClick(TObject *Sender)
   TFontDialog *dlgFont = new TFontDialog(this);
   dlgFont->Font = stFont->Font;
   if(dlgFont->Execute()){
-	stFont->Font = dlgFont->Font;
-	stFont->Caption = stFont->Font->Name + " (" + stFont->Font->Size + ")";
-	cbFgColor->Selected = stFont->Font->Color;
+    stFont->Font = dlgFont->Font;
+    stFont->Caption = stFont->Font->Name + " (" + stFont->Font->Size + ")";
+    cbFgColor->Selected = stFont->Font->Color;
   }
   delete dlgFont;
 }

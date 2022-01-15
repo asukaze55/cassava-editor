@@ -334,9 +334,7 @@ private:
   bool Fail;
   TTokenizer *lex;
   TStream *fout;
-  AnsiString InPath;
   AnsiString InName;
-  AnsiString Ext;
   TStrings *PrivateFunctions;
   TStringList *Modules;
 
@@ -767,9 +765,7 @@ bool TCompiler::Compile(TStream *stream,
                         AnsiString inpath, AnsiString inname, AnsiString ext,
                         TStringList *modules, bool showMessage)
 {
-  InPath = inpath;
   InName = inname;
-  Ext = ext;
   Fail = false;
   lex = new TTokenizer(stream);
   fout = new TMemoryStream();
@@ -799,7 +795,7 @@ bool TCompiler::Compile(TStream *stream,
   return !Fail;
 }
 //---------------------------------------------------------------------------
-bool MacroCompile(TStream *stream,
+bool MacroCompile(TStream *stream, TStringList *inpaths,
                   AnsiString inpath, AnsiString inname, AnsiString ext,
                   TStringList *modules, bool showMessage)
 {
@@ -812,13 +808,28 @@ bool MacroCompile(TStream *stream,
   for(int i=1; OK && (i < Cmp.import->Count); i++){
     TStream *libstream = NULL;
     AnsiString libname = Cmp.import->Strings[i];
+    AnsiString libFileName = "";
     try{
-      libstream = new TFileStream(inpath + libname + ext,
-                                  fmOpenRead | fmShareDenyWrite);
-      OK = Cmp.Compile(libstream, inpath, libname, ext, modules, showMessage);
+      for(int j=0; j<inpaths->Count; j++){
+        AnsiString str = inpaths->Strings[j] + libname + ext;
+        if(FileExists(str)){
+          libFileName = str;
+          break;
+        }
+      }
+      if(libFileName != ""){
+        libstream = new TFileStream(libFileName, fmOpenRead | fmShareDenyWrite);
+        OK = Cmp.Compile(libstream, inpath, libname, ext, modules, showMessage);
+      }else{
+        if(showMessage){
+          AnsiString str = libname + ext + "\nファイルが見つかりません。";
+          Application->MessageBox(str.c_str(), "Cassava Macro Compiler", 0);
+        }
+        OK = false;
+      }
     }catch(Exception *e){
       if(showMessage){
-        AnsiString str = inpath + libname + ext + "\n" + e->Message;
+        AnsiString str = libFileName + "\n" + e->Message;
         Application->MessageBox(str.c_str(), "Cassava Macro Compiler", 0);
       }
       OK = false;
@@ -828,7 +839,8 @@ bool MacroCompile(TStream *stream,
   return OK;
 }
 //---------------------------------------------------------------------------
-bool MacroCompile(AnsiString infile, TStringList *modules, bool showMessage)
+bool MacroCompile(AnsiString infile, TStringList *inpaths,
+                  TStringList *modules, bool showMessage)
 {
   TStream *stream = NULL;
   bool OK;
@@ -838,7 +850,7 @@ bool MacroCompile(AnsiString infile, TStringList *modules, bool showMessage)
     if(*(inpath.AnsiLastChar()) != '\\') inpath += "\\";
     AnsiString inname = ChangeFileExt(ExtractFileName(infile),"");
     AnsiString ext  = ExtractFileExt(infile);
-    OK = MacroCompile(stream, inpath, inname, ext, modules, showMessage);
+    OK = MacroCompile(stream, inpaths, inpath, inname, ext, modules, showMessage);
   }catch(Exception *e){
     if(showMessage){
       AnsiString str = infile + "\n" + e->Message;

@@ -52,8 +52,8 @@ void __fastcall TfmLetter::FormShow(TObject *Sender)
   udMyDataInCsv->Max = max;
 
   DataSetDefault();
-  if(FileExists(fmMain->FullPath + "Auto.dat")) {
-    DataRead(fmMain->FullPath + "Auto.dat");
+  if(FileExists(fmMain->Pref->Path + "Auto.dat")) {
+    DataRead(fmMain->Pref->Path + "Auto.dat");
   }
 
   PreView();
@@ -62,7 +62,7 @@ void __fastcall TfmLetter::FormShow(TObject *Sender)
 void __fastcall TfmLetter::FormClose(TObject *Sender, TCloseAction &Action)
 {
   delete fmPreview;
-  DataSave(fmMain->FullPath + "Auto.dat");
+  DataSave(fmMain->Pref->Path + "Auto.dat");
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmLetter::imPreviewClick(TObject *Sender)
@@ -422,7 +422,7 @@ void __fastcall TfmLetter::cbxFontChange(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmLetter::btnSaveClick(TObject *Sender)
 {
-  dlgSave->FileName = fmMain->FullPath + "Auto.dat";
+  dlgSave->FileName = fmMain->Pref->Path + "Auto.dat";
   if(dlgSave->Execute())
   {
     DataSave(dlgSave->FileName);
@@ -482,7 +482,7 @@ void TfmLetter::DataSave(AnsiString FileName)
 //---------------------------------------------------------------------------
 void __fastcall TfmLetter::btnReadClick(TObject *Sender)
 {
-  dlgOpen->FileName = fmMain->FullPath + "Auto.dat";
+  dlgOpen->FileName = fmMain->Pref->Path + "Auto.dat";
   if(dlgOpen->Execute())
   {
     DataRead(dlgOpen->FileName);

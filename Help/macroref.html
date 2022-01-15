@@ -272,6 +272,56 @@
 
 	<tr>
 		<td class="markupE">-</td>
+		<td class="markupE">SaveIniSetting</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>SaveIniSetting();</td>
+		<td>現在の Cassava の状態を設定ファイルに保存します。</td>
+		<td>1.6.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">LoadIniSetting</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>LoadIniSetting();</td>
+		<td>前回保存した設定ファイルを読み込み、Cassava の状態を元に戻します。</td>
+		<td>1.6.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">SetIniSetting</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>SetIniSetting(sec,key,val);</td>
+		<td>保存されている設定ファイルを更新し、sec セクションの key キーの値を val にします。 この変更は LoadIniSetting() 実行まで反映されません。</td>
+		<td>1.6.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">SetFontName</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>SetFontName(str);</td>
+		<td>フォントを str に変更します。</td>
+		<td>1.6.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">SetFontSize</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>SetFontSize(x);</td>
+		<td>フォントサイズを x に変更します。</td>
+		<td>1.6.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
 		<td class="markupE">cell</td>
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
@@ -552,6 +602,36 @@
 
 	<tr>
 		<td class="markupE">-</td>
+		<td class="markupE">GetIniSetting</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>GetIniSetting(sec,key);</td>
+		<td>保存されている設定ファイルを読み込み、sec セクションの key キーの値を取得します。 この値は設定ファイルに保存された値であり、最新の Cassava の状態とは異なる場合があります。</td>
+		<td>1.6.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">GetFontName</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>GetFontName();</td>
+		<td>現在設定されているフォント名を取得します。</td>
+		<td>1.6.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">GetFontSize</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>GetFontSize();</td>
+		<td>現在設定されているフォントサイズを取得します。</td>
+		<td>1.6.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
 		<td class="markupE">MessageBox</td>
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
@@ -608,6 +688,46 @@
 		<td>InputBox(str1,str2,def);</td>
 		<td>インプットボックス内に str1 を、タイトルに str2 を表示します。「OK」が押されれば入力された文字列を、「キャンセル」が押されれば def を返します。</td>
 		<td>-</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">InputBoxMultiLine</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>InputBoxMultiLine(str);</td>
+		<td>str を表示します。 「OK」が押されれば入力された文字列を、 「キャンセル」が押されれば "" を返します。</td>
+		<td>1.6.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">InputBoxMultiLine</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>InputBoxMultiLine(str, def);</td>
+		<td>str を表示します。テキストボックスのデフォルト値は def です。 「OK」が押されれば入力された文字列を、 「キャンセル」が押されれば def を返します。</td>
+		<td>1.6.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">InputBoxMultiLine</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>InputBoxMultiLine(str1, str2, def);</td>
+		<td>インプットボックス内に str1 を、タイトルに str2 を表示します。 テキストボックスのデフォルト値は def です。 「OK」が押されれば入力された文字列を、 「キャンセル」が押されれば def を返します。</td>
+		<td>1.6.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">InputBoxMultiLine</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>InputBoxMultiLine(str1, str2, def1, def2);</td>
+		<td>インプットボックス内に str1 を、タイトルに str2 を表示します。 テキストボックスのデフォルト値は def2 です。 「OK」が押されれば入力された文字列を、 「キャンセル」が押されれば def1 を返します。</td>
+		<td>1.6.0</td>
 	</tr>
 
 	<tr>
@@ -1162,6 +1282,16 @@
 
 	<tr>
 		<td class="markupE">-</td>
+		<td class="markupE">QuickFind</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>QuickFind();</td>
+		<td>簡易検索</td>
+		<td>1.6.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
 		<td class="markupE">Find</td>
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
@@ -1267,7 +1397,7 @@
 		<td class="markupE">-</td>
 		<td>CalcExpression();</td>
 		<td>セル内計算式を処理</td>
-		<td>-</td>
+		<td>1.5.0</td>
 	</tr>
 
 	<tr>
@@ -1278,6 +1408,16 @@
 		<td>ShowToolbar();</td>
 		<td>ツールバーの表示の切り替え</td>
 		<td>-</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">ShowStatusbar</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>ShowStatusbar();</td>
+		<td>ステータスバーの表示の切り替え</td>
+		<td>1.6.0</td>
 	</tr>
 
 	<tr>
@@ -1406,7 +1546,7 @@
 		<td class="markupE">-</td>
 		<td class="markupE">-</td>
 		<td>Lfcr();</td>
-		<td>セーブ時改行コードを「LF+CR」に設定</td>
+		<td>セーブ時改行コードを「CR+LF」に設定</td>
 		<td>-</td>
 	</tr>
 
@@ -1587,6 +1727,66 @@
 &nbsp;*/</td>
 		<td>「/*」から「*/」までがコメントとなります。</td>
 		<td>-</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">SetStatusBarCount</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>SetStatusBarCount(x)</td>
+		<td>ステータスバー内の表示領域の個数を設定します。</td>
+		<td>1.6.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">SetStatusBarText</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>SetStatusBarText(x,str)</td>
+		<td>x 番目の領域に str を表示します。</td>
+		<td>1.6.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">SetStatusBarWidth</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>SetStatusBarWidth(x,w)</td>
+		<td>x 番目の領域の幅を w に設定します。デフォルト値は 50 です。</td>
+		<td>1.6.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">GetStatusBarCount</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>GetStatusBarCount()</td>
+		<td>ステータスバー内の表示領域の個数を取得します。</td>
+		<td>1.6.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">GetStatusBarText</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>GetStatusBarText(x)</td>
+		<td>x 番目の領域に表示された文字列を取得します。</td>
+		<td>1.6.0</td>
+	</tr>
+
+	<tr>
+		<td class="markupE">-</td>
+		<td class="markupE">GetStatusBarWidth</td>
+		<td class="markupE">-</td>
+		<td class="markupE">-</td>
+		<td>GetStatusBarWidth(x)</td>
+		<td>x 番目の領域の幅を取得します。</td>
+		<td>1.6.0</td>
 	</tr>
 
 </table>

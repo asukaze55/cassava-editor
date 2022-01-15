@@ -81,10 +81,7 @@ private:
     TObject *EOFMarker;
 
     int FLineMargin;
-    void SetLineMargin(int Value){
-      FLineMargin = Value;
-      DefaultRowHeight = Font->Size * Screen->PixelsPerInch / 72 + Value + 4;
-    }
+    void SetLineMargin(int Value);
 
     AnsiString GetACells(int ACol, int ARow);
     void SetACells(int ACol, int ARow, AnsiString Val);
@@ -125,6 +122,8 @@ private:
     TRect DrawTextRect(TCanvas *Canvas, TRect Rect, AnsiString Str,
                        bool Wrap, bool MeasureOnly=false);
 
+    void (__closure *OnFileOpenThreadTerminate)(System::TObject* Sender);
+
 protected:
     void PasteCSV(TStrings *List , int Left=1 , int Top=1 , int Way=2 ,
         int ClipCols=0 , int ClipRows=0);
@@ -144,14 +143,15 @@ protected:
         const TRect &ARect, TGridDrawState AState);
     void InsertCells_Right(long Left, long Right, long Top, long Bottom);
     void InsertCells_Down(long Left, long Right, long Top, long Bottom);
-    void DeleteCells_Left(long Left, long Right, long Top, long Bottom);
-    void DeleteCells_Up(long Left, long Right, long Top, long Bottom);
+    void DeleteCells_Left(long Left, long Right, long Top, long Bottom,
+        bool UpdateWidth=false);
+    void DeleteCells_Up(long Left, long Right, long Top, long Bottom,
+        bool UpdateHeight=false);
 
     void __fastcall DropCsvFiles(TWMDropFiles inMsg);
     BEGIN_MESSAGE_MAP
         MESSAGE_HANDLER(WM_DROPFILES, TWMDropFiles, DropCsvFiles)
     END_MESSAGE_MAP(TStringGrid)
-
 
 __published:
     __property InplaceEditor;
@@ -182,6 +182,7 @@ public:
 
     __property int LineMargin = {read=FLineMargin, write=SetLineMargin};
     int CellLineMargin;
+    void UpdateDefaultRowHeight();
 
     __property AnsiString ACells[int ACol][int ARow]
       = {read=GetACells, write=SetACells};
@@ -202,7 +203,8 @@ public:
     void UpdateDataRight();
     void UpdateDataBottom();
     void UpdateDataRightBottom(int modx, int mody, bool updateTableSize=true);
-    bool LoadFromFile(AnsiString FileName, int KanjiCode=CHARCODE_AUTO);
+    void UpdateEOFMarker(int oldRight, int oldBottom);
+    void SetDataRightBottom(int rx, int by, bool updateTableSize=true);
     void SaveToFile(AnsiString FileName, TTypeOption *Format, bool SetModifiedFalse=true);
     void CopyToClipboard(bool Cut = false);
     void CutToClipboard();
@@ -225,10 +227,15 @@ public:
     int TextAlignment;
     bool AlwaysShowEditor;
     bool WheelMoveCursol;
+    int WheelScrollStep;
     int EnterMove;
 #define cssv_EnterNone 0
 #define cssv_EnterDown 1
 #define cssv_EnterRight 2
+#define cssv_EnterNextRow 3
+#define cssv_EnterTabbedNextRow 4
+    int TabStartCol;
+    int TabStartRow;
 
     int DblClickOpenURL;
     bool ShowURLBlue;
@@ -240,6 +247,8 @@ public:
 #define cssv_viewallcolumn 0
 #define cssv_viewalltext   1
     int NumberComma;
+    int MinColWidth;
+    bool CalcWidthForAllRow;
 
     __property bool ExecCellMacro
         = {read=FExecCellMacro, write=SetExecCellMacro};
@@ -327,6 +336,12 @@ public:
     void __fastcall MouseWheelDown(System::TObject* Sender,
       Classes::TShiftState Shift, const Types::TPoint &MousePos, bool &Handled);
 
+    bool LoadFromFile(AnsiString FileName, int KCode=CHARCODE_AUTO,
+      void (__closure *OnTerminate)(System::TObject* Sender)=NULL);
+    TThread *FileOpenThread;
+    void __fastcall FileOpenThreadTerminate(System::TObject* Sender);
+
+    TColor UrlColor;
     TColor FixFgColor;
     TColor DummyBgColor;
     TColor CalcFgColor;

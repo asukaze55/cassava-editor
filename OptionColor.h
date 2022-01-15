@@ -38,6 +38,8 @@ __published:	// IDE 管理のコンポーネント
   TUpDown *udLineMargin;
   TLabel *lblLineMarginPt;
   TCheckBox *cbNoMarginInCellLines;
+  TLabel *lblUrlColor;
+  TColorBox *cbUrlColor;
 	void __fastcall btnFontClick(TObject *Sender);
 	void __fastcall cbFgColorChange(TObject *Sender);
 	void __fastcall cbBgColorChange(TObject *Sender);

@@ -1,0 +1,12 @@
+function init(){
+  SetStatusBarCount(3);
+}
+
+SetStatusBarText(1, "[" + x + "," + y + "]");
+if(SelRight > SelLeft || SelBottom > SelTop){
+  SetStatusBarText(2, (SelRight - SelLeft + 1) + "Å~" + (SelBottom - SelTop + 1));
+  SetStatusBarText(3, "SUM=" + sum(SelLeft, SelTop, SelRight, SelBottom));
+}else{
+  SetStatusBarText(2, "");
+  SetStatusBarText(3, [x,y]);
+}

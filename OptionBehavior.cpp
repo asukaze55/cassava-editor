@@ -25,6 +25,7 @@ void TfrOptionBehavior::RestoreFromMainForm()
   cbWheelMoveCursol->Checked = fmMain->MainGrid->WheelMoveCursol;
   cbAlwaysShowEditor->Checked = fmMain->MainGrid->AlwaysShowEditor;
   cbSortAll->Checked = fmMain->SortAll;
+  cbCalcWidthForAllRow->Checked = fmMain->MainGrid->CalcWidthForAllRow;
 
   cbStopMacro->Checked = (fmMain->StopMacroCount > 0);
   seStopMacroCount->Text = AnsiString(cbStopMacro->Checked ? fmMain->StopMacroCount : 100000);
@@ -39,6 +40,7 @@ void TfrOptionBehavior::StoreToMainForm()
   fmMain->MainGrid->WheelMoveCursol = cbWheelMoveCursol->Checked;
   fmMain->MainGrid->AlwaysShowEditor = cbAlwaysShowEditor->Checked;
   fmMain->SortAll = cbSortAll->Checked;
+  fmMain->MainGrid->CalcWidthForAllRow = cbCalcWidthForAllRow->Checked;
 
   if(cbStopMacro->Checked){
     fmMain->StopMacroCount = seStopMacroCount->Text.ToIntDef(0);

@@ -7,6 +7,7 @@
 #include "MacroOpeCode.h"
 #include "MainForm.h"
 #include "EncodedStream.h"
+#include "MultiLineInputBox.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 using namespace std;
@@ -114,6 +115,21 @@ void Write(int x, int y, AnsiString str, bool IsCellMacro)
   g->Modified = true;
 }
 //---------------------------------------------------------------------------
+double ToDouble(AnsiString str, double def)
+{
+  try{
+    AnsiString temp = str;
+    for(int i=temp.Length(); i>0; i--){
+      if(temp[i] == ','){
+        temp.Delete(i,1);
+      }
+    }
+    return temp.ToDouble();
+  }catch(...){
+    return def;
+  }
+}
+//---------------------------------------------------------------------------
 Element::Element(int cl, int rw, TMacro *m)
 {
   Type = etCell; X = cl; Y = rw;
@@ -128,23 +144,23 @@ Element &Element::GetVar(AnsiString name)
 //---------------------------------------------------------------------------
 double Element::Val()
 {
-  try{
-	if(Type == etCell) return (fmMain->MainGrid->ACells[X][Y].ToDouble());
-    else if(Type == etVar) return GetVar(st).Val();
-    else if(Type == etSystem){
-      if     (st == "Col")       { return MGCol; }
-      else if(st == "Row")       { return MGRow; }
-      else if(st == "Right")     { return RXtoAX(fmMain->MainGrid->DataRight); }
-      else if(st == "Bottom")    { return RYtoAY(fmMain->MainGrid->DataBottom); }
-      else if(st == "SelLeft")   { return RXtoAX(fmMain->MainGrid->SelLeft); }
-      else if(st == "SelTop")    { return RYtoAY(fmMain->MainGrid->SelTop); }
-      else if(st == "SelRight")  { return RXtoAX(fmMain->MainGrid->Selection.Right); }
-      else if(st == "SelBottom") { return RYtoAY(fmMain->MainGrid->Selection.Bottom); }
-    }else if(Num) return vl;
-    return st.ToDouble();
-  }catch(...){
-    return 0;
+  if(Type == etCell){
+    return ToDouble(fmMain->MainGrid->ACells[X][Y], 0);
+  }else if(Type == etVar){
+    return GetVar(st).Val();
+  }else if(Type == etSystem){
+    if     (st == "Col")       { return MGCol; }
+    else if(st == "Row")       { return MGRow; }
+    else if(st == "Right")     { return RXtoAX(fmMain->MainGrid->DataRight); }
+    else if(st == "Bottom")    { return RYtoAY(fmMain->MainGrid->DataBottom); }
+    else if(st == "SelLeft")   { return RXtoAX(fmMain->MainGrid->SelLeft); }
+    else if(st == "SelTop")    { return RYtoAY(fmMain->MainGrid->SelTop); }
+    else if(st == "SelRight")  { return RXtoAX(fmMain->MainGrid->Selection.Right); }
+    else if(st == "SelBottom") { return RYtoAY(fmMain->MainGrid->Selection.Bottom); }
+  }else if(Num){
+    return vl;
   }
+  return ToDouble(st, 0);
 }
 //---------------------------------------------------------------------------
 AnsiString Element::Str()
@@ -276,6 +292,21 @@ TMenuItem *MenuSearch(TMenuItem *m, AnsiString s)
   return NULL;
 }
 //---------------------------------------------------------------------------
+AnsiString NormalizeNewLine(AnsiString Val)
+{
+  int len = Val.Length();
+  for(int i=len; i > 0; i--){
+    if(Val[i] == '\r'){
+      if(i == len || Val[i+1] != '\n'){
+        Val[i] = '\n';
+      }else{
+        Val.Delete(i, 1);
+      }
+    }
+  }
+  return Val;
+}
+//---------------------------------------------------------------------------
 #define STR0 ope[0]->Str()
 #define VAL0 ope[0]->Val()
 #define STR1 ope[1]->Str()
@@ -329,6 +360,13 @@ void TMacro::ExecFnc(AnsiString s){
       AnsiString Def = (H >= 2) ? (ope[H-1]->Str()) : (AnsiString)"";
       AnsiString Caption = (H >= 3) ? STR1 : (AnsiString)"Cassava Macro";
       Stack->Add(new Element(InputBox(Caption, Text, Def), this));
+    }else if(s == "InputBoxMultiLine"){
+      AnsiString Text = (H >= 1) ? STR0 : (AnsiString)"";
+      AnsiString Def = (H >= 2) ? (ope[H-1]->Str()) : (AnsiString)"";
+      AnsiString Caption = (H >= 3) ? STR1 : (AnsiString)"Cassava Macro";
+      AnsiString Cancel = (H >= 4) ? STR2 : Def;
+      AnsiString Result = InputBoxMultiLine(Caption, Text, Cancel, Def);
+      Stack->Add(new Element(NormalizeNewLine(Result), this));
     }else if(s == "GetRowHeight" && H == 0){
       Stack->Add(new Element(fmMain->MainGrid->DefaultRowHeight, this));
     }else if(s == "GetRowHeight" && H == 1){
@@ -375,6 +413,62 @@ void TMacro::ExecFnc(AnsiString s){
       Stack->Add(new Element(Path, this));
     }else if(s == "GetFileName" && H == 0){
       Stack->Add(new Element(ExtractFileName(fmMain->FileName), this));
+    }else if(s == "GetStatusBarCount" && H == 0){
+      Stack->Add(new Element(fmMain->StatusBar->Panels->Count - 1, this));
+    }else if(s == "SetStatusBarCount" && H == 1){
+      int val = VAL0 + 1;
+      if(val < 1){ val = 1; }
+      TStatusPanels *panels = fmMain->StatusBar->Panels;
+      while(panels->Count > val){
+        panels->Delete(panels->Count - 1);
+      }
+      while(panels->Count < val){
+        panels->Add();
+      }
+    }else if(s == "GetStatusBarText" && H == 1){
+      int val = VAL0;
+      AnsiString data = "";
+      if(val >= 0 && val < fmMain->StatusBar->Panels->Count){
+        data = fmMain->StatusBar->Panels->Items[val]->Text;
+      }
+      Stack->Add(new Element(data, this));
+    }else if(s == "SetStatusBarText" && H == 2){
+      int val = VAL0;
+      if(val >= 0 && val < fmMain->StatusBar->Panels->Count){
+        fmMain->StatusBar->Panels->Items[val]->Text = STR1;
+      }
+    }else if(s == "GetStatusBarWidth" && H == 1){
+      int val = VAL0;
+      int data = 0;
+      if(val >= 0 && val < fmMain->StatusBar->Panels->Count){
+        data = fmMain->StatusBar->Panels->Items[val]->Width;
+      }
+      Stack->Add(new Element(data, this));
+    }else if(s == "SetStatusBarWidth" && H == 2){
+      int val = VAL0;
+      if(val >= 0 && val < fmMain->StatusBar->Panels->Count){
+        fmMain->StatusBar->Panels->Items[val]->Width = VAL1;
+      }
+    }else if(s == "LoadIniSetting" && H == 0){
+      fmMain->ReadIni();
+    }else if(s == "SaveIniSetting" && H == 0){
+      fmMain->WriteIni(false);
+    }else if(s == "GetIniSetting" && H ==  2){
+      TIniFile *Ini = fmMain->Pref->GetInifile();
+      Stack->Add(new Element(Ini->ReadString(STR0, STR1, ""), this));
+      delete Ini;
+    }else if(s == "SetIniSetting" && H == 3){
+      TIniFile *Ini = fmMain->Pref->GetInifile();
+      Ini->WriteString(STR0, STR1, STR2);
+      delete Ini;
+    }else if(s == "GetFontName" && H == 0){
+      Stack->Add(new Element(fmMain->MainGrid->Font->Name, this));
+    }else if(s == "SetFontName" && H == 1){
+      fmMain->MainGrid->Font->Name = STR0;
+    }else if(s == "GetFontSize" && H == 0){
+      Stack->Add(new Element(fmMain->MainGrid->Font->Size, this));
+    }else if(s == "SetFontSize" && H == 1){
+      fmMain->MainGrid->Font->Size = VAL0;
     }else if(s == "write" || s == "writeln"){
       if(canWriteFile){
         EncodedStream *es = dynamic_cast<EncodedStream*>(fs_io);
@@ -616,17 +710,17 @@ TStream *TMacro::GetStreamFor(AnsiString FileName){
     TObject *obj = modules->Objects[index];
     result = static_cast<TStream *>(obj);
   }catch(...){
-    String FuncName = FileName; 
-    int pos; 
-    pos = FuncName.LastDelimiter("$"); 
-    if(pos > 0){ 
-      FuncName[pos] = '/'; 
-    } 
-    pos = FuncName.LastDelimiter("$"); 
-    if(pos > 0){ 
-      FuncName[pos] = '.'; 
-    } 
-    throw MacroException("ユーザー関数が見つかりません:" + FuncName); 
+    String FuncName = FileName;
+    int pos;
+    pos = FuncName.LastDelimiter("$");
+    if(pos > 0){
+      FuncName[pos] = '/';
+    }
+    pos = FuncName.LastDelimiter("$");
+    if(pos > 0){
+      FuncName[pos] = '.';
+    }
+    throw MacroException("ユーザー関数が見つかりません:" + FuncName);
   }
   return result;
 }
@@ -635,12 +729,12 @@ Element *TMacro::Do(AnsiString FileName, TList *AStack, int x, int y){
   Element *ReturnValue = NULL;
   // 再帰呼び出し対応のため、メソッド終了時にStreamのPositionを元に戻す
   long oldpc = 0L;
-  if(AStack){ 
-    Stack = AStack; 
-  }else{ 
-    Stack = new TList(); 
-  } 
-  fs = NULL; 
+  if(AStack){
+    Stack = AStack;
+  }else{
+    Stack = new TList();
+  }
+  fs = NULL;
   try{
     fs = GetStreamFor(FileName);
     oldpc = fs->Position;
@@ -687,9 +781,9 @@ Element *TMacro::Do(AnsiString FileName, TList *AStack, int x, int y){
 
   }catch(MacroException e){
     if(IsCellMacro){
-      if(fs){ 
-        fs->Position = oldpc; 
-      } 
+      if(fs){
+        fs->Position = oldpc;
+      }
       Clear(Stack); delete Stack;
       throw e;
     }else{

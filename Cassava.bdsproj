@@ -42,6 +42,7 @@
         <property category="win32.*.win32b.tasm32" name="param.objfile.merge" value="1"/>
         <property category="win32.*.win32b.tasm32" name="param.xreffile.merge" value="1"/>
         <property category="win32.Debug_Build.win32b.bcc32" name="option.D.arg.1" value="_DEBUG"/>
+        <property category="win32.Debug_Build.win32b.bcc32" name="option.D.arg.2" value="NO_WIN32_LEAN_AND_MEAN"/>
         <property category="win32.Debug_Build.win32b.bcc32" name="option.D.arg.merge" value="1"/>
         <property category="win32.Debug_Build.win32b.bcc32" name="option.D.enabled" value="1"/>
         <property category="win32.Debug_Build.win32b.bcc32" name="option.Od.enabled" value="1"/>
@@ -65,12 +66,15 @@
         <property category="win32.Debug_Build.win32b.tasm32" name="option.zd.enabled" value="0"/>
         <property category="win32.Debug_Build.win32b.tasm32" name="option.zi.enabled" value="1"/>
         <property category="win32.Release_Build.win32b.bcc32" name="option.D.arg.1" value="NDEBUG"/>
+        <property category="win32.Release_Build.win32b.bcc32" name="option.D.arg.2" value="NO_WIN32_LEAN_AND_MEAN"/>
         <property category="win32.Release_Build.win32b.bcc32" name="option.D.arg.merge" value="1"/>
         <property category="win32.Release_Build.win32b.bcc32" name="option.D.enabled" value="1"/>
         <property category="win32.Release_Build.win32b.bcc32" name="option.r.enabled" value="1"/>
         <property category="win32.Release_Build.win32b.dcc32" name="option.$D.enabled" value="0"/>
         <property category="win32.Release_Build.win32b.dcc32" name="option.$O.enabled" value="1"/>
         <property category="win32.Release_Build.win32b.dcc32" name="option.V.enabled" value="0"/>
+        <property category="win32.Release_Build.win32b.ilink32" name="option.Gpd.enabled" value="0"/>
+        <property category="win32.Release_Build.win32b.ilink32" name="option.Gpr.enabled" value="0"/>
         <property category="win32.Release_Build.win32b.ilink32" name="option.L.arg.1" value="$(BDS)\lib\release"/>
         <property category="win32.Release_Build.win32b.ilink32" name="option.L.arg.merge" value="1"/>
         <property category="win32.Release_Build.win32b.ilink32" name="option.L.enabled" value="1"/>
@@ -84,13 +88,14 @@
           <property category="win32.*.win32b.bcc32" name="option.D.arg.1" value="CssvMacro"/>
           <property category="win32.*.win32b.bcc32" name="option.D.arg.merge" value="1"/>
           <property category="win32.*.win32b.bcc32" name="option.D.enabled" value="1"/>
-          <property category="win32.*.win32b.bcc32" name="option.I.arg.1" value="$(BDS)\Add\referbutton"/>
-          <property category="win32.*.win32b.bcc32" name="option.I.arg.2" value="..\Jis2k"/>
-          <property category="win32.*.win32b.bcc32" name="option.I.arg.3" value="$(BDS)\Projects"/>
-          <property category="win32.*.win32b.bcc32" name="option.I.arg.4" value="..\OpenFile"/>
-          <property category="win32.*.win32b.bcc32" name="option.I.arg.5" value="$(BDS)\include"/>
-          <property category="win32.*.win32b.bcc32" name="option.I.arg.6" value="$(BDS)\include\vcl"/>
-          <property category="win32.*.win32b.bcc32" name="option.I.arg.7" value="$(BDS)\include\dinkumware"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.arg.1" value="$(BDS)\ObjRepos\Cpp"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.arg.2" value="$(BDS)\Add\referbutton"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.arg.3" value="..\Jis2k"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.arg.4" value="$(BDS)\Projects"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.arg.5" value="..\OpenFile"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.arg.6" value="$(BDS)\include"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.arg.7" value="$(BDS)\include\vcl"/>
+          <property category="win32.*.win32b.bcc32" name="option.I.arg.8" value="$(BDS)\include\dinkumware"/>
           <property category="win32.*.win32b.bcc32" name="option.I.arg.merge" value="1"/>
           <property category="win32.*.win32b.bcc32" name="option.I.enabled" value="1"/>
           <property category="win32.*.win32b.bcc32" name="option.O2.enabled" value="1"/>
@@ -123,42 +128,49 @@
           <property category="win32.*.win32b.dcc32" name="option.$.enabled" value="1"/>
           <property category="win32.*.win32b.dcc32" name="option.$D.enabled" value="0"/>
           <property category="win32.*.win32b.dcc32" name="option.$L.enabled" value="0"/>
-          <property category="win32.*.win32b.dcc32" name="option.I.arg.1" value="..\OpenFile"/>
+          <property category="win32.*.win32b.dcc32" name="option.I.arg.1" value="$(BDS)\ObjRepos\Cpp"/>
+          <property category="win32.*.win32b.dcc32" name="option.I.arg.2" value="..\OpenFile"/>
           <property category="win32.*.win32b.dcc32" name="option.I.arg.merge" value="1"/>
           <property category="win32.*.win32b.dcc32" name="option.I.enabled" value="0"/>
           <property category="win32.*.win32b.dcc32" name="option.M.enabled" value="1"/>
-          <property category="win32.*.win32b.dcc32" name="option.O.arg.1" value="..\OpenFile"/>
+          <property category="win32.*.win32b.dcc32" name="option.O.arg.1" value="$(BDS)\ObjRepos\Cpp"/>
+          <property category="win32.*.win32b.dcc32" name="option.O.arg.2" value="..\OpenFile"/>
           <property category="win32.*.win32b.dcc32" name="option.O.arg.merge" value="1"/>
           <property category="win32.*.win32b.dcc32" name="option.O.enabled" value="0"/>
-          <property category="win32.*.win32b.dcc32" name="option.R.arg.1" value="..\OpenFile"/>
+          <property category="win32.*.win32b.dcc32" name="option.R.arg.1" value="$(BDS)\ObjRepos\Cpp"/>
+          <property category="win32.*.win32b.dcc32" name="option.R.arg.2" value="..\OpenFile"/>
           <property category="win32.*.win32b.dcc32" name="option.R.arg.merge" value="1"/>
           <property category="win32.*.win32b.dcc32" name="option.R.enabled" value="0"/>
-          <property category="win32.*.win32b.dcc32" name="option.U.arg.1" value="..\OpenFile"/>
-          <property category="win32.*.win32b.dcc32" name="option.U.arg.2" value=".\"/>
-          <property category="win32.*.win32b.dcc32" name="option.U.arg.3" value="$(BDS)\lib"/>
-          <property category="win32.*.win32b.dcc32" name="option.U.arg.4" value="$(BDS)\lib\obj"/>
+          <property category="win32.*.win32b.dcc32" name="option.U.arg.1" value="$(BDS)\ObjRepos\Cpp"/>
+          <property category="win32.*.win32b.dcc32" name="option.U.arg.2" value="..\OpenFile"/>
+          <property category="win32.*.win32b.dcc32" name="option.U.arg.3" value=".\"/>
+          <property category="win32.*.win32b.dcc32" name="option.U.arg.4" value="$(BDS)\lib"/>
+          <property category="win32.*.win32b.dcc32" name="option.U.arg.5" value="$(BDS)\lib\obj"/>
           <property category="win32.*.win32b.dcc32" name="option.U.arg.merge" value="1"/>
           <property category="win32.*.win32b.dcc32" name="option.U.enabled" value="1"/>
           <property category="win32.*.win32b.dcc32" name="param.filenames.merge" value="1"/>
-          <property category="win32.*.win32b.idl2cpp" name="option.I.arg.1" value="..\OpenFile"/>
+          <property category="win32.*.win32b.idl2cpp" name="option.I.arg.1" value="$(BDS)\ObjRepos\Cpp"/>
+          <property category="win32.*.win32b.idl2cpp" name="option.I.arg.2" value="..\OpenFile"/>
           <property category="win32.*.win32b.idl2cpp" name="option.I.arg.merge" value="1"/>
           <property category="win32.*.win32b.idl2cpp" name="option.I.enabled" value="1"/>
           <property category="win32.*.win32b.ilink32" name="option.D.arg" value="&quot;&quot;"/>
           <property category="win32.*.win32b.ilink32" name="option.D.arg.merge" value="1"/>
           <property category="win32.*.win32b.ilink32" name="option.D.enabled" value="1"/>
-          <property category="win32.*.win32b.ilink32" name="option.L.arg.1" value="$(BDS)\Projects\Lib"/>
-          <property category="win32.*.win32b.ilink32" name="option.L.arg.2" value="$(BDS)\Add\referbutton"/>
-          <property category="win32.*.win32b.ilink32" name="option.L.arg.3" value="..\Jis2k"/>
-          <property category="win32.*.win32b.ilink32" name="option.L.arg.4" value="$(BDS)\Projects"/>
-          <property category="win32.*.win32b.ilink32" name="option.L.arg.5" value="..\OpenFile"/>
-          <property category="win32.*.win32b.ilink32" name="option.L.arg.6" value="$(BDS)\lib\obj"/>
-          <property category="win32.*.win32b.ilink32" name="option.L.arg.7" value="$(BDS)\lib"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.arg.1" value="$(BDS)\ObjRepos\Cpp"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.arg.2" value="$(BDS)\Projects\Lib"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.arg.3" value="$(BDS)\Add\referbutton"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.arg.4" value="..\Jis2k"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.arg.5" value="$(BDS)\Projects"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.arg.6" value="..\OpenFile"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.arg.7" value="$(BDS)\lib\obj"/>
+          <property category="win32.*.win32b.ilink32" name="option.L.arg.8" value="$(BDS)\lib"/>
           <property category="win32.*.win32b.ilink32" name="option.L.arg.merge" value="1"/>
           <property category="win32.*.win32b.ilink32" name="option.L.enabled" value="1"/>
           <property category="win32.*.win32b.ilink32" name="option.Tpe.enabled" value="1"/>
           <property category="win32.*.win32b.ilink32" name="option.aa.enabled" value="1"/>
           <property category="win32.*.win32b.ilink32" name="option.dynamicrtl.enabled" value="0"/>
-          <property category="win32.*.win32b.ilink32" name="option.j.arg.1" value="..\OpenFile"/>
+          <property category="win32.*.win32b.ilink32" name="option.j.arg.1" value="$(BDS)\ObjRepos\Cpp"/>
+          <property category="win32.*.win32b.ilink32" name="option.j.arg.2" value="..\OpenFile"/>
           <property category="win32.*.win32b.ilink32" name="option.j.arg.merge" value="1"/>
           <property category="win32.*.win32b.ilink32" name="option.j.enabled" value="0"/>
           <property category="win32.*.win32b.ilink32" name="option.outputdir.arg.1" value="."/>
@@ -215,15 +227,19 @@
         <FILE FILENAME="OptionColor.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="OptionColor" FORMNAME="frOptionColor" DESIGNCLASS="TFrame" ADDITIONAL="OptionColor.h"/>
         <FILE FILENAME="OptionFile.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="OptionFile" FORMNAME="frOptionFile" DESIGNCLASS="TFrame" ADDITIONAL="OptionFile.h"/>
         <FILE FILENAME="EncodedStream.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="EncodedStream" FORMNAME="" DESIGNCLASS="" ADDITIONAL="EncodedStream.h"/>
+        <FILE FILENAME="Preference.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="Preference" FORMNAME="" DESIGNCLASS="" ADDITIONAL="Preference.h"/>
+        <FILE FILENAME="FileOpenThread.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="FileOpenThread" FORMNAME="" DESIGNCLASS="" ADDITIONAL="FileOpenThread.h"/>
+        <FILE FILENAME="Manifest.rc" CONTAINERID="RCCompiler" LOCALCOMMAND="" UNITNAME="Manifest.rc" FORMNAME="Manifest.res" DESIGNCLASS=""/>
+        <FILE FILENAME="MultiLineInputBox.cpp" CONTAINERID="CCompiler" LOCALCOMMAND="" UNITNAME="MultiLineInputBox" FORMNAME="fmMultiLineInputBox" DESIGNCLASS="" ADDITIONAL="MultiLineInputBox.h"/>
       </FILELIST>
       <IDEOPTIONS>
         <VersionInfo>
           <VersionInfo Name="IncludeVerInfo">True</VersionInfo>
           <VersionInfo Name="AutoIncBuild">True</VersionInfo>
           <VersionInfo Name="MajorVer">1</VersionInfo>
-          <VersionInfo Name="MinorVer">5</VersionInfo>
-          <VersionInfo Name="Release">12</VersionInfo>
-          <VersionInfo Name="Build">106</VersionInfo>
+          <VersionInfo Name="MinorVer">6</VersionInfo>
+          <VersionInfo Name="Release">8</VersionInfo>
+          <VersionInfo Name="Build">117</VersionInfo>
           <VersionInfo Name="Debug">False</VersionInfo>
           <VersionInfo Name="PreRelease">False</VersionInfo>
           <VersionInfo Name="Special">False</VersionInfo>
@@ -235,13 +251,13 @@
         <VersionInfoKeys>
           <VersionInfoKeys Name="CompanyName"></VersionInfoKeys>
           <VersionInfoKeys Name="FileDescription">Cassava Editor</VersionInfoKeys>
-          <VersionInfoKeys Name="FileVersion">1.5.12.106</VersionInfoKeys>
+          <VersionInfoKeys Name="FileVersion">1.6.8.117</VersionInfoKeys>
           <VersionInfoKeys Name="InternalName"></VersionInfoKeys>
           <VersionInfoKeys Name="LegalCopyright">あすかぜ</VersionInfoKeys>
           <VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys>
           <VersionInfoKeys Name="OriginalFilename"></VersionInfoKeys>
           <VersionInfoKeys Name="ProductName">Cassava Editor</VersionInfoKeys>
-          <VersionInfoKeys Name="ProductVersion">1.5.12.0</VersionInfoKeys>
+          <VersionInfoKeys Name="ProductVersion">1.6.8.0</VersionInfoKeys>
           <VersionInfoKeys Name="Comments"></VersionInfoKeys>
         </VersionInfoKeys>
         <HistoryLists_hlIncludePath>
@@ -291,13 +307,7 @@
           <Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
         </Parameters>
         <Excluded_Packages>
-          <Excluded_Packages Name="c:\program files\borland\bds\4.0\Bin\dclib100.bpl">Borland InterBase Express Components</Excluded_Packages>
-          <Excluded_Packages Name="c:\program files\borland\bds\4.0\Bin\dclIntraweb_80_100.bpl">Intraweb 8.0 Design Package for Borland Development Studio 2006</Excluded_Packages>
-          <Excluded_Packages Name="c:\program files\borland\bds\4.0\Bin\dclindy100.bpl">Internet Direct Version 9 (Indy) Property and Component Editors</Excluded_Packages>
-          <Excluded_Packages Name="c:\program files\borland\bds\4.0\Bin\bcbofficexp100.bpl">Borland C++Builder Office XP Servers Package</Excluded_Packages>
-          <Excluded_Packages Name="c:\program files\borland\bds\4.0\Bin\dclbcbsmp100.bpl">Borland Sample Controls Design Time Package</Excluded_Packages>
-          <Excluded_Packages Name="c:\program files\borland\bds\4.0\Bin\bcbie100.bpl">Borland C++Builder Internet Explorer 5 Components Package</Excluded_Packages>
-          <Excluded_Packages Name="c:\program files\borland\bds\4.0\Bin\dcltee100.bpl">TeeChart Components</Excluded_Packages>
+          <Excluded_Packages Name="e:\program files\borland\bds\4.0\Bin\bcbie100.bpl">Borland C++Builder Internet Explorer 5 Components Package</Excluded_Packages>
         </Excluded_Packages>
         <Linker>
           <Linker Name="LibPrefix"></Linker>

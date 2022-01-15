@@ -16,6 +16,7 @@ USEFORM("OptionLaunch.cpp", frOptionLaunch); /* TFrame: File Type */
 USEFORM("OptionBehavior.cpp", frOptionBehavior); /* TFrame: File Type */
 USEFORM("OptionColor.cpp", frOptionColor); /* TFrame: File Type */
 USEFORM("OptionFile.cpp", frOptionFile); /* TFrame: File Type */
+USEFORM("MultiLineInputBox.cpp", fmMultiLineInputBox);
 //---------------------------------------------------------------------------
 WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {

@@ -2,6 +2,7 @@
 #ifndef AutoOpenH
 #define AutoOpenH
 //---------------------------------------------------------------------------
+bool isUrl(AnsiString FileName);
 bool AutoOpen(AnsiString FileName);
 //---------------------------------------------------------------------------
 #endif

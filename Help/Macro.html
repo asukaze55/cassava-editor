@@ -46,6 +46,7 @@
 <p>
 また、セル内のデータとして「=」に続けて式を書くことで、簡単な表計算も可能です。
 この機能を使うには、[表示]-[セル内計算式を処理] をチェックしてください。
+セル内計算式内では、変数 x, y でそのセルの座標を取得できます。
 </p>
 
 <h2>文法</h2>
@@ -199,6 +200,17 @@ cell(x,y) = val;
 <dd>x 列目の幅を w に設定します。</dd>
 <dt><code>SetColWidth(w);</code></dt>
 <dd>全ての列の幅を w に設定します。</dd>
+<dt><code>SaveIniSetting();</code></dt>
+<dd>現在の Cassava の状態を設定ファイルに保存します。</dd>
+<dt><code>LoadIniSetting();</code></dt>
+<dd>前回保存した設定ファイルを読み込み、Cassava の状態を元に戻します。</dd>
+<dt><code>SetIniSetting(sec,key,val);</code></dt>
+<dd>保存されている設定ファイルを更新し、sec セクションの key キーの値を val にします。
+    この変更は LoadIniSetting() 実行まで反映されません。</dd>
+<dt><code>SetFontName(str);</code></dt>
+<dd>フォントを str に変更します。</dd>
+<dt><code>SetFontSize(x);</code></dt>
+<dd>フォントサイズを x に変更します。</dd>
 </dl>
 
 <h3>関数</h3>
@@ -279,6 +291,13 @@ cell(x,y) = val;
 <dd>実行時の時間の「分」を返します。0〜59の整数が返されます。</dd>
 <dt><code>GetSeconds()</code></dt>
 <dd>実行時の時間の「秒」を返します。0〜59の整数が返されます。</dd>
+<dt><code>GetIniSetting(sec,key);</code></dt>
+<dd>保存されている設定ファイルを読み込み、sec セクションの key キーの値を取得します。
+    この値は設定ファイルに保存された値であり、最新の Cassava の状態とは異なる場合があります。</dd>
+<dt><code>GetFontName();</code></dt>
+<dd>現在設定されているフォント名を取得します。</dd>
+<dt><code>GetFontSize();</code></dt>
+<dd>現在設定されているフォントサイズを取得します。</dd>
 </dl>
 
 <h3>メッセージボックス</h3>
@@ -338,6 +357,31 @@ InputBox 関数はインプットボックスを表示し、入力された文字列を返します。
 <dd>インプットボックス内に str1 を、タイトルに str2 を表示します。
     「OK」が押されれば入力された文字列を、
     「キャンセル」が押されれば def を返します。</dd>
+</dl>
+
+<p>
+InputBoxMultiLine 関数は複数行のテキストを入力可能なインプットボックスを表示し、
+入力された文字列を返します。
+</p>
+<dl>
+<dt><code>InputBoxMultiLine(str);</code></dt>
+<dd>str を表示します。
+    「OK」が押されれば入力された文字列を、
+    「キャンセル」が押されれば "" を返します。</dd>
+<dt><code>InputBoxMultiLine(str, def);</code></dt>
+<dd>str を表示します。テキストボックスのデフォルト値は def です。
+    「OK」が押されれば入力された文字列を、
+    「キャンセル」が押されれば def を返します。</dd>
+<dt><code>InputBoxMultiLine(str1, str2, def);</code></dt>
+<dd>インプットボックス内に str1 を、タイトルに str2 を表示します。
+    テキストボックスのデフォルト値は def です。
+    「OK」が押されれば入力された文字列を、
+    「キャンセル」が押されれば def を返します。</dd>
+<dt><code>InputBoxMultiLine(str1, str2, def1, def2);</code></dt>
+<dd>インプットボックス内に str1 を、タイトルに str2 を表示します。
+    テキストボックスのデフォルト値は def2 です。
+    「OK」が押されれば入力された文字列を、
+    「キャンセル」が押されれば def1 を返します。</dd>
 </dl>
 
 <h3>メニューコマンド</h3>
@@ -467,6 +511,57 @@ MessageBox(mult(x,y));
  */
 </code></pre></blockquote>
 
+<h2 id="STATUSBAR">ステータスバー表示</h2>
+<p>
+ステータスバーの表示内容はマクロで記述されています。
+マクロフォルダ内の !statusbar.cms を編集することで、
+ステータスバーの表示を変更できます。
+<p>
+<p>
+!statusbar.cms は次のような構造をとります。
+<p>
+<blockquote><pre><code>
+function init(){
+  // 初期化コード
+}
+
+// 表示更新用コード
+</code></pre></blockquote>
+<p>
+init 関数内の初期化コードは Cassava 起動時に一度だけ実行されます。
+関数外の表示更新用コードは、移動時・更新時など、頻繁に実行されます。
+表示更新用コードにはあまり時間のかかる処理は記述しないでください。
+</p>
+<p>
+!statusbar.cms 内では、セルの更新を除くほぼ全てのマクロの機能が使用できます。
+また、ステータスバーの表示を取得・更新するため、以下のコマンド・関数が使用できます。
+（実際にはこれらの関数も通常のマクロ内で使用できますが、通常マクロ内での使用は推奨しません）
+</p>
+<dl>
+<dt><code>SetStatusBarCount(x)</code></dt>
+<dd>ステータスバー内の表示領域の個数を設定します。</dd>
+<dt><code>SetStatusBarText(x,str)</code></dt>
+<dd>x 番目の領域に str を表示します。</dd>
+<dt><code>SetStatusBarWidth(x,w)</code></dt>
+<dd>x 番目の領域の幅を w に設定します。デフォルト値は 50 です。</dd>
+<dt><code>GetStatusBarCount()</code></dt>
+<dd>ステータスバー内の表示領域の個数を取得します。</dd>
+<dt><code>GetStatusBarText(x)</code></dt>
+<dd>x 番目の領域に表示された文字列を取得します。</dd>
+<dt><code>GetStatusBarWidth(x)</code></dt>
+<dd>x 番目の領域の幅を取得します。</dd>
+</dl>
+<p>
+ステータスバーの一番左には Cassava 本体が使用する表示領域があります。
+この領域の表示内容は自動的に更新されますが、
+0 番領域としてアクセスすることで値の取得・上書きをすることができます。
+</p>
+<p>
+ユーザーマクロフォルダに !statusbar.cms がある場合には、
+共有マクロフォルダ内のファイルよりも優先されます。
+共有マクロフォルダ内の !statusbar.cms は Cassava 更新時に上書きされるので、
+ユーザーマクロフォルダに設置するほうが安全です。
+</p>
 </div>
 
 <!-- SIDE PANE -->

@@ -26,6 +26,7 @@ __published:	// IDE 管理のコンポーネント
   TCheckBox *cbStopMacro;
   TEdit *seStopMacroCount;
   TCheckBox *cbSortAll;
+  TCheckBox *cbCalcWidthForAllRow;
   void __fastcall cbStopMacroClick(TObject *Sender);
   void __fastcall cbStopMacroKeyUpDown(TObject *Sender, WORD &Key,
           TShiftState Shift);

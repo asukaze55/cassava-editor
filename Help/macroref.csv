@@ -1,60 +1,72 @@
-変数[C],関数[C],flag・戻り値[C],特別[C],文法・構文[C],説明[C],"Cassava Ver[C]"
-Col[E],-[E],-[E],-[E],-,"カーソル位置の X 座標",-
-Row[E],-[E],-[E],-[E],-,"カーソル位置の Y 座標",-
-Right[E],-[E],-[E],-[E],-,"データが何列目まであるか (一番右の空白列は数えない)",-
-Bottom[E],-[E],-[E],-[E],-,"データが何行目まであるか (一番下の空白行は数えない)",-
-SelLeft[E],-[E],-[E],-[E],-,"選択範囲の左端の X 座標",-
-SelTop[E],-[E],-[E],-[E],-,"選択範囲の上端の Y 座標",-
-SelRight[E],-[E],-[E],-[E],-,"選択範囲の右端の X 座標",-
-SelBottom[E],-[E],-[E],-[E],-,"選択範囲の下端の Y 座標",-
--[E],write[E],-[E],-[E],write(str);,"カーソル位置のセルの内容を str にし、カーソルを右に移動します。エクスポートマクロ中ではファイルに書き出します。",-
--[E],writeln[E],-[E],-[E],writeln(str);,"カーソル位置のセルの内容を str にし、カーソルを次の行に移動します。エクスポートマクロ中ではファイルに書き出します。",-
+変数[C],関数[C],flag・戻り値[C],特別[C],文法・構文[C],説明[C],Cassava Ver[C]
+Col[E],-[E],-[E],-[E],-,カーソル位置の X 座標,-
+Row[E],-[E],-[E],-[E],-,カーソル位置の Y 座標,-
+Right[E],-[E],-[E],-[E],-,データが何列目まであるか (一番右の空白列は数えない),-
+Bottom[E],-[E],-[E],-[E],-,データが何行目まであるか (一番下の空白行は数えない),-
+SelLeft[E],-[E],-[E],-[E],-,選択範囲の左端の X 座標,-
+SelTop[E],-[E],-[E],-[E],-,選択範囲の上端の Y 座標,-
+SelRight[E],-[E],-[E],-[E],-,選択範囲の右端の X 座標,-
+SelBottom[E],-[E],-[E],-[E],-,選択範囲の下端の Y 座標,-
+-[E],write[E],-[E],-[E],write(str);,カーソル位置のセルの内容を str にし、カーソルを右に移動します。エクスポートマクロ中ではファイルに書き出します。,-
+-[E],writeln[E],-[E],-[E],writeln(str);,カーソル位置のセルの内容を str にし、カーソルを次の行に移動します。エクスポートマクロ中ではファイルに書き出します。,-
 -[E],move[E],-[E],-[E],"move(vx,vy);","カーソル位置を (vx,vy) だけ移動します。",-
 -[E],moveto[E],-[E],-[E],"moveto(x,y);","カーソル位置を (x,y) に設定します。",-
--[E],swap[E],-[E],-[E],"swap(a,b);","a と b の値を交換します。",-
--[E],InsertRow[E],-[E],-[E],InsertRow(y);,"y 行目に新しい行を挿入します。",-
--[E],DeleteRow[E],-[E],-[E],DeleteRow(y);,"y 行目を削除します。",-
--[E],InsertCol[E],-[E],-[E],InsertCol(x);,"x 列目に新しい列を挿入します。",-
--[E],DeleteCol[E],-[E],-[E],DeleteCol(x);,"x 列目を削除します。",-
--[E],mid[E],-[E],-[E],"mid(str1,x,y) = str2;","文字列 str1 の x 文字目から y 文字を str2 に置き換えます。 最初の文字のインデックスは 1 です。 全角文字を1文字と数えます。",1.4.0
--[E],SetRowHeight[E],-[E],-[E],"SetRowHeight(y,h);","y 行目の高さを h に設定します。",-
--[E],SetRowHeight[E],-[E],-[E],SetRowHeight(h);,"全ての行の高さを h に設定します。",-
--[E],SetColWidth[E],-[E],-[E],"SetColWidth(x,w);","x 列目の幅を w に設定します。",-
--[E],SetColWidth[E],-[E],-[E],SetColWidth(w);,"全ての列の幅を w に設定します。",-
+-[E],swap[E],-[E],-[E],"swap(a,b);",a と b の値を交換します。,-
+-[E],InsertRow[E],-[E],-[E],InsertRow(y);,y 行目に新しい行を挿入します。,-
+-[E],DeleteRow[E],-[E],-[E],DeleteRow(y);,y 行目を削除します。,-
+-[E],InsertCol[E],-[E],-[E],InsertCol(x);,x 列目に新しい列を挿入します。,-
+-[E],DeleteCol[E],-[E],-[E],DeleteCol(x);,x 列目を削除します。,-
+-[E],mid[E],-[E],-[E],"mid(str1,x,y) = str2;",文字列 str1 の x 文字目から y 文字を str2 に置き換えます。 最初の文字のインデックスは 1 です。 全角文字を1文字と数えます。,1.4.0
+-[E],SetRowHeight[E],-[E],-[E],"SetRowHeight(y,h);",y 行目の高さを h に設定します。,-
+-[E],SetRowHeight[E],-[E],-[E],SetRowHeight(h);,全ての行の高さを h に設定します。,-
+-[E],SetColWidth[E],-[E],-[E],"SetColWidth(x,w);",x 列目の幅を w に設定します。,-
+-[E],SetColWidth[E],-[E],-[E],SetColWidth(w);,全ての列の幅を w に設定します。,-
+-[E],SaveIniSetting[E],-[E],-[E],SaveIniSetting();,現在の Cassava の状態を設定ファイルに保存します。,1.6.0
+-[E],LoadIniSetting[E],-[E],-[E],LoadIniSetting();,前回保存した設定ファイルを読み込み、Cassava の状態を元に戻します。,1.6.0
+-[E],SetIniSetting[E],-[E],-[E],"SetIniSetting(sec,key,val);",保存されている設定ファイルを更新し、sec セクションの key キーの値を val にします。 この変更は LoadIniSetting() 実行まで反映されません。,1.6.0
+-[E],SetFontName[E],-[E],-[E],SetFontName(str);,フォントを str に変更します。,1.6.0
+-[E],SetFontSize[E],-[E],-[E],SetFontSize(x);,フォントサイズを x に変更します。,1.6.0
 -[E],cell[E],-[E],-[E],"[x,y] / cell(x,y)","(x,y) のセルの内容です。読み書きともにできます。",-
--[E],int[E],-[E],-[E],int(x),"xの値を0方向に丸めた数値を返します。 intの返す値に対して「+」演算子を適用すると加算となります。",1.5.0
--[E],double[E],-[E],-[E],double(x),"xと同じ値の数値を返します。(x - 0)と同じ効果です。 doubleの返す値に対して「+」演算子を適用すると加算となります。",1.5.0
+-[E],int[E],-[E],-[E],int(x),xの値を0方向に丸めた数値を返します。 intの返す値に対して「+」演算子を適用すると加算となります。,1.5.0
+-[E],double[E],-[E],-[E],double(x),xと同じ値の数値を返します。(x - 0)と同じ効果です。 doubleの返す値に対して「+」演算子を適用すると加算となります。,1.5.0
 -[E],str[E],-[E],-[E],str(x),"xと同じ値の文字列を返します。(x + """")と同じ効果です。 strの返す値に対して「+」演算子を適用すると文字列連結となります。",1.5.0
 -[E],max[E],-[E],-[E],"max(a,b....)",引数に渡したもののうち最大の値を返します。,-
 -[E],min[E],-[E],-[E],"min(a,b....)",引数に渡したもののうち最小の値を返します。,-
--[E],len[E],-[E],-[E],len(str),"文字列 str の長さを返します。全角文字を1文字と数えます。",1.5.0
--[E],lenB[E],-[E],-[E],len(str),"文字列 str の長さを返します。全角文字を2文字と数えます。",1.5.0
--[E],left[E],-[E],-[E],"left(str,x)","文字列 str の最初 x 文字を切り出して返します。全角文字を1文字と数えます。",1.4.0
--[E],right[E],-[E],-[E],"right(str,x)","文字列 str の最後 x 文字を切り出して返します。全角文字を1文字と数えます。",1.4.0
--[E],mid[E],-[E],-[E],"mid(str,x,y)","文字列 str の x 文字目から y 文字を切り出して返します。 最初の文字のインデックスは 1 です。 全角文字を1文字と数えます。",1.4.0
--[E],mid[E],-[E],-[E],"mid(str,x)","文字列 str の x 文字以降を切り出して返します。 最初の文字のインデックスは 1 です。 全角文字を1文字と数えます。",1.4.0
--[E],pos[E],-[E],-[E],"pos(str1,str2)","str1 中の str2 の位置を返します。 最初の文字のインデックスは 1 です。 str2 が str1 に含まれなかった場合、 0 が返されます。 全角文字を1文字と数えます。",1.5.0
--[E],posB[E],-[E],-[E],"posB(str1,str2)","str1 中の str2 の位置を返します。 最初の文字のインデックスは 1 です。 str2 が str1 に含まれなかった場合、 0 が返されます。 全角文字を2文字と数えます。",1.5.0
--[E],replace[E],-[E],-[E],"replace(str1,str2,str3)","str1 中の atr2 を全て str3 に置換した文字列を返します。元の str1 は変化しません。",1.24d
+-[E],len[E],-[E],-[E],len(str),文字列 str の長さを返します。全角文字を1文字と数えます。,1.5.0
+-[E],lenB[E],-[E],-[E],len(str),文字列 str の長さを返します。全角文字を2文字と数えます。,1.5.0
+-[E],left[E],-[E],-[E],"left(str,x)",文字列 str の最初 x 文字を切り出して返します。全角文字を1文字と数えます。,1.4.0
+-[E],right[E],-[E],-[E],"right(str,x)",文字列 str の最後 x 文字を切り出して返します。全角文字を1文字と数えます。,1.4.0
+-[E],mid[E],-[E],-[E],"mid(str,x,y)",文字列 str の x 文字目から y 文字を切り出して返します。 最初の文字のインデックスは 1 です。 全角文字を1文字と数えます。,1.4.0
+-[E],mid[E],-[E],-[E],"mid(str,x)",文字列 str の x 文字以降を切り出して返します。 最初の文字のインデックスは 1 です。 全角文字を1文字と数えます。,1.4.0
+-[E],pos[E],-[E],-[E],"pos(str1,str2)",str1 中の str2 の位置を返します。 最初の文字のインデックスは 1 です。 str2 が str1 に含まれなかった場合、 0 が返されます。 全角文字を1文字と数えます。,1.5.0
+-[E],posB[E],-[E],-[E],"posB(str1,str2)",str1 中の str2 の位置を返します。 最初の文字のインデックスは 1 です。 str2 が str1 に含まれなかった場合、 0 が返されます。 全角文字を2文字と数えます。,1.5.0
+-[E],replace[E],-[E],-[E],"replace(str1,str2,str3)",str1 中の atr2 を全て str3 に置換した文字列を返します。元の str1 は変化しません。,1.24d
 -[E],sum[E],-[E],-[E],"sum(l,t,r,b)",t行l列からb行r列までの範囲の数値データの合計値を返します。,1.5.0
 -[E],avr[E],-[E],-[E],"avr(l,t,r,b)",t行l列からb行r列までの範囲の数値データの平均値を返します。,1.5.0
 -[E],random[E],-[E],-[E],random(x),0以上x未満のランダムな整数値を返します。,1.26
--[E],GetRowHeight[E],-[E],-[E],GetRowHeight(y),"y 行目の高さを返します。y を省略すると標準の行の高さが返されます。",-
--[E],GetColWidth[E],-[E],-[E],GetColWidth(x),"x 列目の幅を返します。x を省略すると標準の列の幅が返されます。",-
--[E],GetFileName[E],-[E],-[E],GetFileName(),"編集中の CSV ファイルのファイル名を返します。新規作成したデータを編集中は空の文字列が返されます。",1.24
--[E],GetFilePath[E],-[E],-[E],GetFilePath(),"編集中の CSV ファイルの絶対パスを返します。新規作成したデータを編集中は空の文字列が返されます。それ以外の場合、必ず「\」で終わる文字列が返されます。",1.24
--[E],GetYear[E],-[E],-[E],GetYear(),"実行時の日付の「年」を返します。4 桁の整数が返されます。",1.24
--[E],GetMonth[E],-[E],-[E],GetMonth(),"実行時の日付の「月」を返します。1 ～ 12 の整数が返されます。",1.24
--[E],GetDate[E],-[E],-[E],GetDate(),"実行時の日付の「日」を返します。1 ～ 31 の整数が返されます。",1.24
--[E],GetHours[E],-[E],-[E],GetHours(),"実行時の日付の「時」を返します。0 ～ 23 の整数が返されます。",1.24
--[E],GetMinutes[E],-[E],-[E],GetMinutes(),"実行時の日付の「分」を返します。0 ～ 59 の整数が返されます。",1.24
--[E],GetSeconds[E],-[E],-[E],GetSeconds(),"実行時の日付の「秒」を返します。0 ～ 59 の整数が返されます。",1.24
--[E],MessageBox[E],-[E],-[E],MessageBox(str);,"str を表示します。OK ボタンのみ表示されます。",-
--[E],MessageBox[E],-[E],-[E],"MessageBox(str,flag);","str を表示します。ボタンの種類を flag で指定します。",-
--[E],MessageBox[E],-[E],-[E],"MessageBox(str1,str2,flag);","メッセージボックス内に str1 を、タイトルに str2 を表示します。ボタンの種類を flag で指定します。",-
+-[E],GetRowHeight[E],-[E],-[E],GetRowHeight(y),y 行目の高さを返します。y を省略すると標準の行の高さが返されます。,-
+-[E],GetColWidth[E],-[E],-[E],GetColWidth(x),x 列目の幅を返します。x を省略すると標準の列の幅が返されます。,-
+-[E],GetFileName[E],-[E],-[E],GetFileName(),編集中の CSV ファイルのファイル名を返します。新規作成したデータを編集中は空の文字列が返されます。,1.24
+-[E],GetFilePath[E],-[E],-[E],GetFilePath(),編集中の CSV ファイルの絶対パスを返します。新規作成したデータを編集中は空の文字列が返されます。それ以外の場合、必ず「\」で終わる文字列が返されます。,1.24
+-[E],GetYear[E],-[E],-[E],GetYear(),実行時の日付の「年」を返します。4 桁の整数が返されます。,1.24
+-[E],GetMonth[E],-[E],-[E],GetMonth(),実行時の日付の「月」を返します。1 ～ 12 の整数が返されます。,1.24
+-[E],GetDate[E],-[E],-[E],GetDate(),実行時の日付の「日」を返します。1 ～ 31 の整数が返されます。,1.24
+-[E],GetHours[E],-[E],-[E],GetHours(),実行時の日付の「時」を返します。0 ～ 23 の整数が返されます。,1.24
+-[E],GetMinutes[E],-[E],-[E],GetMinutes(),実行時の日付の「分」を返します。0 ～ 59 の整数が返されます。,1.24
+-[E],GetSeconds[E],-[E],-[E],GetSeconds(),実行時の日付の「秒」を返します。0 ～ 59 の整数が返されます。,1.24
+-[E],GetIniSetting[E],-[E],-[E],"GetIniSetting(sec,key);",保存されている設定ファイルを読み込み、sec セクションの key キーの値を取得します。 この値は設定ファイルに保存された値であり、最新の Cassava の状態とは異なる場合があります。,1.6.0
+-[E],GetFontName[E],-[E],-[E],GetFontName();,現在設定されているフォント名を取得します。,1.6.0
+-[E],GetFontSize[E],-[E],-[E],GetFontSize();,現在設定されているフォントサイズを取得します。,1.6.0
+-[E],MessageBox[E],-[E],-[E],MessageBox(str);,str を表示します。OK ボタンのみ表示されます。,-
+-[E],MessageBox[E],-[E],-[E],"MessageBox(str,flag);",str を表示します。ボタンの種類を flag で指定します。,-
+-[E],MessageBox[E],-[E],-[E],"MessageBox(str1,str2,flag);",メッセージボックス内に str1 を、タイトルに str2 を表示します。ボタンの種類を flag で指定します。,-
 -[E],InputBox[E],-[E],-[E],InputBox(str);,"str を表示します。「OK」が押されれば入力された文字列を、「キャンセル」が押されれば """" を返します。",-
--[E],InputBox[E],-[E],-[E],"InputBox(str,def);","str を表示します。「OK」が押されれば入力された文字列を、「キャンセル」が押されれば def を返します。",-
--[E],InputBox[E],-[E],-[E],"InputBox(str1,str2,def);","インプットボックス内に str1 を、タイトルに str2 を表示します。「OK」が押されれば入力された文字列を、「キャンセル」が押されれば def を返します。",-
+-[E],InputBox[E],-[E],-[E],"InputBox(str,def);",str を表示します。「OK」が押されれば入力された文字列を、「キャンセル」が押されれば def を返します。,-
+-[E],InputBox[E],-[E],-[E],"InputBox(str1,str2,def);",インプットボックス内に str1 を、タイトルに str2 を表示します。「OK」が押されれば入力された文字列を、「キャンセル」が押されれば def を返します。,-
+-[E],InputBoxMultiLine[E],-[E],-[E],InputBoxMultiLine(str);,"str を表示します。 「OK」が押されれば入力された文字列を、 「キャンセル」が押されれば """" を返します。",1.6.0
+-[E],InputBoxMultiLine[E],-[E],-[E],"InputBoxMultiLine(str, def);",str を表示します。テキストボックスのデフォルト値は def です。 「OK」が押されれば入力された文字列を、 「キャンセル」が押されれば def を返します。,1.6.0
+-[E],InputBoxMultiLine[E],-[E],-[E],"InputBoxMultiLine(str1, str2, def);",インプットボックス内に str1 を、タイトルに str2 を表示します。 テキストボックスのデフォルト値は def です。 「OK」が押されれば入力された文字列を、 「キャンセル」が押されれば def を返します。,1.6.0
+-[E],InputBoxMultiLine[E],-[E],-[E],"InputBoxMultiLine(str1, str2, def1, def2);",インプットボックス内に str1 を、タイトルに str2 を表示します。 テキストボックスのデフォルト値は def2 です。 「OK」が押されれば入力された文字列を、 「キャンセル」が押されれば def1 を返します。,1.6.0
 -[E],-[E],MB_ABORTRETRYIGNORE[E],-[E],"MessageBox, InputBox 関数の flag に使用する",「中止」「再試行」「無視」ボタンを用意します。,-
 -[E],-[E],MB_OK[E],-[E],〃,「OK」ボタンを用意します。,-
 -[E],-[E],MB_OKCANCEL[E],-[E],〃,「OK」「キャンセル」ボタンを用意します。,-
@@ -72,7 +84,7 @@ SelBottom[E],-[E],-[E],-[E],-,"選択範囲の下端の Y 座標",-
 -[E],NewSize[E],-[E],-[E],NewSize();,表サイズを指定して新規テーブルを作成,-
 -[E],Open[E],-[E],-[E],Open();,開く,-
 -[E],Reload[E],-[E],-[E],Reload();,再読み込み,-
--[E],OpenHistoryn[E],-[E],-[E],"OpenHistoryn(); (最後の n は 0 ～ 9 の数字)",履歴から開く,-
+-[E],OpenHistoryn[E],-[E],-[E],OpenHistoryn(); (最後の n は 0 ～ 9 の数字),履歴から開く,-
 -[E],OpenHistoryClear[E],-[E],-[E],OpenHistoryClear();,履歴をクリア,-
 -[E],Save[E],-[E],-[E],Save();,上書き保存,-
 -[E],SaveAs[E],-[E],-[E],SaveAs();,名前をつけて保存,-
@@ -89,16 +101,16 @@ SelBottom[E],-[E],-[E],-[E],-,"選択範囲の下端の Y 座標",-
 -[E],Paste[E],-[E],-[E],Paste();,貼り付け,-
 -[E],SelectAll[E],-[E],-[E],SelectAll();,すべて選択,-
 -[E],PasteNormal[E],-[E],-[E],PasteNormal();,貼り付けオプションを「標準」にセット,-
--[E],PasteOptionn[E],-[E],-[E],"PasteOptionn(); (最後の n は 0 ～ 4 の数字)","貼り付けオプションを「0 : 選択領域と重なった部分のみに貼り付け」「1 : 選択領域にくり返し処理をして貼り付け」「2 : データのサイズで上書き」「3 : 内容を右に移動させてデータを挿入」「4 : 内容を下に移動させてデータを挿入」にセット",-
+-[E],PasteOptionn[E],-[E],-[E],PasteOptionn(); (最後の n は 0 ～ 4 の数字),貼り付けオプションを「0 : 選択領域と重なった部分のみに貼り付け」「1 : 選択領域にくり返し処理をして貼り付け」「2 : データのサイズで上書き」「3 : 内容を右に移動させてデータを挿入」「4 : 内容を下に移動させてデータを挿入」にセット,-
 -[E],Sort[E],-[E],-[E],Sort();,ソート,-
 -[E],SelectRow[E],-[E],-[E],SelectRow();,行選択,-
 -[E],SelectCol[E],-[E],-[E],SelectCol();,列選択,-
 -[E],CopySum[E],-[E],-[E],CopySum();,合計をコピー,-
 -[E],CopyAvr[E],-[E],-[E],CopyAvr();,平均をコピー,-
--[E],TransCharn[E],-[E],-[E],"TransCharn(); (最後の n は 0 ～ 5 の数字)","文字変換 ( 0 : 英数・記号を半角に変換 / 1 : 英数・記号を全角に変換 / 2 : 英字を大文字に変換 / 3 : 英字を小文字に変換 / 4 : カナを半角に変換 / 5 : カナを全角に変換)",-
+-[E],TransCharn[E],-[E],-[E],TransCharn(); (最後の n は 0 ～ 5 の数字),文字変換 ( 0 : 英数・記号を半角に変換 / 1 : 英数・記号を全角に変換 / 2 : 英字を大文字に変換 / 3 : 英字を小文字に変換 / 4 : カナを半角に変換 / 5 : カナを全角に変換),-
 -[E],Sequence[E],-[E],-[E],Sequence();,連続データ,-
 -[E],SequenceS[E],-[E],-[E],SequenceS();,連番作成,-
--[E],SequenceC[E],-[E],-[E],SequenceC();,"1 行目をコピー",-
+-[E],SequenceC[E],-[E],-[E],SequenceC();,1 行目をコピー,-
 -[E],InsRow[E],-[E],-[E],InsRow();,行挿入,-
 -[E],InsCol[E],-[E],-[E],InsCol();,列挿入,-
 -[E],CutRow[E],-[E],-[E],CutRow();,行削除,-
@@ -110,6 +122,7 @@ SelBottom[E],-[E],-[E],-[E],-,"選択範囲の下端の Y 座標",-
 -[E],InsertCellDown[E],-[E],-[E],InsertCellDown();,下にセルを挿入,-
 -[E],DeleteCellLeft[E],-[E],-[E],DeleteCellLeft();,左につめる,-
 -[E],DeleteCellUp[E],-[E],-[E],DeleteCellUp();,上につめる,-
+-[E],QuickFind[E],-[E],-[E],QuickFind();,簡易検索,1.6.0
 -[E],Find[E],-[E],-[E],Find();,検索・置換,-
 -[E],FindNext[E],-[E],-[E],FindNext();,次を検索,-
 -[E],FindBack[E],-[E],-[E],FindBack();,前を検索,
@@ -120,10 +133,11 @@ SelBottom[E],-[E],-[E],-[E],-,"選択範囲の下端の Y 座標",-
 -[E],WordWrap[E],-[E],-[E],WordWrap();,長いセルを折り返して表示,-
 -[E],NumAlignRight[E],-[E],-[E],NumAlignRight();,数字を右寄せの切り替え,-
 -[E],Num3[E],-[E],-[E],Num3();,数字を３桁区切り表示,-
--[E],CalcExpression[E],-[E],-[E],CalcExpression();,セル内計算式を処理,-
+-[E],CalcExpression[E],-[E],-[E],CalcExpression();,セル内計算式を処理,1.5.0
 -[E],ShowToolbar[E],-[E],-[E],ShowToolbar();,ツールバーの表示の切り替え,-
--[E],FixFirstRow[E],-[E],-[E],FixFirstRow();,"1 行目を固定の切り替え",-
--[E],FixFirstCol[E],-[E],-[E],FixFirstCol();,"1 列目を固定の切り替え",-
+-[E],ShowStatusbar[E],-[E],-[E],ShowStatusbar();,ステータスバーの表示の切り替え,1.6.0
+-[E],FixFirstRow[E],-[E],-[E],FixFirstRow();,1 行目を固定の切り替え,-
+-[E],FixFirstCol[E],-[E],-[E],FixFirstCol();,1 列目を固定の切り替え,-
 -[E],FixUpLeft[E],-[E],-[E],FixUpLeft();,カーソル位置までを固定,-
 -[E],UnFix[E],-[E],-[E],UnFix();,固定を解除,-
 -[E],OptionDlg[E],-[E],-[E],OptionDlg();,オプション,-
@@ -134,39 +148,45 @@ SelBottom[E],-[E],-[E],-[E],-,"選択範囲の下端の Y 座標",-
 -[E],Utf8[E],-[E],-[E],Utf8();,セーブ時文字コードを「UTF-8」に設定,-
 -[E],Unicode[E],-[E],-[E],Unicode();,セーブ時文字コードを「UTF-16LE」に設定,-
 -[E],Utf16be[E],-[E],-[E],Utf16be();,セーブ時文字コードを「UTF-16BE」に設定,-
--[E],Lfcr[E],-[E],-[E],Lfcr();,セーブ時改行コードを「LF+CR」に設定,-
+-[E],Lfcr[E],-[E],-[E],Lfcr();,セーブ時改行コードを「CR+LF」に設定,-
 -[E],Lf[E],-[E],-[E],Lf();,セーブ時改行コードを「LF」に設定,-
 -[E],Cr[E],-[E],-[E],Cr();,セーブ時改行コードを「CR」に設定,-
--[E],Applin[E],-[E],-[E],"Applin(); (最後の n は 0 ～ 2 の数字)","外部アプリケーション ( 0 : アプリ 0 / 1 : アプリ 1 / 2 : アプリ 2)",-
+-[E],Applin[E],-[E],-[E],Applin(); (最後の n は 0 ～ 2 の数字),外部アプリケーション ( 0 : アプリ 0 / 1 : アプリ 1 / 2 : アプリ 2),-
 -[E],MacroSearch[E],-[E],-[E],MacroSearch();,マクロの検索,-
 -[E],MacroOpenFolder[E],-[E],-[E],MacroOpenFolder();,マクロフォルダを開く,-
 -[E],MacroExecute[E],-[E],-[E],MacroExecute();,指定したマクロを実行,-
 -[E],Contents[E],-[E],-[E],Contents();,ヘルプを開く,-
--[E],About[E],-[E],-[E],About();,"Cassava のバージョン情報を表示",-
+-[E],About[E],-[E],-[E],About();,Cassava のバージョン情報を表示,-
 -[E],-[E],-[E],if[E],"if(条件){[CR+LF]
 [NBSP][NBSP]ブロック;[CR+LF]
-}","条件が 0 以外なら実行されます。",-
+}",条件が 0 以外なら実行されます。,-
 -[E],-[E],-[E],if[E],"if(条件1){[CR+LF]
 [NBSP][NBSP]ブロック1;[CR+LF]
 } else if(条件2){[CR+LF]
 [NBSP][NBSP]ブロック2;[CR+LF]
 } else {[CR+LF]
 [NBSP][NBSP]ブロック3;[CR+LF]
-}","条件1 が 0 以外ならブロック1 が、条件2 が 0 以外ならブロック2 が、そうでなければブロック3 が実行されます。",-
+}",条件1 が 0 以外ならブロック1 が、条件2 が 0 以外ならブロック2 が、そうでなければブロック3 が実行されます。,-
 -[E],-[E],-[E],while[E],"while(条件){[CR+LF]
 [NBSP][NBSP]ブロック;[CR+LF]
 }",条件が0以外である間実行されます。,-
 -[E],-[E],-[E],for[E],"for(文1; 条件; 文2){[CR+LF]
 [NBSP][NBSP]ブロック;[CR+LF]
-}","最初に文1 を実行し、条件が 0 以外である間実行されます。ループの最後で文2 が実行されます。",-
+}",最初に文1 を実行し、条件が 0 以外である間実行されます。ループの最後で文2 が実行されます。,-
 -[E],-[E],-[E],For[E],"For(x to max){[CR+LF]
 [NBSP][NBSP]ブロック;[CR+LF]
-}","for(x=1; x<=max; x++){ ブロック; } の省略記述です。",-
+}",for(x=1; x<=max; x++){ ブロック; } の省略記述です。,-
 -[E],-[E],-[E],function[E],"function 関数名(引数名1, 引数名2....){[CR+LF]
 [NBSP][NBSP]...[CR+LF]
 [NBSP][NBSP]return 戻り値;[CR+LF]
-}","function 文により、自分で関数を定義することができます。",1.24c
--[E],-[E],-[E],//[E],"// コメント",「//」から行末までがコメントとなります。,-
+}",function 文により、自分で関数を定義することができます。,1.24c
+-[E],-[E],-[E],//[E],// コメント,「//」から行末までがコメントとなります。,-
 -[E],-[E],-[E],/*[E],"/*[CR+LF]
 [NBSP]* コメント[CR+LF]
 [NBSP]*/",「/*」から「*/」までがコメントとなります。,-
+-[E],SetStatusBarCount[E],-[E],-[E],SetStatusBarCount(x),ステータスバー内の表示領域の個数を設定します。,1.6.0
+-[E],SetStatusBarText[E],-[E],-[E],"SetStatusBarText(x,str)",x 番目の領域に str を表示します。,1.6.0
+-[E],SetStatusBarWidth[E],-[E],-[E],"SetStatusBarWidth(x,w)",x 番目の領域の幅を w に設定します。デフォルト値は 50 です。,1.6.0
+-[E],GetStatusBarCount[E],-[E],-[E],GetStatusBarCount(),ステータスバー内の表示領域の個数を取得します。,1.6.0
+-[E],GetStatusBarText[E],-[E],-[E],GetStatusBarText(x),x 番目の領域に表示された文字列を取得します。,1.6.0
+-[E],GetStatusBarWidth[E],-[E],-[E],GetStatusBarWidth(x),x 番目の領域の幅を取得します。,1.6.0

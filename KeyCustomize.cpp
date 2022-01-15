@@ -187,7 +187,7 @@ void __fastcall TfmKey::rgSCKeyClick(TObject *Sender)
 void __fastcall TfmKey::btnOKClick(TObject *Sender)
 {
   if(NowMSC) SetMSC(NowMSC);
-  SaveKey(fmMain->FullPath + "AutoKey.csv");
+  SaveKey(fmMain->Pref->Path + "AutoKey.csv");
   MenuUpDate();
 }
 //---------------------------------------------------------------------------

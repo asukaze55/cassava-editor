@@ -14,28 +14,28 @@ object frOptionColor: TfrOptionColor
   end
   object lblBgColor: TLabel
     Left = 27
-    Top = 150
+    Top = 174
     Width = 42
     Height = 13
     Caption = #32972#26223#33394#65306
   end
   object lblFixBgColor: TLabel
     Left = 27
-    Top = 214
+    Top = 230
     Width = 86
     Height = 13
     Caption = #22266#23450#12475#12523#32972#26223#33394#65306
   end
   object lblCalcFgColor: TLabel
     Left = 27
-    Top = 278
+    Top = 286
     Width = 90
     Height = 13
     Caption = #35336#31639#32080#26524#25991#23383#33394#65306
   end
   object lblCalcBgColor: TLabel
     Left = 27
-    Top = 310
+    Top = 314
     Width = 90
     Height = 13
     Caption = #35336#31639#32080#26524#32972#26223#33394#65306
@@ -49,21 +49,21 @@ object frOptionColor: TfrOptionColor
   end
   object lblCalcErrorBgColor: TLabel
     Left = 27
-    Top = 374
+    Top = 370
     Width = 93
     Height = 13
     Caption = #35336#31639#12456#12521#12540#32972#26223#33394#65306
   end
   object lblFixFgColor: TLabel
     Left = 27
-    Top = 182
+    Top = 202
     Width = 86
     Height = 13
     Caption = #22266#23450#12475#12523#25991#23383#33394#65306
   end
   object lblDummyBgColor: TLabel
     Left = 27
-    Top = 246
+    Top = 258
     Width = 88
     Height = 13
     Caption = #12480#12511#12540#12475#12523#32972#26223#33394#65306
@@ -81,6 +81,13 @@ object frOptionColor: TfrOptionColor
     Width = 12
     Height = 13
     Caption = 'px'
+  end
+  object lblUrlColor: TLabel
+    Left = 27
+    Top = 146
+    Width = 64
+    Height = 13
+    Caption = 'URL '#25991#23383#33394#65306
   end
   object btnFont: TButton
     Left = 27
@@ -117,11 +124,11 @@ object frOptionColor: TfrOptionColor
   end
   object cbBgColor: TColorBox
     Left = 170
-    Top = 147
+    Top = 171
     Width = 145
     Height = 22
     ItemHeight = 16
-    TabOrder = 6
+    TabOrder = 7
     OnChange = cbBgColorChange
     OnCloseUp = cbBgColorChange
     OnExit = cbBgColorChange
@@ -129,35 +136,35 @@ object frOptionColor: TfrOptionColor
   end
   object cbFixFgColor: TColorBox
     Left = 170
-    Top = 179
-    Width = 145
-    Height = 22
-    ItemHeight = 16
-    TabOrder = 7
-  end
-  object cbFixBgColor: TColorBox
-    Left = 170
-    Top = 211
+    Top = 199
     Width = 145
     Height = 22
     ItemHeight = 16
     TabOrder = 8
   end
-  object cbCalcFgColor: TColorBox
+  object cbFixBgColor: TColorBox
     Left = 170
-    Top = 275
+    Top = 227
     Width = 145
     Height = 22
     ItemHeight = 16
-    TabOrder = 10
+    TabOrder = 9
   end
-  object cbCalcBgColor: TColorBox
+  object cbCalcFgColor: TColorBox
     Left = 170
-    Top = 307
+    Top = 283
     Width = 145
     Height = 22
     ItemHeight = 16
     TabOrder = 11
+  end
+  object cbCalcBgColor: TColorBox
+    Left = 170
+    Top = 311
+    Width = 145
+    Height = 22
+    ItemHeight = 16
+    TabOrder = 12
   end
   object cbCalcErrorFgColor: TColorBox
     Left = 170
@@ -165,23 +172,23 @@ object frOptionColor: TfrOptionColor
     Width = 145
     Height = 22
     ItemHeight = 16
-    TabOrder = 12
+    TabOrder = 13
   end
   object cbCalcErrorBgColor: TColorBox
     Left = 170
-    Top = 371
+    Top = 367
     Width = 145
     Height = 22
     ItemHeight = 16
-    TabOrder = 13
+    TabOrder = 14
   end
   object cbDummyBgColor: TColorBox
     Left = 170
-    Top = 243
+    Top = 255
     Width = 145
     Height = 22
     ItemHeight = 16
-    TabOrder = 9
+    TabOrder = 10
   end
   object edLineMargin: TEdit
     Left = 170
@@ -206,5 +213,17 @@ object frOptionColor: TfrOptionColor
     Height = 17
     Caption = #12475#12523#20869#25913#34892#12391#12399#34892#38291#12434#12354#12369#12394#12356
     TabOrder = 4
+  end
+  object cbUrlColor: TColorBox
+    Left = 170
+    Top = 143
+    Width = 145
+    Height = 22
+    ItemHeight = 16
+    TabOrder = 6
+    OnChange = cbFgColorChange
+    OnCloseUp = cbFgColorChange
+    OnExit = cbFgColorChange
+    OnSelect = cbFgColorChange
   end
 end

@@ -28,50 +28,26 @@ void TfrOptionFile::RestoreFromMainForm()
   cbLockFile->ItemIndex = fmMain->LockFile;
   cbCheckTimeStamp->Checked = fmMain->CheckTimeStamp;
 
-  OSVERSIONINFO osVer;
-  osVer.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-  ::GetVersionEx( &osVer );
-
-  if(osVer.dwMajorVersion < 6){
-    TRegistry *Reg = new TRegistry;
-    Reg->RootKey = HKEY_CLASSES_ROOT;
-    if(Reg->OpenKeyReadOnly("\\.csv")){
-      CSVFileType = Reg->ReadString("");
-      KanrenCSVNew = Reg->KeyExists("\\.csv\\ShellNew");
-      Reg->CloseKey();
-    }else{ CSVFileType = ""; }
-    if(Reg->OpenKeyReadOnly("\\.tsv")){
-      TSVFileType = Reg->ReadString("");
-      KanrenTSVNew = Reg->KeyExists("\\.tsv\\ShellNew");
-      Reg->CloseKey();
-    }else{ TSVFileType = ""; }
-    KanrenCSV = (CSVFileType == "Cassava.CSV");
-    KanrenTSV = (TSVFileType == "Cassava.TSV");
-    cbKanrenCSV->Checked = KanrenCSV;
-    cbKanrenCSVNew->Checked = KanrenCSVNew;
-    cbKanrenTSV->Checked = KanrenTSV;
-    cbKanrenTSVNew->Checked = KanrenTSVNew;
-    frOptionLaunch->btnKanrenR->Enabled = (KanrenCSV || KanrenTSV);
-    delete Reg;
-  }else{
-    // Vistaは未対応
-    CSVFileType = "";
-    KanrenCSV = false;
-    KanrenCSVNew = false;
-    TSVFileType = "";
-    KanrenTSV = false;
-    KanrenTSVNew = false;
-    cbKanrenCSV->Checked = KanrenCSV;
-    cbKanrenCSV->Enabled = false;
-    cbKanrenCSVNew->Checked = KanrenCSVNew;
-    cbKanrenCSVNew->Enabled = false;
-    cbKanrenTSV->Checked = KanrenTSV;
-    cbKanrenTSV->Enabled = false;
-    cbKanrenTSVNew->Checked = KanrenTSVNew;
-    cbKanrenTSVNew->Enabled = false;
-    gbKanren->Caption = "関連付け (Windows Vista 未対応)";
-    frOptionLaunch->btnKanrenR->Enabled = false;
-  }
+  TRegistry *Reg = new TRegistry;
+  Reg->RootKey = HKEY_CLASSES_ROOT;
+  if(Reg->OpenKeyReadOnly("\\.csv")){
+    CSVFileType = Reg->ReadString("");
+    KanrenCSVNew = Reg->KeyExists("\\.csv\\ShellNew");
+    Reg->CloseKey();
+  }else{ CSVFileType = ""; }
+  if(Reg->OpenKeyReadOnly("\\.tsv")){
+    TSVFileType = Reg->ReadString("");
+    KanrenTSVNew = Reg->KeyExists("\\.tsv\\ShellNew");
+    Reg->CloseKey();
+  }else{ TSVFileType = ""; }
+  KanrenCSV = (CSVFileType == "Cassava.CSV");
+  KanrenTSV = (TSVFileType == "Cassava.TSV");
+  cbKanrenCSV->Checked = KanrenCSV;
+  cbKanrenCSVNew->Checked = KanrenCSVNew;
+  cbKanrenTSV->Checked = KanrenTSV;
+  cbKanrenTSVNew->Checked = KanrenTSVNew;
+  frOptionLaunch->btnKanrenR->Enabled = (KanrenCSV || KanrenTSV);
+  delete Reg;
 }
 //---------------------------------------------------------------------------
 void TfrOptionFile::StoreToMainForm()
@@ -83,52 +59,64 @@ void TfrOptionFile::StoreToMainForm()
   fmMain->LockFile = cbLockFile->ItemIndex;
   fmMain->CheckTimeStamp = cbCheckTimeStamp->Checked;
 
-  SetKanren("\\Cassava.CSV", "CSV ファイル", "\\.csv",
+  SetKanren("Cassava.CSV", "CSV ファイル", ".csv",
             CSVFileType, KanrenCSV, KanrenCSVNew,
             cbKanrenCSV->Checked, cbKanrenCSVNew->Checked);
-  SetKanren("\\Cassava.TSV", "TSV ファイル", "\\.tsv",
+  SetKanren("Cassava.TSV", "TSV ファイル", ".tsv",
             TSVFileType, KanrenTSV, KanrenTSVNew,
             cbKanrenTSV->Checked, cbKanrenTSVNew->Checked);
 }
 //---------------------------------------------------------------------------
-void TfrOptionFile::SetKanren(char *CassavaTypePath, char *CassavaTypeName,
-        char *ExtPath, AnsiString OldFileType, bool OldKanren,
+void TfrOptionFile::SetKanren(char *CassavaType, char *CassavaTypeName,
+        char *Ext, AnsiString OldFileType, bool OldKanren,
         bool OldKanrenNew, bool NewKanren, bool NewKanrenNew)
 {
   if(NewKanren != OldKanren){
     TRegistry *Reg = new TRegistry;
-    Reg->RootKey = HKEY_CLASSES_ROOT;
+    Reg->RootKey = HKEY_CURRENT_USER;
     if(NewKanren){
-      if(Application->MessageBox("関連付けを設定します", CassavaTypePath + 1,
+      if(Application->MessageBox("関連付けを設定します", CassavaType,
                                  MB_OKCANCEL)==IDOK){
-        Reg->OpenKey(CassavaTypePath, true);
+        Reg->OpenKey("\\Software", true);
+        Reg->OpenKey("Classes", true);
+        Reg->OpenKey(CassavaType, true);
         Reg->WriteString("", CassavaTypeName);
         Reg->WriteString("OldType", OldFileType);
         Reg->OpenKey("shell",true);
         Reg->OpenKey("open",true);
-        Reg->WriteString("", "Cassava");
+        Reg->WriteString("", "Cassava Editor で開く");
         Reg->OpenKey("command",true);
         Reg->WriteString("", (AnsiString)'\"'+ParamStr(0)+"\" \"%1\"");
-        Reg->OpenKey((AnsiString)CassavaTypePath + "\\DefaultIcon",true);
+        Reg->CloseKey();
+
+        Reg->OpenKey("\\Software", true);
+        Reg->OpenKey("Classes", true);
+        Reg->OpenKey(CassavaType, true);
+        Reg->OpenKey("DefaultIcon",true);
         Reg->WriteString("", ParamStr(0)+",0");
         Reg->CloseKey();
-        Reg->OpenKey(ExtPath, true);
-        Reg->WriteString("", CassavaTypePath + 1);
+
+        Reg->OpenKey("\\Software", true);
+        Reg->OpenKey("Classes", true);
+        Reg->OpenKey(Ext, true);
+        Reg->WriteString("", CassavaType);
         Reg->CloseKey();
       }
     }else{
-      if(Application->MessageBox("関連付けを解除します", CassavaTypePath + 1,
+      if(Application->MessageBox("関連付けを解除します", CassavaType,
                                  MB_OKCANCEL)==IDOK){
         AnsiString FileType = "";
-        if(Reg->OpenKey(CassavaTypePath, false)){
+        Reg->OpenKey("\\Software", false);
+        Reg->OpenKey("Classes", false);
+        if(Reg->OpenKey(CassavaType, false)){
           FileType = Reg->ReadString("OldType");
           Reg->CloseKey();
-          Reg->DeleteKey(CassavaTypePath);
+          Reg->DeleteKey((AnsiString)"\\Software\\Classes\\" + CassavaType);
         }
         if(FileType==""){
-          Reg->DeleteKey(ExtPath);
+          Reg->DeleteKey((AnsiString)"\\Software\\Classes\\" + Ext);
         }else{
-          Reg->OpenKey(ExtPath, true);
+          Reg->OpenKey((AnsiString)"\\Software\\Classes\\" + Ext, true);
           Reg->WriteString("", FileType);
           Reg->CloseKey();
         }
@@ -139,21 +127,26 @@ void TfrOptionFile::SetKanren(char *CassavaTypePath, char *CassavaTypeName,
 
   if(NewKanrenNew != OldKanrenNew){
     TRegistry *Reg = new TRegistry;
-    Reg->RootKey = HKEY_CLASSES_ROOT;
+    Reg->RootKey = HKEY_CURRENT_USER;
     if(NewKanrenNew){
-      if(Application->MessageBox("新規作成に追加します", CassavaTypePath + 1,
+      if(Application->MessageBox("新規作成に追加します", CassavaType,
                                  MB_OKCANCEL)==IDOK){
-        Reg->OpenKey((AnsiString)ExtPath + "\\ShellNew",true);
+        Reg->OpenKey((AnsiString)"\\Software\\Classes\\" + Ext + "\\ShellNew",
+                     true);
         Reg->WriteString("NullFile", "");
         Reg->CloseKey();
       }
-    }else if(Reg->KeyExists((AnsiString)ExtPath + "\\ShellNew")){
-      if(Application->MessageBox("新規作成を解除します", CassavaTypePath + 1,
+    }else if(Reg->KeyExists((AnsiString)"\\Software\\Classes\\" + Ext
+             + "\\ShellNew")){
+      if(Application->MessageBox("新規作成を解除します", CassavaType,
                                  MB_OKCANCEL)==IDOK){
-          Reg->DeleteKey((AnsiString)ExtPath + "\\ShellNew");
+          Reg->DeleteKey((AnsiString)"\\Software\\Classes\\" + Ext
+                         + "\\ShellNew");
       }
     }
     delete Reg;
   }
+
+  PostMessage(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) "Environment");
 }
 //---------------------------------------------------------------------------
