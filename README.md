@@ -22,6 +22,8 @@ C++Builder の \[ツール\]-\[GetIt パッケージマネージャ...\] メニ�
 cassava-editor リポジトリをクローンし、「Cassava\?\?.groupproj」ファイルを C++Builder で開いてください。
 \[実行\] メニューをクリックすると Cassava Editor がビルド・実行されます。
 
+マクロ等を使えるようにするには、「Export」「Help」「Macro」の 3 つのフォルダを「Release_Build」フォルダ内（デバッグ実行時は「Debug_Build」フォルダ内）にコピーしてください。
+
 ### テスト
 
 実行中の Cassava Editor 内で  \[マクロ(M)\]-\[指定したマクロを実行(X)...\] メニューを実行し、
