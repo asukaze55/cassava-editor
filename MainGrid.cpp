@@ -970,10 +970,9 @@ String GetReturnCodeAndReplaceNull(String data, bool useQuote,
   return data;
 }
 //---------------------------------------------------------------------------
-void __fastcall TMainGrid::SetDragDropAccept(bool Accept)
+void TMainGrid::SetDragAcceptFiles(bool Accept)
 {
-    ::DragAcceptFiles(Handle,Accept);
-    FDragDropAccept=Accept;
+  ::DragAcceptFiles(Handle, Accept);
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainGrid::DropCsvFiles(TWMDropFiles inMsg)

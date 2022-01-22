@@ -62,7 +62,6 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
   MainGrid->OnMouseWheelUp = MainGrid->MouseWheelUp;
   MainGrid->OnMouseWheelDown = MainGrid->MouseWheelDown;
   MainGrid->OnGetCalculatedCell = GetCalculatedCell;
-  MainGrid->DragDrogAccept = true;
   MainGrid->TabStop = false;
   Application->OnActivate = ApplicationActivate;
   Application->OnHint = ApplicationHint;
@@ -964,6 +963,12 @@ void __fastcall TfmMain::FormAfterMonitorDpiChanged(TObject *Sender, int OldDPI,
 {
   MainGrid->Canvas->Font->Size = MainGrid->Font->Size;
   MainGrid->Invalidate();
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmMain::FormShow(TObject *Sender)
+{
+  // Need to call DragAcceptFiles again when the window handle gets changed.
+  MainGrid->SetDragAcceptFiles(true);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnNewClick(TObject *Sender)

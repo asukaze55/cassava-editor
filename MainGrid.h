@@ -87,10 +87,8 @@ private:
     TUndoList *FUndoList;
 
     TDropCsvFiles FOnDropFiles;
-    bool FDragDropAccept;
-    void __fastcall SetDragDropAccept(bool Accept);
 
-	int TextWidth(TCanvas *cnvs, String str);
+    int TextWidth(TCanvas *cnvs, String str);
     void ShowAllColumn();
 
     void (__closure *OnFileOpenThreadTerminate)(System::TObject* Sender);
@@ -153,8 +151,6 @@ public:
     __property int DataTop    = {read=GetDataTop};
     __property int DataRight  = {read=FDataRight};
     __property int DataBottom = {read=FDataBottom};
-    __property bool DragDrogAccept = {read=FDragDropAccept,
-                                      write=SetDragDropAccept};
 
     __property int TBMargin = {read=FTBMargin, write=SetTBMargin};
     int LRMargin;
@@ -167,6 +163,7 @@ public:
     __fastcall TMainGrid(TComponent* Owner);
     __fastcall ~TMainGrid();
 
+    void SetDragAcceptFiles(bool Accept);
     void Clear(int AColCount=4, int ARowCount=4, bool UpdateRightBottom=false);
     void SetWidth(int i);
     void SetWidth();

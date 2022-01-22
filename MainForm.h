@@ -255,6 +255,7 @@ __published:	// IDE 管理のコンポーネント
   TVirtualImageList *imlAdditionalDark;
   void __fastcall FormAfterMonitorDpiChanged(TObject *Sender, int OldDPI, int NewDPI);
   void __fastcall FormCloseQuery(TObject *Sender, bool &CanClose);
+  void __fastcall FormShow(TObject *Sender);
   void __fastcall mnNewClick(TObject *Sender);
   void __fastcall mnOpenClick(TObject *Sender);
   void __fastcall mnEndClick(TObject *Sender);
