@@ -377,7 +377,6 @@ private:
   void GetIf();
   void GetWhile();
   void GetFor();
-  void GetBasicFor();
   String GetFunction(FunctionType functionType, String paramName = "");
   void GetReturn(char EOS);
   void GetLambda(String paramName = "");
@@ -516,37 +515,6 @@ void TCompiler::GetFor()
   Continues = originalContinues;
 
   fout->Position = bp2to;
-}
-//---------------------------------------------------------------------------
-void TCompiler::GetBasicFor()
-{
-  lex->Get();                    // '('
-  CMCElement evar  = lex->Get(); // 変数
-  CMCElement eto = lex->Get();   // "To"
-  if(eto.str.LowerCase() != "to"){
-    throw CMCException("For([変数] to [最大値]){} 構文が間違っています");
-  }
-
-  int istt = 1;
-  Output(evar);
-  fout->Write("i",1);
-  fout->Write(&istt, INT_SIZE);
-  fout->Write("-=",2);
-  int bp1to = fout->Position; // ここに戻ってループ
-
-  Output(evar);
-  GetValues(')');     // 最大値
-  fout->Write("-L", 2); // "-L" は "<="
-  int bp2fr = OutputPositionPlaceholder(); // ループから外へ
-  fout->Write("-?",2);
-
-  GetSentence(';');     // ループ本体
-
-  Output(evar);
-  fout->Write("-ii",3);  // "-i" は "++"
-  fout->Write(&bp1to, INT_SIZE);
-  fout->Write("-g",2);
-  FillPositionPlaceholder(bp2fr);
 }
 //---------------------------------------------------------------------------
 #define LAMBDA_EOS 'L'
@@ -1076,8 +1044,7 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
           return true;
         }
         Push(CMCElement(funcName, prElement, tpString), &ls);
-      } else if (AnsiPos("/" + e.str + "/",
-                         "/if/while/for/For/return/") > 0) {
+      } else if (AnsiPos("/" + e.str + "/", "/if/while/for/return/") > 0) {
         if (!firstloop) {
           throw CMCException(e.str + " の前に ; が必要です。");
         }
@@ -1087,8 +1054,6 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
           GetWhile();
         } else if (e.str == "for") {
           GetFor();
-        } else if (e.str == "For") {
-          GetBasicFor();
         } else if (e.str == "return") {
           GetReturn(';');
         }
