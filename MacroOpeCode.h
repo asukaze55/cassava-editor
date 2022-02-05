@@ -2,8 +2,11 @@
 #ifndef MacroOpeCodeH
 #define MacroOpeCodeH
 //---------------------------------------------------------------------------
+#define CMO_IfThen   '?' /* Used in if, while */
 #define CMO_Goto     'g' /* Clears stack. Used in if, while */
 #define CMO_Jump     'j' /* Keeps stack. Used in ?: */
+#define CMO_Return   '}' /* return */
+#define CMO_Cell     ']' /* [x,y] */
 #define CMO_Minus    'm' /* "-"  */
 #define CMO_Inc      'i' /* "++" */
 #define CMO_Dec      'd' /* "--" */

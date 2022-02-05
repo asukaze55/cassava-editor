@@ -1459,11 +1459,11 @@ void TMacro::ExecOpe(char c){
       }
       map<String, Element>& vars = env.GetObject(ope2.Val())->Vars;
       Stack.push_back(Element((vars.find(ope1.Str()) != vars.end()) ? 1 : 0));
-    } else if (c == '?') {
+    } else if (c == CMO_IfThen) {
       if (ope1.Val() == 0) {
         fs->Position = ope2.Val();
       }
-    } else if (c == ']') {
+    } else if (c == CMO_Cell) {
       Stack.push_back(Element(ope1.Val(), ope2.Val(), &env));
     }
   }
@@ -1519,7 +1519,7 @@ Element TMacro::Do(String FileName, const std::vector<Element> &AStack,
       }else if(Type == '-'){
         char c;
         fs->Read(&c, 1);
-        if(c == '}'){
+        if(c == CMO_Return){
           ReturnValue = Stack.back().Value();
           break;
         }else{
