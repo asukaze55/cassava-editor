@@ -195,6 +195,11 @@ inline bool IsUnaryOpeExpected(const CMCElement& last) {
       || (last.type == tpStructure && last.str != ")" && last.str != "]")
       || (last.type == tpFunc && last.str == "return");
 }
+inline bool IsVarDeclaration(const CMCElement& e, const CMCElement& next) {
+  return e.type == tpVar
+      && (e.str == "const" || e.str == "let" || e.str == "var")
+      && next.type == tpVar;
+}
 //---------------------------------------------------------------------------
 CMCElement TTokenizer::GetR()
 {
@@ -367,7 +372,7 @@ private:
   TStringList *CapturedVariables;
   std::vector<__int64> *Breaks;
   std::vector<__int64> *Continues;
-  int DummyFunctionName;
+  int DummyIdentifier;
 
   void Output(CMCElement e);
   void Output(String str, char type);
@@ -407,7 +412,7 @@ public:
                bool showMessage);
   TCompiler(TStringList *modules, TStringList *macroDirs)
       : Modules(modules), MacroDirs(macroDirs), Breaks(NULL), Continues(NULL),
-        DummyFunctionName(0) {
+        DummyIdentifier(0) {
     import = newTStringList();
   }
   ~TCompiler() { delete import; }
@@ -471,30 +476,80 @@ void TCompiler::GetFor()
   Continues = &continues;
 
   lex->Get(); // '('
-  GetValues(';'); // 初期設定部
-  int bp1to = fout->Position; // ここに戻ってループ
-  GetValues(';'); // 条件部
-  breaks.push_back(OutputPositionPlaceholder());
-  Output(CMO_IfThen, tpOpe);
+  int continuePosition;
 
-  TStream *fs = fout;
-  TStream *ms = new TMemoryStream();
-  fout = ms;
-  GetValues(')'); // 再初期化
-  fout = fs;
+  if (IsVarDeclaration(lex->GetNext(0), lex->GetNext(1))
+      && lex->GetNext(2).type == tpVar && lex->GetNext(2).str == "of") {
+    lex->Get();
+  }
+  if (lex->GetNext(0).type == tpVar
+      && lex->GetNext(1).type == tpVar && lex->GetNext(1).str == "of") {
+    CMCElement var = lex->Get();
+    if (IsKnownVariable(var)) {
+      throw CMCException("変数名がすでに使用されています：" + var.str);
+    }
+    Variables->Add(var.str);
+    lex->Get(); // of
 
-  GetSentence(';'); // ループ本体
-  int bp3to = fout->Position; // Continue
-  fout->CopyFrom(ms, 0);
-  delete ms;
+    String collection = ++DummyIdentifier;
+    Output(collection, tpVar);
+    GetValues(')');
+    Output("=", tpOpe);
 
-  OutputInteger(bp1to);
-  Output(CMO_Goto, tpOpe);
+    String index = ++DummyIdentifier;
+    Output(index, tpVar);
+    OutputInteger(0);
+    Output("=", tpOpe);
+    int nextPosition = fout->Position;
+
+    Output(index, tpVar);
+    Output(collection, tpVar);
+    Output("length", tpString);
+    Output(".", tpOpe);
+    Output("<", tpOpe);
+    breaks.push_back(OutputPositionPlaceholder());
+    Output(CMO_IfThen, tpOpe);
+
+    Output(var);
+    Output(collection, tpVar);
+    Output(index, tpVar);
+    Output(".", tpOpe);
+    Output("=", tpOpe);
+    GetSentence(';'); // Loop body
+    continuePosition = fout->Position;
+
+    Output(index, tpVar);
+    Output(CMO_Inc, tpOpe);
+
+    OutputInteger(nextPosition);
+    Output(CMO_Goto, tpOpe);
+    Variables->Delete(Variables->IndexOf(var.str));
+  } else {
+    GetValues(';'); // Initialization
+    int nextPosition = fout->Position;
+    GetValues(';'); // Condition
+    breaks.push_back(OutputPositionPlaceholder());
+    Output(CMO_IfThen, tpOpe);
+
+    TStream *fs = fout;
+    TStream *ms = new TMemoryStream();
+    fout = ms;
+    GetValues(')'); // Final Expression
+    fout = fs;
+
+    GetSentence(';'); // Loop Body
+    continuePosition = fout->Position;
+    fout->CopyFrom(ms, 0);
+    delete ms;
+
+    OutputInteger(nextPosition);
+    Output(CMO_Goto, tpOpe);
+  }
 
   FillPositionPlaceholders(breaks, fout->Position);
   Breaks = originalBreaks;
 
-  FillPositionPlaceholders(continues, bp3to);
+  FillPositionPlaceholders(continues, continuePosition);
   Continues = originalContinues;
 }
 //---------------------------------------------------------------------------
@@ -508,11 +563,11 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
 
   String functionName;
   if (functionType == LAMBDA) {
-    functionName = ++DummyFunctionName;
+    functionName = ++DummyIdentifier;
   } else {
     functionName = lex->Get().str;
     if (functionName == "(") {
-      functionName = ++DummyFunctionName;
+      functionName = ++DummyIdentifier;
     } else if (lex->Get().str == "(") {
       ImportedFunctions[functionName] = InName + "\n" + functionName;
     } else {
@@ -1106,8 +1161,7 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         }
         String internalName = (String)H + "$" + libName + "\n" + f.str;
         Push(CMCElement(internalName, prElement, tpFunc), &ls);
-      } else if ((e.str == "const" || e.str == "let" || e.str == "var") &&
-                 lex->GetNext().type == tpVar) {
+      } else if (IsVarDeclaration(e, lex->GetNext())) {
         bool isConst = (e.str == "const");
         e = lex->Get();
         if (IsKnownVariable(e)) {
