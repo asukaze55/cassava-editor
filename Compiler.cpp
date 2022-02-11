@@ -486,10 +486,9 @@ void TCompiler::GetFor()
   if (lex->GetNext(0).type == tpVar
       && lex->GetNext(1).type == tpVar && lex->GetNext(1).str == "of") {
     CMCElement var = lex->Get();
-    if (IsKnownVariable(var)) {
-      throw CMCException("•Ï”–¼‚ª‚·‚Å‚ÉŽg—p‚³‚ê‚Ä‚¢‚Ü‚·F" + var.str);
+    if (!IsKnownVariable(var)) {
+      Variables->Add(var.str);
     }
-    Variables->Add(var.str);
     lex->Get(); // of
 
     String collection = ++DummyIdentifier;
