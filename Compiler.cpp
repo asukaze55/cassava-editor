@@ -1239,6 +1239,10 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         // Ignore.
       } else if (lex->GetNext().str == "=>") {
         GetLambda(e.str);
+      } else if (lex->GetNext().type != tpStructure
+                 && lex->GetNext().type != tpOpe) {
+        throw CMCException(e.str + " と " + lex->GetNext().str
+            + " の間に演算子が必要です。");
       } else {
         if (isUndefined) {
           if (lex->GetNext().str != "=") {
@@ -1298,6 +1302,10 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         Push(e, &ls);
       }
     } else{
+      if (lex->GetNext().type != tpStructure && lex->GetNext().type != tpOpe) {
+        throw CMCException(e.str + " と " + lex->GetNext().str
+            + " の間に演算子が必要です。");
+      }
       Push(e, &ls);
     }
     firstloop = false;
