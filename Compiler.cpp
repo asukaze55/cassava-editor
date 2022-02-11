@@ -386,6 +386,7 @@ private:
   void GetIf();
   void GetWhile();
   void GetFor();
+  void GetLegacyFor();
   String GetFunction(FunctionType functionType, String paramName = "");
   void GetReturn(char EOS);
   void GetLambda(String paramName = "");
@@ -551,6 +552,35 @@ void TCompiler::GetFor()
 
   FillPositionPlaceholders(continues, continuePosition);
   Continues = originalContinues;
+}
+//---------------------------------------------------------------------------
+void TCompiler::GetLegacyFor()
+{
+  lex->Get(); // '('
+  CMCElement var  = lex->Get(); // •Ï”
+  if (!IsKnownVariable(var)) {
+    Variables->Add(var.str);
+  }
+  lex->Get(); // "To"
+
+  Output(var);
+  OutputInteger(1);
+  Output("=", tpOpe);
+  int nextPosition = fout->Position;
+
+  Output(var);
+  GetValues(')'); // Max Value
+  Output(CMO_LEq, tpOpe);
+  int breakPlaceholder = OutputPositionPlaceholder();
+  Output(CMO_IfThen, tpOpe);
+
+  GetSentence(';'); // Loop Body
+
+  Output(var);
+  Output(CMO_Inc, tpOpe);
+  OutputInteger(nextPosition);
+  Output(CMO_Goto, tpOpe);
+  FillPositionPlaceholder(breakPlaceholder);
 }
 //---------------------------------------------------------------------------
 #define LAMBDA_EOS 'L'
@@ -1103,6 +1133,11 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         } else if (e.str == "return") {
           GetReturn(';');
         }
+        return true;
+      } else if (firstloop && e.str == "For" && lex->GetNext(1).type == tpVar
+          && lex->GetNext(2).type == tpVar
+          && lex->GetNext(2).str.LowerCase() == "to") {
+        GetLegacyFor();
         return true;
       } else {
         lex->Get(); // "(" ‚ª‚ ‚é‚Í‚¸
