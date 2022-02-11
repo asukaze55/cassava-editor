@@ -340,7 +340,7 @@ while (条件) {
 <p>
 条件が真（0以外）である間実行されます。
 ブロック内で「break;」を実行するとループを終了します。
-また、ブロック内で「continue;」を実行すると条件のチェックに戻ります。
+ブロック内で「continue;」を実行すると条件のチェックに戻ります。
 </p>
 
 <blockquote><pre><code>
@@ -352,7 +352,20 @@ for (文1; 条件; 文2) {
 最初に文1が実行され、条件が真（0以外）である間ブロック内の処理が実行されます。
 ループの最後で文2が実行されます。
 ブロック内で「break;」を実行するとループを終了します。
-また、ブロック内で「continue;」を実行すると文2が実行されて条件のチェックに戻ります。
+ブロック内で「continue;」を実行すると文2が実行されて条件のチェックに戻ります。
+</p>
+
+<blockquote><pre><code>
+for (変数 of 式) {
+  ブロック;
+}
+</code></pre></blockquote>
+<p>
+式の評価結果が後述のオブジェクトであり、
+キーに「length」および 0 から length - 1 までが含まれている場合、
+obj[0] から obj[length - 1] までを順に変数に代入し、それぞれブロックを実行します。
+ブロック内で「break;」を実行するとループを終了します。
+ブロック内で「continue;」を実行すると次の値に進みます。
 </p>
 
 <h2>関数定義</h2>
@@ -404,6 +417,18 @@ function getSum(...args){
 }
 
 MessageBox(getSum(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+</code></pre></blockquote>
+<p>
+for (変数 of 式) 構文も使用できます。
+</p>
+<blockquote><pre><code>
+function getSum(...args){
+  sum = 0;
+  for (value of args) {
+    sum += value;
+  }
+  return sum;
+}
 </code></pre></blockquote>
 
 <h2 id="OBJECT">オブジェクト</h2>

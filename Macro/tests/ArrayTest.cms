@@ -150,6 +150,21 @@ class ArrayTest {
     assert.that(array.join(":")).isEqualTo("a:b:c");
   }
 
+  forOf(assert) {
+    array = arrayOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+    v = "";
+    for (e of array) {
+      if (e == 6) {
+        break;
+      }
+      if (e % 2 == 0) {
+        continue;
+      }
+      v += e;
+    }
+    assert.that(v).isEqualTo("135");
+  }
+
   test(assert) {
     this.concat(assert);
     this.filter(assert);
@@ -168,6 +183,7 @@ class ArrayTest {
     this.unshift(assert);
     this.arrayFrom(assert);
     this.arrayOf(assert);
+    this.forOf(assert);
   }
 }
 
