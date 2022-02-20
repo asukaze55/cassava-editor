@@ -9,21 +9,19 @@
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 //---------------------------------------------------------------------------
-#define QUOTE '\''
-#define DBLQUOTE '\"'
+constexpr char QUOTE = '\'';
+constexpr char DBLQUOTE = '\"';
 
-#define tpInteger   'i'
-#define tpDouble    'd'
-#define tpString    '$'
-#define tpFunc      '*'
-#define tpVar       '~'
-#define tpOpe       '-'
-#define tpStructure ';'
+constexpr char tpInteger = 'i';
+constexpr char tpDouble = 'd';
+constexpr char tpString = '$';
+constexpr char tpFunc = '*';
+constexpr char tpVar = '~';
+constexpr char tpOpe = '-';
+constexpr char tpStructure = ';';
 
-#define prElement 100
-#define prEOF -1
-
-#define CMCEOF CMCElement("", prEOF, tpStructure, 0)
+constexpr int prElement = 100;
+constexpr int prEOF = -1;
 
 static const int INT_SIZE = sizeof(int);
 //---------------------------------------------------------------------------
@@ -46,6 +44,8 @@ public:
         "/Col/Row/Right/Bottom/SelLeft/SelTop/SelRight/SelBottom/") > 0;
   }
 };
+//---------------------------------------------------------------------------
+static const CMCElement CMCEOF = CMCElement("", prEOF, tpStructure, 0);
 //---------------------------------------------------------------------------
 CMCElement::CMCElement(String s){
   str = s; pri = 100; type = tpVar; jump = 0;
@@ -582,7 +582,7 @@ void TCompiler::GetLegacyFor()
   FillPositionPlaceholder(breakPlaceholder);
 }
 //---------------------------------------------------------------------------
-#define LAMBDA_EOS 'L'
+constexpr char LAMBDA_EOS = 'L';
 //---------------------------------------------------------------------------
 String TCompiler::GetFunction(FunctionType functionType, String paramName)
 {

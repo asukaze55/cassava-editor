@@ -15,23 +15,29 @@
 #pragma package(smart_init)
 using namespace std;
 //---------------------------------------------------------------------------
-#define etErr 0
-#define etAtom 1
-#define etVar 2
-#define etCell 3
-#define etSystem 4
-#define etObject 5
-#define etFunction 6
+enum ElementType {
+  etErr,
+  etAtom,
+  etVar,
+  etCell,
+  etSystem,
+  etObject,
+  etFunction
+};
 //---------------------------------------------------------------------------
-#define ME_HIKISU 1
-#define ME_SECURITY 2
-#define ME_CANCELED 3
+enum MacroExceptionType {
+  ME_GENERIC,
+  ME_HIKISU,
+  ME_SECURITY,
+  ME_CANCELED
+};
 //---------------------------------------------------------------------------
 class MacroException{
 public:
   String Message;
-  int Type;
-  MacroException(String Mes, int t = 0) : Message(Mes), Type(t) {}
+  MacroExceptionType Type;
+  MacroException(String Mes, MacroExceptionType t = ME_GENERIC)
+      : Message(Mes), Type(t) {}
 };
 //---------------------------------------------------------------------------
 class GridProxy {
@@ -248,19 +254,19 @@ private:
   TEnvironment *env;
   Element &GetVar() const;
 public:
-  int Type;
+  ElementType Type;
   bool isNum() const;
   int X, Y;
   Element() : Type(etErr), Num(true), vl(0), st(""), env(NULL) {};
   Element(double d) :
       Type(etAtom), Num(true), vl(d), env(NULL) {};
-  Element(double d, String s, int t, TEnvironment *e) :
+  Element(double d, String s, ElementType t, TEnvironment *e) :
       Type(t), Num(true), st(s), vl(d), env(e) {};
   Element(String s) :
       Type(etAtom), Num(false), st(s), env(NULL) {};
-  Element(String s, int t, TEnvironment *e) :
+  Element(String s, ElementType t, TEnvironment *e) :
       Type(t), Num(false), st(s), env(e) {};
-  Element(String s, int t, bool nm, TEnvironment *e) :
+  Element(String s, ElementType t, bool nm, TEnvironment *e) :
       Type(t), Num(nm), st(s), env(e) {};
   Element(int cl, int rw, TEnvironment *e);
   Element(int cl, int rw, bool nm, TEnvironment *e) :
