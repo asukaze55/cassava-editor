@@ -273,6 +273,7 @@ public:
   String Name() const { return st; }
   Element Value() const;
   void Sbst(const Element &e);
+  Element GetMember(String name);
 };
 //---------------------------------------------------------------------------
 class TEnvironment {
@@ -531,6 +532,11 @@ void Element::Sbst(const Element &e)
   }
 }
 //---------------------------------------------------------------------------
+Element Element::GetMember(String name)
+{
+  return Element(name, etVar, env->GetObject(Val()));
+}
+//---------------------------------------------------------------------------
 String TMacro::ReadString(TStream *fs)
 {
   wchar_t str[260];
@@ -585,12 +591,11 @@ void TMacro::ExecMethod(String name, int H, const std::vector<Element>& ope,
     ExecPrimitiveMethod(name, H, ope);
     return;
   }
-  Element funcPtr = obj.Type != etObject ? obj
-                  : Element(name, etVar, env.GetObject(obj.Val()));
+  Element funcPtr = obj.Type != etObject ? obj : obj.GetMember(name);
   try {
     while (funcPtr.Value().Type == etObject) {
       obj = funcPtr.Value();
-      funcPtr = Element("", etVar, env.GetObject(obj.Val()));
+      funcPtr = obj.GetMember("");
     }
   } catch (...) {
     if (name == "toString") {
@@ -869,7 +874,7 @@ void TMacro::ExecFnc(String s)
       objects->push_back(env.NewObject());
     }else if(s == "(constructor)") {
       Element obj = Stack.back();
-      Element funcPtr("constructor", etVar, env.GetObject(obj.Val()));
+      Element funcPtr = obj.GetMember("constructor");
       Stack.pop_back();
       int ml = ((MaxLoop > 0) ? MaxLoop-LoopCount : 0);
       TMacro mcr(fs_io, ml, modules, env.CreateSubEnvironment());
@@ -1372,7 +1377,7 @@ void TMacro::ExecOpe(char c){
     Element key = Stack.back(); Stack.pop_back();
     Element obj = Stack.back();
     String keyString = (key.Type == etVar ? key.Name() : key.Str());
-    Element(keyString, etVar, env.GetObject(obj.Val())).Sbst(val);
+    obj.GetMember(keyString).Sbst(val);
   } else {
     if (Stack.size() < 2) { throw MacroException(c, ME_HIKISU); }
     Element ope2 = Stack.back(); Stack.pop_back();
@@ -1451,7 +1456,7 @@ void TMacro::ExecOpe(char c){
         throw MacroException("「.」の左がオブジェクトではありません："
             + (ope1.Type == etVar ? ope1.Name() : ope1.Str()));
       }
-      Stack.push_back(Element(ope2.Str(), etVar, env.GetObject(ope1.Val())));
+      Stack.push_back(ope1.GetMember(ope2.Str()));
     } else if (c == CMO_In) {
       if (ope2.Value().Type != etObject) {
         throw MacroException("in の右がオブジェクトではありません："
