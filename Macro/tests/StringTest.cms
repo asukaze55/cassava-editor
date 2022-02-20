@@ -68,6 +68,7 @@ class StringTest {
     assert.that("abc".repeat(3)).isEqualTo("abcabcabc");
 
     assert.that("aabbcc".replaceAll("b", ".")).isEqualTo("aa..cc");
+    assert.that("aa AA aaa".replaceAll("aa", "*")).isEqualTo("* AA *a");
 
     assert.that("hey Jude".search("[A-Z]")).isEqualTo(4);
     assert.that("hey Jude".search("[.]")).isEqualTo(-1);

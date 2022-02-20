@@ -745,7 +745,7 @@ void TMacro::ExecPrimitiveMethod(String s, int H,
     Stack.push_back(Element(result));
   } else if (s == "replaceAll" && H == 3) {
     Stack.push_back(Element(fmMain->MainGrid->ReplaceAll(STR0, STR1, STR2,
-        /* ignoreCase= */ false, /* regex= */ false, /* Word= */ false)));
+        /* Case= */ true, /* Regex= */ false, /* Word= */ false)));
   } else if (s == "search" && H == 2) {
     wchar_t *target = STR0.c_str();
     boost::wcmatch match;
