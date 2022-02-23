@@ -6,7 +6,7 @@
 #include "EncodedWriter.h"
 //---------------------------------------------------------------------------
 String ExecMacro(String FileName, int MaxLoop, TStringList *Modules,
-  int x, int y, EncodedWriter *IO=NULL, bool IsCellMacro=false);
+  int x, int y, EncodedWriter *IO = nullptr, bool IsCellMacro = false);
 
 void StopAllMacros();
 

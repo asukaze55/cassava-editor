@@ -151,7 +151,7 @@ TUndoCommand* TUndoList::Undo()
       return command;
     }
   }
-  return NULL;
+  return nullptr;
 }
 //---------------------------------------------------------------------------
 bool TUndoList::CanRedo()
@@ -167,7 +167,7 @@ TUndoCommand* TUndoList::Redo()
       return command;
     }
   }
-  return NULL;
+  return nullptr;
 }
 //---------------------------------------------------------------------------
 void TUndoList::Clear()

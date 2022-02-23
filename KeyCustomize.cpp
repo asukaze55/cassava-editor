@@ -13,7 +13,7 @@ TfmKey *fmKey;
 __fastcall TfmKey::TfmKey(TComponent* Owner)
         : TForm(Owner)
 {
-  NowMSC = NULL;
+  NowMSC = nullptr;
 }
 //---------------------------------------------------------------------------
 void TfmKey::AddMenu(TTreeNode* Node, TMenuItem* MenuItem)
@@ -100,7 +100,7 @@ int TfmKey::KeyToIndex(Word Key)
 //---------------------------------------------------------------------------
 void __fastcall TfmKey::tvMenuChange(TObject *Sender, TTreeNode *Node)
 {
-  NowMSC = NULL;
+  NowMSC = nullptr;
 
   Word SCKey;
   TShiftState SCShift;

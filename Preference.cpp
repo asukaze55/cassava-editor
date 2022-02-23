@@ -93,7 +93,7 @@ bool IniFile::ValueExists(const String section, const String key)
 String GetSpecialFolderPath(int type)
 {
   TCHAR szPath[MAX_PATH];
-  SHGetSpecialFolderPath(NULL, szPath, type, false);
+  SHGetSpecialFolderPath(nullptr, szPath, type, false);
   return String(szPath);
 }
 //---------------------------------------------------------------------------

@@ -257,13 +257,13 @@ public:
   ElementType Type;
   bool isNum() const;
   int X, Y;
-  Element() : Type(etErr), Num(true), vl(0), st(""), env(NULL) {};
+  Element() : Type(etErr), Num(true), vl(0), st(""), env(nullptr) {};
   Element(double d) :
-      Type(etAtom), Num(true), vl(d), env(NULL) {};
+      Type(etAtom), Num(true), vl(d), env(nullptr) {};
   Element(double d, String s, ElementType t, TEnvironment *e) :
       Type(t), Num(true), st(s), vl(d), env(e) {};
   Element(String s) :
-      Type(etAtom), Num(false), st(s), env(NULL) {};
+      Type(etAtom), Num(false), st(s), env(nullptr) {};
   Element(String s, ElementType t, TEnvironment *e) :
       Type(t), Num(false), st(s), env(e) {};
   Element(String s, ElementType t, bool nm, TEnvironment *e) :
@@ -292,7 +292,7 @@ public:
   GridProxy *Grid;
 
   TEnvironment(bool cm, GridProxy *grid,  TEnvironment *gl) :
-      Vars(), IsCellMacro(cm), Grid(grid), global(gl), objects(NULL) {}
+      Vars(), IsCellMacro(cm), Grid(grid), global(gl), objects(nullptr) {}
   ~TEnvironment() {
     if (objects) {
       for (size_t i = 0; i < objects->size(); i++) {
@@ -340,7 +340,7 @@ private:
 public:
   int MaxLoop;
   Element Do(String FileName, const std::vector<Element> &AStack,
-             int x = -1, int y = -1, Element *thisPtr = NULL);
+             int x = -1, int y = -1, Element *thisPtr = nullptr);
 
   TMacro(EncodedWriter *io, int ml, TStringList *md, TEnvironment e) :
       fs_io(io), canWriteFile(io), MaxLoop(ml), modules(md), env(e) {}
@@ -460,7 +460,7 @@ Element Element::Value() const
     return e;
   } else if (Type == etCell) {
     if (Num) {
-      return Element(Val(), Str(), etAtom, NULL);
+      return Element(Val(), Str(), etAtom, nullptr);
     }
     return Element(Str());
   } else if (Type == etSystem) {
@@ -565,7 +565,7 @@ TMenuItem *MenuSearch(TMenuItem *m, String s)
       if(sub) return sub;
     }
   }
-  return NULL;
+  return nullptr;
 }
 //---------------------------------------------------------------------------
 String NormalizeNewLine(String Val)
@@ -653,7 +653,7 @@ void TMacro::ExecMethod(String name, int H, const std::vector<Element>& ope,
   } else {
     Stack.push_back(Element(isLambda
         ? "関数オブジェクトが値を返しません：" + objName
-        : "メソッドは値を返しません：" + name + "/" + (H - 1), etErr, NULL));
+        : "メソッドは値を返しません：" + name + "/" + (H - 1), etErr, nullptr));
   }
 }
 //---------------------------------------------------------------------------
@@ -872,7 +872,7 @@ void TMacro::ExecFnc(String s)
       Stack.push_back(r);
     } else {
       Stack.push_back(
-          Element("関数は値を返しません：" + s + "/" + H, etErr, NULL));
+          Element("関数は値を返しません：" + s + "/" + H, etErr, nullptr));
     }
   }else if(s == "{}") {
       std::vector<TEnvironment*> *objects = env.GetObjects();
@@ -1075,7 +1075,7 @@ void TMacro::ExecFnc(String s)
       Stack.push_back(Element(env.Grid->Raw()->UndoList->GetRecordedMacro()));
     }else if(H == 0){
       env.Grid->ApplyPendingChanges();
-      TMenuItem *menu = NULL;
+      TMenuItem *menu = nullptr;
       if (!env.IsCellMacro) {
         menu = MenuSearch(fmMain->Menu->Items, s);
       }
@@ -1259,7 +1259,7 @@ void TMacro::ExecFnc(String s)
       for(int i=0; i<H; i++){
         argv[i] = ope[i].Str().c_str();
       }
-      argv[H] = NULL;
+      argv[H] = nullptr;
       int result = _wspawnvp(P_NOWAITO, argv[0], argv);
       delete[] argv;
 
@@ -1276,7 +1276,7 @@ void TMacro::ExecFnc(String s)
       }
       env.Grid->ApplyPendingChanges();
       String filename = STR0;
-      fmMain->MainGridDropFiles(NULL, 1, &filename);
+      fmMain->MainGridDropFiles(nullptr, 1, &filename);
       while (env.Grid->Raw()->FileOpenThread) {
         Sleep(100);
         Application->ProcessMessages();
@@ -1501,7 +1501,7 @@ Element TMacro::Do(String FileName, const std::vector<Element> &AStack,
   // 再帰呼び出し対応のため、メソッド終了時にStreamのPositionを元に戻す
   long oldpc = 0L;
   Stack = AStack;
-  fs = NULL;
+  fs = nullptr;
   try{
     fs = GetStreamFor(FileName);
     oldpc = fs->Position;
@@ -1572,7 +1572,7 @@ String ExecMacro(String FileName, int MaxLoop, TStringList *Modules,
   if(!IsCellMacro){ RunningCount++; }
   randomize();
   GridProxy grid(fmMain->MainGrid, IsCellMacro);
-  TMacro mcr(IO, MaxLoop, Modules, TEnvironment(IsCellMacro, &grid, NULL));
+  TMacro mcr(IO, MaxLoop, Modules, TEnvironment(IsCellMacro, &grid, nullptr));
   Element r;
   try {
     std::vector<Element> stack;

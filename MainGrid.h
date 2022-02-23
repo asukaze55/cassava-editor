@@ -132,9 +132,10 @@ __published:
     __property InplaceEditor;
     __property DefaultColWidth = {default=64};
     __property DefaultRowHeight = {default=24};
-    __property TNotifyEvent OnChangeModified
-      = {read=FOnChangeModified, write=FOnChangeModified};
-    __property TDropCsvFiles OnDropFiles = {read=FOnDropFiles,write=FOnDropFiles};
+    __property TNotifyEvent OnChangeModified =
+        {read=FOnChangeModified, write=FOnChangeModified};
+    __property TDropCsvFiles OnDropFiles =
+        {read=FOnDropFiles, write=FOnDropFiles};
 
 public:
     bool Dragging;
@@ -170,10 +171,11 @@ public:
     void SetHeight(int j, bool useMaxRowHeightLines);
     void SetHeight();
     void CompactWidth(int *Widths, int WindowSize, int Minimum,
-                      TCanvas *Cnvs = NULL);
+                      TCanvas *Cnvs = nullptr);
     void Cut();
     void SetDataRightBottom(int rx, int by, bool updateTableSize=true);
-    void SaveToFile(String FileName, TTypeOption *Format, bool SetModifiedFalse=true);
+    void SaveToFile(String FileName, TTypeOption *Format,
+                    bool SetModifiedFals = true);
     void CopyToClipboard(bool Cut = false);
     void CutToClipboard();
 #define PASTE_OPTION_UNKNOWN -1
@@ -231,7 +233,7 @@ public:
     bool IsNumberAtACell(int X, int Y){ return IsNumber(GetACells(X,Y)); };
     void Sort(int SLeft, int STop, int SRight, int SBottom, int SCol,
               bool Shoujun, bool NumSort, bool IgnoreCase, bool IgnoreZenhan);
-    double GetSum(int l, int t, int r, int b, int *Count=NULL);
+    double GetSum(int l, int t, int r, int b, int *Count = nullptr);
     double GetAvr(int l, int t, int r, int b);
     void CopySum();
     void CopyAvr();
@@ -344,7 +346,7 @@ public:
       Classes::TShiftState Shift, const Types::TPoint &MousePos, bool &Handled);
 
     bool LoadFromFile(String FileName, int KCode=CHARCODE_AUTO,
-      void (__closure *OnTerminate)(System::TObject* Sender)=NULL);
+        void (__closure *OnTerminate)(System::TObject* Sender) = nullptr);
     TThread *FileOpenThread;
     void __fastcall FileOpenThreadTerminate(System::TObject* Sender);
 

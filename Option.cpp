@@ -58,13 +58,13 @@ void __fastcall TfmOption::FormShow(TObject *Sender)
     frOptionView->Parent = pnlOption;
     frOptionColor->Visible = false;
     frOptionColor->Parent = pnlOption;
-    tnDataFormat = items->Add(NULL, L"データ形式");
-    tnFile = items->Add(NULL, L"ファイル");
-    tnBehavior = items->Add(NULL, L"動作");
-    tnBackUp = items->Add(NULL, L"バックアップ");
-    tnLaunch = items->Add(NULL, L"外部アプリ連携");
-    tnView = items->Add(NULL, L"表示");
-    tnColor = items->Add(NULL, L"色");
+    tnDataFormat = items->Add(nullptr, L"データ形式");
+    tnFile = items->Add(nullptr, L"ファイル");
+    tnBehavior = items->Add(nullptr, L"動作");
+    tnBackUp = items->Add(nullptr, L"バックアップ");
+    tnLaunch = items->Add(nullptr, L"外部アプリ連携");
+    tnView = items->Add(nullptr, L"表示");
+    tnColor = items->Add(nullptr, L"色");
   }
 
   frOptionDataFormat->RestoreFromMainForm();
@@ -82,7 +82,7 @@ void __fastcall TfmOption::tvCategoryChange(TObject *Sender, TTreeNode *Node)
 {
   activeNodeIndex = Node->AbsoluteIndex;
 
-  TFrame *Show = NULL;
+  TFrame *Show = nullptr;
   if(Node->Parent == tnDataFormat){
     frOptionDataFormat->Select(Node->Index);
     Node = tnDataFormat;
@@ -121,10 +121,10 @@ void __fastcall TfmOption::tvCategoryMouseUp(
   if (Button != mbRight) { return; }
   TTreeNode *selected = tvCategory->Selected;
   if (selected->Parent != tnDataFormat /* Not a data format */
-      || selected->getNextSibling() == NULL /* "新規作成" */) {
+      || selected->getNextSibling() == nullptr /* "新規作成" */) {
     return;
   }
-  mnDelete->Enabled = selected->getPrevSibling() != NULL; // Not "Default"
+  mnDelete->Enabled = selected->getPrevSibling() != nullptr; // Not "Default"
   popupMenu->PopupComponent = tvCategory;
   popupMenu->Tag = selected->Index;
   TPoint point = fmOption->ClientToScreen(

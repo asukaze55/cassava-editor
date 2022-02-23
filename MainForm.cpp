@@ -108,7 +108,7 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
     newWindowArgs[0] = ParamStr(0).c_str();
     newWindowArgs[newWindowCount + 1] = const_cast<wchar_t*>(L"-i");
     newWindowArgs[newWindowCount + 2] =((String)(positionShift + 1)).c_str();
-    newWindowArgs[newWindowCount + 3] = NULL;
+    newWindowArgs[newWindowCount + 3] = nullptr;
     _wspawnv(P_NOWAITO, ParamStr(0).c_str(), newWindowArgs);
     for (int i = 1; i <= newWindowCount; i++) {
       delete[] newWindowArgs[i];
@@ -149,7 +149,7 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
     if (SystemMacroCache->IndexOf(statusbarInit) >= 0) {
       try {
         ExecMacro(statusbarInit, StopMacroCount, SystemMacroCache, -1, -1,
-                  NULL, true);
+                  nullptr, true);
       } catch (...) {}
     }
     UpdateStatusbar();
@@ -161,11 +161,11 @@ void TfmMain::ExecStartupMacro()
   String CmsFile;
   CmsFile = Pref->SharedPath + "Macro\\!startup.cms";
   if(FileExists(CmsFile)){
-    MacroExec(CmsFile, NULL);
+    MacroExec(CmsFile, nullptr);
   }
   CmsFile = Pref->UserPath + "Macro\\!startup.cms";
   if(FileExists(CmsFile)){
-    MacroExec(CmsFile, NULL);
+    MacroExec(CmsFile, nullptr);
   }
 }
 //---------------------------------------------------------------------------
@@ -179,11 +179,11 @@ void TfmMain::ExecOpenMacro(System::TObject* Sender)
   String CmsFile;
   CmsFile = Pref->SharedPath + "Macro\\!open.cms";
   if(FileExists(CmsFile)){
-    MacroExec(CmsFile, NULL);
+    MacroExec(CmsFile, nullptr);
   }
   CmsFile = Pref->UserPath + "Macro\\!open.cms";
   if(FileExists(CmsFile)){
-    MacroExec(CmsFile, NULL);
+    MacroExec(CmsFile, nullptr);
   }
 }
 //---------------------------------------------------------------------------
@@ -379,7 +379,7 @@ void TfmMain::ReadIni()
     MakeNewWindow = Ini->ReadBool("Mode","NewWindow",false);
     TitleFullPath = Ini->ReadBool("Mode","TitleFullPath",false);
     LockFile = Ini->ReadInteger("Mode","LockFile",0);
-    LockingFile = NULL;
+    LockingFile = nullptr;
     CheckTimeStamp = Ini->ReadBool("Mode","CheckTimeStamp", true);
     SortByNumber = Ini->ReadBool("Mode","SortByNumber",true);
     SortIgnoreCase = Ini->ReadBool("Mode", "SortIgnoreCase", false);
@@ -597,7 +597,7 @@ void TfmMain::WriteIni(bool PosSlide)
 //---------------------------------------------------------------------------
 void TfmMain::ReadToolBar()
 {
-  CoolBarResize(NULL);
+  CoolBarResize(nullptr);
   tbarAdditional->Left = tbarNormal->Left + tbarNormal->Width;
 
   String toolbarcsv = Pref->Path + "ToolBar.csv";
@@ -621,7 +621,7 @@ void TfmMain::ReadToolBar()
       delete[] buf;
       return;
     }
-    TToolBar *toolBar = NULL;
+    TToolBar *toolBar = nullptr;
     int width = 0;
     int tbarTop = 0;
     int tbarLeft = 0;
@@ -733,7 +733,7 @@ void __fastcall TfmMain::UserToolBarAction(TObject *Sender)
     }
     if(FileExists(CmsFile)){
       // 一致するファイルが存在する場合、そのファイルを実行
-      MacroExec(CmsFile, NULL);
+      MacroExec(CmsFile, nullptr);
     }else{
       // ファイルが存在しない場合、スクリプトとして実行
       TCHAR c = *(action.LastChar());
@@ -890,9 +890,10 @@ void TfmMain::SetStyle(String Value)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::MainGridChangeModified(TObject *Sender)
 {
-  bool m = MainGrid->Modified;
-  acSave->Enabled = m;
-  if(m && LockFile == cssv_lfEdit && LockingFile == NULL && FileName != ""){
+  bool modified = MainGrid->Modified;
+  acSave->Enabled = modified;
+  if (modified && LockFile == cssv_lfEdit && LockingFile == nullptr &&
+      FileName != "") {
     LockingFile = new TFileStream(FileName, fmOpenWrite|fmShareDenyWrite);
   }
   UpdateTitle();
@@ -975,7 +976,7 @@ void __fastcall TfmMain::mnNewClick(TObject *Sender)
 {
   if(MakeNewWindow){
     WriteIni(true);
-    _wspawnl(P_NOWAITO, ParamStr(0).c_str(), ParamStr(0).c_str(), NULL);
+    _wspawnl(P_NOWAITO, ParamStr(0).c_str(), ParamStr(0).c_str(), nullptr);
   }else{
     if(IfModifiedThenSave())
     {
@@ -995,7 +996,7 @@ void __fastcall TfmMain::mnNewClick(TObject *Sender)
 
       if(LockingFile){
         delete LockingFile;
-        LockingFile = NULL;
+        LockingFile = nullptr;
       }
     }
   }
@@ -1011,7 +1012,7 @@ void TfmMain::OpenFile (String OpenFileName, int KCode)
   }
   if(LockingFile){
     delete LockingFile;
-    LockingFile = NULL;
+    LockingFile = nullptr;
   }
   if(!MainGrid->LoadFromFile(OpenFileName, KCode, ExecOpenMacro)){
     return;
@@ -1050,7 +1051,7 @@ void __fastcall TfmMain::mnOpenClick(TObject *Sender)
       TStrings *files = dlgOpen->Files;
       for(int i=0; i<files->Count; i++){
         _wspawnl(P_NOWAITO, ParamStr(0).c_str(), ParamStr(0).c_str(),
-		  ((String)("\"") + files->Strings[i] + "\"").c_str(), NULL);
+            ((String)"\"" + files->Strings[i] + "\"").c_str(), nullptr);
       }
     }
     dlgOpen->Options >> ofAllowMultiSelect;
@@ -1069,7 +1070,7 @@ void __fastcall TfmMain::MainGridDropFiles(TObject *Sender, int iFiles,
     WriteIni(true);
     for(int i=0; i<iFiles; i++){
       _wspawnl(P_NOWAITO, ParamStr(0).c_str(), ParamStr(0).c_str(),
-        ((String)("\"") + DropFileNames[i] + "\"").c_str(), NULL);
+          ((String)"\"" + DropFileNames[i] + "\"").c_str(), nullptr);
     }
   }else{
     if(IfModifiedThenSave()){
@@ -1163,16 +1164,16 @@ void TfmMain::SaveFile(TTypeOption *Format)
     // ロックを解除
     if(LockingFile){
       delete LockingFile;
-      LockingFile = NULL;
+      LockingFile = nullptr;
     }
 
     // バックアップ前に、アクセス権限を確認
     if(FileExists(FileName)){
-      TFileStream *AccessTest = NULL;
+      TFileStream *AccessTest = nullptr;
       try {
         AccessTest = new TFileStream(FileName, fmOpenReadWrite|fmShareDenyWrite);
         delete AccessTest;
-        AccessTest = NULL;
+        AccessTest = nullptr;
       }catch(Exception &ex){
         if(AccessTest){
           delete AccessTest;
@@ -1215,7 +1216,7 @@ void TfmMain::SaveFile(TTypeOption *Format)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::acSaveExecute(TObject *Sender)
 {
-  SaveFile(NULL);
+  SaveFile(nullptr);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnSaveAsClick(TObject *Sender)
@@ -1261,7 +1262,7 @@ void __fastcall TfmMain::tmAutoSaverTimer(TObject *Sender)
         return;
       }
       String BuFN = FormattedFileName(BuFileNameT, FileName);
-      MainGrid->SaveToFile(BuFN, NULL, false);
+      MainGrid->SaveToFile(BuFN, nullptr, false);
     }else{
       tmAutoSaver->Enabled = false;
     }
@@ -1399,9 +1400,9 @@ void TfmMain::Export(String filename, String type)
       return;
     }
 
-    TStream *out = NULL;
-    EncodedWriter *ew = NULL;
-    TStringList *checkedMenus = NULL;
+    TStream *out = nullptr;
+    EncodedWriter *ew = nullptr;
+    TStringList *checkedMenus = nullptr;
     try{
       out = new TFileStream(filename, fmCreate | fmShareDenyWrite);
       int kanjiCode = MainGrid->KanjiCode;
@@ -1478,7 +1479,7 @@ void __fastcall TfmMain::mnOpenHistorysClick(TObject *Sender)
   if(MakeNewWindow){
     WriteIni(true);
     _wspawnl(P_NOWAITO, ParamStr(0).c_str(), ParamStr(0).c_str(),
-		  ((String)("\"") + FN + "\"").c_str(), NULL);
+        ((String)"\"" + FN + "\"").c_str(), nullptr);
   }else{
     if(IfModifiedThenSave()) {
       OpenFile(FN);
@@ -2146,10 +2147,10 @@ void __fastcall TfmMain::mnAppliClick(TObject *Sender)
     String exe = menuItem->Hint;
     String arg0 = (String)("\"") + exe + "\"";
     if(FileName == ""){
-      _wspawnl(P_NOWAITO, exe.c_str(), arg0.c_str(), NULL);
+      _wspawnl(P_NOWAITO, exe.c_str(), arg0.c_str(), nullptr);
     }else{
       String arg1 = (String)("\"") + FileName + "\"";
-      _wspawnl(P_NOWAITO, exe.c_str(), arg0.c_str(), arg1.c_str(), NULL);
+      _wspawnl(P_NOWAITO, exe.c_str(), arg0.c_str(), arg1.c_str(), nullptr);
     }
     if(menuItem->Tag){
       Close();
@@ -2211,13 +2212,13 @@ void __fastcall TfmMain::mnMacroOpenUserFolderClick(TObject *Sender)
   if(!DirectoryExists(path)){
     ForceDirectories(path);
   }
-  _wspawnlp(P_NOWAITO, L"Explorer.exe", L"/idlist", path.c_str(), NULL);
+  _wspawnlp(P_NOWAITO, L"Explorer.exe", L"/idlist", path.c_str(), nullptr);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnMacroOpenFolderClick(TObject *Sender)
 {
   _wspawnlp(P_NOWAITO, L"Explorer.exe", L"/idlist",
-            (Pref->SharedPath + "Macro").c_str(), NULL);
+            (Pref->SharedPath + "Macro").c_str(), nullptr);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnMacroExecuteClick(TObject *Sender)
@@ -2233,7 +2234,7 @@ void __fastcall TfmMain::mnMacroExecuteClick(TObject *Sender)
     String CmsFile = dlgOpenMacro->FileName;
     dlgOpenMacro->InitialDir = ExtractFilePath(CmsFile);
     dlgOpenMacro->FileName = ExtractFileName(CmsFile);
-    MacroExec(CmsFile, NULL);
+    MacroExec(CmsFile, nullptr);
   }
 }
 //---------------------------------------------------------------------------
@@ -2241,14 +2242,14 @@ void __fastcall TfmMain::mnMacroUserExecClick(TObject *Sender)
 {
   TMenuItem *Menu = static_cast<TMenuItem *>(Sender);
   String CmsFile = Pref->UserPath + "Macro\\" + Menu->Hint + ".cms";
-  MacroExec(CmsFile, NULL);
+  MacroExec(CmsFile, nullptr);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnMacroExecClick(TObject *Sender)
 {
   TMenuItem *Menu = static_cast<TMenuItem *>(Sender);
   String CmsFile = Pref->SharedPath + "Macro\\" + Menu->Hint + ".cms";
-  MacroExec(CmsFile, NULL);
+  MacroExec(CmsFile, nullptr);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::acMacroTerminateExecute(TObject *Sender)
@@ -2267,7 +2268,7 @@ void TfmMain::MacroExec(String CmsFile, EncodedWriter *io)
   MainGrid->Hint = "マクロを実行中です。";
   MainGrid->ShowHint = true;
   Application->Hint = MainGrid->Hint;
-  ApplicationHint(NULL);
+  ApplicationHint(nullptr);
 
   TStringList *Modules = new TStringList;
   TStringList *InPaths = new TStringList;
@@ -2302,7 +2303,7 @@ void TfmMain::UpdateStatusbar()
   if(mnShowStatusbar->Checked && StatusbarCmsFile != ""){
     try{
       ExecMacro(StatusbarCmsFile, StopMacroCount, SystemMacroCache, -1, -1,
-                NULL, true);
+                nullptr, true);
     }catch(...){}
   }
 }
@@ -2340,8 +2341,8 @@ String TfmMain::GetCalculatedCell(String Str, int ACol, int ARow)
     String formula = "return " + Str + ";";
     bool ok = MacroCompile(&formula, cmsName, inPaths, modules, false);
     if (ok){
-      String macroResult =
-          ExecMacro(cmsName, StopMacroCount, modules, ACol, ARow, NULL, true);
+      String macroResult = ExecMacro(
+          cmsName, StopMacroCount, modules, ACol, ARow, nullptr, true);
       result = (String)CALC_OK + macroResult;
     }
   }catch(...){
@@ -2360,7 +2361,7 @@ String TfmMain::GetFormattedCell(int ACol, int ARow)
   if (FormatCmsFile == "") { return ""; }
   try {
     return ExecMacro(FormatCmsFile, StopMacroCount, SystemMacroCache, ACol,
-                     ARow, NULL, true);
+                     ARow, nullptr, true);
   } catch (...) {
     return "";
   }

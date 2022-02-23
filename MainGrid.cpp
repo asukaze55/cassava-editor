@@ -69,13 +69,13 @@ __fastcall TMainGrid::TMainGrid(TComponent* Owner)  //デフォルトの設定
   WheelMoveCursol = 0;
   SameCellClicking = false;
   ExecCellMacro = false;
-  CalculatedCellCache = NULL;
-  FormattedCellCache = NULL;
-  UsingCellMacro = NULL;
+  CalculatedCellCache = nullptr;
+  FormattedCellCache = nullptr;
+  UsingCellMacro = nullptr;
   FDataRight = 1;
   FDataBottom = 1;
   EOFMarker = new TObject();
-  FileOpenThread = NULL;
+  FileOpenThread = nullptr;
   DefaultDrawing = false;
   LastMatch = new TStringList();
   FUndoList = new TUndoList();
@@ -286,15 +286,15 @@ void TMainGrid::ClearCalcCache()
 {
   if (CalculatedCellCache) {
     delete CalculatedCellCache;
-    CalculatedCellCache = NULL;
+    CalculatedCellCache = nullptr;
   }
   if (FormattedCellCache) {
     delete FormattedCellCache;
-    FormattedCellCache = NULL;
+    FormattedCellCache = nullptr;
   }
   if (UsingCellMacro) {
     delete UsingCellMacro;
-    UsingCellMacro = NULL;
+    UsingCellMacro = nullptr;
   }
 }
 //---------------------------------------------------------------------------
@@ -504,7 +504,7 @@ void TMainGrid::Clear(int AColCount, int ARowCount, bool UpdateRightBottom)
 {
   if(FileOpenThread){
     FileOpenThread->Terminate();
-    FileOpenThread = NULL;
+    FileOpenThread = nullptr;
   }
   Row = FixedRows;  Col = FixedCols;
   DefaultColWidth = 64;               //列の幅を64に戻す
@@ -634,7 +634,7 @@ void TMainGrid::SetWidth(int i)
     b = min(TopRow + VisibleRowCount, RowCount);
   }
   for(int j=t; j <= b; j++){
-    WMax = max(WMax, TextWidth(Canvas, GetCellToDraw(i, j, NULL, NULL)));
+    WMax = max(WMax, TextWidth(Canvas, GetCellToDraw(i, j, nullptr, nullptr)));
   }
   if(WMax > 0){ WMax += 2 * LRMargin; }
   if(WMax < MinColWidth){ //狭すぎないように
@@ -679,7 +679,7 @@ void TMainGrid::SetHeight(int j, bool useMaxRowHeightLines)
   int right = min(LeftCol + VisibleColCount, ColCount);
   for (int i = LeftCol; i <= right; i++) {
     TRect MaxRect(0, 0, ColWidths[i] - (2 * LRMargin), maxRowHeight);
-    String str = GetCellToDraw(i, j, NULL, NULL);
+    String str = GetCellToDraw(i, j, nullptr, nullptr);
     TRect R = DrawTextRect(Canvas, MaxRect, str, WordWrap, true);
     HMax = max(HMax, R.Bottom);
   }
@@ -732,7 +732,7 @@ void TMainGrid::CompactWidth(int *Widths, int WindowSize, int Minimum,
     int maxWidth = 0;
     for (int j = top; j <= bottom; j++){
       maxWidth = max(maxWidth,
-                     TextWidth(Cnvs, GetCellToDraw(i, j, NULL, NULL)));
+                     TextWidth(Cnvs, GetCellToDraw(i, j, nullptr, nullptr)));
     }
     if (maxWidth > 0) { maxWidth += (2 * LRMargin); }
     Widths[i] = max((maxWidth - Minimum), 0);
@@ -758,7 +758,7 @@ void TMainGrid::ShowAllColumn()
 
   if (ShowRowCounter) {
     widths[0] = max(MinColWidth, TextWidth(Canvas,
-        GetCellToDraw(0, DataBottom, NULL, NULL)) + (2 * LRMargin));
+        GetCellToDraw(0, DataBottom, nullptr, nullptr)) + (2 * LRMargin));
     windowSize -= widths[0];
   }
 
@@ -869,11 +869,11 @@ void TMainGrid::UpdateEOFMarker(int oldRight, int oldBottom)
       // Objects更新時に選択範囲が初期化されるのを復元
       int ss = InplaceEditor->SelStart;
       int sl = InplaceEditor->SelLength;
-      Objects[oldRight+1][oldBottom+1] = NULL;
+      Objects[oldRight+1][oldBottom+1] = nullptr;
       InplaceEditor->SelStart = ss;
       InplaceEditor->SelLength = sl;
     }else{
-      Objects[oldRight+1][oldBottom+1] = NULL;
+      Objects[oldRight+1][oldBottom+1] = nullptr;
     }
   }
   if(FDataRight+1 < ColCount && FDataBottom+1 < RowCount){
@@ -977,17 +977,17 @@ void TMainGrid::SetDragAcceptFiles(bool Accept)
 //---------------------------------------------------------------------------
 void __fastcall TMainGrid::DropCsvFiles(TWMDropFiles inMsg)
 {
-  int DFiles = DragQueryFile((HDROP)inMsg.Drop, 0xffffffff, (TCHAR *) NULL,255);
-  String *FileNames = new String[DFiles];
-  TCHAR theFileName[255];
-  for(int i=0;i<DFiles;i++){
-    ::DragQueryFile((HDROP)inMsg.Drop, i, theFileName,255);
-    FileNames[i]=theFileName;
+  int count = DragQueryFile((HDROP)inMsg.Drop, 0xffffffff, nullptr, 255);
+  String *fileNames = new String[count];
+  TCHAR fileName[255];
+  for (int i = 0; i < count; i++) {
+    ::DragQueryFile((HDROP)inMsg.Drop, i, fileName, 255);
+    fileNames[i] = fileName;
   }
-  if(FOnDropFiles != NULL ){
-    FOnDropFiles(this, DFiles, FileNames);
+  if (FOnDropFiles != nullptr) {
+    FOnDropFiles(this, count, fileNames);
   }
-  delete[] FileNames;
+  delete[] fileNames;
 }
 //---------------------------------------------------------------------------
 bool TMainGrid::LoadFromFile(String FileName, int KCode,
@@ -1064,14 +1064,14 @@ bool TMainGrid::LoadFromFile(String FileName, int KCode,
 //---------------------------------------------------------------------------
 void __fastcall TMainGrid::FileOpenThreadTerminate(System::TObject* Sender)
 {
-  FileOpenThread = NULL;
+  FileOpenThread = nullptr;
   Cursor = crDefault;
   Hint = "";
   ShowHint = false;
   ParentShowHint = true;
   if(OnFileOpenThreadTerminate){
     OnFileOpenThreadTerminate(Sender);
-    OnFileOpenThreadTerminate = NULL;
+    OnFileOpenThreadTerminate = nullptr;
   }
 }
 //---------------------------------------------------------------------------
@@ -1223,7 +1223,7 @@ void TMainGrid::SaveToFile(String FileName, TTypeOption *Format,
 //---------------------------------------------------------------------------
 void TMainGrid::WriteGrid(EncodedWriter *Writer, TTypeOption *Format)
 {
-  if(Format == NULL) Format = TypeOption;
+  if (Format == nullptr) { Format = TypeOption; }
 
   TStringList* Data = new TStringList;
   int R = ((Format->OmitComma) ? 0 : DataRight);
@@ -1639,7 +1639,7 @@ double TMainGrid::SelectSum(int *Count)
 //---------------------------------------------------------------------------
 void TMainGrid::CopySum()
 {
-  SetClipboard(SelectSum(NULL));
+  SetClipboard(SelectSum(nullptr));
 }
 //---------------------------------------------------------------------------
 void TMainGrid::CopyAvr()
@@ -2773,12 +2773,12 @@ void __fastcall TMainGrid::DblClick(void)
 //---------------------------------------------------------------------------
 void TMainGrid::OpenURL(String FileName)
 {
-  if(BrowserFileName == ""){
+  if (BrowserFileName == "") {
     AutoOpen(FileName, "");
-  }else{
-	String Arg0 = (String)("\"") + BrowserFileName + "\"";
-	String Arg1 = (String)("\"") + FileName + "\"";
-	_wspawnl(P_NOWAITO , BrowserFileName.c_str() , Arg0.c_str() , Arg1.c_str() , NULL);
+  } else {
+    _wspawnl(P_NOWAITO, BrowserFileName.c_str(),
+        ((String)"\"" + BrowserFileName + "\"").c_str(),
+        ((String)"\"" + FileName + "\"").c_str(), nullptr);
   }
 }
 //---------------------------------------------------------------------------
@@ -3216,7 +3216,8 @@ bool TMainGrid::NumFind(double *Min, double *Max, TGridRect Range, bool Back)
     for (int x = XStart; x * step <= XEnd * step; x += step) {
       try {
         double Val = Cells[x][y].ToDouble();
-        if ((Min == NULL || Val >= *Min) && (Max == NULL || Val <= *Max)) {
+        if ((Min == nullptr || Val >= *Min) &&
+            (Max == nullptr || Val <= *Max)) {
           if (x >= FixedCols) {
             Row = y; Col = x;
           } else {

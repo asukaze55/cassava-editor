@@ -395,8 +395,8 @@ private:
   void GetObjectKey();
   void GetClass();
   void GetImport();
-  bool GetValues(char EOS, char *nHikisu = NULL);
-  bool GetSentence(char EOS, bool allowBlock = true, char *nHikisu = NULL);
+  bool GetValues(char EOS, char *nHikisu = nullptr);
+  bool GetSentence(char EOS, bool allowBlock = true, char *nHikisu = nullptr);
   void GetBlock();
   String MaybeAddLibToLibName(String libName);
 
@@ -412,8 +412,8 @@ public:
   bool Compile(String source, String filePath, String libName,
                bool showMessage);
   TCompiler(TStringList *modules, TStringList *macroDirs)
-      : Modules(modules), MacroDirs(macroDirs), Breaks(NULL), Continues(NULL),
-        DummyIdentifier(0) {
+      : Modules(modules), MacroDirs(macroDirs), Breaks(nullptr),
+        Continues(nullptr), DummyIdentifier(0) {
     import = newTStringList();
   }
   ~TCompiler() { delete import; }
@@ -1381,13 +1381,13 @@ bool TCompiler::Compile(String string, String filePath, String libName,
 bool MacroCompile(String *source, String name, TStringList *macroDirs,
                   TStringList *modules, bool showMessage)
 {
-  if (macroDirs == NULL || modules == NULL) { return false; }
+  if (macroDirs == nullptr || modules == nullptr) { return false; }
 
   TCompiler compiler(modules, macroDirs);
   compiler.import->Add(name);
   int processed = 0;
 
-  if (source != NULL) {
+  if (source != nullptr) {
     try {
       bool ok = compiler.Compile(*source, name, name, showMessage);
       if (!ok) { return false; }
@@ -1404,7 +1404,7 @@ bool MacroCompile(String *source, String name, TStringList *macroDirs,
   for (int i = processed; i < compiler.import->Count; i++) {
     String libName = compiler.import->Strings[i];
     String libFileName = "";
-    TStreamReader *libReader = NULL;
+    TStreamReader *libReader = nullptr;
     try{
       if (libName.Pos(":") > 0 || libName.SubString(1, 1) == "\\") {
         libFileName = libName;
@@ -1442,7 +1442,7 @@ bool MacroCompile(String *source, String name, TStringList *macroDirs,
       bool ok = compiler.Compile(string, libFileName, libName, showMessage);
       if (!ok) { return false; }
     } catch (Exception *e) {
-      if (libReader != NULL) { delete libReader; }
+      if (libReader != nullptr) { delete libReader; }
       if(showMessage) {
         Application->MessageBox((libFileName + "\n" + e->Message).c_str(),
                                 L"Cassava Macro Compiler", 0);
@@ -1456,7 +1456,7 @@ bool MacroCompile(String *source, String name, TStringList *macroDirs,
 bool MacroCompile(String fileName, TStringList *macroDirs, TStringList *modules,
                   bool showMessage)
 {
-  return MacroCompile(NULL, fileName, macroDirs, modules, showMessage);
+  return MacroCompile(nullptr, fileName, macroDirs, modules, showMessage);
 }
 //---------------------------------------------------------------------------
 String GetMacroModuleName(String fileName, String funcName, String argCount,

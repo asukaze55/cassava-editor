@@ -157,7 +157,7 @@ int TfmPrint::PrintPage(TCanvas *Canvas, int Width, int Height, int Top,
   for (; row <= mg->DataBottom; row++) {
     int maxHeight = 0;
     for (int col = mg->DataLeft; col <= mg->DataRight; col++) {
-      String str = mg->GetCellToDraw(col, row, NULL, NULL);
+      String str = mg->GetCellToDraw(col, row, nullptr, nullptr);
       TRect rect(0, 0, Widths[col] - 2 * cellLRMargin, Height);
       int cellHeight = mg->DrawTextRect(Canvas, rect, str, true, true).Height();
       if (cellHeight > maxHeight) {
@@ -171,7 +171,7 @@ int TfmPrint::PrintPage(TCanvas *Canvas, int Width, int Height, int Top,
     for (int col = mg->DataLeft; col <= mg->DataRight; col++) {
       int width = Widths[col];
       bool isNum;
-      String str = mg->GetCellToDraw(col, row, NULL, &isNum);
+      String str = mg->GetCellToDraw(col, row, nullptr, &isNum);
       TRect rect(x + cellLRMargin, y, x + width - cellLRMargin, y + maxHeight);
       if (isNum && mg->TextAlignment == cssv_taNumRight) {
         int left = rect.Right - Canvas->TextWidth(str) - cellLRMargin;

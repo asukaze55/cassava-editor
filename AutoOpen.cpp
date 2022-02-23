@@ -35,7 +35,8 @@ bool AutoOpen(String FileName, String BasePath)
       return false;
     }
   }
-  ::ShellExecute(NULL, NULL, FullName.c_str(), NULL, NULL, SW_SHOWDEFAULT);
+  ::ShellExecute(nullptr, nullptr, FullName.c_str(), nullptr, nullptr,
+                 SW_SHOWDEFAULT);
   return true;
 }
 //---------------------------------------------------------------------------

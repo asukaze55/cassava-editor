@@ -53,7 +53,7 @@ void __fastcall TfmLetter::FormShow(TObject *Sender)
     DataRead(fmMain->Pref->Path + "Auto.dat");
   }
 
-  UpdatePreviewImage(NULL);
+  UpdatePreviewImage(nullptr);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmLetter::FormClose(TObject *Sender, TCloseAction &Action)

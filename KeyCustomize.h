@@ -64,7 +64,7 @@ public:		// ƒ†[ƒU[éŒ¾
             __property TShortCut MShortCut
               = {read=GetMShortCut, write=SetMShortCut};
             __property bool Modified = {read=GetModified};
-            TMenuShortCut(){ MenuItem = NULL;}
+            TMenuShortCut(){ MenuItem = nullptr;}
             TMenuShortCut(TMenuItem *mi){
               MenuItem = mi; MShortCut = mi->ShortCut;
               Caption = mi->Caption;

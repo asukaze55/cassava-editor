@@ -67,8 +67,8 @@ void __fastcall TfmFind::btnNextClick(TObject *Sender)
         cbRegex->Checked, cbWordSearch->Checked, (rgDirection->ItemIndex == 0));
   }else{
     double Min,Max;
-    double *pMin, *pMax;
-    pMin = pMax = NULL;
+    double *pMin = nullptr;
+    double *pMax = nullptr;
     if(edMin->Text != ""){
       Min = (edMin->Text).ToDouble();
       pMin=&Min;

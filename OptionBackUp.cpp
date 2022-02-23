@@ -27,8 +27,8 @@ void TfrOptionBackUp::RestoreFromMainForm()
   cbDelBuT->Checked       = fmMain->DelBuT;
   udBuInterval->Position  = fmMain->BuInterval;
 
-  cbBackupOnSaveClick(NULL);
-  cbBackupOnTimeClick(NULL);
+  cbBackupOnSaveClick(nullptr);
+  cbBackupOnTimeClick(nullptr);
 }
 //---------------------------------------------------------------------------
 void TfrOptionBackUp::StoreToMainForm()
