@@ -116,7 +116,7 @@
   <th>Cassava Ver</th>
 </tr>
 <tr>
-  <td>[x, y] / cell(x, y)</td>
+  <td>[x,y]<br>cell(x, y)</td>
   <td>(x, y) のセルの内容です。読み書きともにできます。</td>
   <td>-</td>
 </tr>
@@ -326,14 +326,19 @@
   <td>2.3.0</td>
 </tr>
 <tr>
-  <td>str1.replaceAll(str2, str3)</td>
-  <td>文字列 str1 中の str2 をすべて str3 に置換した文字列を返します。元の str1 は変化しません。</td>
-  <td>2.3.0</td>
+  <td>str1.replace(pattern, str2)</td>
+  <td>文字列 str1 中で pattern に最初にマッチする箇所を str2 に置換した文字列を返します。元の str1 は変化しません。</td>
+  <td>2.5.0</td>
 </tr>
 <tr>
-  <td>str1.search(str2)</td>
-  <td>str2 を正規表現として解釈し、文字列 str1 の中で最初にマッチする位置を返します。最初の文字のインデックスは 0 です。 マッチしなかった場合、 -1 が返されます。 全角文字を1文字と数えます。</td>
-  <td>2.3.0</td>
+  <td>str1.replaceAll(pattern, str2)</td>
+  <td>文字列 str1 中の pattern にマッチする箇所をすべて str2 に置換した文字列を返します。元の str1 は変化しません。</td>
+  <td>2.5.0</td>
+</tr>
+<tr>
+  <td>str.search(pattern)</td>
+  <td>文字列 str の中で最初に pattern にマッチする位置を返します。pattern に文字列が渡された場合も正規表現として解釈されます。最初の文字のインデックスは 0 です。 マッチしなかった場合、 -1 が返されます。 全角文字を1文字と数えます。</td>
+  <td>2.5.0</td>
 </tr>
 <tr>
   <td>str1.startsWith(str2)</td>
@@ -384,6 +389,11 @@
   <td>x.toString()</td>
   <td>x の文字列表現を返します。</td>
   <td>2.3.0</td>
+</tr>
+<tr>
+  <td>/pattern/flags<br>new RegExp(pattern, flags)</td>
+  <td>str1.replace(regexp, str2), str1.replaceAll(regexp, str2), str.search(regexp) で使用できる正規表現オブジェクトを生成します。flags には空文字列もしくは「g」「i」「gi」が指定できます。最初のマッチだけでなく一致するものをすべて置換する場合は「g」を、大文字小文字を区別せずに検索する場合は「i」を指定してください。</td>
+  <td>2.5.0</td>
 </tr>
 <tr>
   <td>sum(l, t, r, b)</td>

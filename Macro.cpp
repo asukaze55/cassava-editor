@@ -22,7 +22,8 @@ enum ElementType {
   etCell,
   etSystem,
   etObject,
-  etFunction
+  etFunction,
+  etRegExp
 };
 //---------------------------------------------------------------------------
 enum MacroExceptionType {
@@ -657,6 +658,64 @@ void TMacro::ExecMethod(String name, int H, const std::vector<Element>& ope,
   }
 }
 //---------------------------------------------------------------------------
+class RegExp {
+ public:
+  String pattern;
+  String flags;
+  bool isRegExp;
+  bool isReplaceAll;
+  bool isIgnoreCase;
+
+  RegExp(String Pattern, String Flags, bool IsRegExp)
+      : pattern(Pattern), flags(Flags), isRegExp(IsRegExp),
+        isReplaceAll(flags.Pos("g") > 0), isIgnoreCase(flags.Pos("i") > 0) {}
+
+  String Replace(String Target, String ReplaceText) {
+    if (!isRegExp) {
+      TReplaceFlags replaceFlags;
+      if (isReplaceAll) { replaceFlags << rfReplaceAll; }
+      if (isIgnoreCase) { replaceFlags << rfIgnoreCase; }
+      return StringReplace(Target, pattern, ReplaceText, replaceFlags);
+    }
+
+    boost::regex_constants::match_flag_type boostFlags =
+        boost::format_perl | boost::match_single_line | boost::match_not_null;
+    if (!isReplaceAll) { boostFlags |= boost::format_first_only; }
+    return boost::regex_replace(
+        std::wstring(Target.c_str()), BoostRegEx(),
+        std::wstring(ReplaceText.c_str()), boostFlags).c_str();
+  }
+
+  int Search(String Target) {
+    wchar_t *target = Target.c_str();
+    boost::wregex regex = BoostRegEx();
+    boost::wcmatch match;
+    if (boost::regex_search(target, match, regex)) {
+      return match[0].first - target;
+    }
+    return -1;
+  }
+
+ private:
+  boost::wregex BoostRegEx() const {
+    return isIgnoreCase ? boost::wregex(pattern.c_str(), boost::regex::icase)
+                        : boost::wregex(pattern.c_str());
+  }
+};
+//---------------------------------------------------------------------------
+static RegExp ParseRegExp(const Element& e)
+{
+  Element obj = e.Value();
+  String str = obj.Str();
+  if (obj.Type != etRegExp) {
+    return RegExp(str, "", false);
+  }
+  int p = str.LastDelimiter("/");
+  String pattern = str.SubString(2, p - 2);
+  String flags = str.SubString(p + 1, str.Length());
+  return RegExp(pattern, flags, true);
+}
+//---------------------------------------------------------------------------
 void TMacro::ExecPrimitiveMethod(String s, int H,
                                  const std::vector<Element>& ope)
 {
@@ -749,17 +808,18 @@ void TMacro::ExecPrimitiveMethod(String s, int H,
       result += target;
     }
     Stack.push_back(Element(result));
+  } else if (s == "replace" && H == 3) {
+    Stack.push_back(Element(ParseRegExp(ope[1]).Replace(STR0, STR2)));
   } else if (s == "replaceAll" && H == 3) {
-    Stack.push_back(Element(fmMain->MainGrid->ReplaceAll(STR0, STR1, STR2,
-        /* Case= */ true, /* Regex= */ false, /* Word= */ false)));
-  } else if (s == "search" && H == 2) {
-    wchar_t *target = STR0.c_str();
-    boost::wcmatch match;
-    if (boost::regex_search(target, match, boost::wregex(STR1.c_str()))) {
-      Stack.push_back(Element(match[0].first - target));
-    } else {
-      Stack.push_back(Element(-1));
+    RegExp regExp = ParseRegExp(ope[1]);
+    if (regExp.isRegExp && !regExp.isReplaceAll) {
+      throw MacroException(
+          "replaceAll で使用する正規表現には g フラグが必要です：" + STR1);
     }
+    regExp.isReplaceAll = true;
+    Stack.push_back(Element(regExp.Replace(STR0, STR2)));
+  } else if (s == "search" && H == 2) {
+    Stack.push_back(Element(ParseRegExp(ope[1]).Search(STR0)));
   } else if (s == "startsWith" && (H == 2 || H == 3)) {
     String search = STR1;
     int position = (H > 2 ? VAL2 : 0);
@@ -1229,10 +1289,11 @@ void TMacro::ExecFnc(String s)
       st = st.SubString(1, VAL1-1) + STR3 + st.SubString(r, st.Length() - r + 1);
       ope[0].Sbst(Element(st));
     }else if(s == "replace" && (H == 3 || H == 5)){
-      bool ignoreCase = (H > 3 && VAL3 != 0);
-      bool regex = (H > 4 && VAL4 != 0);
-      Stack.push_back(Element(fmMain->MainGrid->ReplaceAll(
-          STR0, STR1, STR2, !ignoreCase, regex, /* Word= */ false)));
+      RegExp regExp = ParseRegExp(STR1);
+      regExp.isReplaceAll = true;
+      if (H > 3) { regExp.isIgnoreCase = VAL3; }
+      if (H > 4) { regExp.isRegExp = VAL4; }
+      Stack.push_back(Element(regExp.Replace(STR0, STR2)));
     }else if(s == "sum" && H == 4){
       int l = VAL0;
       int t = VAL1;
@@ -1336,20 +1397,26 @@ void TMacro::ExecFnc(String s)
       env.Grid->Sort(left, top, right, bottom, col, direction, numSort,
           ignoreCase, ignoreZenhan);
     }else if(s == "ReplaceAll" && (H == 2 || H == 5 || H == 9)) {
-      String find = STR0;
+      RegExp regExp = ParseRegExp(STR0);
+      String find = regExp.pattern;
       String replace = STR1;
-      bool ignoreCase = (H > 2 ? VAL2 : false);
+      bool ignoreCase = (H > 2 ? VAL2 : regExp.isIgnoreCase);
       bool word = (H > 3 ? VAL3 : false);
-      bool regex = (H > 4 ? VAL4 : false);
+      bool isRegex = (H > 4 ? VAL4 : regExp.isRegExp);
       int left = (H > 5 ? VAL5 : env.Grid->GetLeft());
       int top = (H > 6 ? VAL6 : env.Grid->GetTop());
       int right = (H > 7 ? VAL7 : env.Grid->GetRight());
       int bottom = (H > 8 ? VAL8 : env.Grid->GetBottom());
       int count = env.Grid->ReplaceAll(
-          find, replace, left, top, right, bottom, ignoreCase, regex, word);
+          find, replace, left, top, right, bottom, ignoreCase, isRegex, word);
       Stack.push_back(Element(count));
     }else if(s == "Select" && H == 4) {
       env.Grid->Select(VAL0, VAL1, VAL2, VAL3);
+    }else if(s == "RegExp" && (H == 1 || H == 2)) {
+      RegExp original = ParseRegExp(ope[0]);
+      String flags = (H > 1 ? STR1 : original.flags);
+      Stack.push_back(
+          Element("/" + original.pattern  + "/" + flags, etRegExp, nullptr));
     }else{
       throw MacroException(notFoundMessage);
     }

@@ -67,11 +67,20 @@ class StringTest {
     assert.that("abc".repeat(0)).isEqualTo("");
     assert.that("abc".repeat(3)).isEqualTo("abcabcabc");
 
-    assert.that("aabbcc".replaceAll("b", ".")).isEqualTo("aa..cc");
-    assert.that("aa AA aaa".replaceAll("aa", "*")).isEqualTo("* AA *a");
+    assert.that("AA AAA aa aaa".replace("aa", "($1)")).isEqualTo("AA AAA ($1) aaa");
+    assert.that("AA AAA aa aaa".replace(/(aa)/, "($1)")).isEqualTo("AA AAA (aa) aaa");
+    assert.that("AA AAA aa aaa".replace(/(aa)/g, "($1)")).isEqualTo("AA AAA (aa) (aa)a");
+    assert.that("AA AAA aa aaa".replace(/(aa)/gi, "($1)")).isEqualTo("(AA) (AA)A (aa) (aa)a");
+    assert.that("AA AAA aa aaa".replace(/(aa)/i, "($1)")).isEqualTo("(AA) AAA aa aaa");
+
+    assert.that("AA AAA aa aaa".replaceAll("aa", "($1)")).isEqualTo("AA AAA ($1) ($1)a");
+    assert.that("AA AAA aa aaa".replaceAll(/(aa)/g, "($1)")).isEqualTo("AA AAA (aa) (aa)a");
+    assert.that("AA AAA aa aaa".replaceAll(/(aa)/gi, "($1)")).isEqualTo("(AA) (AA)A (aa) (aa)a");
 
     assert.that("hey Jude".search("[A-Z]")).isEqualTo(4);
     assert.that("hey Jude".search("[.]")).isEqualTo(-1);
+    assert.that("hey Jude".search(/[A-Z]/)).isEqualTo(4);
+    assert.that("hey Jude".search(/[A-Z]/i)).isEqualTo(0);
 
     assert.that(question.startsWith("To be")).isTrue();
     assert.that(question.startsWith("not to be")).isFalse();

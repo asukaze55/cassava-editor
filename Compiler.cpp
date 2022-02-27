@@ -12,13 +12,16 @@
 constexpr char QUOTE = '\'';
 constexpr char DBLQUOTE = '\"';
 
-constexpr char tpInteger = 'i';
-constexpr char tpDouble = 'd';
-constexpr char tpString = '$';
-constexpr char tpFunc = '*';
-constexpr char tpVar = '~';
-constexpr char tpOpe = '-';
-constexpr char tpStructure = ';';
+enum CMCElementType : char {
+  tpInteger = 'i',
+  tpDouble = 'd',
+  tpString = '$',
+  tpFunc = '*',
+  tpVar = '~',
+  tpOpe = '-',
+  tpRegExp = '/',
+  tpStructure = ';'
+};
 
 constexpr int prElement = 100;
 constexpr int prEOF = -1;
@@ -97,7 +100,7 @@ class TTokenizer {
   int pos;
   bool Read(wchar_t *c);
   wchar_t ReadHex();
-  wchar_t Peek();
+  wchar_t Peek() const;
   CMCElement last;
   std::deque<CMCElement> elements;
   CMCElement GetR();
@@ -106,6 +109,7 @@ public:
   TTokenizer(String src) :
       source(src), pos(0), last(CMCEOF), elements(), x(0), y(1) {}
   String GetString(wchar_t EOS);
+  String GetRegExp();
   CMCElement Get();
   CMCElement GetNext(size_t index = 0);
 };
@@ -140,7 +144,7 @@ wchar_t TTokenizer::ReadHex()
   throw CMCException((String)"エスケープシーケンス が不正です：" + c);
 }
 //---------------------------------------------------------------------------
-wchar_t TTokenizer::Peek()
+wchar_t TTokenizer::Peek() const
 {
   if (pos >= source.Length()) {
     return '\0';
@@ -180,6 +184,29 @@ String TTokenizer::GetString(wchar_t EOS)
     s += c;
   }
   throw CMCException("文字列定数が終了していません。");
+}
+//---------------------------------------------------------------------------
+String TTokenizer::GetRegExp()
+{
+  String s = "/";
+  wchar_t c;
+  while (true) {
+    if (!Read(&c) || c == '\n') {
+      throw CMCException("正規表現リテラルが終了していません。");
+    }
+    if (c == '/') {
+      break;
+    } else if (c == '\\' && Peek() == '/') {
+      Read(&c);
+    }
+    s += c;
+  }
+  s += "/";
+  while (Peek() == 'g' || Peek() == 'i') {
+    Read(&c);
+    s += c;
+  }
+  return s;
 }
 //---------------------------------------------------------------------------
 inline bool IsNumChar(wchar_t c) { return (c >= '0' && c <= '9'); }
@@ -282,9 +309,11 @@ CMCElement TTokenizer::GetR()
     if (s1 == "!" || s2 == "++" || s2 == "--" || s2 == "::") {
       return elm;
     } else if (s1 == "-") {
-      return CMCElement("m", 50, tpOpe);
+      return CMCElement(CMO_Minus, 50, tpOpe);
     } else if (s1 == "+") {
       return GetR();
+    } else if (s1 == "/") {
+      return CMCElement(GetRegExp(), prElement, tpRegExp);
     } else {
       throw CMCException("演算子の位置が不正です：" + elm.str);
     }
@@ -774,6 +803,14 @@ void TCompiler::Output(CMCElement e)
 }
 //---------------------------------------------------------------------------
 void TCompiler::Output(String str, char type) {
+  if (type == tpRegExp) {
+    int p = str.LastDelimiter("/");
+    Output(str.SubString(2, p - 2), tpString);
+    Output(str.SubString(p + 1, str.Length()), tpString);
+    Output("\x02RegExp", tpFunc);
+    return;
+  }
+
   fout->Write(&type, 1);
   switch (type) {
     case '$': case '*': case '~': case '!': {
