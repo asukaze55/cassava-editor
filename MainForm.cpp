@@ -2193,6 +2193,7 @@ void TfmMain::SearchMacro()
             newItem->OnClick = onClick;
           }
           mnMacro->Add(newItem);
+          newItem->Break = (newItem->MenuIndex % 25 == 0) ? mbBarBreak : mbNone;
         }
       } while (FindNext(sr) == 0);
       FindClose(sr);
