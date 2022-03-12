@@ -53,6 +53,7 @@ private:
     int GetDataTop() { return (ShowColCounter ? 1 : 0); }
     int FDataRight, FDataBottom;
     TObject *EOFMarker;
+    TObject *EOLMarker;
     void UpdateDataRight();
     void UpdateDataBottom();
     void UpdateDataRightBottom(int modx, int mody);
@@ -174,6 +175,8 @@ public:
                       TCanvas *Cnvs = nullptr);
     void Cut();
     void SetDataRightBottom(int rx, int by, bool updateTableSize=true);
+    int GetRowDataRight(int Row);
+    void SetRowDataRight(int Row, int Right, bool ExpandOnly = false);
     void SaveToFile(String FileName, TTypeOption *Format,
                     bool SetModifiedFals = true);
     void CopyToClipboard(bool Cut = false);

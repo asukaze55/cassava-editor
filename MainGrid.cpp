@@ -75,6 +75,7 @@ __fastcall TMainGrid::TMainGrid(TComponent* Owner)  //デフォルトの設定
   FDataRight = 1;
   FDataBottom = 1;
   EOFMarker = new TObject();
+  EOLMarker = new TObject();
   FileOpenThread = nullptr;
   DefaultDrawing = false;
   LastMatch = new TStringList();
@@ -87,6 +88,7 @@ __fastcall TMainGrid::~TMainGrid(){
   if (FormattedCellCache) { delete FormattedCellCache; }
   if (UsingCellMacro) { delete UsingCellMacro; }
   if (EOFMarker) { delete EOFMarker; }
+  if (EOLMarker) { delete EOLMarker; }
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainGrid::ShowEditor()
@@ -221,7 +223,8 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
     Canvas->Brush->Color = CurrentRowBgColor;
   } else if (ACol == Col && CurrentColBgColor != Color) {
     Canvas->Brush->Color = CurrentColBgColor;
-  } else if (ACol > DataRight || ARow > DataBottom) {
+  } else if (ACol > DataRight || ARow > DataBottom ||
+             ACol > GetRowDataRight(ARow)) {
     Canvas->Brush->Color = DummyBgColor;
   } else if (ARow % 2 == 0) {
     Canvas->Brush->Color = EvenRowBgColor;
@@ -242,6 +245,9 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
   if (TypeOption->DummyEof && ACol == DataRight + 1 && ARow == DataBottom + 1) {
     Canvas->Font->Color = clGray;
     Canvas->TextRect(R, R.Left, R.Top, "[EOF]");
+  } else if (TypeOption->DummyEol && Objects[ACol][ARow] == EOLMarker) {
+    Canvas->Font->Color = clGray;
+    Canvas->TextRect(R, R.Left, R.Top, L"\u21b5");
   } else if (ShowURLBlue && isUrl(str)) {
     TFontStyles CFS = Canvas->Font->Style;
     Canvas->Font->Style = TFontStyles() << fsUnderline;
@@ -777,20 +783,15 @@ void TMainGrid::Cut()                  //右、下の余計な項目を削除
 //---------------------------------------------------------------------------
 void TMainGrid::UpdateDataRight()
 {
-  int i,j;
-  bool findEof = false;
-  for(i=ColCount-1; i>=DataLeft; i--) {
-    for(j=RowCount-1; j>=DataTop; j--) {
-      if(Cells[i][j] != "") {
-        FDataRight = i;
+  for (int x = ColCount - 1; x >= DataLeft; x--) {
+    for (int y = RowCount - 1; y >= DataTop; y--) {
+      if (Cells[x][y] != "" ||
+          (x < ColCount - 1 &&
+              ((TypeOption->DummyEof && Objects[x + 1][y] == EOFMarker) ||
+               (TypeOption->DummyEol && Objects[x + 1][y] == EOLMarker)))) {
+        FDataRight = x;
         return;
-      }else if(TypeOption->DummyEof && Objects[i][j]==EOFMarker) {
-        findEof = true;
       }
-    }
-    if(findEof){
-      FDataRight = i - 1;
-      return;
     }
   }
   FDataRight = DataLeft;
@@ -798,20 +799,15 @@ void TMainGrid::UpdateDataRight()
 //---------------------------------------------------------------------------
 void TMainGrid::UpdateDataBottom()
 {
-  int i,j;
-  bool findEof = false;
-  for(j=RowCount-1; j>=DataTop; j--) {
-    for(i=ColCount-1; i>=DataLeft; i--) {
-      if(Cells[i][j] != ""){
-        FDataBottom = j;
+  for (int y = RowCount - 1; y >= DataTop; y--) {
+    for (int x = ColCount - 1; x >= DataLeft; x--) {
+      if (Cells[x][y] != "" ||
+          (TypeOption->DummyEol && Objects[x][y] == EOLMarker) ||
+          (y < RowCount - 1 &&
+              TypeOption->DummyEof && Objects[x][y + 1] == EOFMarker)) {
+        FDataBottom = y;
         return;
-      }else if(TypeOption->DummyEof && Objects[i][j]==EOFMarker) {
-        findEof = true;
       }
-    }
-    if(findEof){
-      FDataBottom = j - 1;
-      return;
     }
   }
   FDataBottom = DataTop;
@@ -909,6 +905,42 @@ void TMainGrid::SetDataRightBottom(int rx, int by, bool updateTableSize)
   }else if(FDataRight != oldRight || FDataBottom != oldBottom){
     Invalidate();
   }
+}
+//---------------------------------------------------------------------------
+int TMainGrid::GetRowDataRight(int Row)
+{
+  if (!TypeOption->DummyEol) {
+    return FDataRight;
+  }
+  for (int x = ColCount - 1; x >= 0; x--) {
+    if (Cells[x][Row] != "") {
+      SetRowDataRight(Row, x);
+      return x;
+    }
+    if (Objects[x][Row] == EOLMarker) {
+      return x - 1;
+    }
+  }
+  SetRowDataRight(Row, 0);
+  return 0;
+}
+//---------------------------------------------------------------------------
+void TMainGrid::SetRowDataRight(int Row, int Right, bool ExpandOnly)
+{
+  if (!TypeOption->DummyEol) {
+    return;
+  }
+  for (int x = ColCount - 1; x >= 0; x--) {
+    if (Objects[x][Row] == EOLMarker) {
+      if (x == Right + 1 || (ExpandOnly && x > Right)) {
+        return;
+      }
+      Objects[x][Row] = nullptr;
+      break;
+    }
+  }
+  Objects[Right + 1][Row] = EOLMarker;
+  Invalidate();
 }
 //---------------------------------------------------------------------------
 String GetReturnCodeAndReplaceNull(String data, bool useQuote,
@@ -1147,6 +1179,7 @@ void TMainGrid::PasteCSV(TStrings *List, int Left, int Top, int Way,
         SetCell(j + Left, i + Top, OneRow->Strings[jj]);
       }
     }
+    SetRowDataRight(i + Top, jEnd + Left - 1, /* Expand= */ true);
   }
   delete OneRow;
   Modified = true;
@@ -1226,17 +1259,18 @@ void TMainGrid::WriteGrid(EncodedWriter *Writer, TTypeOption *Format)
   if (Format == nullptr) { Format = TypeOption; }
 
   TStringList* Data = new TStringList;
-  int R = ((Format->OmitComma) ? 0 : DataRight);
-  for(int i=DataTop; i<=DataBottom; i++)
-  {
+  for (int i = DataTop; i <= DataBottom; i++) {
     Data->Assign(Rows[i]);
 
-    if(Format->OmitComma){
-      for(int i = Data->Count-1; i>0 && Data->Strings[i]==""; i--)
+    if (Format->DummyEol || !Format->OmitComma) {
+      int right = GetRowDataRight(i);
+      for (int i = Data->Count - 1; i > right; i--) {
         Data->Delete(i);
-    }else{
-      for(int i = Data->Count-1; i>R; i--)
+      }
+    } else {
+      for (int i = Data->Count - 1; i > 0 && Data->Strings[i] == ""; i--) {
         Data->Delete(i);
+      }
     }
     if (ShowRowCounter) {
       Data->Delete(0);   // カウンタセルの削除
@@ -2159,6 +2193,11 @@ void TMainGrid::InsertEnter()
   for (int i = 1; i + X < ColCount; i++) {
     SetCell(i + L, Y + 1, Cells[i + X][Y]);
     SetCell(i + X, Y, "");
+    if (TypeOption->DummyEol && Objects[i + X][Y] == EOLMarker) {
+      SetRowDataRight(Y + 1, i + L - 1);
+      SetRowDataRight(Y, OneCell ? X : X - 1);
+      break;
+    }
   }
   if (OneCell) {
     Row = Y + 1;
@@ -2210,8 +2249,8 @@ void TMainGrid::ConnectCell()
     if(Row > DataBottom){ // ダミーセルは処理しない
       Row = DataBottom;
       Col = DataRight;
-    }else if(Col > DataRight){
-      Col = DataRight;
+    }else if(C > FixedCols && C > GetRowDataRight(Row)){
+      Col = max(GetRowDataRight(Row), FixedCols);
     }else if(C > FixedCols){ //カンマの削除
       String str = Cells[C - 1][Row] + Cells[C][Row];
       DeleteCells_Left(C, C, Row, Row, false);
@@ -2230,6 +2269,7 @@ void TMainGrid::ConnectCell()
       for (i = DataLeft; i <= AXtoRX(ThisColCount); i++) {
         SetCell(i + UpColCount, Row - 1, Cells[i][Row]);
       }
+      SetRowDataRight(Row - 1, UpColCount + GetRowDataRight(Row));
       Row--;
       Col = (UpColCount >= FixedCols) ? UpColCount + 1 : FixedCols;
       DeleteRow(Row + 1);
@@ -2303,7 +2343,8 @@ void TMainGrid::InsertCells_Right(long Left, long Right, long Top, long Bottom)
        x--, colsToAdd--) {
     bool dataExists = false;
     for (int y = Top; y <= Bottom; y++) {
-      if (Cells[x][y] != "") {
+      if (Cells[x][y] != "" ||
+          (TypeOption->DummyEol && Objects[x + 1][y] == EOLMarker)) {
         dataExists = true;
         break;
       }
@@ -2369,6 +2410,10 @@ void TMainGrid::InsertCells_Down(long Left, long Right, long Top, long Bottom)
   int iEnd = min(Right, DataRight);
   for (int i = Left; i <= iEnd; i++) {
     Temp->Assign(Cols[i]);
+    // Do not move EOF/EOL markers.
+    for (int j = 1; j < Temp->Count; j++) {
+      Temp->Objects[j] = nullptr;
+    }
     for(int j = Top; j <= Bottom; j++) {
       Temp->Insert(Top, "");
       Temp->Delete(Temp->Count-1);

@@ -17,6 +17,7 @@ public:
   int QuoteOption;
   bool OmitComma;
   bool DummyEof;
+  bool DummyEol;
 
   TTypeOption();
   TTypeOption(String str);

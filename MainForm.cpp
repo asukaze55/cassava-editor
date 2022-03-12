@@ -311,6 +311,7 @@ void TfmMain::ReadIni()
         option.QuoteOption = Ini->ReadInteger(Section, "Quote", 1);
         option.OmitComma = Ini->ReadBool(Section, "OmitComma", true);
         option.DummyEof = Ini->ReadBool(Section, "DummyEof", false);
+        option.DummyEol = Ini->ReadBool(Section, "DummyEol", false);
         MainGrid->TypeList.Add(option);
       }
     }
@@ -515,6 +516,7 @@ void TfmMain::WriteIni(bool PosSlide)
       Ini->WriteInteger(Section, "Quote", TO->QuoteOption);
       Ini->WriteBool(Section, "OmitComma", TO->OmitComma);
       Ini->WriteBool(Section, "DummyEof", TO->DummyEof);
+      Ini->WriteBool(Section, "DummyEol", TO->DummyEol);
     }
 
     Ini->WriteBool("Backup","OnSave",BackupOnSave);

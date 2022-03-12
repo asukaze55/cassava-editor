@@ -2,12 +2,12 @@ object frOptionDataFormat: TfrOptionDataFormat
   Left = 0
   Top = 0
   Width = 360
-  Height = 400
+  Height = 410
   TabOrder = 0
   TabStop = True
   DesignSize = (
     360
-    400)
+    410)
   object lblName: TLabel
     Left = 8
     Top = 11
@@ -157,15 +157,11 @@ object frOptionDataFormat: TfrOptionDataFormat
     Height = 17
     Caption = #12475#12540#12502#26178#12395#21508#34892#12398#21015#25968#12434#32113#19968#12377#12427
     TabOrder = 5
-    OnClick = cbCommaRectClick
-    OnKeyDown = cbCommaRectKeyUpDown
-    OnKeyPress = cbCommaRectKeyPress
-    OnKeyUp = cbCommaRectKeyUpDown
   end
   object cbDummyEOF: TCheckBox
-    Left = 24
+    Left = 8
     Top = 375
-    Width = 305
+    Width = 321
     Height = 25
     Caption = #19979#31471#12539#21491#31471#12398#20869#23481#12398#12394#12356#34892#12539#21015#12418#20445#23384#12377#12427
     TabOrder = 6

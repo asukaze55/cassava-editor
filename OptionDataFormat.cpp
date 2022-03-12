@@ -1,5 +1,4 @@
 //---------------------------------------------------------------------------
-
 #include <vcl.h>
 #pragma hdrstop
 
@@ -52,7 +51,6 @@ void TfrOptionDataFormat::RestoreDataPage(int id)
     rgSaveQuote->ItemIndex = 1;
     cbCommaRect->Checked = true;
     cbDummyEOF->Checked = true;
-    cbDummyEOF->Enabled = true;
 
     edName->Enabled = true;
     btnDeleteType->Enabled = false;
@@ -72,8 +70,7 @@ void TfrOptionDataFormat::RestoreDataPage(int id)
   edWeakSepChars->Text = Ctrl2Ascii(p->WeakSepChars);
   rgSaveQuote->ItemIndex = p->QuoteOption;
   cbCommaRect->Checked = !(p->OmitComma);
-  cbDummyEOF->Checked = !(p->OmitComma) && p->DummyEof;
-  cbDummyEOF->Enabled = !(p->OmitComma);
+  cbDummyEOF->Checked = p->DummyEof || p->DummyEol;
 
   bool isUserType = (id > 0);
   edName->Enabled = isUserType;
@@ -93,6 +90,7 @@ void TfrOptionDataFormat::StoreDataPage()
   p->QuoteOption = rgSaveQuote->ItemIndex;
   p->OmitComma = !(cbCommaRect->Checked);
   p->DummyEof = cbCommaRect->Checked && cbDummyEOF->Checked;
+  p->DummyEol = !cbCommaRect->Checked && cbDummyEOF->Checked;
 
   if (edName->Text != p->Name) {
     p->Name = edName->Text;
@@ -165,23 +163,6 @@ void __fastcall TfrOptionDataFormat::edNameChange(TObject *Sender)
 void __fastcall TfrOptionDataFormat::btnDeleteTypeClick(TObject *Sender)
 {
   Delete(TypeIndex);
-}
-//---------------------------------------------------------------------------
-void __fastcall TfrOptionDataFormat::cbCommaRectClick(TObject *Sender)
-{
-  cbDummyEOF->Enabled = cbCommaRect->Checked;
-}
-//---------------------------------------------------------------------------
-void __fastcall TfrOptionDataFormat::cbCommaRectKeyUpDown(TObject *Sender,
-      WORD &Key, TShiftState Shift)
-{
-  cbDummyEOF->Enabled = cbCommaRect->Checked;
-}
-//---------------------------------------------------------------------------
-void __fastcall TfrOptionDataFormat::cbCommaRectKeyPress(TObject *Sender,
-	  char &Key)
-{
-  cbDummyEOF->Enabled = cbCommaRect->Checked;
 }
 //---------------------------------------------------------------------------
 

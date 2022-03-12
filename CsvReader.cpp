@@ -41,6 +41,7 @@ void TTypeOption::init()
   QuoteOption = 1;
   OmitComma = false;
   DummyEof = true;
+  DummyEol = false;
 }
 //---------------------------------------------------------------------------
 String TTypeOption::DefExt()

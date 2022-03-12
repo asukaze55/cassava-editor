@@ -37,10 +37,6 @@ __published:    // IDE 管理のコンポーネント
     TCheckBox *cbDummyEOF;
     void __fastcall edNameChange(TObject *Sender);
     void __fastcall btnDeleteTypeClick(TObject *Sender);
-    void __fastcall cbCommaRectClick(TObject *Sender);
-    void __fastcall cbCommaRectKeyUpDown(TObject *Sender, WORD &Key,
-          TShiftState Shift);
-    void __fastcall cbCommaRectKeyPress(TObject *Sender, char &Key);
 private:    // ユーザー宣言
 public:     // ユーザー宣言
     __fastcall TfrOptionDataFormat(TComponent* Owner);

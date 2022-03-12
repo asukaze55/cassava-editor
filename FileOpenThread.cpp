@@ -85,7 +85,9 @@ void __fastcall FileOpenThread::UpdateGrid()
   }
   Grid->SetDataRightBottom(maxCol, maxRow, true);
   for (int i = 0; i < allCells->Count; i++) {
-    Grid->Rows[i + dt] = static_cast<TStringList*>(allCells->Items[i]);
+    TStringList *row = static_cast<TStringList*>(allCells->Items[i]);
+    Grid->Rows[i + dt] = row;
+    Grid->SetRowDataRight(i + dt, row->Count - 1);
   }
   Grid->SetWidth();
   Grid->SetHeight();
