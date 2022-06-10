@@ -59,6 +59,7 @@ private:
     void UpdateDataRightBottom(int modx, int mody);
     void UpdateEOFMarker(int oldRight, int oldBottom);
     bool HasDataInRange(int Left, int Right, int Top, int Bottom);
+    bool HasData(int X, int Y);
 
     int FTBMargin;
     void SetTBMargin(int Value);

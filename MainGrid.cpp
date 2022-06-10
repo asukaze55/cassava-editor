@@ -245,7 +245,8 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
   if (TypeOption->DummyEof && ACol == DataRight + 1 && ARow == DataBottom + 1) {
     Canvas->Font->Color = clGray;
     Canvas->TextRect(R, R.Left, R.Top, "[EOF]");
-  } else if (TypeOption->DummyEol && Objects[ACol][ARow] == EOLMarker) {
+  } else if (TypeOption->DummyEol && ARow <= DataBottom && ARow >= FixedRows &&
+             ACol == GetRowDataRight(ARow) + 1) {
     Canvas->Font->Color = clGray;
     Canvas->TextRect(R, R.Left, R.Top, L"\u21b5");
   } else if (ShowURLBlue && isUrl(str)) {
@@ -785,10 +786,9 @@ void TMainGrid::UpdateDataRight()
 {
   for (int x = ColCount - 1; x >= DataLeft; x--) {
     for (int y = RowCount - 1; y >= DataTop; y--) {
-      if (Cells[x][y] != "" ||
+      if (HasData(x, y) ||
           (x < ColCount - 1 &&
-              ((TypeOption->DummyEof && Objects[x + 1][y] == EOFMarker) ||
-               (TypeOption->DummyEol && Objects[x + 1][y] == EOLMarker)))) {
+              TypeOption->DummyEof && Objects[x + 1][y] == EOFMarker)) {
         FDataRight = x;
         return;
       }
@@ -801,8 +801,7 @@ void TMainGrid::UpdateDataBottom()
 {
   for (int y = RowCount - 1; y >= DataTop; y--) {
     for (int x = ColCount - 1; x >= DataLeft; x--) {
-      if (Cells[x][y] != "" ||
-          (TypeOption->DummyEol && Objects[x][y] == EOLMarker) ||
+      if (HasData(x, y) ||
           (y < RowCount - 1 &&
               TypeOption->DummyEof && Objects[x][y + 1] == EOFMarker)) {
         FDataBottom = y;
@@ -895,6 +894,16 @@ void TMainGrid::SetDataRightBottom(int rx, int by, bool updateTableSize)
     ChangeRowCount(rc);
   }
 
+  if (TypeOption->DummyEol) {
+    for (int y = FDataBottom + 1; y <= oldBottom; y++) {
+      for (int x = 0; x <= oldRight + 1; x++) {
+        if (Objects[x][y] != nullptr) {
+          Objects[x][y] = nullptr;
+        }
+      }
+    }
+  }
+
   if(TypeOption->DummyEof) {
     if(FDataRight != oldRight || FDataBottom != oldBottom
        || (FDataRight+1 < ColCount && FDataBottom+1 < RowCount
@@ -913,15 +922,10 @@ int TMainGrid::GetRowDataRight(int Row)
     return FDataRight;
   }
   for (int x = ColCount - 1; x >= 0; x--) {
-    if (Cells[x][Row] != "") {
-      SetRowDataRight(Row, x);
+    if (HasData(x, Row)) {
       return x;
     }
-    if (Objects[x][Row] == EOLMarker) {
-      return x - 1;
-    }
   }
-  SetRowDataRight(Row, 0);
   return 0;
 }
 //---------------------------------------------------------------------------
@@ -930,17 +934,21 @@ void TMainGrid::SetRowDataRight(int Row, int Right, bool ExpandOnly)
   if (!TypeOption->DummyEol) {
     return;
   }
-  for (int x = ColCount - 1; x >= 0; x--) {
+  for (int x = ColCount - 1; x > Right; x--) {
+    if (Cells[x][Row] != "") {
+      return;
+    }
     if (Objects[x][Row] == EOLMarker) {
-      if (x == Right + 1 || (ExpandOnly && x > Right)) {
+      if (ExpandOnly) {
         return;
       }
       Objects[x][Row] = nullptr;
-      break;
     }
   }
-  Objects[Right + 1][Row] = EOLMarker;
-  Invalidate();
+  if (Objects[Right][Row] != EOLMarker) {
+    Objects[Right][Row] = EOLMarker;
+    Invalidate();
+  }
 }
 //---------------------------------------------------------------------------
 String GetReturnCodeAndReplaceNull(String data, bool useQuote,
@@ -2180,6 +2188,7 @@ void TMainGrid::InsertEnter()
   }
   UndoList->Push();
   InsertRow(Y + 1);
+  int rowRight = GetRowDataRight(Y);
   if (OneCell) {
     SelLen = InplaceEditor->SelLength;
     SetCell(L, Y + 1, InplaceEditor->Text.SubString(
@@ -2193,11 +2202,10 @@ void TMainGrid::InsertEnter()
   for (int i = 1; i + X < ColCount; i++) {
     SetCell(i + L, Y + 1, Cells[i + X][Y]);
     SetCell(i + X, Y, "");
-    if (TypeOption->DummyEol && Objects[i + X][Y] == EOLMarker) {
-      SetRowDataRight(Y + 1, i + L - 1);
-      SetRowDataRight(Y, OneCell ? X : X - 1);
-      break;
-    }
+  }
+  if (TypeOption->DummyEol) {
+    SetRowDataRight(Y, OneCell ? X : X - 1);
+    SetRowDataRight(Y + 1, rowRight - X + 1);
   }
   if (OneCell) {
     Row = Y + 1;
@@ -2257,19 +2265,25 @@ void TMainGrid::ConnectCell()
       SetCell(C - 1, Row, str);
       Col--;
     }else if(Row > FixedRows && Row <= DataBottom){ //ÉäÉ^Å[ÉìÇÃçÌèú
-      int i, UpColCount, ThisColCount;
-      for (i = ColCount - 1; i >= DataLeft && Cells[i][Row - 1] == ""; i--) {}
-      UpColCount = i - DataLeft + 1;
-      for (i = ColCount - 1; i >= DataLeft && Cells[i][Row] == ""; i--) {}
-      ThisColCount = i - DataLeft + 1;
+      int UpColCount, ThisColCount;
+      if (TypeOption->DummyEol) {
+        UpColCount = GetRowDataRight(Row - 1) - DataLeft + 1;
+        ThisColCount = GetRowDataRight(Row) - DataLeft + 1;
+      } else {
+        int x;
+        for (x = ColCount - 1; x >= DataLeft && Cells[x][Row - 1] == ""; x--) {}
+        UpColCount = x - DataLeft + 1;
+        for (x = ColCount - 1; x >= DataLeft && Cells[x][Row] == ""; x--) {}
+        ThisColCount = x - DataLeft + 1;
+      }
       //óÒêîÇ™ë´ÇËÇ»ÇØÇÍÇŒëùÇ‚Ç∑
       if (AXtoRX(UpColCount + ThisColCount) > DataRight) {
         InsertColumn(DataRight + 1, AXtoRX(UpColCount + ThisColCount));
       }
-      for (i = DataLeft; i <= AXtoRX(ThisColCount); i++) {
-        SetCell(i + UpColCount, Row - 1, Cells[i][Row]);
+      for (int x = DataLeft; x <= AXtoRX(ThisColCount); x++) {
+        SetCell(x + UpColCount, Row - 1, Cells[x][Row]);
       }
-      SetRowDataRight(Row - 1, UpColCount + GetRowDataRight(Row));
+      SetRowDataRight(Row - 1, AXtoRX(UpColCount + ThisColCount));
       Row--;
       Col = (UpColCount >= FixedCols) ? UpColCount + 1 : FixedCols;
       DeleteRow(Row + 1);
@@ -2301,8 +2315,10 @@ void TMainGrid::DeleteCell_Left()
     DeleteCells_Left(SelLeft, Selection.Right, SelTop, Selection.Bottom);
   }else{
     int i;
-    for(i=Col; i < ColCount; i++){
-      if(Cells[i][Row] != "") break;
+    for (i = Col; i < ColCount; i++) {
+      if (HasData(i, Row)) {
+        break;
+      }
     }
 
     if(i >= ColCount){
@@ -2312,7 +2328,7 @@ void TMainGrid::DeleteCell_Left()
       }else{
         // óÒÇÃèkè¨ÇééÇ›ÇÈ
         for (int j = DataTop; j < RowCount; j++) {
-          if (Cells[FDataRight][j] != "") {
+          if (HasData(FDataRight, j)) {
             return;
           }
         }
@@ -2343,8 +2359,7 @@ void TMainGrid::InsertCells_Right(long Left, long Right, long Top, long Bottom)
        x--, colsToAdd--) {
     bool dataExists = false;
     for (int y = Top; y <= Bottom; y++) {
-      if (Cells[x][y] != "" ||
-          (TypeOption->DummyEol && Objects[x + 1][y] == EOLMarker)) {
+      if (HasData(x, y)) {
         dataExists = true;
         break;
       }
@@ -2390,7 +2405,7 @@ void TMainGrid::InsertCells_Down(long Left, long Right, long Top, long Bottom)
        y--, rowsToAdd--) {
     bool dataExists = false;
     for (int x = Left; x <= Right; x++) {
-      if (Cells[x][y] != "") {
+      if (HasData(x, y)) {
         dataExists = true;
         break;
       }
@@ -2410,10 +2425,6 @@ void TMainGrid::InsertCells_Down(long Left, long Right, long Top, long Bottom)
   int iEnd = min(Right, DataRight);
   for (int i = Left; i <= iEnd; i++) {
     Temp->Assign(Cols[i]);
-    // Do not move EOF/EOL markers.
-    for (int j = 1; j < Temp->Count; j++) {
-      Temp->Objects[j] = nullptr;
-    }
     for(int j = Top; j <= Bottom; j++) {
       Temp->Insert(Top, "");
       Temp->Delete(Temp->Count-1);
@@ -3365,12 +3376,18 @@ bool TMainGrid::HasDataInRange(int Left, int Right, int Top, int Bottom)
 {
   for (int y = Top; y <= Bottom; y++) {
     for (int x = Left; x <= Right; x++) {
-      if (Cells[x][y] != "") {
+      if (HasData(x, y)) {
         return true;
       }
     }
   }
   return false;
+}
+//---------------------------------------------------------------------------
+bool TMainGrid::HasData(int X, int Y)
+{
+  return Cells[X][Y] != "" ||
+      (TypeOption->DummyEol && Objects[X][Y] == EOLMarker);
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainGrid::KeyUp(Word &Key, Classes::TShiftState Shift)
@@ -3589,13 +3606,20 @@ TInplaceEdit* __fastcall TMainGrid::CreateEditor()
 void __fastcall TMainGrid::SetEditText(int ACol, int ARow, String Value)
 {
   String old = Cells[ACol][ARow];
+  int oldRowRight = GetRowDataRight(ARow);
   if(Value != old){
     Modified = true;
     UndoList->ChangeCell(RXtoAX(Col), RYtoAY(Row), old, Value,
                          RXtoAX(DataRight), RYtoAY(DataBottom));
+    UpdateDataRightBottom(Col, Row);
   }
-  UpdateDataRightBottom(Col, Row);
   TStringGrid::SetEditText(ACol, ARow, Value);
+  if (Value == "" && old != "") {
+    SetRowDataRight(ARow, ACol, /* ExpandOnly= */ true);
+  }
+  if (GetRowDataRight(ARow) != oldRowRight) {
+    Invalidate();
+  }
 }
 //---------------------------------------------------------------------------
 //  Undo èàóù
