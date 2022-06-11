@@ -742,9 +742,11 @@ void TMacro::ExecPrimitiveMethod(String s, int H,
     Stack.push_back(Element(fmMain->MainGrid->ReplaceAll(STR0, STR1, STR2,
         /* ignoreCase= */ false, /* regex= */ false, /* Word= */ false)));
   } else if (s == "search" && H == 2) {
-    wchar_t *target = STR0.c_str();
+    String targetStr = STR0;
+    String pattern = STR1;
+    wchar_t *target = targetStr.c_str();
     boost::wcmatch match;
-    if (boost::regex_search(target, match, boost::wregex(STR1.c_str()))) {
+    if (boost::regex_search(target, match, boost::wregex(pattern.c_str()))) {
       Stack.push_back(Element(match[0].first - target));
     } else {
       Stack.push_back(Element(-1));
