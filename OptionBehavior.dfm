@@ -25,12 +25,13 @@ object frOptionBehavior: TfrOptionBehavior
     Width = 145
     Height = 21
     Style = csDropDownList
-    ItemIndex = 0
+    ItemIndex = 2
     TabOrder = 0
-    Text = #34892#65381#21015#12398#31227#21205
+    Text = #36984#25246#20013#12398#34892#12539#21015#12399#31227#21205
     Items.Strings = (
       #34892#65381#21015#12398#31227#21205
-      #35079#25968#34892#12539#21015#36984#25246)
+      #35079#25968#34892#12539#21015#36984#25246
+      #36984#25246#20013#12398#34892#12539#21015#12399#31227#21205)
   end
   object cbEnterMove: TComboBox
     Left = 200

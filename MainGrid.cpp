@@ -56,7 +56,7 @@ __fastcall TMainGrid::TMainGrid(TComponent* Owner)  //デフォルトの設定
   MinColWidth = 32;
   Dragging = false;
   EditorMode = true;
-  DragMove = true;
+  DragBehavior = dbMoveIfSelected;
   TypeIndex = 0;
   TypeOption = TypeList.DefItem();
   PasteOption = -1;
@@ -2552,6 +2552,16 @@ void __fastcall TMainGrid::MouseDown(Controls::TMouseButton Button,
   }
   EditorMode = false;
   Options >> goAlwaysShowEditor >> goEditing;
+  if (DragBehavior == dbMove ||
+      (DragBehavior == dbMoveIfSelected &&
+       ((Selection.Left == MouseDownCol && Selection.Right == MouseDownCol &&
+         Selection.Top <= FixedRows && Selection.Bottom >= FDataBottom) ||
+        (Selection.Top == MouseDownRow && Selection.Bottom == MouseDownRow &&
+         Selection.Left <= FixedCols && Selection.Right >= FDataRight)))) {
+    Options << goRowMoving << goColMoving;
+  } else {
+    Options >> goRowMoving >> goColMoving;
+  }
   Dragging = true;
   TStringGrid::MouseDown(Button, Shift, X, Y);
 
@@ -2586,33 +2596,25 @@ void __fastcall TMainGrid::MouseDown(Controls::TMouseButton Button,
   if (Button == mbRight &&
       (IsRowSelected(MouseDownRow) || IsColSelected(MouseDownCol))) {
     return;
-  } else if (DragMove && MouseDownCol >= 0 && MouseDownRow >= 0) {
+  }
+  if (MouseDownCol >= 0 && MouseDownRow >= 0) {
     if (MouseDownCol < FixedCols && MouseDownRow < FixedRows) {
       SelectAll();
     } else if (MouseDownCol < FixedCols) {
       if (Shift.Contains(ssShift)) {
         SelectRows(MouseDownRow, Row);
+        MouseDownRow = Row;
       } else {
         SelectRow(MouseDownRow);
       }
     } else if (MouseDownRow < FixedRows) {
       if (Shift.Contains(ssShift)) {
         SelectCols(MouseDownCol, Col);
+        MouseDownCol = Col;
       } else {
         SelectColumn(MouseDownCol);
       }
     }
-  } else if (!DragMove) {
-    if (Shift.Contains(ssShift)) {
-      if (MouseDownRow >= 0 && MouseDownRow < FixedRows &&
-          MouseDownCol >= FixedCols) {
-        MouseDownCol = Col;
-      } else if (MouseDownCol >= 0 && MouseDownCol < FixedCols &&
-                 MouseDownRow >= FixedRows) {
-        MouseDownRow = Row;
-      }
-    }
-    MouseMove(Shift, X, Y);
   }
 }
 //---------------------------------------------------------------------------
@@ -2621,9 +2623,11 @@ void __fastcall TMainGrid::MouseMove(Classes::TShiftState Shift, int X, int Y)
   int ACol, ARow;
   MouseToCell(X,Y,ACol,ARow);
 
-  if (Dragging && !MouseDownColBorder && !MouseDownRowBorder && !DragMove &&
-      ((MouseDownRow >= 0 && MouseDownRow < FixedRows) ||
-       (MouseDownCol >= 0 && MouseDownCol < FixedCols))) {
+  if (Dragging && !MouseDownColBorder && !MouseDownRowBorder &&
+      ((MouseDownRow >= 0 && MouseDownRow < FixedRows &&
+        !Options.Contains(goRowMoving)) ||
+       (MouseDownCol >= 0 && MouseDownCol < FixedCols &&
+        !Options.Contains(goColMoving)))) {
     if (MouseDownCol < FixedCols && MouseDownRow < FixedRows) {
       SelectAll();
     } else if (MouseDownCol < FixedCols) {
@@ -2757,7 +2761,8 @@ void __fastcall TMainGrid::MouseUp(Controls::TMouseButton Button,
 
   UpdateDataRightBottom(0,0);
 
-  if(DragMove && (ShowColCounter || ShowRowCounter)){
+  if ((ShowColCounter && Options.Contains(goColMoving)) ||
+      (ShowRowCounter && Options.Contains(goRowMoving))) {
     // 行・列を移動すると番号が狂う
     Invalidate();
   }

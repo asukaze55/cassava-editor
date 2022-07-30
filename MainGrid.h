@@ -25,6 +25,12 @@ inline String ReturnCodeString(TReturnCode AReturnCode) {
   }
 }
 //---------------------------------------------------------------------------
+enum TDragBehavior {
+  dbMove = 0,
+  dbSelect = 1,
+  dbMoveIfSelected = 2
+};
+//---------------------------------------------------------------------------
 class TMainGrid : public TStringGrid
 {
 private:
@@ -69,12 +75,6 @@ private:
     void SetACells(int ACol, int ARow, String Val);
 
     double SelectSum(int *Count);
-    bool FDragMove;
-    void SetDragMove(bool Value) {
-      FDragMove = Value;
-      if(Value) Options << goRowMoving << goColMoving;
-      else      Options >> goRowMoving >> goColMoving;
-    }
     bool FShowRowCounter, FShowColCounter;
     void SetShowRowCounter(bool Value);
     void SetShowColCounter(bool Value);
@@ -324,7 +324,7 @@ public:
                       bool Case, bool Regex, bool Word);
     bool NumFind(double *Min, double *Max, TGridRect Range, bool Back);
 
-    __property bool DragMove = {read=FDragMove, write=SetDragMove};
+    TDragBehavior DragBehavior;
     __property bool ShowRowCounter
                  = {read=FShowRowCounter, write=SetShowRowCounter};
     __property bool ShowColCounter

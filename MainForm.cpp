@@ -343,7 +343,8 @@ void TfmMain::ReadIni()
       else if(X == 3) mnPasteOption3->Checked = true;
       else if(X == 4) mnPasteOption4->Checked = true;
       else if(X == 5) mnPasteOption5->Checked = true;
-    MainGrid->DragMove = Ini->ReadBool("Mode","DragCounter",true);
+    MainGrid->DragBehavior = (TDragBehavior)
+        Ini->ReadInteger("Mode", "DragCounter", dbMoveIfSelected);
     MainGrid->EnterMove = Ini->ReadInteger("Mode","EnterMove",0);
 
     int FixedRows = Ini->ReadInteger("Mode","FixTopRow",0);
@@ -530,7 +531,7 @@ void TfmMain::WriteIni(bool PosSlide)
     Ini->WriteInteger("Backup","Interval",BuInterval);
 
     Ini->WriteInteger("Mode","Paste",MainGrid->PasteOption);
-    Ini->WriteBool("Mode","DragCounter",MainGrid->DragMove);
+    Ini->WriteInteger("Mode", "DragCounter", MainGrid->DragBehavior);
     Ini->WriteInteger("Mode","EnterMove",MainGrid->EnterMove);
     Ini->WriteInteger("Mode","FixTopRow",
       MainGrid->ShowColCounter ? 0 : MainGrid->FixedRows);

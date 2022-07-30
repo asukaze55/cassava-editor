@@ -17,7 +17,7 @@ __fastcall TfrOptionBehavior::TfrOptionBehavior(TComponent* Owner)
 //---------------------------------------------------------------------------
 void TfrOptionBehavior::RestoreFromMainForm()
 {
-  cbDragMove->ItemIndex = (fmMain->MainGrid->DragMove==true) ? 0 : 1;
+  cbDragMove->ItemIndex = fmMain->MainGrid->DragBehavior;
   cbEnterMove->ItemIndex = fmMain->MainGrid->EnterMove;
   cbLeftArrowInCell->Checked = fmMain->MainGrid->LeftArrowInCell;
   cbAlwaysShowEditor->Checked = fmMain->MainGrid->AlwaysShowEditor;
@@ -35,7 +35,7 @@ void TfrOptionBehavior::RestoreFromMainForm()
 //---------------------------------------------------------------------------
 void TfrOptionBehavior::StoreToMainForm()
 {
-  fmMain->MainGrid->DragMove = (cbDragMove->ItemIndex == 0);
+  fmMain->MainGrid->DragBehavior = (TDragBehavior) cbDragMove->ItemIndex;
   fmMain->MainGrid->EnterMove = cbEnterMove->ItemIndex;
   fmMain->MainGrid->LeftArrowInCell = cbLeftArrowInCell->Checked;
   fmMain->MainGrid->AlwaysShowEditor = cbAlwaysShowEditor->Checked;
