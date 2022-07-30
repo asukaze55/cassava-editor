@@ -2544,64 +2544,73 @@ bool __fastcall TMainGrid::SelectCell(int ACol, int ARow)
 void __fastcall TMainGrid::MouseDown(Controls::TMouseButton Button,
     Classes::TShiftState Shift, int X, int Y)
 {
-  MouseToCell(X,Y,drgCol,drgRow);
+  MouseToCell(X, Y, MouseDownCol, MouseDownRow);
 
-  if(EditorMode == false && Col == drgCol && Row == drgRow && !RangeSelect){
+  if (!EditorMode && Col == MouseDownCol && Row == MouseDownRow &&
+      !RangeSelect) {
     SameCellClicking = true;
   }
   EditorMode = false;
   Options >> goAlwaysShowEditor >> goEditing;
   Dragging = true;
-  TStringGrid::MouseDown(Button,Shift,X,Y);
+  TStringGrid::MouseDown(Button, Shift, X, Y);
 
-  if(drgRow < FixedRows && drgCol >= FixedCols) {
+  if (MouseDownRow < FixedRows && MouseDownCol >= FixedCols) {
     int XLeft4, XRight4, YTemp;
-    MouseToCell(X-4,Y,XLeft4,YTemp);
-    MouseToCell(X+4,Y,XRight4,YTemp);
+    MouseToCell(X - 4, Y, XLeft4, YTemp);
+    MouseToCell(X + 4, Y, XRight4, YTemp);
     ColToResize = XLeft4;
     OldWidthHeight = ColWidths[XLeft4];
-    MouseDownColBorder = ((XLeft4 != drgCol) || (XRight4 != drgCol));
-    if(MouseDownColBorder){ return; }
-  }else{
+    MouseDownColBorder = (XLeft4 != MouseDownCol || XRight4 != MouseDownCol);
+    if (MouseDownColBorder) {
+      return;
+    }
+  } else {
     MouseDownColBorder = false;
   }
 
-  if(drgCol < FixedCols && drgRow >= FixedRows) {
+  if (MouseDownCol < FixedCols && MouseDownRow >= FixedRows) {
     int YTop4, YBottom4, XTemp;
-    MouseToCell(X,Y-4,XTemp,YTop4);
-    MouseToCell(X,Y+4,XTemp,YBottom4);
+    MouseToCell(X, Y - 4, XTemp, YTop4);
+    MouseToCell(X, Y + 4, XTemp, YBottom4);
     RowToResize = YTop4;
     OldWidthHeight = RowHeights[YTop4];
-    MouseDownRowBorder = ((YTop4 != drgRow) || (YBottom4 != drgRow));
-    if(MouseDownRowBorder){ return; }
+    MouseDownRowBorder = (YTop4 != MouseDownRow || YBottom4 != MouseDownRow);
+    if (MouseDownRowBorder) {
+      return;
+    }
   }else{
     MouseDownRowBorder = false;
   }
 
-  if(Button == mbRight && (IsRowSelected(drgRow) || IsColSelected(drgCol))){
+  if (Button == mbRight &&
+      (IsRowSelected(MouseDownRow) || IsColSelected(MouseDownCol))) {
     return;
-  }else if(DragMove && drgCol>=0 && drgRow>=0){
-    if(drgCol < FixedCols && drgRow < FixedRows) {
+  } else if (DragMove && MouseDownCol >= 0 && MouseDownRow >= 0) {
+    if (MouseDownCol < FixedCols && MouseDownRow < FixedRows) {
       SelectAll();
-    }else if(drgCol < FixedCols) {
-      if(Shift.Contains(ssShift)){
-        SelectRows(drgRow, Row);
-      }else{
-        SelectRow(drgRow);
+    } else if (MouseDownCol < FixedCols) {
+      if (Shift.Contains(ssShift)) {
+        SelectRows(MouseDownRow, Row);
+      } else {
+        SelectRow(MouseDownRow);
       }
-    }else if(drgRow < FixedRows) {
-      if(Shift.Contains(ssShift)){
-        SelectCols(drgCol, Col);
-      }else{
-        SelectColumn(drgCol);
+    } else if (MouseDownRow < FixedRows) {
+      if (Shift.Contains(ssShift)) {
+        SelectCols(MouseDownCol, Col);
+      } else {
+        SelectColumn(MouseDownCol);
       }
     }
-  }else if(!DragMove){
-    if(Shift.Contains(ssShift)){
-      if(drgRow >=0 && drgRow < FixedRows && drgCol >= FixedCols)
-        drgCol = Col;
-      else if(drgCol >=0 && drgCol < FixedCols && drgRow >= FixedRows)
-        drgRow = Row;
+  } else if (!DragMove) {
+    if (Shift.Contains(ssShift)) {
+      if (MouseDownRow >= 0 && MouseDownRow < FixedRows &&
+          MouseDownCol >= FixedCols) {
+        MouseDownCol = Col;
+      } else if (MouseDownCol >= 0 && MouseDownCol < FixedCols &&
+                 MouseDownRow >= FixedRows) {
+        MouseDownRow = Row;
+      }
     }
     MouseMove(Shift, X, Y);
   }
@@ -2612,42 +2621,41 @@ void __fastcall TMainGrid::MouseMove(Classes::TShiftState Shift, int X, int Y)
   int ACol, ARow;
   MouseToCell(X,Y,ACol,ARow);
 
-  if(Dragging &&
-     ! MouseDownColBorder && ! MouseDownRowBorder &&
-     ((drgRow >= 0 && drgRow < FixedRows) ||
-      (drgCol >= 0 && drgCol < FixedCols)) &&
-     !DragMove){
-
-    if(drgCol < FixedCols && drgRow < FixedRows) {
-
+  if (Dragging && !MouseDownColBorder && !MouseDownRowBorder && !DragMove &&
+      ((MouseDownRow >= 0 && MouseDownRow < FixedRows) ||
+       (MouseDownCol >= 0 && MouseDownCol < FixedCols))) {
+    if (MouseDownCol < FixedCols && MouseDownRow < FixedRows) {
       SelectAll();
-
-    } else if(drgCol < FixedCols) {
-
-      if(ARow < 0){
+    } else if (MouseDownCol < FixedCols) {
+      if (ARow < 0) {
         ARow = TopRow + VisibleRowCount - 1;
-      }else if(ARow < TopRow) {
-        if(TopRow > FixedRows) TopRow--;
+      } else if (ARow < TopRow) {
+        if (TopRow > FixedRows) {
+          TopRow--;
+        }
         ARow = TopRow;
-      } else if(ARow >= TopRow + VisibleRowCount) {
-        if(TopRow + VisibleRowCount < RowCount) TopRow++;
+      } else if (ARow >= TopRow + VisibleRowCount) {
+        if (TopRow + VisibleRowCount < RowCount) {
+          TopRow++;
+        }
         ARow = TopRow + VisibleRowCount - 1;
       }
-      SelectRows(ARow, drgRow);
-
-    } else if(drgRow < FixedRows) {
-
-      if(ACol < 0){
+      SelectRows(ARow, MouseDownRow);
+    } else if(MouseDownRow < FixedRows) {
+      if (ACol < 0) {
         ACol = LeftCol + VisibleColCount - 1;
-      }else if(ACol < LeftCol) {
-        if(LeftCol > FixedCols) LeftCol--;
+      } else if (ACol < LeftCol) {
+        if (LeftCol > FixedCols) {
+          LeftCol--;
+        }
         ACol = LeftCol;
-      } else if(ACol >= LeftCol + VisibleColCount) {
-        if(LeftCol + VisibleColCount < ColCount) LeftCol++;
+      } else if (ACol >= LeftCol + VisibleColCount) {
+        if (LeftCol + VisibleColCount < ColCount) {
+          LeftCol++;
+        }
         ACol = LeftCol + VisibleColCount - 1;
       }
-      SelectCols(ACol, drgCol);
-
+      SelectCols(ACol, MouseDownCol);
     }
   }
 

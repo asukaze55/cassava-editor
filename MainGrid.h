@@ -28,7 +28,8 @@ inline String ReturnCodeString(TReturnCode AReturnCode) {
 class TMainGrid : public TStringGrid
 {
 private:
-    int drgRow , drgCol;
+    int MouseDownRow;
+    int MouseDownCol;
     int ColToResize;
     int RowToResize;
     int OldWidthHeight;
@@ -299,14 +300,14 @@ public:
       SetSelection(FixedCols, FDataRight, FixedRows, FDataBottom);
     }
     bool IsRowSelected() {
-      return drgCol < FixedCols;
+      return MouseDownCol < FixedCols;
     }
     bool IsRowSelected(int ARow) {
       return FixedCols >= Selection.Left && FDataRight <= Selection.Right &&
           ARow >= Selection.Top && ARow <= Selection.Bottom;
     }
     bool IsColSelected() {
-      return drgRow < FixedRows;
+      return MouseDownRow < FixedRows;
     }
     bool IsColSelected(int ACol) {
       return FixedRows >= Selection.Top && FDataBottom <= Selection.Bottom &&
