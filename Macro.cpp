@@ -861,6 +861,13 @@ void TMacro::ExecPrimitiveMethod(String s, int H,
   }
 }
 //---------------------------------------------------------------------------
+void CallOnClick(TMenuItem *menuItem)
+{
+  if (menuItem && menuItem->OnClick) {
+    menuItem->OnClick(menuItem);
+  }
+}
+//---------------------------------------------------------------------------
 void TMacro::ExecFnc(String s)
 {
   int H = s[1];
@@ -1105,6 +1112,62 @@ void TMacro::ExecFnc(String s)
     }else if(s == "SetFontSize" && H == 1){
       env.Grid->Raw()->Font->Size = VAL0;
       fmMain->SetGridFont(env.Grid->Raw()->Font);
+    } else if (s == "GetCharCode" && H == 0) {
+      String encoding;
+      switch (fmMain->MainGrid->KanjiCode) {
+        case CHARCODE_SJIS: encoding = "Shift-JIS"; break;
+        case CHARCODE_EUC: encoding = "EUC"; break;
+        case CHARCODE_JIS: encoding = "JIS"; break;
+        case CHARCODE_UTF8: encoding = "UTF-8"; break;
+        case CHARCODE_UTF16LE: encoding = "UTF-16LE"; break;
+        case CHARCODE_UTF16BE: encoding = "UTF-16BE"; break;
+        default: encoding = ""; break;
+      }
+      Stack.push_back(Element(encoding));
+    } else if (s == "SetCharCode" && H == 1) {
+      String encoding = STR0;
+      if (encoding == "Shift-JIS") {
+        CallOnClick(fmMain->mnSjis);
+      } else if (encoding == "EUC") {
+        CallOnClick(fmMain->mnEuc);
+      } else if (encoding == "JIS") {
+        CallOnClick(fmMain->mnJis);
+      } else if (encoding == "UTF-8") {
+        CallOnClick(fmMain->mnUtf8);
+      } else if (encoding == "UTF-16LE") {
+        CallOnClick(fmMain->mnUnicode);
+      } else if (encoding == "UTF-16BE") {
+        CallOnClick(fmMain->mnUtf16be);
+      } else {
+        throw MacroException("文字コードが不正です：" + STR0);
+      }
+    } else if (s == "GetDataTypes" && H == 0) {
+      TTypeList &typeList = fmMain->MainGrid->TypeList;
+      std::vector<TEnvironment*> *objects = env.GetObjects();
+      Element obj = Element(objects->size(), "", etObject, env.GetGlobal());
+      objects->push_back(env.NewObject());
+      obj.GetMember("length").Sbst(Element(typeList.Count));
+      for (int i = 0; i < typeList.Count; i++) {
+        obj.GetMember((String) i).Sbst(Element(typeList.Items(i)->Name));
+      }
+      Stack.push_back(obj);
+    } else if (s == "GetActiveDataType" && H == 0) {
+      Stack.push_back(Element(fmMain->MainGrid->TypeOption->Name));
+    } else if (s == "SetActiveDataType" && H == 1) {
+      String name = STR0;
+      TTypeList &typeList = fmMain->MainGrid->TypeList;
+      bool found = false;
+      for (int i = 0; i < typeList.Count; i++) {
+        if (typeList.Items(i)->Name == name) {
+          fmMain->MainGrid->TypeIndex = i;
+          fmMain->MainGrid->TypeOption = typeList.Items(i);
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        throw MacroException("データ形式名が不正です：" + name);
+      }
     }else if(s == "write" || s == "writeln"){
       if (canWriteFile) {
         fs_io->SetEncode(env.Grid->Raw()->KanjiCode);
