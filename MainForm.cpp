@@ -153,7 +153,9 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
       } catch (...) {}
     }
     StatusbarCmsFile = statusbarCmsFile;
-    UpdateStatusbar();
+    if (!FileOpening) {
+      UpdateStatusbar();
+    }
   }
 }
 //---------------------------------------------------------------------------
@@ -186,6 +188,8 @@ void TfmMain::ExecOpenMacro(System::TObject* Sender)
   if(FileExists(CmsFile)){
     MacroExec(CmsFile, nullptr);
   }
+
+  UpdateStatusbar();
 }
 //---------------------------------------------------------------------------
 __fastcall TfmMain::~TfmMain()
