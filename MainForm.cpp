@@ -2001,6 +2001,57 @@ void __fastcall TfmMain::mnShowStatusbarClick(TObject *Sender)
   UpdateStatusbar();
 }
 //---------------------------------------------------------------------------
+void __fastcall TfmMain::StatusBarContextPopup(TObject *Sender,
+    TPoint &MousePos, bool &Handled)
+{
+  int x = MousePos.X;
+  int panelIndex = 0;
+  while (panelIndex < StatusBar->Panels->Count) {
+    int panelWidth = StatusBar->Panels->Items[panelIndex]->Width;
+    if (x <= panelWidth) {
+      break;
+    }
+    x -= panelWidth;
+    panelIndex++;
+  }
+  if (panelIndex >= StatusBar->Panels->Count ||
+      StatusBarPopUpLabels.count(panelIndex) == 0) {
+    PopMenuStatusBar->AutoPopup = false;
+    return;
+  }
+
+  PopMenuStatusBar->Items->Clear();
+  TStringList *items = new TStringList;
+  items->Text = StatusBarPopUpLabels[panelIndex];
+  for (int i = 0; i < items->Count; i++) {
+    TMenuItem *newItem = new TMenuItem(PopMenuStatusBar);
+    newItem->Caption = items->Strings[i];
+    newItem->Tag = (panelIndex << 16) + i;
+    newItem->OnClick = StatusBarPopUpClick;
+    PopMenuStatusBar->Items->Add(newItem);
+  }
+  delete items;
+  PopMenuStatusBar->AutoPopup = true;
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmMain::StatusBarPopUpClick(TObject *Sender)
+{
+  int tag = static_cast<TMenuItem*>(Sender)->Tag;
+  int panelIndex = tag >> 16;
+  if (StatusBarPopUpHandlers.count(panelIndex) == 0) {
+    return;
+  }
+  TStringList *arguments = new TStringList;
+  arguments->Text = StatusBarPopUpLabels[panelIndex];
+  String label = arguments->Strings[tag & 0xffff];
+  arguments->Clear();
+  arguments->Add(label);
+  ExecMacro(StatusBarPopUpHandlers[panelIndex], StopMacroCount,
+            SystemMacroCache, -1, -1, nullptr, false, arguments);
+  delete arguments;
+  UpdateStatusbar();
+}
+//---------------------------------------------------------------------------
 void __fastcall TfmMain::mnFixFirstRowClick(TObject *Sender)
 {
   if(MainGrid->FileOpenThread){
@@ -2303,11 +2354,13 @@ void TfmMain::MacroExec(String CmsFile, EncodedWriter *io)
 //---------------------------------------------------------------------------
 void TfmMain::UpdateStatusbar()
 {
-  if(mnShowStatusbar->Checked && StatusbarCmsFile != ""){
-    try{
+  if (mnShowStatusbar->Checked && StatusbarCmsFile != "") {
+    StatusBarPopUpLabels.clear();
+    StatusBarPopUpHandlers.clear();
+    try {
       ExecMacro(StatusbarCmsFile, StopMacroCount, SystemMacroCache, -1, -1,
                 nullptr, true);
-    }catch(...){}
+    } catch(...) {}
   }
 }
 //---------------------------------------------------------------------------

@@ -280,7 +280,7 @@ public:
   String Name() const { return st; }
   Element Value() const;
   void Sbst(const Element &e);
-  Element GetMember(String name);
+  Element GetMember(String name) const;
 };
 //---------------------------------------------------------------------------
 class TEnvironment {
@@ -539,7 +539,7 @@ void Element::Sbst(const Element &e)
   }
 }
 //---------------------------------------------------------------------------
-Element Element::GetMember(String name)
+Element Element::GetMember(String name) const
 {
   return Element(name, etVar, env->GetObject(Val()));
 }
@@ -1090,6 +1090,25 @@ void TMacro::ExecFnc(String s)
       if(val >= 0 && val < fmMain->StatusBar->Panels->Count){
         fmMain->StatusBar->Panels->Items[val]->Width = VAL1;
       }
+    } else if (s == "SetStatusBarPopUp" && H == 2) {
+      const Element &value1 = ope[1].Value();
+      if (value1.Type != etObject) {
+        throw MacroException(s + " の第 2 引数にはオブジェクトが必要です。");
+      }
+      int length = value1.GetMember("length").Val();
+      TStringList *list = new TStringList;
+      for (int i = 0; i< length; i++) {
+        list->Add(value1.GetMember((String) i).Str());
+      }
+      fmMain->StatusBarPopUpLabels[VAL0] = list->Text;
+      delete list;
+    } else if (s == "SetStatusBarPopUpClick" && H == 2) {
+      const Element &value1 = ope[1].Value();
+      if (value1.Type == etObject) {
+        throw MacroException(
+            s + " の第 2 引数にはキャプチャを使用しないラムダ式が必要です。");
+      }
+      fmMain->StatusBarPopUpHandlers[VAL0] = value1.Str();
     }else if(s == "LoadIniSetting" && H == 0){
       fmMain->ReadIni();
     }else if(s == "SaveIniSetting" && H == 0){
@@ -1696,7 +1715,8 @@ Element TMacro::Do(String FileName, const std::vector<Element> &AStack,
 }
 //---------------------------------------------------------------------------
 String ExecMacro(String FileName, int MaxLoop, TStringList *Modules,
-                 int x, int y, EncodedWriter *IO, bool IsCellMacro)
+                 int x, int y, EncodedWriter *IO, bool IsCellMacro,
+                 TStringList *StringArguments)
 {
   if(!RunningOk){ return ""; }
   if(!IsCellMacro){ RunningCount++; }
@@ -1706,6 +1726,11 @@ String ExecMacro(String FileName, int MaxLoop, TStringList *Modules,
   Element r;
   try {
     std::vector<Element> stack;
+    if (StringArguments) {
+      for (int i = 0; i < StringArguments->Count; i++) {
+        stack.push_back(Element(StringArguments->Strings[i]));
+      }
+    }
     r = mcr.Do(FileName, stack, x, y);
   } catch (MacroException e) {
     if (IsCellMacro) {

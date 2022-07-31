@@ -27,6 +27,8 @@ object fmMain: TfmMain
       item
         Width = 200
       end>
+    PopupMenu = PopMenuStatusBar
+    OnContextPopup = StatusBarContextPopup
   end
   object MainPanel: TPanel
     Left = 0
@@ -2290,6 +2292,10 @@ object fmMain: TfmMain
       end>
     ImageCollection = imcNormal
     Left = 72
+    Top = 32
+  end
+  object PopMenuStatusBar: TPopupMenu
+    Left = 384
     Top = 32
   end
 end

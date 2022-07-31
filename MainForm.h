@@ -2,27 +2,27 @@
 #ifndef MainFormH
 #define MainFormH
 //---------------------------------------------------------------------------
-#include <Vcl.Controls.hpp>
-#include <Vcl.StdCtrls.hpp>
-#include <Vcl.Forms.hpp>
-#include <Vcl.ExtCtrls.hpp>
-#include <Vcl.Grids.hpp>
-#include <Vcl.Buttons.hpp>
-#include <Vcl.Menus.hpp>
-#include <Vcl.Dialogs.hpp>
-
-#include "MainGrid.h"
-#include "Preference.h"
-#include <ComCtrls.hpp>
-#include <ToolWin.hpp>
-#include <ImgList.hpp>
 #include <ActnList.hpp>
+#include <ComCtrls.hpp>
+#include <ImgList.hpp>
 #include <System.Actions.hpp>
 #include <System.Classes.hpp>
 #include <System.ImageList.hpp>
+#include <ToolWin.hpp>
 #include <Vcl.BaseImageCollection.hpp>
+#include <Vcl.Buttons.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.Dialogs.hpp>
+#include <Vcl.ExtCtrls.hpp>
+#include <Vcl.Forms.hpp>
+#include <Vcl.Grids.hpp>
 #include <Vcl.ImageCollection.hpp>
+#include <Vcl.Menus.hpp>
+#include <Vcl.StdCtrls.hpp>
 #include <Vcl.VirtualImageList.hpp>
+#include <map>
+#include "MainGrid.h"
+#include "Preference.h"
 //---------------------------------------------------------------------------
 class TfmMain : public TForm
 {
@@ -189,6 +189,7 @@ __published:	// IDE 管理のコンポーネント
   TMenuItem *mnMacroOpenUserFolder;
   TMenuItem *mnQuickFind;
   TStatusBar *StatusBar;
+  TPopupMenu *PopMenuStatusBar;
   TPanel *MainPanel;
   TPanel *pnlSearch;
   TSpeedButton *btnNext;
@@ -353,6 +354,9 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall mnReturnCodeClick(TObject *Sender);
   void __fastcall mnBomClick(TObject *Sender);
   void __fastcall mnpPasteInsertClick(TObject *Sender);
+  void __fastcall StatusBarContextPopup(TObject *Sender, TPoint &MousePos,
+          bool &Handled);
+  void __fastcall StatusBarPopUpClick(TObject *Sender);
 
 private:    // ユーザー宣言
   void OpenFile(String OpenFileName, int KCode=CHARCODE_AUTO);
@@ -458,6 +462,8 @@ public:     // ユーザー宣言
   String FormatCmsFile;
   String StatusbarCmsFile;
   void UpdateStatusbar();
+  std::map<int, String> StatusBarPopUpLabels;
+  std::map<int, String> StatusBarPopUpHandlers;
 };
 //---------------------------------------------------------------------------
 extern TfmMain *fmMain;
