@@ -8,7 +8,6 @@
 #include <Forms.hpp>
 #include <Dialogs.hpp>
 #include <ExtCtrls.hpp>
-#include "CSPIN.h"
 #include <ComCtrls.hpp>
 //---------------------------------------------------------------------------
 class TfmPrint : public TForm

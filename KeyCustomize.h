@@ -9,7 +9,6 @@
 #include <Buttons.hpp>
 #include <ComCtrls.hpp>
 #include <ExtCtrls.hpp>
-#include "CSPIN.h"
 #include <Dialogs.hpp>
 //---------------------------------------------------------------------------
 class TfmKey : public TForm

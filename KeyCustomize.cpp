@@ -6,7 +6,6 @@
 #include "MainForm.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
-#pragma link "CSPIN"
 #pragma resource "*.dfm"
 TfmKey *fmKey;
 //---------------------------------------------------------------------------

@@ -13,7 +13,6 @@
 
 #include "MainGrid.h"
 #include "Preference.h"
-#include "CSPIN.h"
 #include <ComCtrls.hpp>
 #include <ToolWin.hpp>
 #include <ImgList.hpp>

@@ -8,7 +8,6 @@
 #include "MainForm.h"
 #include "AutoOpen.h"
 //---------------------------------------------------------------------------
-#pragma link "CSPIN"
 #pragma resource "*.dfm"
 TfmLetter *fmLetter;
 //---------------------------------------------------------------------------

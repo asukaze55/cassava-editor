@@ -7,7 +7,6 @@
 #include <Vcl.Forms.hpp>
 #include <Vcl.ExtCtrls.hpp>
 #include <Vcl.Dialogs.hpp>
-#include "CSPIN.h"
 #include <ComCtrls.hpp>
 #include <System.Classes.hpp>
 //---------------------------------------------------------------------------
