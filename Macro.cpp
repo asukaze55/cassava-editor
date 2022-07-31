@@ -1680,7 +1680,9 @@ Element TMacro::Do(String FileName, const std::vector<Element> &AStack,
         char c;
         fs->Read(&c, 1);
         if(c == CMO_Return){
-          ReturnValue = Stack.back().Value();
+          if (Stack.size() > 0) {
+            ReturnValue = Stack.back().Value();
+          }
           break;
         }else{
           ExecOpe(c);
