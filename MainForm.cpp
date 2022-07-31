@@ -72,6 +72,7 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
 
   bool FileOpening = false;
   StartupMacroDone = false;
+  StatusbarCmsFile = "";
   TimeStamp = 0;
   int wd = MainGrid->FixedCols;
   int ht = MainGrid->FixedRows;
@@ -140,17 +141,18 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
     MainGrid->OnGetFormattedCell = GetFormattedCell;
   }
 
-  StatusbarCmsFile =
+  String statusbarCmsFile =
       MaybeCompileMacro("!statusbar.cms", Pref, SystemMacroCache);
-  if (StatusbarCmsFile != "") {
+  if (statusbarCmsFile != "") {
     String statusbarInit =
-        GetMacroModuleName(StatusbarCmsFile, "init", "0", false);
+        GetMacroModuleName(statusbarCmsFile, "init", "0", false);
     if (SystemMacroCache->IndexOf(statusbarInit) >= 0) {
       try {
         ExecMacro(statusbarInit, StopMacroCount, SystemMacroCache, -1, -1,
                   nullptr, true);
       } catch (...) {}
     }
+    StatusbarCmsFile = statusbarCmsFile;
     UpdateStatusbar();
   }
 }
