@@ -66,6 +66,7 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
   Application->OnHint = ApplicationHint;
 
   History = new TStringList;
+  ScreenDpi = Screen->PixelsPerInch;
 
   ReadIni();
   ReadToolBar();
@@ -208,14 +209,20 @@ void TfmMain::ReadIni()
   IniFile *Ini = Pref->GetInifile();
 
   Style = Ini->ReadString("Mode", "Style", "Windows");
-  Width = Ini->ReadInteger("Position", "Width", Width);
-  Height = Ini->ReadInteger("Position", "Height", Height);
-  int iniLeft = Ini->ReadInteger("Position", "Left", -1);
+  double dpiRatio =
+      (double)ScreenDpi / Ini->ReadInteger("Position", "Dpi", ScreenDpi);
   int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+  int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+  int iniWidth =
+      Ini->ReadInteger("Position", "Width", Width) * dpiRatio + 0.5;
+  Width = iniWidth <= screenWidth ? iniWidth : screenWidth;
+  int iniHeight =
+      Ini->ReadInteger("Position", "Height", Height) * dpiRatio + 0.5;
+  Height = iniHeight <= screenHeight ? iniHeight : screenHeight;
+  int iniLeft = Ini->ReadInteger("Position", "Left", -1);
   Left = (iniLeft >= 0 && iniLeft <= screenWidth - Width)
       ? iniLeft : (screenWidth / 2 - Width / 2);
   int iniTop = Ini->ReadInteger("Position", "Top", -1);
-  int screenHeight = GetSystemMetrics(SM_CYSCREEN);
   Top = (iniTop >= 0 && iniTop <= screenHeight - Height)
       ? iniTop : (screenHeight / 2 - Height / 2);
 
@@ -237,7 +244,7 @@ void TfmMain::ReadIni()
   MainGrid->Font->Name = Ini->ReadString("Font", "Name",
       Screen->Fonts->IndexOf("Yu Gothic UI") >= 0 ? "Yu Gothic UI"
                                                   : "‚l‚r ‚oƒSƒVƒbƒN");
-  MainGrid->Font->Size = Ini->ReadInteger("Font", "Size", 12);
+  MainGrid->Font->Size = Ini->ReadInteger("Font", "Size", 12) * dpiRatio + 0.5;
   if (Ini->ReadBool("Font", "Bold", false)) {
     MainGrid->Font->Style = MainGrid->Font->Style << fsBold;
   }
@@ -468,6 +475,7 @@ void TfmMain::WriteIni(bool PosSlide)
       Ini->WriteInteger("Position","Width",Width);
       Ini->WriteInteger("Position","Height",Height);
     }
+    Ini->WriteInteger("Position", "Dpi", ScreenDpi);
     Ini->WriteString("Font","Name",MainGrid->Font->Name);
     Ini->WriteInteger("Font","Size",MainGrid->Font->Size);
     Ini->WriteInteger("Font","Bold",MainGrid->Font->Style.Contains(fsBold));
@@ -970,6 +978,7 @@ void __fastcall TfmMain::ApplicationHint(TObject *Sender)
 void __fastcall TfmMain::FormAfterMonitorDpiChanged(TObject *Sender, int OldDPI,
                                                     int NewDPI)
 {
+  ScreenDpi = NewDPI;
   MainGrid->Canvas->Font->Size = MainGrid->Font->Size;
   MainGrid->Invalidate();
 }

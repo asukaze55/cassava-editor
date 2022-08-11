@@ -82,6 +82,10 @@ class StringTest {
     assert.that("hey Jude".search(/[A-Z]/)).isEqualTo(4);
     assert.that("hey Jude".search(/[A-Z]/i)).isEqualTo(0);
 
+    // https://www.asukaze.net/soft/cassava/bbs/index.cgi?t=687
+    [1,1] = "test1234567890@test1234567890.co.jp";
+    assert.that([1,1].search("^[a-zA-Z0-9_.+-]+@([a-zA-Z0-9_+-]*\.)+[a-zA-Z]{2,}$")).isEqualTo(0);
+
     assert.that(question.startsWith("To be")).isTrue();
     assert.that(question.startsWith("not to be")).isFalse();
     assert.that(question.startsWith("not to be", 10)).isTrue();
