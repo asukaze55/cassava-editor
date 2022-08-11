@@ -455,6 +455,8 @@ public:     // ƒ†[ƒU[éŒ¾
   String PrintFooter;
   int PrintFooterPosition;
 
+  int ScreenDpi;
+
   TStringList *SystemMacroCache;
   String FormatCmsFile;
   String StatusbarCmsFile;
