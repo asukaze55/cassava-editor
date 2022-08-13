@@ -2288,7 +2288,7 @@ void TfmMain::SearchMacro(TMenuItem *Parent)
     if (FindFirst(path, faAnyFile, sr) == 0) {
       do {
         if (sr.Name.Length() > 0 && sr.Name[1] != '!') {
-          String macroName = parentPath + sr.Name;
+          String macroName = parentPath + ChangeFileExt(sr.Name, "");
           String id = MakeId("macro", macroName, i);
           TMenuItem *newItem = oldItems[id];
           if(newItem){
@@ -2351,14 +2351,14 @@ void __fastcall TfmMain::mnMacroExecuteClick(TObject *Sender)
 void __fastcall TfmMain::mnMacroUserExecClick(TObject *Sender)
 {
   TMenuItem *Menu = static_cast<TMenuItem *>(Sender);
-  String CmsFile = Pref->UserPath + "Macro\\" + Menu->Hint;
+  String CmsFile = Pref->UserPath + "Macro\\" + Menu->Hint + ".cms";
   MacroExec(CmsFile, nullptr);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnMacroExecClick(TObject *Sender)
 {
   TMenuItem *Menu = static_cast<TMenuItem *>(Sender);
-  String CmsFile = Pref->SharedPath + "Macro\\" + Menu->Hint;
+  String CmsFile = Pref->SharedPath + "Macro\\" + Menu->Hint + ".cms";
   MacroExec(CmsFile, nullptr);
 }
 //---------------------------------------------------------------------------
