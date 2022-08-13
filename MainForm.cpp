@@ -2030,14 +2030,14 @@ void __fastcall TfmMain::StatusBarContextPopup(TObject *Sender,
     panelIndex++;
   }
   if (panelIndex >= StatusBar->Panels->Count ||
-      StatusBarPopUpLabels.count(panelIndex) == 0) {
+      StatusBarPopUp.count(panelIndex) == 0) {
     PopMenuStatusBar->AutoPopup = false;
     return;
   }
 
   PopMenuStatusBar->Items->Clear();
   TStringList *items = new TStringList;
-  items->Text = StatusBarPopUpLabels[panelIndex];
+  items->Text = StatusBarPopUp[panelIndex].Label;
   for (int i = 0; i < items->Count; i++) {
     TMenuItem *newItem = new TMenuItem(PopMenuStatusBar);
     newItem->Caption = items->Strings[i];
@@ -2053,15 +2053,15 @@ void __fastcall TfmMain::StatusBarPopUpClick(TObject *Sender)
 {
   int tag = static_cast<TMenuItem*>(Sender)->Tag;
   int panelIndex = tag >> 16;
-  if (StatusBarPopUpHandlers.count(panelIndex) == 0) {
+  if (StatusBarPopUp.count(panelIndex) == 0) {
     return;
   }
   TStringList *arguments = new TStringList;
-  arguments->Text = StatusBarPopUpLabels[panelIndex];
+  arguments->Text = StatusBarPopUp[panelIndex].Label;
   String label = arguments->Strings[tag & 0xffff];
   arguments->Clear();
   arguments->Add(label);
-  ExecMacro(StatusBarPopUpHandlers[panelIndex], StopMacroCount,
+  ExecMacro(StatusBarPopUp[panelIndex].Handler, StopMacroCount,
             SystemMacroCache, -1, -1, nullptr, false, arguments);
   delete arguments;
   UpdateStatusbar();
@@ -2411,8 +2411,7 @@ void TfmMain::MacroExec(String CmsFile, EncodedWriter *io)
 void TfmMain::UpdateStatusbar()
 {
   if (mnShowStatusbar->Checked && StatusbarCmsFile != "") {
-    StatusBarPopUpLabels.clear();
-    StatusBarPopUpHandlers.clear();
+    StatusBarPopUp.clear();
     try {
       ExecMacro(StatusbarCmsFile, StopMacroCount, SystemMacroCache, -1, -1,
                 nullptr, true);

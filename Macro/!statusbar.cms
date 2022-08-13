@@ -4,13 +4,11 @@
 
 SetStatusBarWidth(1, 80);
 SetStatusBarText(1, GetActiveDataType());
-SetStatusBarPopUp(1, GetDataTypes());
-SetStatusBarPopUpClick(1, type => SetActiveDataType(type));
+SetStatusBarPopUp(1, GetDataTypes(), type => SetActiveDataType(type));
 
 SetStatusBarWidth(2, 80);
 SetStatusBarText(2, GetCharCode());
-SetStatusBarPopUp(2, "UTF-8\nShift-JIS");
-SetStatusBarPopUpClick(2, code => SetCharCode(code));
+SetStatusBarPopUp(2, "UTF-8\nShift-JIS", code => SetCharCode(code));
 
 SetStatusBarText(3, "[" + x + "," + y + "]");
 

@@ -1090,15 +1090,13 @@ void TMacro::ExecFnc(String s)
       if(val >= 0 && val < fmMain->StatusBar->Panels->Count){
         fmMain->StatusBar->Panels->Items[val]->Width = VAL1;
       }
-    } else if (s == "SetStatusBarPopUp" && H == 2) {
-      fmMain->StatusBarPopUpLabels[VAL0] = STR1;
-    } else if (s == "SetStatusBarPopUpClick" && H == 2) {
-      const Element &value1 = ope[1].Value();
-      if (value1.Type == etObject) {
+    } else if (s == "SetStatusBarPopUp" && H == 3) {
+      const Element &value2 = ope[2].Value();
+      if (value2.Type == etObject) {
         throw MacroException(
-            s + " の第 2 引数にはキャプチャを使用しないラムダ式が必要です。");
+            s + " の第 3 引数にはキャプチャを使用しないラムダ式が必要です。");
       }
-      fmMain->StatusBarPopUpHandlers[VAL0] = value1.Str();
+      fmMain->StatusBarPopUp[VAL0] = {STR1, value2.Str()};
     }else if(s == "LoadIniSetting" && H == 0){
       fmMain->ReadIni();
     }else if(s == "SaveIniSetting" && H == 0){

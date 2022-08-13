@@ -464,8 +464,12 @@ public:     // ƒ†[ƒU[éŒ¾
   String FormatCmsFile;
   String StatusbarCmsFile;
   void UpdateStatusbar();
-  std::map<int, String> StatusBarPopUpLabels;
-  std::map<int, String> StatusBarPopUpHandlers;
+
+  struct TStatusBarPopUp {
+    String Label;
+    String Handler;
+  };
+  std::map<int, TStatusBarPopUp> StatusBarPopUp;
 };
 //---------------------------------------------------------------------------
 extern TfmMain *fmMain;
