@@ -17,16 +17,24 @@ __fastcall TfmKey::TfmKey(TComponent* Owner)
 //---------------------------------------------------------------------------
 void TfmKey::AddMenu(TTreeNode* Node, TMenuItem* MenuItem)
 {
-   if(MenuItem->Caption == "-") return;
+  if (MenuItem->Caption == "-") {
+    return;
+  }
 
-   TTreeNode* New =
-     tvMenu->Items->AddChild(Node, MenuItem->Caption);
-   New->Data = new TMenuShortCut(MenuItem);
+  if (MenuItem->Count > 0 && MenuItem->Parent == fmMain->mnMacro) {
+    // Do not add directories under the macro menu.
+    // These will not be loaded in the start up time.
+    return;
+  }
 
-   if(MenuItem->Count > 0){
-     for(int i=0; i<MenuItem->Count; i++)
-       AddMenu(New, MenuItem->Items[i]);
-   }
+  TTreeNode* New = tvMenu->Items->AddChild(Node, MenuItem->Caption);
+  New->Data = new TMenuShortCut(MenuItem);
+
+  if (MenuItem->Count > 0) {
+    for (int i = 0; i < MenuItem->Count; i++) {
+      AddMenu(New, MenuItem->Items[i]);
+    }
+  }
 }
 //---------------------------------------------------------------------------
 void TfmKey::MakeTree()
