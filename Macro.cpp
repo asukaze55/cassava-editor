@@ -1091,17 +1091,7 @@ void TMacro::ExecFnc(String s)
         fmMain->StatusBar->Panels->Items[val]->Width = VAL1;
       }
     } else if (s == "SetStatusBarPopUp" && H == 2) {
-      const Element &value1 = ope[1].Value();
-      if (value1.Type != etObject) {
-        throw MacroException(s + " の第 2 引数にはオブジェクトが必要です。");
-      }
-      int length = value1.GetMember("length").Val();
-      TStringList *list = new TStringList;
-      for (int i = 0; i< length; i++) {
-        list->Add(value1.GetMember((String) i).Str());
-      }
-      fmMain->StatusBarPopUpLabels[VAL0] = list->Text;
-      delete list;
+      fmMain->StatusBarPopUpLabels[VAL0] = STR1;
     } else if (s == "SetStatusBarPopUpClick" && H == 2) {
       const Element &value1 = ope[1].Value();
       if (value1.Type == etObject) {
@@ -1162,14 +1152,14 @@ void TMacro::ExecFnc(String s)
       }
     } else if (s == "GetDataTypes" && H == 0) {
       TTypeList &typeList = fmMain->MainGrid->TypeList;
-      std::vector<TEnvironment*> *objects = env.GetObjects();
-      Element obj = Element(objects->size(), "", etObject, env.GetGlobal());
-      objects->push_back(env.NewObject());
-      obj.GetMember("length").Sbst(Element(typeList.Count));
+      String dataTypes = "";
       for (int i = 0; i < typeList.Count; i++) {
-        obj.GetMember((String) i).Sbst(Element(typeList.Items(i)->Name));
+        if (i > 0) {
+          dataTypes += "\n";
+        }
+        dataTypes += typeList.Items(i)->Name;
       }
-      Stack.push_back(obj);
+      Stack.push_back(dataTypes);
     } else if (s == "GetActiveDataType" && H == 0) {
       Stack.push_back(Element(fmMain->MainGrid->TypeOption->Name));
     } else if (s == "SetActiveDataType" && H == 1) {
