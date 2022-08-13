@@ -102,10 +102,15 @@ LoadIniSetting();,前回保存した設定ファイルを読み込み、Cassava 
 "GetIniSetting(sec, key);",保存されている設定ファイルを読み込み、sec セクションの key キーの値を取得します。 この値は設定ファイルに保存された値であり、最新の Cassava の状態とは異なる場合があります。,1.6.0
 "SetIniSetting(sec, key, val);",保存されている設定ファイルを更新し、sec セクションの key キーの値を val にします。 この変更は LoadIniSetting() 実行まで反映されません。,1.6.0
 GetSettingPath(),設定ファイルの保存先フォルダの絶対パスを返します。,2.3.0
-GetFontName(),現在設定されているフォント名を取得します。,1.6.0
+GetFontName(),現在設定されているフォント名を返します。,1.6.0
 SetFontName(str);,フォントを str に変更します。,2.0.4
-GetFontSize(),現在設定されているフォントサイズを取得します。,1.6.0
+GetFontSize(),現在設定されているフォントサイズを返します。,1.6.0
 SetFontSize(x);,フォントサイズを x に変更します。,2.0.4
+GetCharCode(),保存時文字コードに設定されている文字コード名を返します。,2.5.0
+SetCharCode(str);,保存時文字コードを str に変更します。,2.5.0
+GetDataTypes(),登録されているデータ形式名の一覧を改行区切りの文字列で返します。,2.5.0
+GetActiveDataType(),現在使用中のデータ形式名を返します。,2.5.0
+SetActiveDataType(str);,使用するデータ形式を str に変更します。,2.5.0
 ShellOpen(filename);,指定されたファイルを関連付けられたアプリケーションで開きます。,1.7.0
 "ShellOpen(appname, filename);",filename をパラメータとして appname で指定したアプリケーションを実行します。,1.7.0
 Open(filename);,filename を Cassava で読み込みます。,1.8.1
@@ -188,7 +193,7 @@ InsCol();,列挿入,-
 CutRow();,行削除,-
 CutCol();,列削除,-
 Enter();,行分割,-
-NewLine();,セル内改行,
+NewLine();,セル内改行,-
 ConnectCell();,左のセルと結合,-
 InsertCellRight();,右にセルを挿入,-
 InsertCellDown();,下にセルを挿入,-
@@ -197,7 +202,7 @@ DeleteCellUp();,上につめる,-
 QuickFind();,簡易検索,1.6.0
 Find();,検索・置換,-
 FindNext();,次を検索,-
-FindBack();,前を検索,
+FindBack();,前を検索,-
 Refresh();,列幅を調整して再描画,-
 Font();,フォント,-
 StayOnTop();,常に最前面に表示の切り替え,-
@@ -221,6 +226,7 @@ About();,Cassava のバージョン情報を表示,-
 SetStatusBarCount(x);,ステータスバー内の表示領域の個数を設定します。,1.6.0
 "SetStatusBarText(x, str);",x 番目の領域に str を表示します。,1.6.0
 "SetStatusBarWidth(x, w);",x 番目の領域の幅を w に設定します。デフォルト値は 50 です。,1.6.0
+"SetStatusBarPopUp(x, str, lambda);",x 番目の領域を右クリックした時に表示されるポップアップメニューを設定します。第二引数には表示されるメニュー項目を改行区切りの文字列で指定します。第三引数にはメニュー項目がクリックされた時の処理をラムダ式で記述します。このラムダ式にはクリックされた項目が文字列で渡されます。ラムダ式の外で定義された変数は参照できません。,2.5.0
 GetStatusBarCount(),ステータスバー内の表示領域の個数を取得します。,1.6.0
 GetStatusBarText(x),x 番目の領域に表示された文字列を取得します。,1.6.0
 GetStatusBarWidth(x),x 番目の領域の幅を取得します。,1.6.0

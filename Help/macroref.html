@@ -617,7 +617,7 @@
 </tr>
 <tr>
   <td>GetFontName()</td>
-  <td>現在設定されているフォント名を取得します。</td>
+  <td>現在設定されているフォント名を返します。</td>
   <td>1.6.0</td>
 </tr>
 <tr>
@@ -627,13 +627,38 @@
 </tr>
 <tr>
   <td>GetFontSize()</td>
-  <td>現在設定されているフォントサイズを取得します。</td>
+  <td>現在設定されているフォントサイズを返します。</td>
   <td>1.6.0</td>
 </tr>
 <tr>
   <td>SetFontSize(x);</td>
   <td>フォントサイズを x に変更します。</td>
   <td>2.0.4</td>
+</tr>
+<tr>
+  <td>GetCharCode()</td>
+  <td>保存時文字コードに設定されている文字コード名を返します。</td>
+  <td>2.5.0</td>
+</tr>
+<tr>
+  <td>SetCharCode(str);</td>
+  <td>保存時文字コードを str に変更します。</td>
+  <td>2.5.0</td>
+</tr>
+<tr>
+  <td>GetDataTypes()</td>
+  <td>登録されているデータ形式名の一覧を改行区切りの文字列で返します。</td>
+  <td>2.5.0</td>
+</tr>
+<tr>
+  <td>GetActiveDataType()</td>
+  <td>現在使用中のデータ形式名を返します。</td>
+  <td>2.5.0</td>
+</tr>
+<tr>
+  <td>SetActiveDataType(str);</td>
+  <td>使用するデータ形式を str に変更します。</td>
+  <td>2.5.0</td>
 </tr>
 <tr>
   <td>ShellOpen(filename);</td>
@@ -1048,7 +1073,7 @@
 <tr>
   <td>NewLine();</td>
   <td>セル内改行</td>
-  <td><br></td>
+  <td>-</td>
 </tr>
 <tr>
   <td>ConnectCell();</td>
@@ -1093,7 +1118,7 @@
 <tr>
   <td>FindBack();</td>
   <td>前を検索</td>
-  <td><br></td>
+  <td>-</td>
 </tr>
 <tr>
   <td>Refresh();</td>
@@ -1211,6 +1236,11 @@
   <td>1.6.0</td>
 </tr>
 <tr>
+  <td>SetStatusBarPopUp(x, str, lambda);</td>
+  <td>x 番目の領域を右クリックした時に表示されるポップアップメニューを設定します。第二引数には表示されるメニュー項目を改行区切りの文字列で指定します。第三引数にはメニュー項目がクリックされた時の処理をラムダ式で記述します。このラムダ式にはクリックされた項目が文字列で渡されます。ラムダ式の外で定義された変数は参照できません。</td>
+  <td>2.5.0</td>
+</tr>
+<tr>
   <td>GetStatusBarCount()</td>
   <td>ステータスバー内の表示領域の個数を取得します。</td>
   <td>1.6.0</td>
@@ -1292,7 +1322,7 @@
   2003.11.29.<br />
 </address>
 <address>
-  Copyright (C) 2007-2021 asukaze, Some Rights Reserved.<br />
+  Copyright (C) 2007-2022 asukaze, Some Rights Reserved.<br />
   mail (at) asukaze.net<br />
 </address>
 <!-- ==== -->
