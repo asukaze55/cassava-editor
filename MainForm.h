@@ -368,7 +368,7 @@ private:    // ƒ†[ƒU[éŒ¾
   void AddCheckedMenus(TStringList *list, TMenuItem* item);
   void RestoreCheckedMenus(TStringList *list);
   void RestoreCheckedMenus(TStringList *list, TMenuItem* item);
-  void SearchMacro();
+  void SearchMacro(TMenuItem *Parent);
   String GetUiFileName();
   void UpdateTitle();
   String FStyle;

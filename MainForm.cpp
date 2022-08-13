@@ -237,7 +237,7 @@ void TfmMain::ReadIni()
   }
 
   Show();
-  SearchMacro();
+  SearchMacro(mnMacro);
 
   WindowState =
       (TWindowState) Ini->ReadInteger("Position", "Mode", (int) wsNormal);
@@ -2228,46 +2228,87 @@ void __fastcall TfmMain::mnAppliClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnMacroClick(TObject *Sender)
 {
-  SearchMacro();
+  SearchMacro(static_cast<TMenuItem *>(Sender));
 }
 //---------------------------------------------------------------------------
-void TfmMain::SearchMacro()
+void TfmMain::SearchMacro(TMenuItem *Parent)
 {
   std::map<String, TMenuItem *> oldItems;
-  for(int i=mnMacro->Count - 1; i>=5; i--){
-    TMenuItem *oldItem = mnMacro->Items[i];
-    mnMacro->Delete(i);
+  std::map<String, TMenuItem *> addedDirs;
+  int itemsToKeep = Parent == mnMacro ? 5 : 1;
+  for (int i = Parent->Count - 1; i >= itemsToKeep; i--){
+    TMenuItem *oldItem = Parent->Items[i];
+    Parent->Delete(i);
     oldItems[oldItem->Name] = oldItem;
   }
 
-  for(int i=1; i>=0; i--){
-    String path = (i ? Pref->UserPath+"Macro\\*.cms"
-                     : Pref->SharedPath+"Macro\\*.cms");
+  String parentPath = Parent->Hint;
+  for (int i = 1; i >= 0; i--) {
+    String path = (i ? Pref->UserPath + "Macro\\" + parentPath + "*"
+                     : Pref->SharedPath + "Macro\\" + parentPath + "*");
+    TSearchRec sr;
+    if (FindFirst(path, faDirectory, sr) == 0) {
+      do {
+        if ((sr.Attr & faDirectory) && sr.Name != "lib" && sr.Name != "tests" &&
+            sr.Name.Length() > 0 && sr.Name[1] != '.') {
+          String dirName = parentPath + sr.Name;
+          String id = MakeId("macro", dirName, 2);
+          if (addedDirs[id]) {
+            continue;
+          }
+          TMenuItem *newItem = oldItems[id];
+          if (newItem) {
+            oldItems.erase(id);
+          } else {
+            newItem = new TMenuItem(Parent->Owner);
+            newItem->Hint = dirName + "\\";
+            newItem->Caption = sr.Name;
+            newItem->Name = id;
+            newItem->OnClick = mnMacroClick;
+            TMenuItem *dummyChild = new TMenuItem(Parent->Owner);
+            dummyChild->Caption = "(empty)";
+            dummyChild->Enabled = false;
+            newItem->Add(dummyChild);
+          }
+          Parent->Add(newItem);
+          newItem->Break = (newItem->MenuIndex % 25 == 0) ? mbBarBreak : mbNone;
+          addedDirs[id] = newItem;
+        }
+      } while (FindNext(sr) == 0);
+      FindClose(sr);
+    }
+  }
+
+  for (int i = 1; i >= 0; i--) {
+    String path = (i ? Pref->UserPath + "Macro\\" + parentPath + "*.cms"
+                     : Pref->SharedPath + "Macro\\" + parentPath + "*.cms");
     TNotifyEvent onClick = (i ? &mnMacroUserExecClick : &mnMacroExecClick);
 
     TSearchRec sr;
-    if(FindFirst(path, faAnyFile, sr) == 0){
-      do{
-        if(sr.Name.Length() > 0 && sr.Name[1] != '!'){
-          String macroname = ChangeFileExt(sr.Name,"");
-          String id = MakeId("macro", macroname, i);
+    if (FindFirst(path, faAnyFile, sr) == 0) {
+      do {
+        if (sr.Name.Length() > 0 && sr.Name[1] != '!') {
+          String macroName = parentPath + sr.Name;
+          String id = MakeId("macro", macroName, i);
           TMenuItem *newItem = oldItems[id];
           if(newItem){
             oldItems.erase(id);
           }else{
-            newItem = new TMenuItem(mnMacro->Owner);
-            newItem->Hint = macroname;
-            newItem->Caption = macroname;
+            newItem = new TMenuItem(Parent->Owner);
+            newItem->Hint = macroName;
+            newItem->Caption = ChangeFileExt(sr.Name, "");
             newItem->Name = id;
             newItem->OnClick = onClick;
           }
-          mnMacro->Add(newItem);
+          Parent->Add(newItem);
           newItem->Break = (newItem->MenuIndex % 25 == 0) ? mbBarBreak : mbNone;
         }
       } while (FindNext(sr) == 0);
       FindClose(sr);
     }
   }
+
+  Parent->Items[0]->Visible = Parent == mnMacro || Parent->Count == 1;
 
   for(std::map<String, TMenuItem *>::iterator it = oldItems.begin();
       it != oldItems.end(); ++it){
@@ -2310,14 +2351,14 @@ void __fastcall TfmMain::mnMacroExecuteClick(TObject *Sender)
 void __fastcall TfmMain::mnMacroUserExecClick(TObject *Sender)
 {
   TMenuItem *Menu = static_cast<TMenuItem *>(Sender);
-  String CmsFile = Pref->UserPath + "Macro\\" + Menu->Hint + ".cms";
+  String CmsFile = Pref->UserPath + "Macro\\" + Menu->Hint;
   MacroExec(CmsFile, nullptr);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnMacroExecClick(TObject *Sender)
 {
   TMenuItem *Menu = static_cast<TMenuItem *>(Sender);
-  String CmsFile = Pref->SharedPath + "Macro\\" + Menu->Hint + ".cms";
+  String CmsFile = Pref->SharedPath + "Macro\\" + Menu->Hint;
   MacroExec(CmsFile, nullptr);
 }
 //---------------------------------------------------------------------------
