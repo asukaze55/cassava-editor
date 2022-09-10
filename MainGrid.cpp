@@ -1445,75 +1445,78 @@ void TMainGrid::PasteFromClipboard(int Way)
   clip->Close();
   delete clip;
 
-  TStringList *Data = new TStringList;
-  QuotedDataToStrings(Data, clipboardText, TypeOption);
-  if(! EditorMode || Data->Count > 1)
-  {
-    int STop = SelTop;
-    int SLeft = SelLeft;
-    int SBottom = Selection.Bottom;
-    int SRight = Selection.Right;
-    int SelectRowCount = SBottom - STop + 1;
-    int SelectColCount = SRight - SLeft + 1;
-
-    int ClipRowCount = Data->Count;
-    int ClipColCount = 0;
-    TStringList *ARow = new TStringList;
-    for(int i=0; i < ClipRowCount; i++)
-    {
-      SetCsv(ARow, Data->Strings[i]);
-      ClipColCount = max(ARow->Count,ClipColCount);
-    }
-    delete ARow;
-
-    if (Way < 0 && PasteOption >= 0) {
-      Way = PasteOption;
-    } else if (Way < 0) {
-      if (ClipRowCount != SelectRowCount || ClipColCount != SelectColCount) {
-        TfmPasteDialog *PstDlg = new TfmPasteDialog(Application);
-        PstDlg->Way->ItemIndex = DefWay;
-        PstDlg->lbMessage->Caption =
-            (String)"選択サイズ： " + SelectColCount + " × " + SelectRowCount +
-            "　クリップボードサイズ： " + ClipColCount + " × " + ClipRowCount;
-        if (PstDlg->ShowModal() != IDOK) {
-          delete Data;
-          return;
-        }
-        Way = DefWay = PstDlg->Way->ItemIndex;
-        delete PstDlg;
-      } else {
-        Way = PASTE_OPTION_OVERWRITE;
-      }
-    }
-
-    UndoList->Push();
-    if (Way == PASTE_OPTION_INSERT_ROW) {
-      InsertRow(STop, STop + ClipRowCount - 1);
-      Way = PASTE_OPTION_OVERWRITE;
-    } else if (Way == PASTE_OPTION_INSERT_COL) {
-      InsertColumn(SLeft, SLeft + ClipColCount - 1);
-      Way = PASTE_OPTION_OVERWRITE;
-    }
-    UndoList->Push();
-    PasteCSV(Data, SLeft, STop, Way, ClipColCount, ClipRowCount);
-    UndoList->PopWithRecordedMacro((String)"Select(" + RXtoAX(SLeft) + ", " +
-        RYtoAY(STop) + ", " + RXtoAX(SRight) + ", " + RYtoAY(SBottom) +
-        ");\nPaste(" + Way + ");");
-    UndoList->Pop();
-
-    if(Way <= 1){
-      SetSelection(SLeft, SLeft + SelectColCount - 1,
-                   STop , STop  + SelectRowCount - 1);
-    }else if(Way <= 4){
-      SetSelection(SLeft, SLeft + ClipColCount - 1,
-                   STop , STop  + ClipRowCount - 1);
-    }
-  }
-  else //if (EditorMode == true)
-  {
+  if (EditorMode && (InplaceEditor->SelStart > 0 ||
+                     InplaceEditor->SelLength < InplaceEditor->Text.Length())) {
     InplaceEditor->PasteFromClipboard();
     InplaceEditor->Text = TrimRight(InplaceEditor->Text);
+    Modified = true;
+    Invalidate();
+    return;
   }
+
+  int STop = SelTop;
+  int SLeft = SelLeft;
+  int SBottom = Selection.Bottom;
+  int SRight = Selection.Right;
+  int SelectRowCount = SBottom - STop + 1;
+  int SelectColCount = SRight - SLeft + 1;
+
+  TStringList *Data = new TStringList;
+  QuotedDataToStrings(Data, clipboardText, TypeOption);
+  int ClipRowCount = Data->Count;
+  int ClipColCount = 0;
+  TStringList *ARow = new TStringList;
+  for (int i = 0; i < ClipRowCount; i++) {
+    SetCsv(ARow, Data->Strings[i]);
+    ClipColCount = max(ARow->Count, ClipColCount);
+  }
+  delete ARow;
+
+  if (Way < 0) {
+    if (PasteOption >= 0) {
+      Way = PasteOption;
+    } else if (ClipRowCount == SelectRowCount &&
+               ClipColCount == SelectColCount) {
+      Way = PASTE_OPTION_OVERWRITE;
+    } else {
+      TfmPasteDialog *PstDlg = new TfmPasteDialog(Application);
+      PstDlg->Way->ItemIndex = DefWay;
+      PstDlg->lbMessage->Caption =
+          (String)"選択サイズ： " + SelectColCount + " × " + SelectRowCount +
+          "　クリップボードサイズ： " + ClipColCount + " × " + ClipRowCount;
+      if (PstDlg->ShowModal() != IDOK) {
+        delete PstDlg;
+        delete Data;
+        return;
+      }
+      Way = DefWay = PstDlg->Way->ItemIndex;
+      delete PstDlg;
+    }
+  }
+
+  UndoList->Push();
+  if (Way == PASTE_OPTION_INSERT_ROW) {
+    InsertRow(STop, STop + ClipRowCount - 1);
+    Way = PASTE_OPTION_OVERWRITE;
+  } else if (Way == PASTE_OPTION_INSERT_COL) {
+    InsertColumn(SLeft, SLeft + ClipColCount - 1);
+    Way = PASTE_OPTION_OVERWRITE;
+  }
+  UndoList->Push();
+  PasteCSV(Data, SLeft, STop, Way, ClipColCount, ClipRowCount);
+  UndoList->PopWithRecordedMacro((String)"Select(" + RXtoAX(SLeft) + ", " +
+      RYtoAY(STop) + ", " + RXtoAX(SRight) + ", " + RYtoAY(SBottom) +
+      ");\nPaste(" + Way + ");");
+  UndoList->Pop();
+
+  if (Way <= 1) {
+    SetSelection(SLeft, SLeft + SelectColCount - 1,
+                 STop, STop + SelectRowCount - 1);
+  } else if (Way <= 4) {
+    SetSelection(SLeft, SLeft + ClipColCount - 1,
+                 STop, STop + ClipRowCount - 1);
+  }
+
   delete Data;
   Modified = true;
   Invalidate();
