@@ -185,6 +185,7 @@ public:
     void CutToClipboard();
 #define PASTE_OPTION_UNKNOWN -1
 #define PASTE_OPTION_OVERWRITE 2
+#define PASTE_OPTION_EDITOR 5
 #define PASTE_OPTION_INSERT_ROW 11
 #define PASTE_OPTION_INSERT_COL 12
     void PasteFromClipboard(int Way);

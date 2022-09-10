@@ -1477,7 +1477,7 @@ void TMainGrid::PasteFromClipboard(int Way)
       Way = PasteOption;
     } else if (ClipRowCount == SelectRowCount &&
                ClipColCount == SelectColCount) {
-      Way = PASTE_OPTION_OVERWRITE;
+      Way = EditorMode ? PASTE_OPTION_EDITOR : PASTE_OPTION_OVERWRITE;
     } else {
       TfmPasteDialog *PstDlg = new TfmPasteDialog(Application);
       PstDlg->Way->ItemIndex = DefWay;
