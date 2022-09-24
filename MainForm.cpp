@@ -236,6 +236,14 @@ void TfmMain::ReadIni()
     }
   }
 
+  if (Ini->ReadBool("Mode", "ShowToolbar", true) != mnShowToolbar->Checked) {
+    mnShowToolbarClick(this);
+  }
+  if (Ini->ReadBool("Mode", "ShowStatusbar", true)
+      != mnShowStatusbar->Checked) {
+    mnShowStatusbarClick(this);
+  }
+
   Show();
   SearchMacro(mnMacro);
 
@@ -371,10 +379,6 @@ void TfmMain::ReadIni()
     MainGrid->Col = FixedCols + 1;
     mnFixUpLeftClick(this);
 
-    bool STB = Ini->ReadBool("Mode","ShowToolbar",true);
-      if(STB != mnShowToolbar->Checked) mnShowToolbarClick(this);
-    bool SSB = Ini->ReadBool("Mode","ShowStatusbar",true);
-      if(SSB != mnShowStatusbar->Checked) mnShowStatusbarClick(this);
     MainGrid->ShowToolTipForLongCell
       = Ini->ReadBool("Mode", "ShowToolTipForLongCell", false);
     Application->HintPause
