@@ -61,9 +61,9 @@
     <PropertyGroup Condition="'$(Base)'!=''">
         <VerInfo_MinorVer>4</VerInfo_MinorVer>
         <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
-        <VerInfo_Keys>CompanyName=;FileVersion=2.4.4.882;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=2.4.4.882;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileVersion=2.4.5.886;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=2.4.5.886;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
         <VerInfo_Locale>1041</VerInfo_Locale>
-        <VerInfo_Build>882</VerInfo_Build>
+        <VerInfo_Build>886</VerInfo_Build>
         <SanitizedProjectName>Cassava</SanitizedProjectName>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <IncludePath>$(BDSINCLUDE)\windows;$(BDS)\include\boost_1_70;$(IncludePath)</IncludePath>
@@ -93,15 +93,15 @@
         <BCC_UseClassicCompiler>false</BCC_UseClassicCompiler>
         <Icon_MainIcon>Cassava.ico</Icon_MainIcon>
         <Custom_Styles>&quot;Windows10 Dark|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows10Dark.vsf&quot;</Custom_Styles>
-        <VerInfo_Release>4</VerInfo_Release>
+        <VerInfo_Release>5</VerInfo_Release>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <OutputExt>exe</OutputExt>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
-        <VerInfo_Build>881</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=;FileVersion=2.4.4.881;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=2.4.4.881;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
+        <VerInfo_Build>885</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileVersion=2.4.5.885;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=2.4.5.885;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
