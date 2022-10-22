@@ -1115,6 +1115,33 @@ void __fastcall TMainGrid::FileOpenThreadTerminate(System::TObject* Sender)
   }
 }
 //---------------------------------------------------------------------------
+static String GetClipboardText()
+{
+  TClipboard *clip = new TClipboard;
+  if (!clip->HasFormat(CF_TEXT)) {
+    clip->Close();
+    delete clip;
+    return "";
+  }
+  String clipboardText;
+  for (int i = 0;; i++) {
+    try {
+      clipboardText = clip->AsText;
+      break;
+    } catch (...) {
+      if (i >= 10) {
+        clip->Close();
+        delete clip;
+        throw;
+      }
+      Sleep(200);
+    }
+  }
+  clip->Close();
+  delete clip;
+  return clipboardText;
+}
+//---------------------------------------------------------------------------
 void TMainGrid::PasteCSV(TStrings *List, int Left, int Top, int Way,
                          int ClipCols, int ClipRows)
 {
@@ -1127,7 +1154,7 @@ void TMainGrid::PasteCSV(TStrings *List, int Left, int Top, int Way,
   //  5: テキストとしてセル内に
   if (Way == 5) {
     ShowEditor();
-    InplaceEditor->PasteFromClipboard();
+    InplaceEditor->SelText = GetClipboardText();
     InplaceEditor->Text = TrimRight(InplaceEditor->Text);
     return;
   }
@@ -1422,32 +1449,10 @@ void TMainGrid::CutToClipboard()
 //---------------------------------------------------------------------------
 void TMainGrid::PasteFromClipboard(int Way)
 {
-  TClipboard *clip = new TClipboard;
-  if (!clip->HasFormat(CF_TEXT)) {
-    clip->Close();
-    delete clip;
-    return;
-  }
-  String clipboardText;
-  for (int i = 0;; i++) {
-    try {
-      clipboardText = clip->AsText;
-      break;
-    } catch (...) {
-      if (i >= 10) {
-        clip->Close();
-        delete clip;
-        throw;
-      }
-      Sleep(200);
-    }
-  }
-  clip->Close();
-  delete clip;
-
+  String clipboardText = GetClipboardText();
   if (EditorMode && (InplaceEditor->SelStart > 0 ||
                      InplaceEditor->SelLength < InplaceEditor->Text.Length())) {
-    InplaceEditor->PasteFromClipboard();
+    InplaceEditor->SelText = GetClipboardText();
     InplaceEditor->Text = TrimRight(InplaceEditor->Text);
     Modified = true;
     Invalidate();
@@ -3609,6 +3614,14 @@ public:
     R.bottom = Height;
     SendMessage(Handle, EM_SETRECT, 0, (long)(&R));
   }
+
+  void __fastcall WmPaste(TWMPaste inMsg) {
+    static_cast<TMainGrid*>(Owner)->PasteFromClipboard(PASTE_OPTION_UNKNOWN);
+  }
+
+  BEGIN_MESSAGE_MAP
+    MESSAGE_HANDLER(WM_PASTE, TWMPaste, WmPaste)
+  END_MESSAGE_MAP(TInplaceEdit)
 };
 //---------------------------------------------------------------------------
 TInplaceEdit* __fastcall TMainGrid::CreateEditor()
