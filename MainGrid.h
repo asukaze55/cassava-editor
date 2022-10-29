@@ -5,6 +5,7 @@
 #include <Vcl.Controls.hpp>
 #include <Vcl.Forms.hpp>
 #include <Vcl.Grids.hpp>
+#include <map>
 #include "EncodedWriter.h"
 #include "TypeList.h"
 #include "Undo.h"
@@ -29,6 +30,28 @@ enum TDragBehavior {
   dbMove = 0,
   dbSelect = 1,
   dbMoveIfSelected = 2
+};
+//---------------------------------------------------------------------------
+enum TCalcType {
+  ctNotExpr, ctOk, ctError
+};
+//---------------------------------------------------------------------------
+struct TCalculatedCell {
+  String value;
+  TCalcType calcType;
+
+  TCalculatedCell() : value(""), calcType(ctNotExpr) {}
+  TCalculatedCell(String v, TCalcType c) : value(v), calcType(c) {}
+};
+//---------------------------------------------------------------------------
+struct TFormattedCell {
+  String value;
+  TCalcType calcType;
+  bool isNum;
+
+  TFormattedCell() : value(""), calcType(ctNotExpr), isNum(false) {}
+  TFormattedCell(String v, TCalcType c, bool n)
+      : value(v), calcType(c), isNum(n) {}
 };
 //---------------------------------------------------------------------------
 class TMainGrid : public TStringGrid
@@ -80,9 +103,9 @@ private:
     void SetShowColCounter(bool Value);
 
     bool FExecCellMacro;
-    TStringList *CalculatedCellCache;
-    TStringList *FormattedCellCache;
-    TStringList *UsingCellMacro;
+    std::map<String, TCalculatedCell> CalculatedCellCache;
+    std::map<String, String> FormattedCellCache;
+    std::map<String, String> UsingCellMacro;
     void SetExecCellMacro(bool Value);
     void ClearCalcCache();
     void ErrorCalcLoop();
@@ -270,17 +293,14 @@ public:
     String TransKana(String Str, int Type);
     void Sequence(bool Inc);
 
-#define CALC_NOTEXPR '\x01'
-#define CALC_OK '\x02'
-#define CALC_NG '\x04'
-#define CALC_LOOP '\x0c'
-    String GetCalculatedCell(int ACol, int ARow);
-    String (__closure *OnGetCalculatedCell)(String Str, int ACol, int ARow);
+    TCalculatedCell GetCalculatedCell(int ACol, int ARow);
+    TCalculatedCell (__closure *OnGetCalculatedCell)(
+        String Str, int ACol, int ARow);
 
     String GetFormattedCell(int ACol, int ARow);
     String (__closure *OnGetFormattedCell)(int ACol, int ARow);
 
-    String GetCellToDraw(int RX, int RY, int *CellType, bool *IsNum);
+    TFormattedCell GetCellToDraw(int RX, int RY);
 
     TRect DrawTextRect(TCanvas *Canvas, TRect Rect, String Str,
                        bool Wrap, bool MeasureOnly=false);

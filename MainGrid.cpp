@@ -69,9 +69,6 @@ __fastcall TMainGrid::TMainGrid(TComponent* Owner)  //デフォルトの設定
   WheelMoveCursol = 0;
   SameCellClicking = false;
   ExecCellMacro = false;
-  CalculatedCellCache = nullptr;
-  FormattedCellCache = nullptr;
-  UsingCellMacro = nullptr;
   FDataRight = 1;
   FDataBottom = 1;
   EOFMarker = new TObject();
@@ -84,9 +81,6 @@ __fastcall TMainGrid::TMainGrid(TComponent* Owner)  //デフォルトの設定
 //---------------------------------------------------------------------------
 __fastcall TMainGrid::~TMainGrid(){
   UndoList->Clear();
-  if (CalculatedCellCache) { delete CalculatedCellCache; }
-  if (FormattedCellCache) { delete FormattedCellCache; }
-  if (UsingCellMacro) { delete UsingCellMacro; }
   if (EOFMarker) { delete EOFMarker; }
   if (EOLMarker) { delete EOLMarker; }
 }
@@ -205,19 +199,17 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
   const TRect &ARect, TGridDrawState AState)
 {
   bool isSelected = GetSelected(ACol, ARow);
-  int cellType;
-  bool isNum;
-  String str = GetCellToDraw(ACol, ARow, &cellType, &isNum);
+  TFormattedCell cell = GetCellToDraw(ACol, ARow);
 
   if (isSelected) {
     Canvas->Brush->Color = clHighlight;
-  } else if (cellType == CALC_OK) {
+  } else if (cell.calcType == ctOk) {
     Canvas->Brush->Color = CalcBgColor;
-  } else if (cellType == CALC_NG) {
+  } else if (cell.calcType == ctError) {
     Canvas->Brush->Color = CalcErrorBgColor;
   } else if (ACol < FixedCols || ARow < FixedRows) {
     Canvas->Brush->Color = FixedColor;
-  } else if (FoundBgColor != Color && FindHit(str, ACol, ARow)) {
+  } else if (FoundBgColor != Color && FindHit(cell.value, ACol, ARow)) {
     Canvas->Brush->Color = FoundBgColor;
   } else if (ARow == Row && CurrentRowBgColor != Color) {
     Canvas->Brush->Color = CurrentRowBgColor;
@@ -236,8 +228,8 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
   TRect R;
   R.Left = ARect.Left + LRMargin; R.Top = ARect.Top + FTBMargin;
   R.Right = ARect.Right - LRMargin; R.Bottom = ARect.Bottom - FTBMargin;
-  if (TextAlignment == cssv_taNumRight && isNum) {
-    int L = R.Right - Canvas->TextWidth(str);
+  if (TextAlignment == cssv_taNumRight && cell.isNum) {
+    int L = R.Right - Canvas->TextWidth(cell.value);
     if(R.Left < L) R.Left = L;
   }
 
@@ -249,25 +241,25 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
              ACol == GetRowDataRight(ARow) + 1) {
     Canvas->Font->Color = clGray;
     Canvas->TextRect(R, R.Left, R.Top, L"\u21b5");
-  } else if (ShowURLBlue && isUrl(str)) {
+  } else if (ShowURLBlue && isUrl(cell.value)) {
     TFontStyles CFS = Canvas->Font->Style;
     Canvas->Font->Style = TFontStyles() << fsUnderline;
     Canvas->Font->Color = UrlColor;
-    DrawTextRect(Canvas, R, str, WordWrap);
+    DrawTextRect(Canvas, R, cell.value, WordWrap);
     Canvas->Font->Style = CFS;
   } else {
     if (isSelected) {
       Canvas->Font->Color = clHighlightText;
-    } else if (cellType == CALC_OK) {
+    } else if (cell.calcType == ctOk) {
       Canvas->Font->Color = CalcFgColor;
-    } else if (cellType == CALC_NG) {
+    } else if (cell.calcType == ctError) {
       Canvas->Font->Color = CalcErrorFgColor;
     } else if (ACol < FixedCols || ARow < FixedRows) {
       Canvas->Font->Color = FixFgColor;
     } else {
       Canvas->Font->Color = Font->Color;
     }
-    DrawTextRect(Canvas, R, str, WordWrap);
+    DrawTextRect(Canvas, R, cell.value, WordWrap);
   }
   Canvas->Font->Color = CFC;
 
@@ -291,92 +283,70 @@ void TMainGrid::SetExecCellMacro(bool Value)
 //---------------------------------------------------------------------------
 void TMainGrid::ClearCalcCache()
 {
-  if (CalculatedCellCache) {
-    delete CalculatedCellCache;
-    CalculatedCellCache = nullptr;
-  }
-  if (FormattedCellCache) {
-    delete FormattedCellCache;
-    FormattedCellCache = nullptr;
-  }
-  if (UsingCellMacro) {
-    delete UsingCellMacro;
-    UsingCellMacro = nullptr;
-  }
+  CalculatedCellCache.clear();
+  FormattedCellCache.clear();
+  UsingCellMacro.clear();
 }
 //---------------------------------------------------------------------------
 void TMainGrid::ErrorCalcLoop()
 {
-  if(!CalculatedCellCache){ CalculatedCellCache = new TStringList; }
-  for(int i=0; i<UsingCellMacro->Count; i++){
-    String cellname = UsingCellMacro->Names[i];
-    CalculatedCellCache->Values[cellname]
-      = (String)CALC_LOOP + UsingCellMacro->ValueFromIndex[i];
+  for (const auto& [key, value] : UsingCellMacro) {
+    CalculatedCellCache[key] = TCalculatedCell(value, ctError);
   }
 }
 //---------------------------------------------------------------------------
-String TMainGrid::GetCalculatedCell(int ACol, int ARow)
+TCalculatedCell TMainGrid::GetCalculatedCell(int ACol, int ARow)
 {
   int c = AXtoRX(ACol);
   int r = AYtoRY(ARow);
   if(ACol<=0 || ARow<=0 || c<0 || c>=ColCount || r<0 || r>=RowCount) {
-    return CALC_NOTEXPR;
+    return TCalculatedCell("", ctError);
   }
 
   // 計算式でないものはなにもしない
   String Str = Cells[c][r];
   if(!ExecCellMacro || Str.Length() == 0 || Str[1] != '='){
-    return (String)CALC_NOTEXPR + Str;
+    return TCalculatedCell(Str, ctNotExpr);
   }
 
   String key = (String)"[" + ACol + "," + ARow + "]";
   // 自己参照をはじく
-  if(UsingCellMacro){
-    int index = UsingCellMacro->IndexOfName(key);
-    if(index >= 0){
-      ErrorCalcLoop();
-      return (String)CALC_LOOP + Str;
-    }
+  if (UsingCellMacro.count(key) > 0){
+    ErrorCalcLoop();
+    return TCalculatedCell(Str, ctError);
   }
   // キャッシュがあれば返す
-  if(CalculatedCellCache){
-    int index = CalculatedCellCache->IndexOfName(key);
-    if(index >= 0){
-      String Result = CalculatedCellCache->Values[key];
-      // キャッシュがエラーなら自分もエラー
-      if((Result[1] & CALC_NG) > 0){
-        ErrorCalcLoop();
-        return (String)CALC_LOOP + Str;
-      }
-      return Result;
+  if (CalculatedCellCache.count(key) > 0){
+    const TCalculatedCell& cache = CalculatedCellCache[key];
+    if (cache.calcType == ctError) {
+      ErrorCalcLoop();
     }
+    return cache;
   }
 
   if(OnGetCalculatedCell){
     // 自己参照チェックのためのリストを更新
-    if(!UsingCellMacro){ UsingCellMacro = new TStringList; }
-    UsingCellMacro->Values[key] = Str;
+    UsingCellMacro[key] = Str;
 
     // OnGetCalculatedCellに委譲
-    String Result = OnGetCalculatedCell(Str, ACol, ARow);
+    TCalculatedCell result = OnGetCalculatedCell(Str, ACol, ARow);
 
     // キャッシュを更新
-    if(!CalculatedCellCache){ CalculatedCellCache = new TStringList; }
-    String oldValue = CalculatedCellCache->Values[key];
-    if(oldValue.Length() > 0 && oldValue[1] == CALC_LOOP){
+    const TCalculatedCell& cache = CalculatedCellCache[key];
+    if(CalculatedCellCache[key].calcType == ctError){
       // 自己参照エラーが起こっていれば更新しない
-      Result = oldValue;
+      result = cache;
     }else{
-      CalculatedCellCache->Values[key] = Result;
+      CalculatedCellCache[key] = result;
     }
 
     // 自己参照チェックのためのリストを元に戻す
-    UsingCellMacro->Delete(UsingCellMacro->IndexOfName(key));
+    UsingCellMacro.erase(key);
 
     // 成功
-    return Result;
+    return result;
   }else{
-    return (String)CALC_NOTEXPR + Str;
+    return TCalculatedCell(Str, ctNotExpr);
   }
 }
 //---------------------------------------------------------------------------
@@ -389,27 +359,20 @@ String TMainGrid::GetFormattedCell(int ACol, int ARow)
   }
   String key = (String)ACol + "," + ARow;
 
-  if (FormattedCellCache) {
-    int index = FormattedCellCache->IndexOfName(key);
-    if (index >= 0) {
-      return FormattedCellCache->Values[key];
-    }
+  if (FormattedCellCache.count(key) > 0) {
+    return FormattedCellCache[key];
   }
   if (!OnGetFormattedCell) {
     return "";
   }
   String result = OnGetFormattedCell(ACol, ARow);
-
-  if (!FormattedCellCache) {
-    FormattedCellCache = new TStringList;
-  }
-  FormattedCellCache->Values[key] = result;
+  FormattedCellCache[key] = result;
   return result;
 }
 //---------------------------------------------------------------------------
-String TMainGrid::GetCellToDraw(int RX, int RY, int *CellType, bool *IsNum)
+TFormattedCell TMainGrid::GetCellToDraw(int RX, int RY)
 {
-  int cellType = CALC_NOTEXPR;
+  TCalcType calcType = ctNotExpr;
   int ax = RXtoAX(RX);
   int ay = RYtoAY(RY);
   String str = Cells[RX][RY];
@@ -420,18 +383,9 @@ String TMainGrid::GetCellToDraw(int RX, int RY, int *CellType, bool *IsNum)
   }
 
   if (ExecCellMacro && str.Length() > 0 && str[1] == '=') {
-    String cstr = GetCalculatedCell(ax, ay);
-    switch(cstr[1]){
-    case CALC_OK:
-      cellType = CALC_OK;
-      break;
-    case CALC_NG:
-    case CALC_LOOP:
-      cellType = CALC_NG;
-      break;
-    }
-    if (CellType) { *CellType = cellType; }
-    str = cstr.SubString(2, cstr.Length() - 1);
+    TCalculatedCell calculatedCell = GetCalculatedCell(ax, ay);
+    str = calculatedCell.value;
+    calcType = calculatedCell.calcType;
   }
   if (OnGetFormattedCell) {
     String fstr = GetFormattedCell(ax, ay);
@@ -449,15 +403,12 @@ String TMainGrid::GetCellToDraw(int RX, int RY, int *CellType, bool *IsNum)
     str = FormatNumComma(str, NumberComma);
   }
 
-  if (CellType) { *CellType = cellType; }
-  if (IsNum) { *IsNum = isNum; }
-  return str;
+  return TFormattedCell(str, calcType, isNum);
 }
 //---------------------------------------------------------------------------
 String TMainGrid::GetACells(int ACol, int ARow)
 {
-  String Str = GetCalculatedCell(ACol, ARow);
-  Str.Delete(1,1);
+  String Str = GetCalculatedCell(ACol, ARow).value;
   int len = Str.Length();
   for(int i=len; i > 0; i--){
     if(Str[i] == '\r'){
@@ -641,7 +592,7 @@ void TMainGrid::SetWidth(int i)
     b = min(TopRow + VisibleRowCount, RowCount);
   }
   for(int j=t; j <= b; j++){
-    WMax = max(WMax, TextWidth(Canvas, GetCellToDraw(i, j, nullptr, nullptr)));
+    WMax = max(WMax, TextWidth(Canvas, GetCellToDraw(i, j).value));
   }
   if(WMax > 0){ WMax += 2 * LRMargin; }
   if(WMax < MinColWidth){ //狭すぎないように
@@ -686,7 +637,7 @@ void TMainGrid::SetHeight(int j, bool useMaxRowHeightLines)
   int right = min(LeftCol + VisibleColCount, ColCount);
   for (int i = LeftCol; i <= right; i++) {
     TRect MaxRect(0, 0, ColWidths[i] - (2 * LRMargin), maxRowHeight);
-    String str = GetCellToDraw(i, j, nullptr, nullptr);
+    String str = GetCellToDraw(i, j).value;
     TRect R = DrawTextRect(Canvas, MaxRect, str, WordWrap, true);
     HMax = max(HMax, R.Bottom);
   }
@@ -738,8 +689,7 @@ void TMainGrid::CompactWidth(int *Widths, int WindowSize, int Minimum,
   for (int i = DataLeft; i <= DataRight; i++) {
     int maxWidth = 0;
     for (int j = top; j <= bottom; j++){
-      maxWidth = max(maxWidth,
-                     TextWidth(Cnvs, GetCellToDraw(i, j, nullptr, nullptr)));
+      maxWidth = max(maxWidth, TextWidth(Cnvs, GetCellToDraw(i, j).value));
     }
     if (maxWidth > 0) { maxWidth += (2 * LRMargin); }
     Widths[i] = max((maxWidth - Minimum), 0);
@@ -764,8 +714,8 @@ void TMainGrid::ShowAllColumn()
   int windowSize = ClientWidth - 16;
 
   if (ShowRowCounter) {
-    widths[0] = max(MinColWidth, TextWidth(Canvas,
-        GetCellToDraw(0, DataBottom, nullptr, nullptr)) + (2 * LRMargin));
+    widths[0] = max(MinColWidth,
+        TextWidth(Canvas, GetCellToDraw(0, DataBottom).value) + (2 * LRMargin));
     windowSize -= widths[0];
   }
 

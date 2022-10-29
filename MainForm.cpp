@@ -2441,11 +2441,12 @@ void TfmMain::MacroScriptExec(String cmsname, String script)
   delete inPaths;
 }
 //---------------------------------------------------------------------------
-String TfmMain::GetCalculatedCell(String Str, int ACol, int ARow)
+TCalculatedCell TfmMain::GetCalculatedCell(String Str, int ACol, int ARow)
 {
-  String result = (String)CALC_NG + Str;
-  if (Str.Length() == 0 || Str[1] != '=') { return (String)CALC_NOTEXPR + Str; }
-
+  if (Str.Length() == 0 || Str[1] != '=') {
+    return TCalculatedCell(Str, ctNotExpr);
+  }
+  TCalculatedCell result = TCalculatedCell(Str, ctError);
   Str.Delete(1,1);
   TStringList *modules = new TStringList;
   TStringList *inPaths = new TStringList;
@@ -2458,7 +2459,7 @@ String TfmMain::GetCalculatedCell(String Str, int ACol, int ARow)
     if (ok){
       String macroResult = ExecMacro(
           cmsName, StopMacroCount, modules, ACol, ARow, nullptr, true);
-      result = (String)CALC_OK + macroResult;
+      result = TCalculatedCell(macroResult, ctOk);
     }
   }catch(...){
     // ÉGÉâÅ[ópÇÃResultCellï∂éöóÒÇÕê›íËçœÇ›
