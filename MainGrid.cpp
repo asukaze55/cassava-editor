@@ -300,7 +300,7 @@ TCalculatedCell TMainGrid::GetCalculatedCell(int ACol, int ARow)
   int c = AXtoRX(ACol);
   int r = AYtoRY(ARow);
   if(ACol<=0 || ARow<=0 || c<0 || c>=ColCount || r<0 || r>=RowCount) {
-    return TCalculatedCell("", ctError);
+    return TCalculatedCell("", ctNotExpr);
   }
 
   // ŒvŽZŽ®‚Å‚È‚¢‚à‚Ì‚Í‚È‚É‚à‚µ‚È‚¢
