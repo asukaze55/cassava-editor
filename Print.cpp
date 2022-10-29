@@ -171,7 +171,7 @@ int TfmPrint::PrintPage(TCanvas *Canvas, int Width, int Height, int Top,
       int width = Widths[col];
       TFormattedCell cell = mg->GetCellToDraw(col, row);
       TRect rect(x + cellLRMargin, y, x + width - cellLRMargin, y + maxHeight);
-      if (cell.isNum && mg->TextAlignment == cssv_taNumRight) {
+      if (cell.alignment == taRightJustify) {
         int left = rect.Right - Canvas->TextWidth(cell.value) - cellLRMargin;
         if (rect.Left < left) rect.Left = left;
       }

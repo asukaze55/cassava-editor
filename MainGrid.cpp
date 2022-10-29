@@ -228,7 +228,7 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
   TRect R;
   R.Left = ARect.Left + LRMargin; R.Top = ARect.Top + FTBMargin;
   R.Right = ARect.Right - LRMargin; R.Bottom = ARect.Bottom - FTBMargin;
-  if (TextAlignment == cssv_taNumRight && cell.isNum) {
+  if (cell.alignment == taRightJustify) {
     int L = R.Right - Canvas->TextWidth(cell.value);
     if(R.Left < L) R.Left = L;
   }
@@ -392,18 +392,17 @@ TFormattedCell TMainGrid::GetCellToDraw(int RX, int RY)
     if (fstr != "") { str = fstr; }
   }
 
-  bool isNum = (TextAlignment == cssv_taNumRight
-                   || DecimalDigits >= 0
-                   || NumberComma > 0)
-               && IsNumber(str);
+  bool isNum = IsNumber(str);
   if (isNum && DecimalDigits >= 0) {
     str = FormatOmitDecimal(str, DecimalDigits);
   }
   if (isNum && NumberComma > 0) {
     str = FormatNumComma(str, NumberComma);
   }
-
-  return TFormattedCell(str, calcType, isNum);
+  TAlignment alignment =
+      (isNum && TextAlignment == cssv_taNumRight) ? taRightJustify
+                                                  : taLeftJustify;
+  return TFormattedCell(str, calcType, alignment);
 }
 //---------------------------------------------------------------------------
 String TMainGrid::GetACells(int ACol, int ARow)

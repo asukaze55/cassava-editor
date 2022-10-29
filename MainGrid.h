@@ -47,11 +47,11 @@ struct TCalculatedCell {
 struct TFormattedCell {
   String value;
   TCalcType calcType;
-  bool isNum;
+  TAlignment alignment;
 
-  TFormattedCell() : value(""), calcType(ctNotExpr), isNum(false) {}
-  TFormattedCell(String v, TCalcType c, bool n)
-      : value(v), calcType(c), isNum(n) {}
+  TFormattedCell() : value(""), calcType(ctNotExpr), alignment(taLeftJustify) {}
+  TFormattedCell(String v, TCalcType c, TAlignment a)
+      : value(v), calcType(c), alignment(a) {}
 };
 //---------------------------------------------------------------------------
 class TMainGrid : public TStringGrid
