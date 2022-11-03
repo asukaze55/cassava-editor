@@ -200,29 +200,29 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
 {
   bool isSelected = GetSelected(ACol, ARow);
   TFormattedCell cell = GetCellToDraw(ACol, ARow);
+  TFontStyles styles;
 
   if (isSelected) {
-    Canvas->Brush->Color = clHighlight;
-  } else if (cell.calcType == ctOk) {
-    Canvas->Brush->Color = CalcBgColor;
-  } else if (cell.calcType == ctError) {
-    Canvas->Brush->Color = CalcErrorBgColor;
-  } else if (ACol < FixedCols || ARow < FixedRows) {
-    Canvas->Brush->Color = FixedColor;
-  } else if (FoundBgColor != Color && FindHit(cell.text, ACol, ARow)) {
-    Canvas->Brush->Color = FoundBgColor;
-  } else if (ARow == Row && CurrentRowBgColor != Color) {
-    Canvas->Brush->Color = CurrentRowBgColor;
-  } else if (ACol == Col && CurrentColBgColor != Color) {
-    Canvas->Brush->Color = CurrentColBgColor;
-  } else if (ACol > DataRight || ARow > DataBottom ||
-             ACol > GetRowDataRight(ARow)) {
-    Canvas->Brush->Color = DummyBgColor;
-  } else if (ARow % 2 == 0) {
-    Canvas->Brush->Color = EvenRowBgColor;
-  } else {
-    Canvas->Brush->Color = Color;
+    cell.bgColor = clHighlight;
+  } else if (FoundBgColor != Color && FindHit(Cells[ACol][ARow], ACol, ARow)) {
+    cell.bgColor = FoundBgColor;
   }
+
+  if (TypeOption->DummyEof && ACol == DataRight + 1 && ARow == DataBottom + 1) {
+    cell.fgColor = clGray;
+    cell.text = "[EOF]";
+  } else if (TypeOption->DummyEol && ARow <= DataBottom && ARow >= FixedRows &&
+             ACol == GetRowDataRight(ARow) + 1) {
+    cell.fgColor = clGray;
+    cell.text = L"\u21b5";
+  } else if (ShowURLBlue && isUrl(Cells[ACol][ARow])) {
+    styles << fsUnderline;
+    cell.fgColor = UrlColor;
+  } else if (isSelected) {
+    cell.fgColor = clHighlightText;
+  }
+
+  Canvas->Brush->Color = cell.bgColor;
   Canvas->FillRect(ARect);
 
   TRect R;
@@ -233,35 +233,9 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
     if(R.Left < L) R.Left = L;
   }
 
-  TColor CFC = Canvas->Font->Color;
-  if (TypeOption->DummyEof && ACol == DataRight + 1 && ARow == DataBottom + 1) {
-    Canvas->Font->Color = clGray;
-    Canvas->TextRect(R, R.Left, R.Top, "[EOF]");
-  } else if (TypeOption->DummyEol && ARow <= DataBottom && ARow >= FixedRows &&
-             ACol == GetRowDataRight(ARow) + 1) {
-    Canvas->Font->Color = clGray;
-    Canvas->TextRect(R, R.Left, R.Top, L"\u21b5");
-  } else if (ShowURLBlue && isUrl(cell.text)) {
-    TFontStyles CFS = Canvas->Font->Style;
-    Canvas->Font->Style = TFontStyles() << fsUnderline;
-    Canvas->Font->Color = UrlColor;
-    DrawTextRect(Canvas, R, cell.text, WordWrap);
-    Canvas->Font->Style = CFS;
-  } else {
-    if (isSelected) {
-      Canvas->Font->Color = clHighlightText;
-    } else if (cell.calcType == ctOk) {
-      Canvas->Font->Color = CalcFgColor;
-    } else if (cell.calcType == ctError) {
-      Canvas->Font->Color = CalcErrorFgColor;
-    } else if (ACol < FixedCols || ARow < FixedRows) {
-      Canvas->Font->Color = FixFgColor;
-    } else {
-      Canvas->Font->Color = Font->Color;
-    }
-    DrawTextRect(Canvas, R, cell.text, WordWrap);
-  }
-  Canvas->Font->Color = CFC;
+  Canvas->Font->Color = cell.fgColor;
+  Canvas->Font->Style = styles;
+  DrawTextRect(Canvas, R, cell.text, WordWrap);
 
   TColor PenColor = Canvas->Pen->Color;
   if(ACol < FixedCols || ARow < FixedRows){
@@ -295,21 +269,22 @@ void TMainGrid::ErrorCalcLoop()
   }
 }
 //---------------------------------------------------------------------------
-TCalculatedCell TMainGrid::GetCalculatedCell(int ACol, int ARow)
+TCalculatedCell TMainGrid::GetCalculatedCell(int AX, int AY)
 {
-  int c = AXtoRX(ACol);
-  int r = AYtoRY(ARow);
-  if(ACol<=0 || ARow<=0 || c<0 || c>=ColCount || r<0 || r>=RowCount) {
+  int rx = AXtoRX(AX);
+  int ry = AYtoRY(AY);
+  if (AX <= 0 || AY <= 0 ||
+      rx < 0 || rx >= ColCount || ry < 0 || ry >= RowCount) {
     return TCalculatedCell("", ctNotExpr);
   }
 
   // 計算式でないものはなにもしない
-  String Str = Cells[c][r];
+  String Str = Cells[rx][ry];
   if(!ExecCellMacro || Str.Length() == 0 || Str[1] != '='){
     return TCalculatedCell(Str, ctNotExpr);
   }
 
-  String key = (String)"[" + ACol + "," + ARow + "]";
+  String key = (String)"[" + AX + "," + AY + "]";
   // 自己参照をはじく
   if (UsingCellMacro.count(key) > 0){
     ErrorCalcLoop();
@@ -329,7 +304,7 @@ TCalculatedCell TMainGrid::GetCalculatedCell(int ACol, int ARow)
     UsingCellMacro[key] = Str;
 
     // OnGetCalculatedCellに委譲
-    TCalculatedCell result = OnGetCalculatedCell(Str, ACol, ARow);
+    TCalculatedCell result = OnGetCalculatedCell(Str, AX, AY);
 
     // キャッシュを更新
     const TCalculatedCell& cache = CalculatedCellCache[key];
@@ -350,14 +325,14 @@ TCalculatedCell TMainGrid::GetCalculatedCell(int ACol, int ARow)
   }
 }
 //---------------------------------------------------------------------------
-String TMainGrid::GetFormattedCell(int ACol, int ARow)
+String TMainGrid::GetFormattedCell(int AX, int AY)
 {
-  int c = AXtoRX(ACol);
-  int r = AYtoRY(ARow);
-  if (c < 0 || c > DataRight || r < 0 || r > DataBottom) {
+  int rx = AXtoRX(AX);
+  int ry = AYtoRY(AY);
+  if (rx < 0 || rx > DataRight || ry < 0 || ry > DataBottom) {
     return "";
   }
-  String key = (String)ACol + "," + ARow;
+  String key = (String)AX + "," + AY;
 
   if (FormattedCellCache.count(key) > 0) {
     return FormattedCellCache[key];
@@ -365,32 +340,16 @@ String TMainGrid::GetFormattedCell(int ACol, int ARow)
   if (!OnGetFormattedCell) {
     return "";
   }
-  String result = OnGetFormattedCell(ACol, ARow);
+  String result = OnGetFormattedCell(AX, AY);
   FormattedCellCache[key] = result;
   return result;
 }
 //---------------------------------------------------------------------------
-TFormattedCell TMainGrid::GetCellToDraw(int RX, int RY)
+TFormattedCell TMainGrid::GetStyledCell(TCalculatedCell Cell, int AX, int AY)
 {
-  TCalcType calcType = ctNotExpr;
-  int ax = RXtoAX(RX);
-  int ay = RYtoAY(RY);
-  String str = Cells[RX][RY];
-  if (ax == 0 && ay > 0 && RY <= DataBottom) {
-    str = RYtoAY(RY);
-  } else if (ay == 0 && ax > 0 && RX <= DataRight) {
-    str = RXtoAX(RX);
-  }
-
-  if (ExecCellMacro && str.Length() > 0 && str[1] == '=') {
-    TCalculatedCell calculatedCell = GetCalculatedCell(ax, ay);
-    str = calculatedCell.text;
-    calcType = calculatedCell.calcType;
-  }
-  if (OnGetFormattedCell) {
-    String fstr = GetFormattedCell(ax, ay);
-    if (fstr != "") { str = fstr; }
-  }
+  int rx = AXtoRX(AX);
+  int ry = AYtoRY(AY);
+  String str = Cell.text;
 
   bool isNum = IsNumber(str);
   if (isNum && DecimalDigits >= 0) {
@@ -402,7 +361,55 @@ TFormattedCell TMainGrid::GetCellToDraw(int RX, int RY)
   TAlignment alignment =
       (isNum && TextAlignment == cssv_taNumRight) ? taRightJustify
                                                   : taLeftJustify;
-  return TFormattedCell(str, calcType, alignment);
+  TColor fgColor;
+  TColor bgColor;
+  if (Cell.calcType == ctOk) {
+    fgColor = CalcFgColor;
+    bgColor = CalcBgColor;
+  } else if (Cell.calcType == ctError) {
+    fgColor = CalcErrorFgColor;
+    bgColor = CalcErrorBgColor;
+  } else if (rx < FixedCols || ry < FixedRows) {
+    fgColor = FixFgColor;
+    bgColor = FixedColor;
+  } else {
+    fgColor = Font->Color;
+    if (ry == Row && CurrentRowBgColor != Color) {
+      bgColor = CurrentRowBgColor;
+    } else if (rx == Col && CurrentColBgColor != Color) {
+      bgColor = CurrentColBgColor;
+    } else if (rx > DataRight || ry > DataBottom ||
+               rx > GetRowDataRight(ry)) {
+      bgColor = DummyBgColor;
+    } else if (ry % 2 == 0) {
+      bgColor = EvenRowBgColor;
+    } else {
+      bgColor = Color;
+    }
+  }
+
+  return TFormattedCell(str, fgColor, bgColor, alignment);
+}
+//---------------------------------------------------------------------------
+TFormattedCell TMainGrid::GetCellToDraw(int RX, int RY)
+{
+  int ax = RXtoAX(RX);
+  int ay = RYtoAY(RY);
+
+  TCalculatedCell calculatedCell = GetCalculatedCell(ax, ay);
+  if (ax == 0 && ay > 0 && RY <= DataBottom) {
+    calculatedCell.text = ay;
+  } else if (ay == 0 && ax > 0 && RX <= DataRight) {
+    calculatedCell.text = ax;
+  }
+
+  if (OnGetFormattedCell) {
+    String fstr = GetFormattedCell(ax, ay);
+    if (fstr != "") {
+      calculatedCell.text = fstr;
+    }
+  }
+  return GetStyledCell(calculatedCell, ax, ay);
 }
 //---------------------------------------------------------------------------
 String TMainGrid::GetACells(int ACol, int ARow)

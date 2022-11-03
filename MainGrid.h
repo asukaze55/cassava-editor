@@ -46,12 +46,13 @@ struct TCalculatedCell {
 //---------------------------------------------------------------------------
 struct TFormattedCell {
   String text;
-  TCalcType calcType;
+  TColor fgColor;
+  TColor bgColor;
   TAlignment alignment;
 
-  TFormattedCell() : text(""), calcType(ctNotExpr), alignment(taLeftJustify) {}
-  TFormattedCell(String t, TCalcType c, TAlignment a)
-      : text(t), calcType(c), alignment(a) {}
+  TFormattedCell() {}
+  TFormattedCell(String t, TColor f, TColor b, TAlignment a)
+      : text(t), fgColor(f), bgColor(b), alignment(a) {}
 };
 //---------------------------------------------------------------------------
 class TMainGrid : public TStringGrid
@@ -293,13 +294,14 @@ public:
     String TransKana(String Str, int Type);
     void Sequence(bool Inc);
 
-    TCalculatedCell GetCalculatedCell(int ACol, int ARow);
+    TCalculatedCell GetCalculatedCell(int AX, int AY);
     TCalculatedCell (__closure *OnGetCalculatedCell)(
-        String Str, int ACol, int ARow);
+        String Str, int AX, int AY);
 
-    String GetFormattedCell(int ACol, int ARow);
-    String (__closure *OnGetFormattedCell)(int ACol, int ARow);
+    String GetFormattedCell(int AX, int AY);
+    String (__closure *OnGetFormattedCell)(int AX, int AY);
 
+    TFormattedCell GetStyledCell(TCalculatedCell Cell, int AX, int AY);
     TFormattedCell GetCellToDraw(int RX, int RY);
 
     TRect DrawTextRect(TCanvas *Canvas, TRect Rect, String Str,
