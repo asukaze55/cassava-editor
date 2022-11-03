@@ -37,21 +37,21 @@ enum TCalcType {
 };
 //---------------------------------------------------------------------------
 struct TCalculatedCell {
-  String value;
+  String text;
   TCalcType calcType;
 
-  TCalculatedCell() : value(""), calcType(ctNotExpr) {}
-  TCalculatedCell(String v, TCalcType c) : value(v), calcType(c) {}
+  TCalculatedCell() : text(""), calcType(ctNotExpr) {}
+  TCalculatedCell(String t, TCalcType c) : text(t), calcType(c) {}
 };
 //---------------------------------------------------------------------------
 struct TFormattedCell {
-  String value;
+  String text;
   TCalcType calcType;
   TAlignment alignment;
 
-  TFormattedCell() : value(""), calcType(ctNotExpr), alignment(taLeftJustify) {}
-  TFormattedCell(String v, TCalcType c, TAlignment a)
-      : value(v), calcType(c), alignment(a) {}
+  TFormattedCell() : text(""), calcType(ctNotExpr), alignment(taLeftJustify) {}
+  TFormattedCell(String t, TCalcType c, TAlignment a)
+      : text(t), calcType(c), alignment(a) {}
 };
 //---------------------------------------------------------------------------
 class TMainGrid : public TStringGrid

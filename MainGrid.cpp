@@ -209,7 +209,7 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
     Canvas->Brush->Color = CalcErrorBgColor;
   } else if (ACol < FixedCols || ARow < FixedRows) {
     Canvas->Brush->Color = FixedColor;
-  } else if (FoundBgColor != Color && FindHit(cell.value, ACol, ARow)) {
+  } else if (FoundBgColor != Color && FindHit(cell.text, ACol, ARow)) {
     Canvas->Brush->Color = FoundBgColor;
   } else if (ARow == Row && CurrentRowBgColor != Color) {
     Canvas->Brush->Color = CurrentRowBgColor;
@@ -229,7 +229,7 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
   R.Left = ARect.Left + LRMargin; R.Top = ARect.Top + FTBMargin;
   R.Right = ARect.Right - LRMargin; R.Bottom = ARect.Bottom - FTBMargin;
   if (cell.alignment == taRightJustify) {
-    int L = R.Right - Canvas->TextWidth(cell.value);
+    int L = R.Right - Canvas->TextWidth(cell.text);
     if(R.Left < L) R.Left = L;
   }
 
@@ -241,11 +241,11 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
              ACol == GetRowDataRight(ARow) + 1) {
     Canvas->Font->Color = clGray;
     Canvas->TextRect(R, R.Left, R.Top, L"\u21b5");
-  } else if (ShowURLBlue && isUrl(cell.value)) {
+  } else if (ShowURLBlue && isUrl(cell.text)) {
     TFontStyles CFS = Canvas->Font->Style;
     Canvas->Font->Style = TFontStyles() << fsUnderline;
     Canvas->Font->Color = UrlColor;
-    DrawTextRect(Canvas, R, cell.value, WordWrap);
+    DrawTextRect(Canvas, R, cell.text, WordWrap);
     Canvas->Font->Style = CFS;
   } else {
     if (isSelected) {
@@ -259,7 +259,7 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
     } else {
       Canvas->Font->Color = Font->Color;
     }
-    DrawTextRect(Canvas, R, cell.value, WordWrap);
+    DrawTextRect(Canvas, R, cell.text, WordWrap);
   }
   Canvas->Font->Color = CFC;
 
@@ -384,7 +384,7 @@ TFormattedCell TMainGrid::GetCellToDraw(int RX, int RY)
 
   if (ExecCellMacro && str.Length() > 0 && str[1] == '=') {
     TCalculatedCell calculatedCell = GetCalculatedCell(ax, ay);
-    str = calculatedCell.value;
+    str = calculatedCell.text;
     calcType = calculatedCell.calcType;
   }
   if (OnGetFormattedCell) {
@@ -407,7 +407,7 @@ TFormattedCell TMainGrid::GetCellToDraw(int RX, int RY)
 //---------------------------------------------------------------------------
 String TMainGrid::GetACells(int ACol, int ARow)
 {
-  String Str = GetCalculatedCell(ACol, ARow).value;
+  String Str = GetCalculatedCell(ACol, ARow).text;
   int len = Str.Length();
   for(int i=len; i > 0; i--){
     if(Str[i] == '\r'){
@@ -591,7 +591,7 @@ void TMainGrid::SetWidth(int i)
     b = min(TopRow + VisibleRowCount, RowCount);
   }
   for(int j=t; j <= b; j++){
-    WMax = max(WMax, TextWidth(Canvas, GetCellToDraw(i, j).value));
+    WMax = max(WMax, TextWidth(Canvas, GetCellToDraw(i, j).text));
   }
   if(WMax > 0){ WMax += 2 * LRMargin; }
   if(WMax < MinColWidth){ //‹·‚·‚¬‚È‚¢‚æ‚¤‚É
@@ -636,7 +636,7 @@ void TMainGrid::SetHeight(int j, bool useMaxRowHeightLines)
   int right = min(LeftCol + VisibleColCount, ColCount);
   for (int i = LeftCol; i <= right; i++) {
     TRect MaxRect(0, 0, ColWidths[i] - (2 * LRMargin), maxRowHeight);
-    String str = GetCellToDraw(i, j).value;
+    String str = GetCellToDraw(i, j).text;
     TRect R = DrawTextRect(Canvas, MaxRect, str, WordWrap, true);
     HMax = max(HMax, R.Bottom);
   }
@@ -688,7 +688,7 @@ void TMainGrid::CompactWidth(int *Widths, int WindowSize, int Minimum,
   for (int i = DataLeft; i <= DataRight; i++) {
     int maxWidth = 0;
     for (int j = top; j <= bottom; j++){
-      maxWidth = max(maxWidth, TextWidth(Cnvs, GetCellToDraw(i, j).value));
+      maxWidth = max(maxWidth, TextWidth(Cnvs, GetCellToDraw(i, j).text));
     }
     if (maxWidth > 0) { maxWidth += (2 * LRMargin); }
     Widths[i] = max((maxWidth - Minimum), 0);
@@ -714,7 +714,7 @@ void TMainGrid::ShowAllColumn()
 
   if (ShowRowCounter) {
     widths[0] = max(MinColWidth,
-        TextWidth(Canvas, GetCellToDraw(0, DataBottom).value) + (2 * LRMargin));
+        TextWidth(Canvas, GetCellToDraw(0, DataBottom).text) + (2 * LRMargin));
     windowSize -= widths[0];
   }
 
