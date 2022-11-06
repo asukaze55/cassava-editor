@@ -225,17 +225,27 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
   Canvas->Brush->Color = cell.bgColor;
   Canvas->FillRect(ARect);
 
-  TRect R;
-  R.Left = ARect.Left + LRMargin; R.Top = ARect.Top + FTBMargin;
-  R.Right = ARect.Right - LRMargin; R.Bottom = ARect.Bottom - FTBMargin;
+  TRect textRect;
+  textRect.Left = ARect.Left + LRMargin;
+  textRect.Top = ARect.Top + FTBMargin;
+  textRect.Right = ARect.Right - LRMargin;
+  textRect.Bottom = ARect.Bottom - FTBMargin;
   if (cell.alignment == taRightJustify) {
-    int L = R.Right - Canvas->TextWidth(cell.text);
-    if(R.Left < L) R.Left = L;
+    int left = textRect.Right - Canvas->TextWidth(cell.text);
+    if (textRect.Left < left) {
+      textRect.Left = left;
+    }
+  } else if (cell.alignment == taCenter) {
+    int left =
+        (textRect.Left + textRect.Right - Canvas->TextWidth(cell.text)) / 2;
+    if (textRect.Left < left) {
+      textRect.Left = left;
+    }
   }
 
   Canvas->Font->Color = cell.fgColor;
   Canvas->Font->Style = styles;
-  DrawTextRect(Canvas, R, cell.text, WordWrap);
+  DrawTextRect(Canvas, textRect, cell.text, WordWrap);
 
   TColor PenColor = Canvas->Pen->Color;
   if(ACol < FixedCols || ARow < FixedRows){

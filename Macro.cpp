@@ -281,6 +281,7 @@ public:
   Element Value() const;
   void Sbst(const Element &e);
   Element GetMember(String name) const;
+  std::map<String, Element> GetMembers() const;
 };
 //---------------------------------------------------------------------------
 class TEnvironment {
@@ -542,6 +543,14 @@ void Element::Sbst(const Element &e)
 Element Element::GetMember(String name) const
 {
   return Element(name, etVar, env->GetObject(Val()));
+}
+//---------------------------------------------------------------------------
+std::map<String, Element> Element::GetMembers() const
+{
+  if (Type != etObject) {
+    return {};
+  }
+  return env->GetObject(vl)->Vars;
 }
 //---------------------------------------------------------------------------
 String TMacro::ReadString(TStream *fs)
@@ -1704,11 +1713,11 @@ Element TMacro::Do(String FileName, const std::vector<Element> &AStack,
   return ReturnValue;
 }
 //---------------------------------------------------------------------------
-String ExecMacro(String FileName, int MaxLoop, TStringList *Modules,
-                 int x, int y, EncodedWriter *IO, bool IsCellMacro,
-                 TStringList *StringArguments)
+TMacroValue ExecMacro(String FileName, int MaxLoop, TStringList *Modules,
+                      int x, int y, EncodedWriter *IO, bool IsCellMacro,
+                      TStringList *StringArguments)
 {
-  if(!RunningOk){ return ""; }
+  if(!RunningOk){ return TMacroValue(); }
   if(!IsCellMacro){ RunningCount++; }
   randomize();
   GridProxy grid(fmMain->MainGrid, IsCellMacro);
@@ -1749,11 +1758,17 @@ String ExecMacro(String FileName, int MaxLoop, TStringList *Modules,
     }
   }
 
-  String ReturnValue = "";
-  if (r.Type != etErr) {
-    ReturnValue = r.Str();
+  if (r.Type == etErr) {
+    return TMacroValue();
   }
-  return ReturnValue;
+  if (r.Type == etObject) {
+    std::map<String, String> members;
+    for (const auto& [key, value] : r.GetMembers()) {
+      members[key] = value.Str();
+    }
+    return TMacroValue(r.Str(), members);
+  }
+  return TMacroValue(r.Str(), {});
 }
 //---------------------------------------------------------------------------
 void StopAllMacros()

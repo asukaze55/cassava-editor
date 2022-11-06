@@ -2457,9 +2457,9 @@ TCalculatedCell TfmMain::GetCalculatedCell(String Str, int ACol, int ARow)
     String formula = "return " + Str + ";";
     bool ok = MacroCompile(&formula, cmsName, inPaths, modules, false);
     if (ok){
-      String macroResult = ExecMacro(
+      TMacroValue macroResult = ExecMacro(
           cmsName, StopMacroCount, modules, ACol, ARow, nullptr, true);
-      result = TCalculatedCell(macroResult, ctOk);
+      result = TCalculatedCell(macroResult.string, ctOk);
     }
   }catch(...){
     // ƒGƒ‰[—p‚ÌResultCell•¶Žš—ñ‚ÍÝ’èÏ‚Ý
@@ -2476,11 +2476,25 @@ TFormattedCell TfmMain::GetFormattedCell(TCalculatedCell Cell, int AX, int AY)
 {
   if (FormatCmsFile != "") {
     try {
-      String result =
+      TMacroValue result =
           ExecMacro(FormatCmsFile, StopMacroCount, SystemMacroCache, AX, AY,
                     nullptr, true);
-      if (result != "") {
-        Cell.text = result;
+      if (result.object.size() > 0) {
+        if (result.object["text"] != "") {
+          Cell.text = result.object["text"];
+        }
+        TFormattedCell formattedCell = MainGrid->GetStyledCell(Cell, AX, AY);
+        if (result.object["align"] == "left") {
+          formattedCell.alignment = taLeftJustify;
+        } else if (result.object["align"] == "right") {
+          formattedCell.alignment = taRightJustify;
+        } else if (result.object["align"] == "center") {
+          formattedCell.alignment = taCenter;
+        }
+        return formattedCell;
+      }
+      if (result.string != "") {
+        Cell.text = result.string;
       }
     } catch (...) {}
   }
