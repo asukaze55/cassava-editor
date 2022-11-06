@@ -2472,6 +2472,34 @@ TCalculatedCell TfmMain::GetCalculatedCell(String Str, int ACol, int ARow)
   return result;
 }
 //---------------------------------------------------------------------------
+static int HexToInt(wchar_t c)
+{
+  if (c >= '0' && c <= '9') {
+    return c - '0';
+  } else if (c >= 'A' && c <= 'F') {
+    return (c - 'A') + 10;
+  } else if (c >= 'a' && c <= 'f') {
+    return (c - 'a') + 10;
+  }
+  return 0;
+}
+//---------------------------------------------------------------------------
+static TColor ParseColor(String Value, TColor defaultColor)
+{
+  if (Value.Length() == 7 && Value[1] == '#') {
+    return TColor(
+        (HexToInt(Value[2]) << 20) + (HexToInt(Value[3]) << 16) +
+        (HexToInt(Value[4]) << 12) + (HexToInt(Value[5]) << 8) +
+        (HexToInt(Value[6]) << 4) + HexToInt(Value[7]));
+  } else if (Value.Length() == 4 && Value[1] == '#') {
+    return TColor(
+        (HexToInt(Value[2]) << 20) + (HexToInt(Value[2]) << 16) +
+        (HexToInt(Value[3]) << 12) + (HexToInt(Value[3]) << 8) +
+        (HexToInt(Value[4]) << 4) + HexToInt(Value[4]));
+  }
+  return defaultColor;
+}
+//---------------------------------------------------------------------------
 TFormattedCell TfmMain::GetFormattedCell(TCalculatedCell Cell, int AX, int AY)
 {
   if (FormatCmsFile != "") {
@@ -2484,6 +2512,10 @@ TFormattedCell TfmMain::GetFormattedCell(TCalculatedCell Cell, int AX, int AY)
           Cell.text = result.object["text"];
         }
         TFormattedCell formattedCell = MainGrid->GetStyledCell(Cell, AX, AY);
+        formattedCell.fgColor =
+            ParseColor(result.object["color"], formattedCell.fgColor);
+        formattedCell.bgColor =
+            ParseColor(result.object["background"], formattedCell.bgColor);
         if (result.object["align"] == "left") {
           formattedCell.alignment = taLeftJustify;
         } else if (result.object["align"] == "right") {
