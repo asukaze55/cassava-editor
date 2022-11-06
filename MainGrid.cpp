@@ -215,7 +215,7 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
     Canvas->Brush->Color = CalcErrorBgColor;
   } else if (ACol < FixedCols || ARow < FixedRows) {
     Canvas->Brush->Color = FixedColor;
-  } else if (FoundBgColor != Color && FindHit(str, ACol, ARow)) {
+  } else if (FoundBgColor != Color && FindHit(Cells[ACol][ARow], ACol, ARow)) {
     Canvas->Brush->Color = FoundBgColor;
   } else if (ARow == Row && CurrentRowBgColor != Color) {
     Canvas->Brush->Color = CurrentRowBgColor;
@@ -223,7 +223,7 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
     Canvas->Brush->Color = CurrentColBgColor;
   } else if (ACol > DataRight || ARow > DataBottom) {
     Canvas->Brush->Color = DummyBgColor;
-  } else if (ARow % 2 == 0) {
+  } else if (RYtoAY(ARow) % 2 == 0) {
     Canvas->Brush->Color = EvenRowBgColor;
   } else {
     Canvas->Brush->Color = Color;
@@ -242,7 +242,7 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
   if (TypeOption->DummyEof && ACol == DataRight + 1 && ARow == DataBottom + 1) {
     Canvas->Font->Color = clGray;
     Canvas->TextRect(R, R.Left, R.Top, "[EOF]");
-  } else if (ShowURLBlue && isUrl(str)) {
+  } else if (ShowURLBlue && isUrl(Cells[ACol][ARow])) {
     TFontStyles CFS = Canvas->Font->Style;
     Canvas->Font->Style = TFontStyles() << fsUnderline;
     Canvas->Font->Color = UrlColor;
