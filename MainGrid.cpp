@@ -391,7 +391,7 @@ TFormattedCell TMainGrid::GetStyledCell(TCalculatedCell Cell, int AX, int AY)
     } else if (rx > DataRight || ry > DataBottom ||
                rx > GetRowDataRight(ry)) {
       bgColor = DummyBgColor;
-    } else if (ry % 2 == 0) {
+    } else if (AY % 2 == 0) {
       bgColor = EvenRowBgColor;
     } else {
       bgColor = Color;
