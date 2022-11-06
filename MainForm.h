@@ -414,7 +414,7 @@ public:     // ÉÜÅ[ÉUÅ[êÈåæ
   void MacroExec(String CmsFile, EncodedWriter *io);
   void MacroScriptExec(String cmsname, String script);
   TCalculatedCell GetCalculatedCell(String Str, int ACol, int ARow);
-  String GetFormattedCell(int ACol, int ARow);
+  TFormattedCell GetFormattedCell(TCalculatedCell Cell, int AX, int AY);
   void SaveAs(String fileName, int typeIndex);
   void Export(String filename, String type);
 

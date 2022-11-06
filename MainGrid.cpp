@@ -325,12 +325,12 @@ TCalculatedCell TMainGrid::GetCalculatedCell(int AX, int AY)
   }
 }
 //---------------------------------------------------------------------------
-String TMainGrid::GetFormattedCell(int AX, int AY)
+TFormattedCell TMainGrid::GetFormattedCell(TCalculatedCell Cell, int AX, int AY)
 {
   int rx = AXtoRX(AX);
   int ry = AYtoRY(AY);
   if (rx < 0 || rx > DataRight || ry < 0 || ry > DataBottom) {
-    return "";
+    return GetStyledCell(Cell, AX, AY);
   }
   String key = (String)AX + "," + AY;
 
@@ -338,9 +338,9 @@ String TMainGrid::GetFormattedCell(int AX, int AY)
     return FormattedCellCache[key];
   }
   if (!OnGetFormattedCell) {
-    return "";
+    return GetStyledCell(Cell, AX, AY);
   }
-  String result = OnGetFormattedCell(AX, AY);
+  TFormattedCell result = OnGetFormattedCell(Cell, AX, AY);
   FormattedCellCache[key] = result;
   return result;
 }
@@ -403,13 +403,7 @@ TFormattedCell TMainGrid::GetCellToDraw(int RX, int RY)
     calculatedCell.text = ax;
   }
 
-  if (OnGetFormattedCell) {
-    String fstr = GetFormattedCell(ax, ay);
-    if (fstr != "") {
-      calculatedCell.text = fstr;
-    }
-  }
-  return GetStyledCell(calculatedCell, ax, ay);
+  return GetFormattedCell(calculatedCell, ax, ay);
 }
 //---------------------------------------------------------------------------
 String TMainGrid::GetACells(int ACol, int ARow)

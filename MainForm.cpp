@@ -2472,15 +2472,19 @@ TCalculatedCell TfmMain::GetCalculatedCell(String Str, int ACol, int ARow)
   return result;
 }
 //---------------------------------------------------------------------------
-String TfmMain::GetFormattedCell(int ACol, int ARow)
+TFormattedCell TfmMain::GetFormattedCell(TCalculatedCell Cell, int AX, int AY)
 {
-  if (FormatCmsFile == "") { return ""; }
-  try {
-    return ExecMacro(FormatCmsFile, StopMacroCount, SystemMacroCache, ACol,
-                     ARow, nullptr, true);
-  } catch (...) {
-    return "";
+  if (FormatCmsFile != "") {
+    try {
+      String result =
+          ExecMacro(FormatCmsFile, StopMacroCount, SystemMacroCache, AX, AY,
+                    nullptr, true);
+      if (result != "") {
+        Cell.text = result;
+      }
+    } catch (...) {}
   }
+  return MainGrid->GetStyledCell(Cell, AX, AY);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnQuickFindClick(TObject *Sender)

@@ -105,7 +105,7 @@ private:
 
     bool FExecCellMacro;
     std::map<String, TCalculatedCell> CalculatedCellCache;
-    std::map<String, String> FormattedCellCache;
+    std::map<String, TFormattedCell> FormattedCellCache;
     std::map<String, String> UsingCellMacro;
     void SetExecCellMacro(bool Value);
     void ClearCalcCache();
@@ -298,8 +298,9 @@ public:
     TCalculatedCell (__closure *OnGetCalculatedCell)(
         String Str, int AX, int AY);
 
-    String GetFormattedCell(int AX, int AY);
-    String (__closure *OnGetFormattedCell)(int AX, int AY);
+    TFormattedCell GetFormattedCell(TCalculatedCell Cell, int AX, int AY);
+    TFormattedCell (__closure *OnGetFormattedCell)(
+        TCalculatedCell Cell, int AX, int AY);
 
     TFormattedCell GetStyledCell(TCalculatedCell Cell, int AX, int AY);
     TFormattedCell GetCellToDraw(int RX, int RY);
