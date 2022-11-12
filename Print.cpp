@@ -172,8 +172,15 @@ int TfmPrint::PrintPage(TCanvas *Canvas, int Width, int Height, int Top,
       TFormattedCell cell = mg->GetCellToDraw(col, row);
       TRect rect(x + cellLRMargin, y, x + width - cellLRMargin, y + maxHeight);
       if (cell.alignment == taRightJustify) {
-        int left = rect.Right - Canvas->TextWidth(cell.text) - cellLRMargin;
-        if (rect.Left < left) rect.Left = left;
+        int left = rect.Right - Canvas->TextWidth(cell.text);
+        if (rect.Left < left) {
+          rect.Left = left;
+        }
+      } else if (cell.alignment == taCenter) {
+        int left = (rect.Left + rect.Right - Canvas->TextWidth(cell.text)) / 2;
+        if (rect.Left < left) {
+          rect.Left = left;
+        }
       }
       mg->DrawTextRect(Canvas, rect, cell.text, true, false);
       Canvas->MoveTo(x, y);
