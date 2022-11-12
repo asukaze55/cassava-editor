@@ -62,6 +62,11 @@ CMS ファイルの文字コードは UTF-8 としてください
 最後の「;」を忘れないようにしてください。
 大文字と小文字は区別されます。
 </p>
+<p>
+簡単なマクロは
+<a href="https://www.asukaze.net/soft/cassava/macro/generator/">マクロジェネレーター</a>
+でも作成できます。
+</p>
 
 <h2>コメント</h2>
 <p>
@@ -547,9 +552,27 @@ return 文が実行されなかった場合、
 もしくは return 文で空文字 "" が返された場合は通常通りセルの内容が表示されます。
 </p>
 <p>
+文字列ではなく text、color、background、align を持つオブジェクトを返すことで、
+文字色・背景色・配置も指定できます。
+text は表示する文字列を表します。
+color と background は "#RRGGBB" 形式の文字列で、それぞれ文字色と背景色を表します。
+align には "left" または "right" または "center" が指定でき、それぞれ左揃え・右揃え・中央揃えを表します。
+キーが省略された場合や値が正しい形式でない場合には標準の値が使われます。
+</p>
+<blockquote><pre><code>
+return {
+  text: replace([x,y], " ", "_"),
+  color: "#0000ff",
+  background: "#ffff00",
+  align: "right"
+};
+</code></pre></blockquote>
+<p>
 [x,y] では「セル内計算式を処理」を適用後の結果が返されます。
-一方、「数値を右寄せ」「数値を 3 桁区切り表示」「小数を省略表示」オプションは
-フォーマットマクロの実行後に適用されます。
+「数値を右寄せ」はフォーマットマクロで配置が指定されなかった場合、
+フォーマットマクロの実行後の文字列に対して適用されます。
+「数値を 3 桁区切り表示」、「小数を省略表示」、「URL 文字色」、選択範囲の色は
+常にフォーマットマクロの実行後に適用されます。
 フォーマットマクロの実行結果は画面表示と印刷時のみに適用されます。
 通常のマクロからはフォーマットマクロの適用結果は参照できません。
 </p>
@@ -652,7 +675,7 @@ init 関数内の初期化コードは Cassava 起動時に一度だけ実行さ
 <!-- SIGN -->
 <br style="clear: both;" />
 <address>
-  Copyright (C) 2000-2021 asukaze, Some Rights Reserved.<br />
+  Copyright (C) 2000-2022 asukaze, Some Rights Reserved.<br />
   mail (at) asukaze.net
 </address>
 <!-- ==== -->
