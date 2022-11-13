@@ -2488,14 +2488,14 @@ static TColor ParseColor(String Value, TColor defaultColor)
 {
   if (Value.Length() == 7 && Value[1] == '#') {
     return TColor(
-        (HexToInt(Value[2]) << 20) + (HexToInt(Value[3]) << 16) +
+        (HexToInt(Value[6]) << 20) + (HexToInt(Value[7]) << 16) +
         (HexToInt(Value[4]) << 12) + (HexToInt(Value[5]) << 8) +
-        (HexToInt(Value[6]) << 4) + HexToInt(Value[7]));
+        (HexToInt(Value[2]) << 4) + HexToInt(Value[3]));
   } else if (Value.Length() == 4 && Value[1] == '#') {
     return TColor(
-        (HexToInt(Value[2]) << 20) + (HexToInt(Value[2]) << 16) +
+        (HexToInt(Value[4]) << 20) + (HexToInt(Value[4]) << 16) +
         (HexToInt(Value[3]) << 12) + (HexToInt(Value[3]) << 8) +
-        (HexToInt(Value[4]) << 4) + HexToInt(Value[4]));
+        (HexToInt(Value[2]) << 4) + HexToInt(Value[2]));
   }
   return defaultColor;
 }
