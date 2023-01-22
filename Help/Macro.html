@@ -571,7 +571,7 @@ return {
 [x,y] では「セル内計算式を処理」を適用後の結果が返されます。
 「数値を右寄せ」はフォーマットマクロで配置が指定されなかった場合、
 フォーマットマクロの実行後の文字列に対して適用されます。
-「数値を 3 桁区切り表示」、「小数を省略表示」、「URL 文字色」、選択範囲の色は
+「数値を 3 桁区切り表示」、「小数を省略表示」、「URL 文字色」、「検索結果背景色」、選択範囲の色は
 常にフォーマットマクロの実行後に適用されます。
 フォーマットマクロの実行結果は画面表示と印刷時のみに適用されます。
 通常のマクロからはフォーマットマクロの適用結果は参照できません。
@@ -610,10 +610,18 @@ init 関数内の初期化コードは Cassava 起動時に一度だけ実行さ
 <dl>
 <dt><code>SetStatusBarCount(x)</code></dt>
 <dd>ステータスバー内の表示領域の個数を設定します。</dd>
-<dt><code>SetStatusBarText(x,str)</code></dt>
+<dt><code>SetStatusBarText(x, str)</code></dt>
 <dd>x 番目の領域に str を表示します。</dd>
-<dt><code>SetStatusBarWidth(x,w)</code></dt>
+<dt><code>SetStatusBarWidth(x, w)</code></dt>
 <dd>x 番目の領域の幅を w に設定します。デフォルト値は 50 です。</dd>
+<dt><code>SetStatusBarPopUp(x, str, lambda)</code></dt>
+<dd>
+x 番目の領域を右クリックした時に表示されるポップアップメニューを設定します。
+str にはポップアップメニューに表示する項目を改行区切りの文字列で指定します。
+lambda には引数を 1 つとるラムダ式でメニュー項目がクリックされた時の処理を記述します。
+引数にはクリックされた項目が渡されます。
+このラムダ式では外側のスコープの変数は参照できません。
+</dd>
 <dt><code>GetStatusBarCount()</code></dt>
 <dd>ステータスバー内の表示領域の個数を取得します。</dd>
 <dt><code>GetStatusBarText(x)</code></dt>

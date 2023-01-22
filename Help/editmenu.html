@@ -69,9 +69,9 @@
   <li>CSVデータ貼り付け時のオプションを指定します。</li>
   <li>「標準」を選んだ場合、次のような動作になります。
     <dl>
-    <dt>行または列全体を選択している時</dt>
-    <dd>データを挿入します。</dd>
-    <dt>選択サイズとクリップボードのサイズが同じ時</dt>
+    <dt>単一セル編集中で、クリップボードに区切り文字や改行が含まれない場合</dt>
+    <dd>選択範囲をクリップボードの内容で置き換えます。</dd>
+    <dt>選択中の行数・列数とクリップボードの行数・列数が同じ時</dt>
     <dd>データを上書きします。</dd>
     <dt>上２つにあてはまらないとき</dt>
     <dd>貼り付け方法を選択するダイアログボックスが開きます。</dd>
@@ -156,7 +156,7 @@
 <!-- SIGN -->
 <br style="clear: both;" />
 <address>
-  Copyright (C) 2000-2022 asukaze, Some Rights Reserved.<br />
+  Copyright (C) 2000-2023 asukaze, Some Rights Reserved.<br />
   mail (at) asukaze.net
 </address>
 <!-- ==== -->
