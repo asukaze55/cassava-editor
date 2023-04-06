@@ -248,7 +248,7 @@ void TfmMain::ReadIni()
   SearchMacro(mnMacro);
 
   WindowState =
-      (TWindowState) Ini->ReadInteger("Position", "Mode", (int) wsNormal);
+      Ini->ReadInteger("Position", "Mode", 0) == 2 ? wsMaximized : wsNormal;
   MainGrid->Font->Name = Ini->ReadString("Font", "Name",
       Screen->Fonts->IndexOf("Yu Gothic UI") >= 0 ? "Yu Gothic UI"
                                                   : "‚l‚r ‚oƒSƒVƒbƒN");
@@ -471,7 +471,7 @@ void TfmMain::WriteIni(bool PosSlide)
   try {
     IniFile *Ini = Pref->GetInifile();
     Ini->WriteString("Mode", "Style", Style);
-    Ini->WriteInteger("Position", "Mode", (int) WindowState);
+    Ini->WriteInteger("Position", "Mode", WindowState == wsMaximized ? 2 : 0);
     if(WindowState == wsNormal){
       int Slide = PosSlide ? 32 : 0;
       Ini->WriteInteger("Position","Left",Left+Slide);
