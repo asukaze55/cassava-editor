@@ -205,6 +205,7 @@ public:
     void SetRowDataRight(int Row, int Right, bool ExpandOnly = false);
     void SaveToFile(String FileName, TTypeOption *Format,
                     bool SetModifiedFals = true);
+    String SingleCellCopiedText;
     void CopyToClipboard(bool Cut = false);
     void CutToClipboard();
 #define PASTE_OPTION_UNKNOWN -1

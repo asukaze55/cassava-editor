@@ -1356,15 +1356,16 @@ static void SetClipboard(String text) {
 //---------------------------------------------------------------------------
 void TMainGrid::CopyToClipboard(bool Cut)
 {
-  if(EditorMode) {
+  if (EditorMode) {
+    SingleCellCopiedText = InplaceEditor->SelText;
+    SetClipboard(SingleCellCopiedText);
     if (Cut) {
-      InplaceEditor->CutToClipboard();
+      InplaceEditor->SelText = "";
       Modified = true;
-    } else {
-      InplaceEditor->CopyToClipboard();
     }
     return;
   }
+  SingleCellCopiedText = "";
 
   UndoList->Push();
 
@@ -1410,8 +1411,10 @@ void TMainGrid::CutToClipboard()
 void TMainGrid::PasteFromClipboard(int Way)
 {
   String clipboardText = GetClipboardText();
-  if (EditorMode && (InplaceEditor->SelStart > 0 ||
-                     InplaceEditor->SelLength < InplaceEditor->Text.Length())) {
+  if (EditorMode
+      && (InplaceEditor->SelStart > 0
+          || InplaceEditor->SelLength < InplaceEditor->Text.Length()
+          || clipboardText == SingleCellCopiedText)) {
     InplaceEditor->SelText = GetClipboardText();
     InplaceEditor->Text = TrimRight(InplaceEditor->Text);
     Modified = true;
@@ -3575,11 +3578,21 @@ public:
     SendMessage(Handle, EM_SETRECT, 0, (long)(&R));
   }
 
+  void __fastcall WmCopy(TWMCopy inMsg) {
+    static_cast<TMainGrid*>(Owner)->CopyToClipboard();
+  }
+
+  void __fastcall WmCut(TWMCut inMsg) {
+    static_cast<TMainGrid*>(Owner)->CutToClipboard();
+  }
+
   void __fastcall WmPaste(TWMPaste inMsg) {
     static_cast<TMainGrid*>(Owner)->PasteFromClipboard(PASTE_OPTION_UNKNOWN);
   }
 
   BEGIN_MESSAGE_MAP
+    MESSAGE_HANDLER(WM_COPY, TWMCopy, WmCopy)
+    MESSAGE_HANDLER(WM_CUT, TWMCut, WmCut)
     MESSAGE_HANDLER(WM_PASTE, TWMPaste, WmPaste)
   END_MESSAGE_MAP(TInplaceEdit)
 };
