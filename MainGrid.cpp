@@ -1073,6 +1073,8 @@ void __fastcall TMainGrid::FileOpenThreadTerminate(System::TObject* Sender)
     OnFileOpenThreadTerminate(Sender);
     OnFileOpenThreadTerminate = nullptr;
   }
+  ClearCalcCache();
+  Invalidate();
 }
 //---------------------------------------------------------------------------
 static String GetClipboardText()
