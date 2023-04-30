@@ -3577,7 +3577,7 @@ public:
     R.top = G->TBMargin;
     R.right = Width - 2;
     R.bottom = Height;
-    SendMessage(Handle, EM_SETRECT, 0, (long)(&R));
+    SendMessage(Handle, EM_SETRECT, 0, reinterpret_cast<LPARAM>(&R));
   }
 
   void __fastcall WmCopy(TWMCopy inMsg) {
