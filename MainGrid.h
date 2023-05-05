@@ -324,14 +324,14 @@ public:
     void SelectAll(){
       SetSelection(FixedCols, FDataRight, FixedRows, FDataBottom);
     }
-    bool IsRowSelected() {
+    bool IsRowHeaderSelected() {
       return MouseDownCol < FixedCols;
     }
     bool IsRowSelected(int ARow) {
       return FixedCols >= Selection.Left && FDataRight <= Selection.Right &&
           ARow >= Selection.Top && ARow <= Selection.Bottom;
     }
-    bool IsColSelected() {
+    bool IsColHeaderSelected() {
       return MouseDownRow < FixedRows;
     }
     bool IsColSelected(int ACol) {

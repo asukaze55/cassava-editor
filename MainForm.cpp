@@ -1602,9 +1602,9 @@ void __fastcall TfmMain::PopMenuPopup(TObject *Sender)
   mnpPasteInsert->Visible = false;
   const TGridRect &Sel = MainGrid->Selection;
 
-  bool isRowSelected = MainGrid->IsRowSelected();
-  bool isColSelected = MainGrid->IsColSelected();
-  if (isRowSelected) {
+  bool isRowHeaderSelected = MainGrid->IsRowHeaderSelected();
+  bool isColHeaderSelected = MainGrid->IsColHeaderSelected();
+  if (isRowHeaderSelected) {
     mnpPaste->Visible = false;
     mnpPasteInsert->Enabled = Clipboard()->HasFormat(CF_TEXT);
     mnpPasteInsert->Visible = true;
@@ -1613,7 +1613,7 @@ void __fastcall TfmMain::PopMenuPopup(TObject *Sender)
     mnpCutRow->Visible = true;
     mnpDefWidth->Visible = true;
 
-    if (!isColSelected) {
+    if (!isColHeaderSelected) {
       for (int y = Sel.Top; y <= Sel.Bottom; y++) {
         if (MainGrid->RowHeights[y] > 8) {
           mnpNarrow->Visible = true;
@@ -1622,7 +1622,7 @@ void __fastcall TfmMain::PopMenuPopup(TObject *Sender)
       }
     }
   }
-  if (isColSelected) {
+  if (isColHeaderSelected) {
     mnpPaste->Visible = false;
     mnpPasteInsert->Enabled = Clipboard()->HasFormat(CF_TEXT);
     mnpPasteInsert->Visible = true;
@@ -1631,7 +1631,7 @@ void __fastcall TfmMain::PopMenuPopup(TObject *Sender)
     mnpCutCol->Visible = true;
     mnpDefWidth->Visible = true;
 
-    if (!isRowSelected) {
+    if (!isRowHeaderSelected) {
       for (int x = Sel.Left; x <= Sel.Right; x++) {
         if (MainGrid->ColWidths[x] > 16) {
           mnpNarrow->Visible = true;
@@ -1754,7 +1754,7 @@ void __fastcall TfmMain::acPasteUpdate(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnpPasteInsertClick(TObject *Sender)
 {
-  if (MainGrid->IsColSelected()) {
+  if (MainGrid->IsColHeaderSelected()) {
     MainGrid->PasteFromClipboard(PASTE_OPTION_INSERT_COL);
   } else {
     MainGrid->PasteFromClipboard(PASTE_OPTION_INSERT_ROW);
@@ -1936,12 +1936,12 @@ void __fastcall TfmMain::mnDeleteCellUpClick(TObject *Sender)
 void __fastcall TfmMain::mnpDefWidthClick(TObject *Sender)
 {
   const TGridRect& sel = MainGrid->Selection;
-  if (MainGrid->IsRowSelected()) {
+  if (MainGrid->IsRowHeaderSelected()) {
     for (int y = sel.Top; y <= sel.Bottom; y++) {
       MainGrid->RowHeights[y] = MainGrid->DefaultRowHeight;
     }
   }
-  if (MainGrid->IsColSelected()) {
+  if (MainGrid->IsColHeaderSelected()) {
     for (int x = sel.Left; x <= sel.Right; x++) {
       MainGrid->SetWidth(x);
     }
@@ -1951,12 +1951,12 @@ void __fastcall TfmMain::mnpDefWidthClick(TObject *Sender)
 void __fastcall TfmMain::mnpNarrowClick(TObject *Sender)
 {
   const TGridRect& sel = MainGrid->Selection;
-  if (MainGrid->IsRowSelected()) {
+  if (MainGrid->IsRowHeaderSelected()) {
     for (int y = sel.Top; y <= sel.Bottom; y++) {
       MainGrid->RowHeights[y] = 8;
     }
   }
-  if (MainGrid->IsColSelected()) {
+  if (MainGrid->IsColHeaderSelected()) {
     for (int x = sel.Left; x <= sel.Right; x++) {
       MainGrid->ColWidths[x] = 16;
     }
