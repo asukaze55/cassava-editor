@@ -327,12 +327,18 @@ public:
     bool IsRowHeaderSelected() {
       return MouseDownCol < FixedCols;
     }
+    bool IsRowSelected() {
+      return FixedCols >= Selection.Left && FDataRight <= Selection.Right;
+    }
     bool IsRowSelected(int ARow) {
       return FixedCols >= Selection.Left && FDataRight <= Selection.Right &&
           ARow >= Selection.Top && ARow <= Selection.Bottom;
     }
     bool IsColHeaderSelected() {
       return MouseDownRow < FixedRows;
+    }
+    bool IsColSelected() {
+      return FixedRows >= Selection.Top && FDataBottom <= Selection.Bottom;
     }
     bool IsColSelected(int ACol) {
       return FixedRows >= Selection.Top && FDataBottom <= Selection.Bottom &&

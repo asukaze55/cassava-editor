@@ -1602,8 +1602,11 @@ void __fastcall TfmMain::PopMenuPopup(TObject *Sender)
   mnpPasteInsert->Visible = false;
   const TGridRect &Sel = MainGrid->Selection;
 
+  bool isRowSelected = MainGrid->IsRowSelected();
   bool isRowHeaderSelected = MainGrid->IsRowHeaderSelected();
+  bool isColSelected = MainGrid->IsColSelected();
   bool isColHeaderSelected = MainGrid->IsColHeaderSelected();
+
   if (isRowHeaderSelected) {
     mnpPaste->Visible = false;
     mnpPasteInsert->Enabled = Clipboard()->HasFormat(CF_TEXT);
@@ -1621,7 +1624,12 @@ void __fastcall TfmMain::PopMenuPopup(TObject *Sender)
         }
       }
     }
+  } else if (isRowSelected && !isColSelected) {
+    mnpKugiri->Visible = true;
+    mnpInsRow->Visible = true;
+    mnpCutRow->Visible = true;
   }
+
   if (isColHeaderSelected) {
     mnpPaste->Visible = false;
     mnpPasteInsert->Enabled = Clipboard()->HasFormat(CF_TEXT);
@@ -1647,6 +1655,10 @@ void __fastcall TfmMain::PopMenuPopup(TObject *Sender)
         mnpDefWidth->Default = true;
       }
     }
+  } else if (isColSelected && !isRowSelected) {
+    mnpKugiri->Visible = true;
+    mnpInsCol->Visible = true;
+    mnpCutCol->Visible = true;
   }
 }
 //---------------------------------------------------------------------------
