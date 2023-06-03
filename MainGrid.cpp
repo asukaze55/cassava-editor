@@ -2827,20 +2827,10 @@ void TMainGrid::OpenURL(String FileName)
 void __fastcall TMainGrid::MouseWheelUp(System::TObject* Sender,
       Classes::TShiftState Shift, const Types::TPoint &MousePos, bool &Handled)
 {
-  if(WheelMoveCursol == 1){
-    int r = Row - WheelScrollStep;
-    if(r < FixedRows){ r = FixedRows; }
-    Row = r;
-  }else if(WheelMoveCursol == 2){
-    int tr = TopRow - WheelScrollStep;
-    if(tr < FixedRows){ tr = FixedRows; }
-    int r = Row + (tr - TopRow);
-    TopRow = tr;
-    Row = r;
-  }else{
-    int tr = TopRow - WheelScrollStep;
-    if(tr < FixedRows){ tr = FixedRows; }
-    TopRow = tr;
+  if (Shift.Contains(ssShift)) {
+    ScrollCols(-WheelScrollStep);
+  } else {
+    ScrollRows(-WheelScrollStep);
   }
   Handled = true;
 }
@@ -2848,22 +2838,56 @@ void __fastcall TMainGrid::MouseWheelUp(System::TObject* Sender,
 void __fastcall TMainGrid::MouseWheelDown(System::TObject* Sender,
       Classes::TShiftState Shift, const Types::TPoint &MousePos, bool &Handled)
 {
-  if(WheelMoveCursol == 1){
-    int r = Row + WheelScrollStep;
-    if(r > RowCount - 1){ r = RowCount - 1; }
+  if (Shift.Contains(ssShift)) {
+    ScrollCols(WheelScrollStep);
+  } else {
+    ScrollRows(WheelScrollStep);
+  }
+  Handled = true;
+}
+//---------------------------------------------------------------------------
+void TMainGrid::ScrollRows(int Delta)
+{
+  if (WheelMoveCursol == 1) {
+    int r = Row + Delta;
+    if (r < FixedRows) { r = FixedRows; }
+    if (r > RowCount - 1) { r = RowCount - 1; }
     Row = r;
-  }else if(WheelMoveCursol == 2){
-    int tr = TopRow + WheelScrollStep;
-    if(tr > RowCount - VisibleRowCount){ tr = RowCount - VisibleRowCount; }
+  } else if (WheelMoveCursol == 2) {
+    int tr = TopRow + Delta;
+    if (tr < FixedRows) { tr = FixedRows; }
+    if (tr > RowCount - VisibleRowCount) { tr = RowCount - VisibleRowCount; }
     int r = Row + (tr - TopRow);
     TopRow = tr;
     Row = r;
-  }else{
-    int tr = TopRow + WheelScrollStep;
-    if(tr > RowCount - VisibleRowCount){ tr = RowCount - VisibleRowCount; }
+  } else {
+    int tr = TopRow + Delta;
+    if (tr < FixedRows) { tr = FixedRows; }
+    if (tr > RowCount - VisibleRowCount) { tr = RowCount - VisibleRowCount; }
     TopRow = tr;
   }
-  Handled = true;
+}
+//---------------------------------------------------------------------------
+void TMainGrid::ScrollCols(int Delta)
+{
+  if (WheelMoveCursol == 1) {
+    int c = Col + Delta;
+    if (c < FixedCols) { c = FixedCols; }
+    if (c > ColCount - 1) { c = ColCount - 1; }
+    Col = c;
+  } else if (WheelMoveCursol == 2) {
+    int lc = LeftCol + Delta;
+    if (lc < FixedCols) { lc = FixedCols; }
+    if (lc > ColCount - VisibleColCount) { lc = ColCount - VisibleColCount; }
+    int c = Col + (lc - LeftCol);
+    LeftCol = lc;
+    Col = c;
+  } else {
+    int lc = LeftCol + Delta;
+    if (lc < FixedCols) { lc = FixedCols; }
+    if (lc > ColCount - VisibleColCount) { lc = ColCount - VisibleColCount; }
+    LeftCol = lc;
+  }
 }
 //---------------------------------------------------------------------------
 //  åüçı

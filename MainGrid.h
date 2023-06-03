@@ -380,6 +380,8 @@ public:
       Classes::TShiftState Shift, const Types::TPoint &MousePos, bool &Handled);
     void __fastcall MouseWheelDown(System::TObject* Sender,
       Classes::TShiftState Shift, const Types::TPoint &MousePos, bool &Handled);
+    void ScrollRows(int Delta);
+    void ScrollCols(int Delta);
 
     bool LoadFromFile(String FileName, int KCode=CHARCODE_AUTO,
         void (__closure *OnTerminate)(System::TObject* Sender) = nullptr);
