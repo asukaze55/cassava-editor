@@ -46,7 +46,7 @@ private:
   int last;
   int pos;
   int delimiterType;
-  void IncrementPos();
+  void __fastcall IncrementPos(bool Quoted);
 public:
   CsvReader(TTypeOption* TypeOption, String FileName, TEncoding *Encoding);
   ~CsvReader();

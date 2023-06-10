@@ -93,7 +93,7 @@ CsvReader::CsvReader(TTypeOption* TypeOption, String FileName,
                              /* BufferSize= */ 4096)),
     data(""), last(1), pos(0), delimiterType(DELIMITER_TYPE_STRONG)
 {
-  IncrementPos();
+  IncrementPos(false);
 }
 //---------------------------------------------------------------------------
 CsvReader::~CsvReader()
@@ -101,14 +101,20 @@ CsvReader::~CsvReader()
   delete reader;
 }
 //---------------------------------------------------------------------------
-void CsvReader::IncrementPos()
+void __fastcall CsvReader::IncrementPos(bool Quoted)
 {
   pos++;
   if (pos < last || reader->Peek() < 0) {
     return;
   }
-  data += reader->ReadLine() + "\n";
-  last = data.Length() + 1;
+  if (Quoted) {
+    data += reader->ReadLine() + "\n";
+    last = data.Length() + 1;
+  } else {
+    data = reader->ReadLine() + "\n";
+    last = data.Length() + 1;
+    pos = 1;
+  }
 }
 //---------------------------------------------------------------------------
 CsvReaderState CsvReader::GetNextType()
@@ -121,7 +127,7 @@ CsvReaderState CsvReader::GetNextType()
       || delimiterType == DELIMITER_TYPE_WEAK_POST) {
     // Ignore consecutive weak delimiters.
     while (pos < last && typeOption->WeakSepChars.Pos(data[pos]) > 0) {
-      IncrementPos();
+      IncrementPos(false);
     }
   }
   if (pos >= last) {
@@ -139,11 +145,11 @@ String CsvReader::Next()
       || delimiterType == DELIMITER_TYPE_WEAK_POST) {
     // 改行の次へ進める。改行の情報は GetNextType で取る。
     if (data[pos] == L'\r') {
-      IncrementPos();
+      IncrementPos(false);
       delimiterType = DELIMITER_TYPE_STRONG;
     }
     if (data[pos] == L'\n') {
-      IncrementPos();
+      IncrementPos(false);
       delimiterType = DELIMITER_TYPE_STRONG;
     }
   }
@@ -152,7 +158,7 @@ String CsvReader::Next()
   int cellstart = pos;
   int cellend = pos;
 
-  for (;pos < last; IncrementPos(), cellend++) {
+  for (;pos < last; IncrementPos(quoted), cellend++) {
     if (data[pos] == '\0') {
       data[pos] = ' ';
     }
@@ -165,7 +171,7 @@ String CsvReader::Next()
       } else if (typeOption->SepChars.Pos(ch) > 0) {
         // 強区切り
         if (delimiterType != DELIMITER_TYPE_WEAK_PRE) {
-          IncrementPos();
+          IncrementPos(false);
           delimiterType = DELIMITER_TYPE_STRONG;
           return data.SubString(cellstart, cellend - cellstart);
         }
@@ -174,7 +180,7 @@ String CsvReader::Next()
       } else if (typeOption->WeakSepChars.Pos(ch) > 0) {
         // 弱区切り
         if (delimiterType == DELIMITER_TYPE_NONE) {
-          IncrementPos();
+          IncrementPos(false);
           delimiterType = DELIMITER_TYPE_WEAK_PRE;
           return data.SubString(cellstart, cellend - cellstart);
         }
@@ -196,10 +202,10 @@ String CsvReader::Next()
     } else { // Quoted
       if (typeOption->UseQuote() && typeOption->QuoteChars.Pos(ch) > 0) {
         if (pos + 1 < last && data[pos + 1] == ch) {
-          IncrementPos();
+          IncrementPos(true);
           data[cellend] = data[pos];
         } else {
-          IncrementPos();
+          IncrementPos(true);
           delimiterType = DELIMITER_TYPE_WEAK_PRE;
           return data.SubString(cellstart, cellend - cellstart);
         }
