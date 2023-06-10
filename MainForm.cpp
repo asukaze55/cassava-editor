@@ -623,22 +623,15 @@ void TfmMain::ReadToolBar()
   String toolbarcsv = Pref->Path + "ToolBar.csv";
   if(FileExists(toolbarcsv)){
     ::SendMessage(CoolBar->Handle, WM_SETREDRAW, 0, 0);
-    TFileStream *file = new TFileStream(toolbarcsv, fmOpenRead|fmShareDenyNone);
-    __int64 len = file->Size;
-    char *buf = new char[len];
-    file->Read(buf, len);
-    delete file;
-
     tbarNormal->Visible = false;
     tbarAdditional->Visible = false;
 
     TTypeOption typeOption("CSV");
-    CsvReader reader(&typeOption, AnsiString(buf, len));
+    CsvReader reader(&typeOption, toolbarcsv, TEncoding::Default);
     TStringList *list = new TStringList();
     reader.ReadLine(list);
     if(list->Count == 0 || list->Strings[0] != "(Cassava-ToolBarSetting)") {
       delete list;
-      delete[] buf;
       return;
     }
     TToolBar *toolBar = nullptr;
@@ -733,7 +726,6 @@ void TfmMain::ReadToolBar()
       toolBar->Width = width;
     }
     delete list;
-    delete[] buf;
     ::SendMessage(CoolBar->Handle, WM_SETREDRAW, 1, 0);
   }
 }

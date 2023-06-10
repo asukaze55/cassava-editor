@@ -41,12 +41,15 @@ class CsvReader
 {
 private:
   TTypeOption *typeOption;
+  TStreamReader *reader;
   String data;
-  wchar_t *last;
-  wchar_t *pos;
+  int last;
+  int pos;
   int delimiterType;
+  void IncrementPos();
 public:
-  CsvReader(TTypeOption*, String);
+  CsvReader(TTypeOption* TypeOption, String FileName, TEncoding *Encoding);
+  ~CsvReader();
   CsvReaderState GetNextType();
   String Next();
   bool ReadLine(TStringList *);

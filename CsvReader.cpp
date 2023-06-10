@@ -86,12 +86,29 @@ String TTypeOption::GetExtsStr(int From)
   return Temp;
 }
 //---------------------------------------------------------------------------
-CsvReader::CsvReader(TTypeOption *_typeOption, String _data)
-  : typeOption(_typeOption), data(_data), pos(0),
-    delimiterType(DELIMITER_TYPE_STRONG)
+CsvReader::CsvReader(TTypeOption* TypeOption, String FileName,
+                     TEncoding *Encoding)
+  : typeOption(TypeOption),
+    reader(new TStreamReader(FileName, Encoding, /* DetectBOM= */ true,
+                             /* BufferSize= */ 4096)),
+    data(""), last(1), pos(0), delimiterType(DELIMITER_TYPE_STRONG)
 {
-  pos = _data.c_str();
-  last = _data.LastChar() + 1;
+  IncrementPos();
+}
+//---------------------------------------------------------------------------
+CsvReader::~CsvReader()
+{
+  delete reader;
+}
+//---------------------------------------------------------------------------
+void CsvReader::IncrementPos()
+{
+  pos++;
+  if (pos < last || reader->Peek() < 0) {
+    return;
+  }
+  data += reader->ReadLine() + "\n";
+  last = data.Length() + 1;
 }
 //---------------------------------------------------------------------------
 CsvReaderState CsvReader::GetNextType()
@@ -103,13 +120,13 @@ CsvReaderState CsvReader::GetNextType()
   if (delimiterType == DELIMITER_TYPE_WEAK_PRE
       || delimiterType == DELIMITER_TYPE_WEAK_POST) {
     // Ignore consecutive weak delimiters.
-    while (pos < last && typeOption->WeakSepChars.Pos(*pos) > 0) {
-      pos++;
+    while (pos < last && typeOption->WeakSepChars.Pos(data[pos]) > 0) {
+      IncrementPos();
     }
   }
   if (pos >= last) {
     return NEXT_TYPE_END_OF_FILE;
-  } else if (*pos == L'\r' || *pos == L'\n') {
+  } else if (data[pos] == L'\r' || data[pos] == L'\n') {
     return NEXT_TYPE_HAS_MORE_ROW;
   } else {
     return NEXT_TYPE_HAS_MORE_CELL;
@@ -121,36 +138,45 @@ String CsvReader::Next()
   if (delimiterType == DELIMITER_TYPE_WEAK_PRE
       || delimiterType == DELIMITER_TYPE_WEAK_POST) {
     // 改行の次へ進める。改行の情報は GetNextType で取る。
-    if (*pos == L'\r') { pos++; delimiterType = DELIMITER_TYPE_STRONG; }
-    if (*pos == L'\n') { pos++; delimiterType = DELIMITER_TYPE_STRONG; }
+    if (data[pos] == L'\r') {
+      IncrementPos();
+      delimiterType = DELIMITER_TYPE_STRONG;
+    }
+    if (data[pos] == L'\n') {
+      IncrementPos();
+      delimiterType = DELIMITER_TYPE_STRONG;
+    }
   }
 
   bool quoted = false;
-  wchar_t *cellstart = pos;
-  wchar_t *cellend = pos;
+  int cellstart = pos;
+  int cellend = pos;
 
-  for (;pos < last; pos++, cellend++) {
-    wchar_t ch = *pos;
+  for (;pos < last; IncrementPos(), cellend++) {
+    if (data[pos] == '\0') {
+      data[pos] = ' ';
+    }
+    wchar_t ch = data[pos];
     if (!quoted) {
       if (ch == L'\r' || ch == L'\n') {
         // 改行
         delimiterType = DELIMITER_TYPE_WEAK_POST;
-        return String(cellstart, cellend - cellstart);
+        return data.SubString(cellstart, cellend - cellstart);
       } else if (typeOption->SepChars.Pos(ch) > 0) {
         // 強区切り
         if (delimiterType != DELIMITER_TYPE_WEAK_PRE) {
-          pos++;
+          IncrementPos();
           delimiterType = DELIMITER_TYPE_STRONG;
-          return String(cellstart, cellend - cellstart);
+          return data.SubString(cellstart, cellend - cellstart);
         }
         delimiterType = DELIMITER_TYPE_STRONG;
         cellstart = pos + 1;
       } else if (typeOption->WeakSepChars.Pos(ch) > 0) {
         // 弱区切り
         if (delimiterType == DELIMITER_TYPE_NONE) {
-          pos++;
+          IncrementPos();
           delimiterType = DELIMITER_TYPE_WEAK_PRE;
-          return String(cellstart, cellend - cellstart);
+          return data.SubString(cellstart, cellend - cellstart);
         }
         if (delimiterType == DELIMITER_TYPE_STRONG) {
           delimiterType = DELIMITER_TYPE_WEAK_POST;
@@ -169,19 +195,19 @@ String CsvReader::Next()
       }
     } else { // Quoted
       if (typeOption->UseQuote() && typeOption->QuoteChars.Pos(ch) > 0) {
-        if (pos + 1 < last && *(pos + 1) == ch) {
-          pos++;
-          *cellend = *pos;
+        if (pos + 1 < last && data[pos + 1] == ch) {
+          IncrementPos();
+          data[cellend] = data[pos];
         } else {
-          pos++;
+          IncrementPos();
           delimiterType = DELIMITER_TYPE_WEAK_PRE;
-          return String(cellstart, cellend - cellstart);
+          return data.SubString(cellstart, cellend - cellstart);
         }
       } else {
         // コンテンツ
         delimiterType = DELIMITER_TYPE_NONE;
         if(cellend < pos){
-          *cellend = *pos;
+          data[cellend] = data[pos];
         }
       }
     }
@@ -189,7 +215,7 @@ String CsvReader::Next()
 
   delimiterType = DELIMITER_TYPE_NONE;
   if (cellstart < cellend) {
-    return String(cellstart, cellend - cellstart);
+    return data.SubString(cellstart, cellend - cellstart);
   }
   return L"";
 }

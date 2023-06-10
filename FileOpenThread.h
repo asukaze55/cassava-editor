@@ -5,6 +5,6 @@
 #include <Classes.hpp>
 #include "MainGrid.h"
 //---------------------------------------------------------------------------
-TThread *ThreadFileOpen(TMainGrid *AGrid, String AFileName, String AData);
+TThread *ThreadFileOpen(TMainGrid *Grid, String FileName, TEncoding *Encoding);
 //---------------------------------------------------------------------------
 #endif

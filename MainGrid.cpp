@@ -911,18 +911,18 @@ void TMainGrid::SetRowDataRight(int Row, int Right, bool ExpandOnly)
   }
 }
 //---------------------------------------------------------------------------
-String GetReturnCodeAndReplaceNull(String data, bool useQuote,
-    TReturnCode *code, TReturnCode *inCellCode)
+void GetReturnCode(const DynamicArray<wchar_t> &charBuffer, bool useQuote,
+                   TReturnCode *code, TReturnCode *inCellCode)
 {
   int crlf[2] = {0, 0};
   int lf[2] = {0, 0};
   int cr[2] = {0, 0};
   int inCell = 0;
-  int len = data.Length();
-  for (int i = 1; i < len; i++) {
-    wchar_t d = data[i];
+  int len = charBuffer.Length;
+  for (int i = 0; i < len - 1; i++) {
+    wchar_t d = charBuffer[i];
     if (d == L'\x0D') {
-      if (data[i+1] == L'\x0A') {
+      if (charBuffer[i + 1] == L'\x0A') {
         crlf[inCell]++;
         i++;
       } else {
@@ -932,19 +932,15 @@ String GetReturnCodeAndReplaceNull(String data, bool useQuote,
       lf[inCell]++;
     } else if (d == L'"') {
       inCell = 1 - inCell;
-    } else if (d == L'\0') {
-      data[i] = L' ';
     }
   }
   if (len > 0) {
     // LastChar
-    wchar_t d = data[len];
+    wchar_t d = charBuffer[len - 1];
     if (d == L'\x0D') {
       cr[inCell]++;
     } else if (d == L'\x0A') {
       lf[inCell]++;
-    } else if (d == L'\0') {
-      data[len] = L' ';
     }
   }
 
@@ -966,8 +962,6 @@ String GetReturnCodeAndReplaceNull(String data, bool useQuote,
   } else {
     *inCellCode = *code;
   }
-
-  return data;
 }
 //---------------------------------------------------------------------------
 void TMainGrid::SetDragAcceptFiles(bool Accept)
@@ -990,27 +984,42 @@ void __fastcall TMainGrid::DropCsvFiles(TWMDropFiles inMsg)
   delete[] fileNames;
 }
 //---------------------------------------------------------------------------
+static bool HasBom(DynamicArray<Byte> buf, int charCode)
+{
+  switch (charCode) {
+    case CHARCODE_UTF8:
+      return buf.Length > 3
+             && buf[0] == 0xef && buf[1] == 0xbb && buf[2] == 0xbf;
+    case CHARCODE_UTF16LE:
+      return buf.Length > 2 && buf[0] == 0xff && buf[1] == 0xfe;
+    case CHARCODE_UTF16BE:
+      return buf.Length > 2 && buf[0] == 0xfe && buf[1] == 0xff;
+    default:
+      return false;
+  }
+}
+//---------------------------------------------------------------------------
 bool TMainGrid::LoadFromFile(String FileName, int KCode,
   void (__closure *OnTerminate)(System::TObject* Sender))
 {
   TFileStream *File = new TFileStream(FileName, fmOpenRead|fmShareDenyNone);
-  int filelength = File->Size;
+  int bufLength = min(File->Size, 1024);
   Clear();
-  if(filelength == 0){
+  if (bufLength == 0) {
     delete File;
     Modified = false;
     OnTerminate(this);
     return true;
   }
-  DynamicArray<Byte> buf;
-  buf.Length = filelength;
-  filelength = File->Read(&(buf[0]), filelength);
-  buf.Length = filelength;
+  DynamicArray<Byte> byteBuffer;
+  byteBuffer.Length = bufLength;
+  bufLength = File->Read(&(byteBuffer[0]), bufLength);
+  byteBuffer.Length = bufLength;
   delete File;
 
   if (KCode == CHARCODE_AUTO) {
     if (CheckKanji) {
-      KanjiCode = DetectEncode(&(buf[0]), filelength, DefaultCharCode);
+      KanjiCode = DetectEncode(&(byteBuffer[0]), bufLength, DefaultCharCode);
     } else {
       KanjiCode = DefaultCharCode;
     }
@@ -1028,9 +1037,15 @@ bool TMainGrid::LoadFromFile(String FileName, int KCode,
     case CHARCODE_UTF16BE: encoding = TEncoding::BigEndianUnicode; break;
     default:               encoding = TEncoding::Default; break;
   }
-  String data;
+  DynamicArray<wchar_t> charBuffer;
+  charBuffer.Length = bufLength;
+  TStreamReader *reader =
+      new TStreamReader(FileName, encoding, /* DetectBOM= */ true,
+                        /* BufferSize= */ 4096);
   try {
-    data = encoding->GetString(buf);
+    int readCount = reader->ReadBlock(charBuffer, 0, bufLength);
+    charBuffer.Length = readCount;
+    AddBom = HasBom(byteBuffer, KanjiCode);
   } catch (...) {
     if (KCode != CHARCODE_AUTO) {
       Application->MessageBox(
@@ -1038,8 +1053,11 @@ bool TMainGrid::LoadFromFile(String FileName, int KCode,
           CASSAVA_TITLE, 0);
     }
     KanjiCode = CHARCODE_SJIS;
-    data = TEncoding::Default->GetString(buf);
+    encoding = TEncoding::Default;
+    charBuffer = TEncoding::Default->GetChars(byteBuffer);
+    AddBom = false;
   }
+  delete reader;
 
   String Ext = ExtractFileExt(FileName);
   if(Ext.Length() > 1 && Ext[1]=='.'){ Ext.Delete(1,1); }
@@ -1049,12 +1067,11 @@ bool TMainGrid::LoadFromFile(String FileName, int KCode,
   Hint = L"ファイルを読み込み中です。";
   ShowHint = true;
 
-  // 改行コードを得るついでにNULL文字をスペースに置換
-  data = GetReturnCodeAndReplaceNull(
-      data, TypeOption->UseQuote(), &ReturnCode, &InCellReturnCode);
+  GetReturnCode(charBuffer, TypeOption->UseQuote(), &ReturnCode,
+                &InCellReturnCode);
 
   OnFileOpenThreadTerminate = OnTerminate;
-  FileOpenThread = ThreadFileOpen(this, FileName, data);
+  FileOpenThread = ThreadFileOpen(this, FileName, encoding);
   FileOpenThread->OnTerminate = FileOpenThreadTerminate;
   FileOpenThread->FreeOnTerminate = true;
   FileOpenThread->Start();
