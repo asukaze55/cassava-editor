@@ -91,6 +91,7 @@ void __fastcall FileOpenThread::UpdateGrid()
     TStringList *row = static_cast<TStringList*>(allCells->Items[i]);
     Grid->Rows[i + dt] = row;
     Grid->SetRowDataRight(i + dt, row->Count - 1);
+    delete row;
   }
   Grid->SetWidth();
   Grid->SetHeight();
@@ -148,9 +149,6 @@ void __fastcall FileOpenThread::Execute()
   }
   delete reader;
   Synchronize(&UpdateGrid);
-  for (int i = 0; i < allCells->Count; i++) {
-    delete static_cast<TStringList*>(allCells->Items[i]);
-  }
   delete allCells;
 }
 //---------------------------------------------------------------------------
