@@ -477,12 +477,13 @@ void TMainGrid::Clear(int AColCount, int ARowCount, bool UpdateRightBottom)
   Row = FixedRows;  Col = FixedCols;
   DefaultColWidth = 64;               //óÒÇÃïùÇ64Ç…ñﬂÇ∑
   ColWidths[0] = 32;
-  for(int i=DataTop; i <= RowCount; i++)    //ì‡óeÇÃÉNÉäÉA
-    Rows[i]->Clear();
   if(FixedCols >= AColCount){ AColCount = FixedCols + 1; }
   if(FixedRows >= ARowCount){ ARowCount = FixedRows + 1; }
   ChangeColCount(AColCount + 1);
   ChangeRowCount(ARowCount + 1);
+  for (int i = DataTop; i <= RowCount; i++) {
+    Rows[i]->Clear();
+  }
   UndoList->Clear();
   Modified = false;
   TypeIndex = 0;
