@@ -36,6 +36,7 @@ private:
   TList *allCells;
   int updatedRows;
   int maxCol;
+  bool failed;
   void __fastcall UpdateGrid();
   void __fastcall ShowError();
   String __fastcall NormalizeCRLF(String Val);
@@ -78,6 +79,9 @@ String __fastcall FileOpenThread::NormalizeCRLF(String Val)
 //---------------------------------------------------------------------------
 void __fastcall FileOpenThread::UpdateGrid()
 {
+  if (failed) {
+    return;
+  }
   if (maxCol >= Grid->ColCount) {
     Grid->ColCount = maxCol + 1;
   }
@@ -104,6 +108,8 @@ void __fastcall FileOpenThread::ShowError()
 {
   Application->MessageBox(
       L"ファイルの読み込みに失敗しました。", CASSAVA_TITLE, 0);
+  Grid->Clear();
+  failed = true;
 }
 //---------------------------------------------------------------------------
 void __fastcall FileOpenThread::Execute()
@@ -115,6 +121,7 @@ void __fastcall FileOpenThread::Execute()
     allCells = new TList();
     maxCol = 1;
     updatedRows = 0;
+    failed = false;
     TStringList *nextRow = new TStringList();
     if (dl) { nextRow->Add(""); }
     int x = dl;
