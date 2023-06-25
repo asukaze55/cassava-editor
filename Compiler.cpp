@@ -814,13 +814,9 @@ void TCompiler::Output(String str, char type) {
   fout->Write(&type, 1);
   switch (type) {
     case '$': case '*': case '~': case '!': {
-      int iL = str.Length();
-      if (iL > 255) {
-        throw CMCException("•¶Žš—ñ’è”‚Í255•¶ŽšˆÈ“à‚É‚µ‚Ä‚­‚¾‚³‚¢F" + str);
-      }
-      unsigned char L = (unsigned char)iL;
-      fout->Write(&L, 1);
-      fout->Write(str.c_str(), L * sizeof(wchar_t));
+      int length = str.Length();
+      fout->Write(&length, INT_SIZE);
+      fout->Write(str.c_str(), length * sizeof(wchar_t));
       break;
     }
     case '-': {
