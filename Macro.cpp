@@ -555,15 +555,18 @@ std::map<String, Element> Element::GetMembers() const
 //---------------------------------------------------------------------------
 String TMacro::ReadString(TStream *fs)
 {
-  wchar_t str[260];
-  unsigned char c;
-  if(fs->Read(&c, 1) > 0){
-    if(c == 0) return "";
-    fs->Read(str, c * sizeof(wchar_t));
-  }else{
+  int length;
+  if (fs->Read(&length, sizeof(int)) == 0) {
     return "";
   }
-  return String(str, c);
+  if (length == 0) {
+    return "";
+  }
+  wchar_t *buffer = new wchar_t[length];
+  fs->Read(buffer, length * sizeof(wchar_t));
+  String value = String(buffer, length);
+  delete[] buffer;
+  return value;
 }
 //---------------------------------------------------------------------------
 TMenuItem *MenuSearch(TMenuItem *m, String s)
