@@ -463,6 +463,7 @@ public:     // ƒ†[ƒU[éŒ¾
   TStringList *SystemMacroCache;
   String FormatCmsFile;
   String StatusbarCmsFile;
+  String ParamCmsFile;
   void UpdateStatusbar();
 
   struct TStatusBarPopUp {

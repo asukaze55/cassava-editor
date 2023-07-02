@@ -74,6 +74,7 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
   bool FileOpening = false;
   StartupMacroDone = false;
   StatusbarCmsFile = "";
+  ParamCmsFile = "";
   TimeStamp = 0;
   int wd = MainGrid->FixedCols;
   int ht = MainGrid->FixedRows;
@@ -89,7 +90,8 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
         ht = ParamStr(++i).ToIntDef(ht);
       } else if (ParamStr(i) == "-i") {
         positionShift = ParamStr(++i).ToIntDef(0);
-        // Processed in ReadIni().
+      } else if (ParamStr(i) == "-m") {
+        ParamCmsFile = ParamStr(++i);
       }
     } else {
       if (!FileOpening) {
@@ -164,12 +166,22 @@ void TfmMain::ExecStartupMacro()
 {
   String CmsFile;
   CmsFile = Pref->SharedPath + "Macro\\!startup.cms";
-  if(FileExists(CmsFile)){
+  if (FileExists(CmsFile)) {
     MacroExec(CmsFile, nullptr);
   }
   CmsFile = Pref->UserPath + "Macro\\!startup.cms";
-  if(FileExists(CmsFile)){
+  if (FileExists(CmsFile)) {
     MacroExec(CmsFile, nullptr);
+  }
+
+  if (ParamCmsFile != "") {
+    if (FileExists(ParamCmsFile)) {
+      MacroExec(ParamCmsFile, nullptr);
+    } else {
+      Application->MessageBox(
+          (ParamCmsFile + "\nファイルが見つかりません。").c_str(),
+          CASSAVA_TITLE, 0);
+    }
   }
 }
 //---------------------------------------------------------------------------
@@ -2390,9 +2402,11 @@ void TfmMain::MacroExec(String CmsFile, EncodedWriter *io)
 
   TStringList *Modules = new TStringList;
   TStringList *InPaths = new TStringList;
-  String inpath = ExtractFilePath(CmsFile);
-  if(*(inpath.LastChar()) != '\\') inpath += "\\";
-  InPaths->Add(inpath);
+  String inPath = ExtractFilePath(CmsFile);
+  if (inPath != "" && *(inPath.LastChar()) != '\\') {
+    inPath += "\\";
+  }
+  InPaths->Add(inPath);
   InPaths->Add(Pref->UserPath + "Macro\\");
   InPaths->Add(Pref->SharedPath + "Macro\\");
   bool C = MacroCompile(CmsFile, InPaths, Modules, true);
