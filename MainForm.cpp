@@ -1108,15 +1108,32 @@ void __fastcall TfmMain::mnReloadClick(TObject *Sender)
 {
   if (FileName == "") { return; }
 
+  String fileNameToReload = FileName;
   if (MainGrid->Modified) {
     if (Application->MessageBox(
-            (GetUiFileName() + "への変更を破棄しますか？").c_str(),
-            CASSAVA_TITLE, MB_YESNO + MB_ICONQUESTION) == IDNO) {
-      return;
+            L"編集中の変更を別名で保存しますか？",
+            CASSAVA_TITLE, MB_YESNO + MB_ICONQUESTION) == IDYES) {
+      mnSaveAsClick(Sender);
     }
   }
 
-  OpenFile(FileName);
+  OpenFile(fileNameToReload);
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmMain::mnReloadCodeClick(TObject *Sender)
+{
+  int code = static_cast<TMenuItem *>(Sender)->Tag;
+
+  String fileNameToReload = FileName;
+  if (MainGrid->Modified) {
+    if (Application->MessageBox(
+            L"編集中の変更を別名で保存しますか？",
+            CASSAVA_TITLE, MB_YESNO + MB_ICONQUESTION) == IDYES) {
+      mnSaveAsClick(Sender);
+    }
+  }
+
+  OpenFile(fileNameToReload, code);
 }
 //---------------------------------------------------------------------------
 String TfmMain::GetUiFileName()
@@ -1528,19 +1545,6 @@ void __fastcall TfmMain::PopMenuOpenPopup(TObject *Sender)
     NewItem->OnClick = mnOpenHistorysClick;
     mi->Add(NewItem);
   }
-}
-//---------------------------------------------------------------------------
-void __fastcall TfmMain::mnReloadCodeClick(TObject *Sender)
-{
-  int code = static_cast<TMenuItem *>(Sender)->Tag;
-  if (MainGrid->Modified) {
-    if (Application->MessageBox(
-            (GetUiFileName() + "への変更を破棄しますか？").c_str(),
-            CASSAVA_TITLE, MB_YESNO + MB_ICONQUESTION) == IDNO) {
-      return;
-    }
-  }
-  OpenFile(FileName, code);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnOpenHistoryClearClick(TObject *Sender)
