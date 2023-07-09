@@ -1016,6 +1016,7 @@ void __fastcall TfmMain::mnNewClick(TObject *Sender)
       FileName = "";
       UpdateTitle();
       dlgSave->FilterIndex = 0;
+      mnReload->Enabled = false;
       mnReloadCode->Enabled = false;
       UpdateStatusbar();
 
@@ -1048,6 +1049,7 @@ void TfmMain::OpenFile (String OpenFileName, int KCode)
   FileAge(FileName, TimeStamp);
   dlgSave->FilterIndex = MainGrid->TypeIndex + 1;
   tmAutoSaver->Enabled = false;
+  mnReload->Enabled = true;
   mnReloadCode->Enabled = true;
 
   try{

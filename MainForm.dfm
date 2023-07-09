@@ -11,12 +11,10 @@ object fmMain: TfmMain
   Font.Name = 'Tahoma'
   Font.Style = []
   Menu = Menu
-  OldCreateOrder = True
   ShowHint = True
   OnAfterMonitorDpiChanged = FormAfterMonitorDpiChanged
   OnCloseQuery = FormCloseQuery
   OnShow = FormShow
-  PixelsPerInch = 96
   TextHeight = 13
   object StatusBar: TStatusBar
     Left = 0
@@ -29,6 +27,8 @@ object fmMain: TfmMain
       end>
     PopupMenu = PopMenuStatusBar
     OnContextPopup = StatusBarContextPopup
+    ExplicitTop = 533
+    ExplicitWidth = 579
   end
   object MainPanel: TPanel
     Left = 0
@@ -38,6 +38,8 @@ object fmMain: TfmMain
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitWidth = 579
+    ExplicitHeight = 505
     object pnlSearch: TPanel
       Left = 0
       Top = 482
@@ -46,6 +48,8 @@ object fmMain: TfmMain
       Align = alBottom
       TabOrder = 0
       Visible = False
+      ExplicitTop = 473
+      ExplicitWidth = 579
       DesignSize = (
         585
         32)
@@ -135,6 +139,7 @@ object fmMain: TfmMain
     BevelEdges = [beTop]
     TabOrder = 2
     OnResize = CoolBarResize
+    ExplicitWidth = 579
     object tbarAdditional: TToolBar
       Left = 246
       Top = 2
@@ -366,7 +371,7 @@ object fmMain: TfmMain
         OnClick = mnOpenClick
       end
       object tsbSave: TToolButton
-        Left = 67
+        Left = 71
         Top = 0
         Hint = #19978#26360#12365#20445#23384
         Action = acSave
@@ -376,7 +381,7 @@ object fmMain: TfmMain
         ShowHint = True
       end
       object ToolButton4: TToolButton
-        Left = 90
+        Left = 94
         Top = 0
         Width = 8
         Caption = 'ToolButton4'
@@ -385,7 +390,7 @@ object fmMain: TfmMain
         Style = tbsSeparator
       end
       object tsbCut: TToolButton
-        Left = 98
+        Left = 102
         Top = 0
         Hint = #20999#12426#21462#12426
         Action = acCut
@@ -395,7 +400,7 @@ object fmMain: TfmMain
         ShowHint = True
       end
       object tsbCopy: TToolButton
-        Left = 121
+        Left = 125
         Top = 0
         Hint = #12467#12500#12540
         Action = acCopy
@@ -405,7 +410,7 @@ object fmMain: TfmMain
         ShowHint = True
       end
       object tsbPaste: TToolButton
-        Left = 144
+        Left = 148
         Top = 0
         Hint = #36028#12426#20184#12369
         Action = acPaste
@@ -415,7 +420,7 @@ object fmMain: TfmMain
         ShowHint = True
       end
       object ToolButton8: TToolButton
-        Left = 167
+        Left = 171
         Top = 0
         Width = 8
         Caption = 'ToolButton8'
@@ -424,7 +429,7 @@ object fmMain: TfmMain
         Style = tbsSeparator
       end
       object tsbUndo: TToolButton
-        Left = 175
+        Left = 179
         Top = 0
         Hint = #20803#12395#25147#12377
         Action = acUndo
@@ -434,7 +439,7 @@ object fmMain: TfmMain
         ShowHint = True
       end
       object tsbRedo: TToolButton
-        Left = 198
+        Left = 202
         Top = 0
         Hint = #12420#12426#30452#12375
         Action = acRedo
@@ -460,6 +465,7 @@ object fmMain: TfmMain
       end
       object mnReload: TMenuItem
         Caption = #20877#35501#12415#36796#12415'(&R)'
+        Enabled = False
         OnClick = mnReloadClick
       end
       object mnOpenHistory: TMenuItem
@@ -1377,60 +1383,50 @@ object fmMain: TfmMain
   end
   object imlNormal: TVirtualImageList
     DisabledGrayscale = True
-    DisabledSuffix = '_Disabled'
     Images = <
       item
         CollectionIndex = 0
         CollectionName = 'Item1'
-        Disabled = False
         Name = 'Item1'
       end
       item
         CollectionIndex = 1
         CollectionName = 'Item2'
-        Disabled = False
         Name = 'Item2'
       end
       item
         CollectionIndex = 2
         CollectionName = 'Item3'
-        Disabled = False
         Name = 'Item3'
       end
       item
         CollectionIndex = 3
         CollectionName = 'Item4'
-        Disabled = False
         Name = 'Item4'
       end
       item
         CollectionIndex = 4
         CollectionName = 'Item5'
-        Disabled = False
         Name = 'Item5'
       end
       item
         CollectionIndex = 5
         CollectionName = 'Item6'
-        Disabled = False
         Name = 'Item6'
       end
       item
         CollectionIndex = 6
         CollectionName = 'Item7'
-        Disabled = False
         Name = 'Item7'
       end
       item
         CollectionIndex = 7
         CollectionName = 'Item8'
-        Disabled = False
         Name = 'Item8'
       end
       item
         CollectionIndex = 8
         CollectionName = 'Item9'
-        Disabled = False
         Name = 'Item9'
       end>
     ImageCollection = imcNormal
@@ -1609,85 +1605,70 @@ object fmMain: TfmMain
   end
   object imlAdditional: TVirtualImageList
     AutoFill = True
-    DisabledGrayscale = False
-    DisabledSuffix = '_Disabled'
     Images = <
       item
         CollectionIndex = 0
         CollectionName = 'Item1'
-        Disabled = False
         Name = 'Item1'
       end
       item
         CollectionIndex = 1
         CollectionName = 'Item2'
-        Disabled = False
         Name = 'Item2'
       end
       item
         CollectionIndex = 2
         CollectionName = 'Item3'
-        Disabled = False
         Name = 'Item3'
       end
       item
         CollectionIndex = 3
         CollectionName = 'Item4'
-        Disabled = False
         Name = 'Item4'
       end
       item
         CollectionIndex = 4
         CollectionName = 'Item5'
-        Disabled = False
         Name = 'Item5'
       end
       item
         CollectionIndex = 5
         CollectionName = 'Item6'
-        Disabled = False
         Name = 'Item6'
       end
       item
         CollectionIndex = 6
         CollectionName = 'Item7'
-        Disabled = False
         Name = 'Item7'
       end
       item
         CollectionIndex = 7
         CollectionName = 'Item8'
-        Disabled = False
         Name = 'Item8'
       end
       item
         CollectionIndex = 8
         CollectionName = 'Item9'
-        Disabled = False
         Name = 'Item9'
       end
       item
         CollectionIndex = 9
         CollectionName = 'Item10'
-        Disabled = False
         Name = 'Item10'
       end
       item
         CollectionIndex = 10
         CollectionName = 'Item11'
-        Disabled = False
         Name = 'Item11'
       end
       item
         CollectionIndex = 11
         CollectionName = 'Item12'
-        Disabled = False
         Name = 'Item12'
       end
       item
         CollectionIndex = 12
         CollectionName = 'Item13'
-        Disabled = False
         Name = 'Item13'
       end>
     ImageCollection = imcAdditional
@@ -1819,51 +1800,41 @@ object fmMain: TfmMain
   end
   object imlNormalDark: TVirtualImageList
     DisabledGrayscale = True
-    DisabledSuffix = '_Disabled'
     Images = <
       item
         CollectionIndex = 0
-        Disabled = False
         Name = 'Item1'
       end
       item
         CollectionIndex = 1
-        Disabled = False
         Name = 'Item2'
       end
       item
         CollectionIndex = 2
-        Disabled = False
         Name = 'Item3'
       end
       item
         CollectionIndex = 3
-        Disabled = False
         Name = 'Item4'
       end
       item
         CollectionIndex = 4
-        Disabled = False
         Name = 'Item5'
       end
       item
         CollectionIndex = 5
-        Disabled = False
         Name = 'item6'
       end
       item
         CollectionIndex = 6
-        Disabled = False
         Name = 'Item7'
       end
       item
         CollectionIndex = 7
-        Disabled = False
         Name = 'Item8'
       end
       item
         CollectionIndex = 8
-        Disabled = False
         Name = 'Item9'
       end>
     ImageCollection = imcNormalDark
@@ -1872,7 +1843,6 @@ object fmMain: TfmMain
   end
   object imlNormalDarkDisabled: TVirtualImageList
     DisabledGrayscale = True
-    DisabledSuffix = '_Disabled'
     Images = <
       item
         CollectionIndex = 0
@@ -2146,85 +2116,70 @@ object fmMain: TfmMain
     Top = 84
   end
   object imlAdditionalDark: TVirtualImageList
-    DisabledGrayscale = False
-    DisabledSuffix = '_Disabled'
     Images = <
       item
         CollectionIndex = 0
         CollectionName = 'Item1'
-        Disabled = False
         Name = 'Item1'
       end
       item
         CollectionIndex = 1
         CollectionName = 'Item2'
-        Disabled = False
         Name = 'Item2'
       end
       item
         CollectionIndex = 2
         CollectionName = 'Item3'
-        Disabled = False
         Name = 'Item3'
       end
       item
         CollectionIndex = 3
         CollectionName = 'Item4'
-        Disabled = False
         Name = 'Item4'
       end
       item
         CollectionIndex = 4
         CollectionName = 'Item5'
-        Disabled = False
         Name = 'Item5'
       end
       item
         CollectionIndex = 5
         CollectionName = 'Item6'
-        Disabled = False
         Name = 'Item6'
       end
       item
         CollectionIndex = 6
         CollectionName = 'Item7'
-        Disabled = False
         Name = 'Item7'
       end
       item
         CollectionIndex = 7
         CollectionName = 'Item8'
-        Disabled = False
         Name = 'Item8'
       end
       item
         CollectionIndex = 8
         CollectionName = 'Item9'
-        Disabled = False
         Name = 'Item9'
       end
       item
         CollectionIndex = 9
         CollectionName = 'Item10'
-        Disabled = False
         Name = 'Item10'
       end
       item
         CollectionIndex = 10
         CollectionName = 'Item11'
-        Disabled = False
         Name = 'Item11'
       end
       item
         CollectionIndex = 11
         CollectionName = 'Item12'
-        Disabled = False
         Name = 'Item12'
       end
       item
         CollectionIndex = 12
         CollectionName = 'Item13'
-        Disabled = False
         Name = 'Item13'
       end>
     ImageCollection = imcAdditionalDark
@@ -2234,7 +2189,6 @@ object fmMain: TfmMain
   object imlNormalDisabled: TVirtualImageList
     DisabledOpacity = 32
     DisabledGrayscale = True
-    DisabledSuffix = '_Disabled'
     Images = <
       item
         CollectionIndex = 0
