@@ -101,6 +101,7 @@ private:	// ユーザー宣言
     int NameMiddle[2];
     int NameSize[2];
     void DataSetDefault();
+    String ZipCodeFontName;
 
 public:		// ユーザー宣言
     __fastcall TfmLetter(TComponent* Owner);

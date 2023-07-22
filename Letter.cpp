@@ -210,7 +210,7 @@ else if(Box[1][Who][0] == "") return(false);
 int NengaDY = (Who==1 && cbNenga->Checked) ? -14 : 0;
 
 //郵便番号
-Canvas->Font->Name = "ＭＳ Ｐ明朝";
+Canvas->Font->Name = ZipCodeFontName;
 Canvas->Font->Height = NumberSize[Who] * mmPt;
 if (Number[Who].Pos("-")) {
   Number[Who].Delete(Number[Who].Pos("-"), 1);
@@ -418,6 +418,7 @@ void TfmLetter::DataSave(String FileName)
   Ini->WriteBool("フォント","HorzNum",cbHorzNum->Checked);
   Ini->WriteString("フォント","HorzNumMax",seHorzNumMax->Text);
   Ini->WriteInteger("フォント","Font",cbxFont->ItemIndex);
+  Ini->WriteString("フォント", "ZipCodeFontName", ZipCodeFontName);
   Ini->WriteString("微調整","Horz",edHorz->Text);
   Ini->WriteString("微調整","Vert",edVert->Text);
 
@@ -476,6 +477,7 @@ void TfmLetter::DataRead(String FileName)
   cbHorzNum->Checked = Ini->ReadBool("フォント","HorzNum",cbHorzNum->Checked);
   seHorzNumMax->Text = Ini->ReadString("フォント","HorzNumMax",seHorzNumMax->Text);
   cbxFont->ItemIndex = Ini->ReadInteger("フォント","Font",cbxFont->ItemIndex);
+  ZipCodeFontName = Ini->ReadString("フォント", "ZipCodeFontName", "ＭＳ Ｐ明朝");
   edHorz->Text = Ini->ReadString("微調整","Horz",edHorz->Text);
   edVert->Text = Ini->ReadString("微調整","Vert",edVert->Text);
 
