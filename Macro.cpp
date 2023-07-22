@@ -645,18 +645,8 @@ void TMacro::ExecMethod(String name, int H, const std::vector<Element>& ope,
   }
 
   std::vector<Element> argStack;
-  for (int i = 1; i <= funcArity; i++) {
+  for (int i = 1; i < H; i++) {
     argStack.push_back(Element(ope[i].Value()));
-  }
-  if (isVarArg) {
-    TEnvironment *varArg = env.NewObject();
-    for (int i = funcArity + 1; i < H; i++) {
-      varArg->Vars[(String)(i - funcArity - 1)] = Element(ope[i].Value());
-    }
-    varArg->Vars["length"] = Element(H - funcArity - 1);
-    std::vector<TEnvironment*> *objects = env.GetObjects();
-    argStack.push_back(Element(objects->size(), "", etObject, env.GetGlobal()));
-    objects->push_back(varArg);
   }
   int ml = (MaxLoop > 0) ? MaxLoop-LoopCount : 0;
   TMacro mcr(fs_io, ml, modules, env.CreateSubEnvironment());
@@ -916,35 +906,23 @@ void TMacro::ExecFnc(String s)
     int ml = ((MaxLoop > 0) ? MaxLoop-LoopCount : 0);
     TMacro mcr(fs_io, ml, modules, env.CreateSubEnvironment());
     String funcName;
-    std::vector<Element> argStack;
     if (modules->IndexOf(s + "/" + H) >= 0) {
-      for (int i = 0; i < H; i++) {
-        argStack.push_back(Element(ope[i].Value()));
-      }
       funcName = s + "/" + H;
     } else {
-      int normalArgs;
-      for (normalArgs = H; normalArgs >= 0; normalArgs--) {
-        if (modules->IndexOf(s + "/+" + normalArgs) >= 0) {
-          funcName = s + "/+" + normalArgs;
+      int minArgs;
+      for (minArgs = H; minArgs >= 0; minArgs--) {
+        if (modules->IndexOf(s + "/+" + minArgs) >= 0) {
+          funcName = s + "/+" + minArgs;
           break;
         }
       }
-      if (normalArgs < 0) {
+      if (minArgs < 0) {
         throw MacroException(s + "/" + H + "\nユーザー関数が見つかりません。");
       }
-      for (int i = 0; i < normalArgs; i++) {
-        argStack.push_back(Element(ope[i].Value()));
-      }
-      TEnvironment *varArg = env.NewObject();
-      for (int i = normalArgs; i < H; i++) {
-        varArg->Vars[(String)(i - normalArgs)] = Element(ope[i].Value());
-      }
-      varArg->Vars["length"] = Element(H - normalArgs);
-      std::vector<TEnvironment*> *objects = env.GetObjects();
-      argStack.push_back(
-          Element(objects->size(), "", etObject, env.GetGlobal()));
-      objects->push_back(varArg);
+    }
+    std::vector<Element> argStack;
+    for (int i = 0; i < H; i++) {
+      argStack.push_back(Element(ope[i].Value()));
     }
     const Element &r = mcr.Do(funcName, argStack);
     if (r.Type != etErr) {
@@ -1506,7 +1484,7 @@ void TMacro::ExecFnc(String s)
 //---------------------------------------------------------------------------
 void TMacro::ExecOpe(char c){
   if (c == CMO_Goto || c == CMO_Jump || c == CMO_Minus || c == CMO_Inc ||
-      c == CMO_Dec || c == '!') {
+      c == CMO_Dec || c == '!' || c == CMO_VarArg) {
     if (Stack.size() < 1) { throw MacroException(c, ME_HIKISU); }
     Element ope = Stack.back();
     Stack.pop_back();
@@ -1526,6 +1504,18 @@ void TMacro::ExecOpe(char c){
     else if (c == CMO_Inc) { ope.Sbst(Element(ope.Val() + 1)); }
     else if (c == CMO_Dec) { ope.Sbst(Element(ope.Val() - 1)); }
     else if (c == '!') { Stack.push_back(Element(((ope.Val() == 0) ? 1 : 0))); }
+    else if (c == CMO_VarArg) {
+      TEnvironment *varArg = env.NewObject();
+      int fromIndex = ope.Val();
+      for (int i = fromIndex; i < Stack.size(); i++) {
+        varArg->Vars[(String)(i - fromIndex)] = Element(Stack[i].Value());
+      }
+      varArg->Vars["length"] = Element(Stack.size() - fromIndex);
+      std::vector<TEnvironment*> *objects = env.GetObjects();
+      Stack.erase(Stack.begin() + fromIndex, Stack.end());
+      Stack.push_back(Element(objects->size(), "", etObject, env.GetGlobal()));
+      objects->push_back(varArg);
+    }
   } else if (c == CMO_ObjKey) {
     if (Stack.size() < 3) { throw MacroException(c, ME_HIKISU); }
     Element val = Stack.back(); Stack.pop_back();
@@ -1625,6 +1615,12 @@ void TMacro::ExecOpe(char c){
       }
     } else if (c == CMO_Cell) {
       Stack.push_back(Element(ope1.Val(), ope2.Val(), &env));
+    } else if (c == CMO_DefParam) {
+      if (Stack.size() >= ope1.Val()) {
+        fs->Position = ope2.Val();
+      }
+    } else {
+      throw MacroException((String)"Invalid operator: " + c);
     }
   }
 }

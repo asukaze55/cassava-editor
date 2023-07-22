@@ -640,13 +640,14 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
     Constants->Add("this");
   }
 
+  TStringList *parameters = newTStringList();
+  int minArgs = 0;
   bool varArg = false;
   fout = new TMemoryStream();
-  wchar_t H = 0;
   if (paramName != "") {
-    H = 1;
     Variables->Add(paramName);
-    Output(paramName, tpVar);
+    parameters->Add(paramName);
+    minArgs = 1;
   } else if (lex->GetNext().str == ")") {
     lex->Get();
   } else {
@@ -663,9 +664,18 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
         throw CMCException("ˆø”–¼‚ª‚·‚Å‚ÉŽg—p‚³‚ê‚Ä‚¢‚Ü‚·F" + e.str);
       }
       Variables->Add(e.str);
-      Output(e);
-      H++;
+      parameters->Add(e.str);
       e = lex->Get();
+      if (e.str == '=') {
+        OutputInteger(parameters->Count);
+        int placeholder = OutputPositionPlaceholder();
+        Output(CMO_DefParam, tpOpe);
+        GetSentence(LAMBDA_EOS);
+        FillPositionPlaceholder(placeholder);
+        e = lex->Get();
+      } else if (!varArg) {
+        minArgs = parameters->Count;
+      }
       if (e.str == ')') {
         break;
       } else if (varArg) {
@@ -675,11 +685,16 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
       }
     }
   }
-  wchar_t argCount = H;
-  H *= 2;
+  if (varArg) {
+    OutputInteger(parameters->Count - 1);
+    Output(CMO_VarArg, tpOpe);
+  }
+  for (int i = 0; i < parameters->Count; i++) {
+    Output(parameters->Strings[i], tpVar);
+  }
   bool funcEqual = false;
-  String outName = GetMacroModuleName(InName, functionName,
-                                      varArg ? argCount - 1 : argCount, varArg);
+  String outName = GetMacroModuleName(
+      InName, functionName, minArgs, varArg || minArgs < parameters->Count);
   if (functionType == LAMBDA) {
     CMCElement arrow = lex->Get();
     if (arrow.str != "=>") {
@@ -702,6 +717,7 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
   }
 
   Modules->AddObject(outName, fout);
+  wchar_t H = parameters->Count * 2;
   Output((String)H + "func=", tpFunc);
 
   if (functionType != LAMBDA) {
@@ -1041,7 +1057,8 @@ bool IsLambda(TTokenizer *lex)
     return true;
   }
   if (next0.type == tpVar) {
-    if (next1.type == tpStructure && next1.str == ",") {
+    if ((next1.type == tpStructure && next1.str == ",") ||
+        (next1.type == tpOpe && next1.str == "=")) {
       return true;
     }
     CMCElement next2 = lex->GetNext(2);

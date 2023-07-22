@@ -84,6 +84,18 @@ class LambdaTest {
     f = (a, ...args) => args;
     assert.that(f(1, 2).length).isEqualTo(1);
     assert.that(f(1, 2)[0]).isEqualTo(2);
+
+    f = (a = 1, b = 2, c = 3) => a * 100 + b * 10 + c;
+    assert.that(f()).isEqualTo(123);
+    assert.that(f(7)).isEqualTo(723);
+    assert.that(f(7, 8)).isEqualTo(783);
+    assert.that(f(7, 8, 9)).isEqualTo(789);
+
+    f = (a, b = 2, ...args) => a * 100 + b * 10 + args.length;
+    assert.that(f(7)).isEqualTo(720);
+    assert.that(f(7, 8)).isEqualTo(780);
+    assert.that(f(7, 8, 9)).isEqualTo(781);
+    assert.that(f(7, 8, 9, 10)).isEqualTo(782);
   }
 }
 

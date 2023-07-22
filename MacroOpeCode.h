@@ -20,6 +20,8 @@
 #define CMO_GEq      'G' /* ">=" */
 #define CMO_In       'n' /* "in" */
 #define CMO_ObjKey   'k' /* ":" */
+#define CMO_DefParam 'p' /* Jump if the stack size >= specified size */
+#define CMO_VarArg   'v' /* Converts stack to an ArrayLike object */
 //---------------------------------------------------------------------------
 static char CMOCode(String str){
   if(str == "++") return CMO_Inc;

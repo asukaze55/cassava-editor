@@ -36,9 +36,12 @@ class ArrayTest {
   }
 
   indexOf(assert) {
-    array = split("a,b,c,c", ",");
+    array = split("a,b,c,d,c", ",");
     assert.that(array.indexOf("c")).isEqualTo(2);
-    assert.that(array.indexOf("d")).isEqualTo(-1);
+    assert.that(array.indexOf("e")).isEqualTo(-1);
+    assert.that(array.indexOf("c", 2)).isEqualTo(2);
+    assert.that(array.indexOf("c", 3)).isEqualTo(4);
+    assert.that(array.indexOf("c", 5)).isEqualTo(-1);
   }
 
   join(assert) {
@@ -48,9 +51,12 @@ class ArrayTest {
   }
 
   lastIndexOf(assert) {
-    array = split("a,b,c,c", ",");
-    assert.that(array.lastIndexOf("c")).isEqualTo(3);
-    assert.that(array.lastIndexOf("d")).isEqualTo(-1);
+    array = split("a,b,c,d,c", ",");
+    assert.that(array.lastIndexOf("c")).isEqualTo(4);
+    assert.that(array.lastIndexOf("e")).isEqualTo(-1);
+    assert.that(array.lastIndexOf("c", 4)).isEqualTo(4);
+    assert.that(array.lastIndexOf("c", 3)).isEqualTo(2);
+    assert.that(array.lastIndexOf("c", 1)).isEqualTo(-1);
   }
 
   map(assert) {
