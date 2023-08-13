@@ -1112,10 +1112,13 @@ void __fastcall TfmMain::mnReloadClick(TObject *Sender)
 
   String fileNameToReload = FileName;
   if (MainGrid->Modified) {
-    if (Application->MessageBox(
-            L"編集中の変更を別名で保存しますか？",
-            CASSAVA_TITLE, MB_YESNO + MB_ICONQUESTION) == IDYES) {
+    int answer = Application->MessageBox(
+                     L"編集中の変更を別名で保存しますか？",
+                     CASSAVA_TITLE, MB_YESNOCANCEL + MB_ICONQUESTION);
+    if (answer == IDYES) {
       mnSaveAsClick(Sender);
+    } else if (answer == IDCANCEL) {
+      return;
     }
   }
 
@@ -1128,10 +1131,13 @@ void __fastcall TfmMain::mnReloadCodeClick(TObject *Sender)
 
   String fileNameToReload = FileName;
   if (MainGrid->Modified) {
-    if (Application->MessageBox(
-            L"編集中の変更を別名で保存しますか？",
-            CASSAVA_TITLE, MB_YESNO + MB_ICONQUESTION) == IDYES) {
+    int answer = Application->MessageBox(
+                     L"編集中の変更を別名で保存しますか？",
+                     CASSAVA_TITLE, MB_YESNOCANCEL + MB_ICONQUESTION);
+    if (answer == IDYES) {
       mnSaveAsClick(Sender);
+    } else if (answer == IDCANCEL) {
+      return;
     }
   }
 
