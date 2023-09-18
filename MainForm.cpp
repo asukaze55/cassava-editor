@@ -221,10 +221,17 @@ void TfmMain::ReadIni()
   IniFile *Ini = Pref->GetInifile();
 
   Style = Ini->ReadString("Mode", "Style", "Windows");
-  double dpiRatio =
-      (double)ScreenDpi / Ini->ReadInteger("Position", "Dpi", ScreenDpi);
-  int screenWidth = GetSystemMetrics(SM_CXSCREEN);
-  int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+  int iniScreenDpi = Ini->ReadInteger("Position", "Dpi", ScreenDpi);
+  double dpiRatio = (double)ScreenDpi / iniScreenDpi;
+  int screenWidth = GetSystemMetrics (SM_CXSCREEN);
+  int screenHeight = GetSystemMetrics (SM_CYSCREEN);
+  int virtualScreenLeft = GetSystemMetrics (SM_XVIRTUALSCREEN);
+  int virtualScreenTop = GetSystemMetrics (SM_YVIRTUALSCREEN);
+  int virtualScreenRight =
+      virtualScreenLeft + GetSystemMetrics (SM_CXVIRTUALSCREEN);
+  int virtualScreenBottom =
+      virtualScreenTop + GetSystemMetrics (SM_CYVIRTUALSCREEN);
+
   int iniWidth =
       Ini->ReadInteger("Position", "Width", Width) * dpiRatio + 0.5;
   Width = iniWidth <= screenWidth ? iniWidth : screenWidth;
@@ -232,10 +239,10 @@ void TfmMain::ReadIni()
       Ini->ReadInteger("Position", "Height", Height) * dpiRatio + 0.5;
   Height = iniHeight <= screenHeight ? iniHeight : screenHeight;
   int iniLeft = Ini->ReadInteger("Position", "Left", -1);
-  Left = (iniLeft >= 0 && iniLeft <= screenWidth - Width)
+  Left = (iniLeft >= virtualScreenLeft && iniLeft <= virtualScreenRight - Width)
       ? iniLeft : (screenWidth / 2 - Width / 2);
   int iniTop = Ini->ReadInteger("Position", "Top", -1);
-  Top = (iniTop >= 0 && iniTop <= screenHeight - Height)
+  Top = (iniTop >= virtualScreenTop && iniTop <= virtualScreenBottom - Height)
       ? iniTop : (screenHeight / 2 - Height / 2);
 
   for (int i = 1; i <= ParamCount(); i++) {
@@ -258,6 +265,8 @@ void TfmMain::ReadIni()
 
   Show();
   SearchMacro(mnMacro);
+  // Reset DPI ratio, because the window might be shown in a sub-display.
+  dpiRatio = (double)ScreenDpi / iniScreenDpi;
 
   WindowState =
       Ini->ReadInteger("Position", "Mode", 0) == 2 ? wsMaximized : wsNormal;
