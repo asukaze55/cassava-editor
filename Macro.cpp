@@ -1193,6 +1193,8 @@ void TMacro::ExecFnc(String s)
       env.Grid->Raw()->UndoList->StopMacroRecording();
     }else if(s == "GetRecordedMacro" && H == 0) {
       Stack.push_back(Element(env.Grid->Raw()->UndoList->GetRecordedMacro()));
+    }else if(s == "MacroTerminate") {
+      throw MacroException("’†’f‚³‚ê‚Ü‚µ‚½B", ME_CANCELED);
     }else if(H == 0){
       env.Grid->ApplyPendingChanges();
       TMenuItem *menu = nullptr;
