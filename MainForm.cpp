@@ -1709,17 +1709,17 @@ void __fastcall TfmMain::acRedoUpdate(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::acCutExecute(TObject *Sender)
 {
-  if(edFindText->Focused()){
+  if (edFindText->Focused()) {
     edFindText->CutToClipboard();
-  }else if(fmFind->edFindText->Focused()){
+  } else if (fmFind->edFindText->Focused()) {
     fmFind->edFindText->CutToClipboard();
-  }else if(fmFind->edReplaceText->Focused()){
+  } else if (fmFind->edReplaceText->Focused()) {
     fmFind->edReplaceText->CutToClipboard();
-  }else if(fmFind->edMin->Focused()){
+  } else if (fmFind->edMin->Focused()) {
     fmFind->edMin->CutToClipboard();
-  }else if(fmFind->edMax->Focused()){
+  } else if(fmFind->edMax->Focused()) {
     fmFind->edMax->CutToClipboard();
-  }else{
+  } else {
     MainGrid->CutToClipboard();
   }
 }
@@ -1737,17 +1737,17 @@ void __fastcall TfmMain::acCutUpdate(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::acCopyExecute(TObject *Sender)
 {
-  if(edFindText->Focused()){
+  if (edFindText->Focused()) {
     edFindText->CopyToClipboard();
-  }else if(fmFind->edFindText->Focused()){
+  } else if (fmFind->edFindText->Focused()) {
     fmFind->edFindText->CopyToClipboard();
-  }else if(fmFind->edReplaceText->Focused()){
+  } else if (fmFind->edReplaceText->Focused()) {
     fmFind->edReplaceText->CopyToClipboard();
-  }else if(fmFind->edMin->Focused()){
+  } else if (fmFind->edMin->Focused()) {
     fmFind->edMin->CopyToClipboard();
-  }else if(fmFind->edMax->Focused()){
+  } else if (fmFind->edMax->Focused()) {
     fmFind->edMax->CopyToClipboard();
-  }else{
+  } else {
     MainGrid->CopyToClipboard();
   }
 }
@@ -1765,17 +1765,17 @@ void __fastcall TfmMain::acCopyUpdate(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::acPasteExecute(TObject *Sender)
 {
-  if(edFindText->Focused()){
+  if (edFindText->Focused()) {
     edFindText->PasteFromClipboard();
-  }else if(fmFind->edFindText->Focused()){
+  } else if(fmFind->edFindText->Focused()) {
     fmFind->edFindText->PasteFromClipboard();
-  }else if(fmFind->edReplaceText->Focused()){
+  } else if(fmFind->edReplaceText->Focused()) {
     fmFind->edReplaceText->PasteFromClipboard();
-  }else if(fmFind->edMin->Focused()){
+  } else if(fmFind->edMin->Focused()) {
     fmFind->edMin->PasteFromClipboard();
-  }else if(fmFind->edMax->Focused()){
+  } else if(fmFind->edMax->Focused()) {
     fmFind->edMax->PasteFromClipboard();
-  }else{
+  } else {
     MainGrid->PasteFromClipboard(PASTE_OPTION_UNKNOWN);
   }
 }
@@ -1836,7 +1836,19 @@ void __fastcall TfmMain::mnPasteFormatDefaultClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnSelectAllClick(TObject *Sender)
 {
-  MainGrid->SelectAll();
+  if (edFindText->Focused()) {
+    edFindText->SelectAll();
+  } else if (fmFind->edFindText->Focused()) {
+    fmFind->edFindText->SelectAll();
+  } else if (fmFind->edReplaceText->Focused()) {
+    fmFind->edReplaceText->SelectAll();
+  } else if (fmFind->edMin->Focused()) {
+    fmFind->edMin->SelectAll();
+  } else if(fmFind->edMax->Focused()) {
+    fmFind->edMax->SelectAll();
+  } else {
+    MainGrid->SelectAll();
+  }
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnSelectRowClick(TObject *Sender)
