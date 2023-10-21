@@ -734,7 +734,7 @@ void TfmMain::ReadToolBar()
         button->Hint = name + "|" + action;
         int imageIndex = str0.ToIntDef(-1);
         if (imageIndex >= 0) {
-          button->ImageIndex = str0.ToIntDef(-1);
+          button->ImageIndex = imageIndex;
         } else {
           button->Style = tbsTextButton;
           button->Caption = str0 != "" ? str0 : name;
