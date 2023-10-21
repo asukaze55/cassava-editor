@@ -687,6 +687,7 @@ void TfmMain::ReadToolBar()
           toolBar->Parent = CoolBar;
           toolBar->Wrapable = false;
           toolBar->Height = tbarNormal->Height;
+          toolBar->AllowTextButtons = true;
           width = 0;
         }
         toolBar->Top = tbarTop;
@@ -731,7 +732,13 @@ void TfmMain::ReadToolBar()
         }
         name = StringReplace(name, "|", "_", TReplaceFlags()<<rfReplaceAll);
         button->Hint = name + "|" + action;
-        button->ImageIndex = str0.ToIntDef(0);
+        int imageIndex = str0.ToIntDef(-1);
+        if (imageIndex >= 0) {
+          button->ImageIndex = str0.ToIntDef(-1);
+        } else {
+          button->Style = tbsTextButton;
+          button->Caption = str0 != "" ? str0 : name;
+        }
         if(! button->Action){
           button->OnClick = UserToolBarAction;
         }
