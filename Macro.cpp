@@ -569,18 +569,6 @@ String TMacro::ReadString(TStream *fs)
   return value;
 }
 //---------------------------------------------------------------------------
-TMenuItem *MenuSearch(TMenuItem *m, String s)
-{
-  for(int i=0; i<m->Count; i++){
-    if(m->Items[i]->Name == (String)"mn" + s) return (m->Items[i]);
-    else if(m->Items[i]->Count > 0){
-      TMenuItem *sub = MenuSearch(m->Items[i], s);
-      if(sub) return sub;
-    }
-  }
-  return nullptr;
-}
-//---------------------------------------------------------------------------
 String NormalizeNewLine(String Val)
 {
   TReplaceFlags replaceAll = TReplaceFlags() << rfReplaceAll;
@@ -1199,7 +1187,7 @@ void TMacro::ExecFnc(String s)
       env.Grid->ApplyPendingChanges();
       TMenuItem *menu = nullptr;
       if (!env.IsCellMacro) {
-        menu = MenuSearch(fmMain->Menu->Items, s);
+        menu = fmMain->FindMenuItem(s);
       }
       if (menu && menu->OnClick) {
         menu->OnClick(menu);

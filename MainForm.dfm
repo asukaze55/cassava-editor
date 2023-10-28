@@ -277,15 +277,14 @@ object fmMain: TfmMain
         Left = 208
         Top = 0
         Hint = #12475#12523#20869#35336#31639#24335#12434#20966#29702
+        Action = acCalcExpression
         AllowAllUp = True
         AutoSize = True
-        Caption = 'sbCalcExpression'
         ImageIndex = 12
         ImageName = 'Item13'
         ParentShowHint = False
         ShowHint = True
         Style = tbsCheck
-        OnClick = mnCalcExpressionClick
       end
       object ToolButton23: TToolButton
         Left = 231
@@ -312,27 +311,25 @@ object fmMain: TfmMain
         Left = 262
         Top = 0
         Hint = #65297#34892#30446#12434#22266#23450
+        Action = acFixFirstRow
         AutoSize = True
-        Caption = 'tsbFixFirstRow'
         ImageIndex = 10
         ImageName = 'Item11'
         ParentShowHint = False
         ShowHint = True
         Style = tbsCheck
-        OnClick = mnFixFirstRowClick
       end
       object tsbFixFirstCol: TToolButton
         Left = 285
         Top = 0
         Hint = #65297#21015#30446#12434#22266#23450
+        Action = acFixFirstCol
         AutoSize = True
-        Caption = 'tsbFixFirstCol'
         ImageIndex = 11
         ImageName = 'Item12'
         ParentShowHint = False
         ShowHint = True
         Style = tbsCheck
-        OnClick = mnFixFirstColClick
       end
     end
     object tbarNormal: TToolBar
@@ -1000,8 +997,7 @@ object fmMain: TfmMain
         Caption = '-'
       end
       object mnCalcExpression: TMenuItem
-        Caption = #12475#12523#20869#35336#31639#24335#12434#20966#29702'(&E)'
-        OnClick = mnCalcExpressionClick
+        Action = acCalcExpression
       end
       object mnN14: TMenuItem
         Caption = '-'
@@ -1020,12 +1016,10 @@ object fmMain: TfmMain
         Caption = '-'
       end
       object mnFixFirstRow: TMenuItem
-        Caption = #65297#34892#30446#12434#22266#23450'(&W)'
-        OnClick = mnFixFirstRowClick
+        Action = acFixFirstRow
       end
       object mnFixFirstCol: TMenuItem
-        Caption = #65297#21015#30446#12434#22266#23450'(&C)'
-        OnClick = mnFixFirstColClick
+        Action = acFixFirstCol
       end
       object mnFixUpLeft: TMenuItem
         Caption = #12459#12540#12477#12523#20301#32622#12414#12391#12434#22266#23450'(&X)'
@@ -1264,6 +1258,21 @@ object fmMain: TfmMain
       Caption = #23455#34892#12434#20013#26029'(&T)'
       OnExecute = acMacroTerminateExecute
       OnUpdate = acMacroTerminateUpdate
+    end
+    object acCalcExpression: TAction
+      Caption = #12475#12523#20869#35336#31639#24335#12434#20966#29702'(&E)'
+      OnExecute = acCalcExpressionExecute
+      OnUpdate = acCalcExpressionUpdate
+    end
+    object acFixFirstRow: TAction
+      Caption = #65297#34892#30446#12434#22266#23450'(&W)'
+      OnExecute = acFixFirstRowExecute
+      OnUpdate = acFixFirstRowUpdate
+    end
+    object acFixFirstCol: TAction
+      Caption = #65297#21015#30446#12434#22266#23450'(&C)'
+      OnExecute = acFixFirstColExecute
+      OnUpdate = acFixFirstColUpdate
     end
   end
   object imcNormal: TImageCollection

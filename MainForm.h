@@ -238,6 +238,9 @@ __published:	// IDE 管理のコンポーネント
   TAction *acCut;
   TAction *acCopy;
   TAction *acPaste;
+  TAction *acCalcExpression;
+  TAction *acFixFirstRow;
+  TAction *acFixFirstCol;
   TMenuItem *mnpKugiri2;
   TMenuItem *mnCutFormat;
   TMenuItem *mnCutFormatDefault;
@@ -286,8 +289,6 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall mnCopyAvrClick(TObject *Sender);
   void __fastcall mnSelectRowClick(TObject *Sender);
   void __fastcall mnSelectColClick(TObject *Sender);
-  void __fastcall mnFixFirstRowClick(TObject *Sender);
-  void __fastcall mnFixFirstColClick(TObject *Sender);
   void __fastcall mnpNarrowClick(TObject *Sender);
   void __fastcall mnpDefWidthClick(TObject *Sender);
   void __fastcall mnReloadClick(TObject *Sender);
@@ -322,7 +323,6 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall PopMenuOpenPopup(TObject *Sender);
   void __fastcall mnFindBackClick(TObject *Sender);
   void __fastcall mnCopyFormatDefaultClick(TObject *Sender);
-  void __fastcall mnCalcExpressionClick(TObject *Sender);
   bool __fastcall FormHelp(WORD Command, int Data, bool &CallHelp);
   void __fastcall mnMacroOpenUserFolderClick(TObject *Sender);
   void __fastcall mnQuickFindClick(TObject *Sender);
@@ -357,6 +357,12 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall StatusBarContextPopup(TObject *Sender, TPoint &MousePos,
           bool &Handled);
   void __fastcall StatusBarPopUpClick(TObject *Sender);
+  void __fastcall acCalcExpressionExecute(TObject *Sender);
+  void __fastcall acCalcExpressionUpdate(TObject *Sender);
+  void __fastcall acFixFirstRowExecute(TObject *Sender);
+  void __fastcall acFixFirstRowUpdate(TObject *Sender);
+  void __fastcall acFixFirstColExecute(TObject *Sender);
+  void __fastcall acFixFirstColUpdate(TObject *Sender);
 
 private:    // ユーザー宣言
   void OpenFile(String OpenFileName, int KCode=CHARCODE_AUTO);
@@ -417,6 +423,7 @@ public:     // ユーザー宣言
   TFormattedCell GetFormattedCell(TCalculatedCell Cell, int AX, int AY);
   void SaveAs(String fileName, int typeIndex);
   void Export(String filename, String type);
+  TMenuItem *FindMenuItem(String name);
 
   bool MakeNewWindow;
   bool TitleFullPath;

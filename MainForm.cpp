@@ -686,8 +686,9 @@ void TfmMain::ReadToolBar()
           toolBar = new TToolBar(CoolBar);
           toolBar->Parent = CoolBar;
           toolBar->Wrapable = false;
-          toolBar->Height = tbarNormal->Height;
+          toolBar->AutoSize = true;
           toolBar->AllowTextButtons = true;
+          toolBar->Font->Height = 16 * PixelsPerInch / 96;
           width = 0;
         }
         toolBar->Top = tbarTop;
@@ -723,15 +724,19 @@ void TfmMain::ReadToolBar()
         TToolButton *button = new TToolButton(toolBar);
         button->Left = width;
         button->Parent = toolBar;
-        for(int i=0; i<ActionList->ActionCount; i++){
-          TContainedAction *ac = ActionList->Actions[i];
-          if(ac->Name == "ac" + action){
-            button->Action = ac;
-            break;
+        TMenuItem *menuItem = FindMenuItem(action);
+        if (menuItem) {
+          if (menuItem->Action) {
+            button->Action = menuItem->Action;
+          } else {
+            button->OnClick = menuItem->OnClick;
           }
+          button->Hint = name;
+        } else {
+          button->OnClick = UserToolBarAction;
+          button->Hint = StringReplace(name, "|", "_",
+              TReplaceFlags() << rfReplaceAll) + "|" + action;
         }
-        name = StringReplace(name, "|", "_", TReplaceFlags()<<rfReplaceAll);
-        button->Hint = name + "|" + action;
         int imageIndex = str0.ToIntDef(-1);
         if (imageIndex >= 0) {
           button->ImageIndex = imageIndex;
@@ -739,11 +744,9 @@ void TfmMain::ReadToolBar()
           button->Style = tbsTextButton;
           button->Caption = str0 != "" ? str0 : name;
         }
-        if(! button->Action){
-          button->OnClick = UserToolBarAction;
-        }
-        if(action == "OpenHistory"){
-          button->Hint = name + "|Open";
+        if (action == "OpenHistory") {
+          button->OnClick = mnOpenClick;
+          button->Hint = name;
           button->Style = tbsDropDown;
           button->DropdownMenu = PopMenuOpen;
         }
@@ -756,6 +759,26 @@ void TfmMain::ReadToolBar()
     delete list;
     ::SendMessage(CoolBar->Handle, WM_SETREDRAW, 1, 0);
   }
+}
+//---------------------------------------------------------------------------
+TMenuItem *FindMenuItemInternal(TMenuItem *root, String name)
+{
+  for (int i = 0; i < root->Count; i++) {
+    if (root->Items[i]->Name == name) {
+      return root->Items[i];
+    } else if (root->Items[i]->Count > 0) {
+      TMenuItem *menuItem = FindMenuItemInternal(root->Items[i], name);
+      if (menuItem) {
+        return menuItem;
+      }
+    }
+  }
+  return nullptr;
+}
+//---------------------------------------------------------------------------
+TMenuItem *TfmMain::FindMenuItem(String name)
+{
+  return FindMenuItemInternal(Menu->Items, (String)"mn" + name);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::UserToolBarAction(TObject *Sender)
@@ -1024,8 +1047,12 @@ void __fastcall TfmMain::mnNewClick(TObject *Sender)
       MainGrid->Clear();
       if(mnFixFirstRow->Checked || mnFixFirstCol->Checked) {
         // Clear() でファイル読み込みを中断した後で固定解除する必要がある
-        if(mnFixFirstRow->Checked){ mnFixFirstRowClick(this); }
-        if(mnFixFirstCol->Checked){ mnFixFirstColClick(this); }
+        if (mnFixFirstRow->Checked) {
+          acFixFirstRowExecute(this);
+        }
+        if (mnFixFirstCol->Checked) {
+          acFixFirstColExecute(this);
+        }
         // 1列目・1行目の幅を初期値に戻すため、再度 Clear()
         MainGrid->Clear();
       }
@@ -1925,7 +1952,9 @@ void __fastcall TfmMain::mnInsRowClick(TObject *Sender)
   int T = MainGrid->Selection.Top;
   MainGrid->InsertRow(T, MainGrid->Selection.Bottom);
 
-  if(mnFixFirstCol->Checked){ mnFixFirstColClick(this); }
+  if (mnFixFirstCol->Checked) {
+    acFixFirstColExecute(this);
+  }
   MainGrid->Row = T;
   MainGrid->Col = MainGrid->FixedCols;
   MainGrid->Options << goEditing << goAlwaysShowEditor;
@@ -1937,7 +1966,9 @@ void __fastcall TfmMain::mnInsColClick(TObject *Sender)
   int left = MainGrid->Selection.Left;
   MainGrid->InsertColumn(left, MainGrid->Selection.Right);
 
-  if(mnFixFirstRow->Checked){ mnFixFirstRowClick(this); }
+  if (mnFixFirstRow->Checked) {
+    acFixFirstRowExecute(this);
+  }
   MainGrid->Row = MainGrid->FixedRows;
   MainGrid->Col = left;
   MainGrid->Options << goEditing << goAlwaysShowEditor;
@@ -2053,12 +2084,15 @@ void __fastcall TfmMain::mnStayOnTopClick(TObject *Sender)
   MainGrid->EditorMode = EM;
 }
 //---------------------------------------------------------------------------
-void __fastcall TfmMain::mnCalcExpressionClick(TObject *Sender)
+void __fastcall TfmMain::acCalcExpressionExecute(TObject *Sender)
 {
-  MainGrid->ExecCellMacro = ! MainGrid->ExecCellMacro;
-  mnCalcExpression->Checked = MainGrid->ExecCellMacro;
-  sbCalcExpression->Down = MainGrid->ExecCellMacro;
+  MainGrid->ExecCellMacro = !MainGrid->ExecCellMacro;
   MainGrid->Refresh();
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmMain::acCalcExpressionUpdate(TObject *Sender)
+{
+  acCalcExpression->Checked = MainGrid->ExecCellMacro;
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnShowToolbarClick(TObject *Sender)
@@ -2127,7 +2161,7 @@ void __fastcall TfmMain::StatusBarPopUpClick(TObject *Sender)
   UpdateStatusbar();
 }
 //---------------------------------------------------------------------------
-void __fastcall TfmMain::mnFixFirstRowClick(TObject *Sender)
+void __fastcall TfmMain::acFixFirstRowExecute(TObject *Sender)
 {
   if(MainGrid->FileOpenThread){
     mnFixFirstRow->Checked = !MainGrid->ShowColCounter;
@@ -2139,23 +2173,18 @@ void __fastcall TfmMain::mnFixFirstRowClick(TObject *Sender)
   }
 
   MainGrid->UndoList->Lock();
-
-  if(mnFixFirstRow->Checked){
-    MainGrid->ShowColCounter = true;
-  }else{
-    MainGrid->ShowColCounter = false;
-  }
-  mnFixFirstRow->Checked = !MainGrid->ShowColCounter;
-  tsbFixFirstRow->Down   = !MainGrid->ShowColCounter;
-
+  MainGrid->ShowColCounter = !MainGrid->ShowColCounter;
   MainGrid->UndoList->Unlock();
 }
 //---------------------------------------------------------------------------
-void __fastcall TfmMain::mnFixFirstColClick(TObject *Sender)
+void __fastcall TfmMain::acFixFirstRowUpdate(TObject *Sender)
+{
+  acFixFirstRow->Checked = !MainGrid->ShowColCounter;
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmMain::acFixFirstColExecute(TObject *Sender)
 {
   if(MainGrid->FileOpenThread){
-    mnFixFirstCol->Checked = !MainGrid->ShowRowCounter;
-    tsbFixFirstCol->Down   = !MainGrid->ShowRowCounter;
     Application->MessageBox(
         L"ファイルの読み込み中は固定セルを変更できません。",
         CASSAVA_TITLE, MB_ICONERROR);
@@ -2163,25 +2192,18 @@ void __fastcall TfmMain::mnFixFirstColClick(TObject *Sender)
   }
 
   MainGrid->UndoList->Lock();
-
-  if(mnFixFirstCol->Checked){
-    MainGrid->ShowRowCounter = true;
-  }else{
-    MainGrid->ShowRowCounter = false;
-  }
-  mnFixFirstCol->Checked = !MainGrid->ShowRowCounter;
-  tsbFixFirstCol->Down   = !MainGrid->ShowRowCounter;
-
+  MainGrid->ShowRowCounter = !MainGrid->ShowRowCounter;
   MainGrid->UndoList->Unlock();
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmMain::acFixFirstColUpdate(TObject *Sender)
+{
+  acFixFirstCol->Checked = !MainGrid->ShowRowCounter;
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnFixUpLeftClick(TObject *Sender)
 {
   if(MainGrid->FileOpenThread){
-    mnFixFirstRow->Checked = !MainGrid->ShowColCounter;
-    tsbFixFirstRow->Down   = !MainGrid->ShowColCounter;
-    mnFixFirstCol->Checked = !MainGrid->ShowRowCounter;
-    tsbFixFirstCol->Down   = !MainGrid->ShowRowCounter;
     Application->MessageBox(
         L"ファイルの読み込み中は固定セルを変更できません。",
         CASSAVA_TITLE, MB_ICONERROR);
@@ -2218,11 +2240,6 @@ void __fastcall TfmMain::mnFixUpLeftClick(TObject *Sender)
     MainGrid->FixedRows = Y;
   }
 
-  mnFixFirstRow->Checked = !MainGrid->ShowColCounter;
-  tsbFixFirstRow->Down   = !MainGrid->ShowColCounter;
-  mnFixFirstCol->Checked = !MainGrid->ShowRowCounter;
-  tsbFixFirstCol->Down   = !MainGrid->ShowRowCounter;
-
   MainGrid->Col = MainGrid->FixedCols;
   MainGrid->Row = MainGrid->FixedRows;
 
@@ -2232,10 +2249,6 @@ void __fastcall TfmMain::mnFixUpLeftClick(TObject *Sender)
 void __fastcall TfmMain::mnUnFixClick(TObject *Sender)
 {
   if(MainGrid->FileOpenThread){
-    mnFixFirstRow->Checked = !MainGrid->ShowColCounter;
-    tsbFixFirstRow->Down   = !MainGrid->ShowColCounter;
-    mnFixFirstCol->Checked = !MainGrid->ShowRowCounter;
-    tsbFixFirstCol->Down   = !MainGrid->ShowRowCounter;
     Application->MessageBox(
         L"ファイルの読み込み中は固定セルを変更できません。",
         CASSAVA_TITLE, MB_ICONERROR);
@@ -2243,19 +2256,12 @@ void __fastcall TfmMain::mnUnFixClick(TObject *Sender)
   }
 
   MainGrid->UndoList->Lock();
-
-  if(mnFixFirstRow->Checked){
+  if (!MainGrid->ShowColCounter) {
     MainGrid->ShowColCounter = true;
   }
-  if(mnFixFirstCol->Checked){
+  if (!MainGrid->ShowRowCounter) {
     MainGrid->ShowRowCounter = true;
   }
-
-  mnFixFirstRow->Checked = !MainGrid->ShowColCounter;
-  tsbFixFirstRow->Down   = !MainGrid->ShowColCounter;
-  mnFixFirstCol->Checked = !MainGrid->ShowRowCounter;
-  tsbFixFirstCol->Down   = !MainGrid->ShowRowCounter;
-
   MainGrid->UndoList->Unlock();
 }
 //---------------------------------------------------------------------------
