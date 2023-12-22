@@ -146,6 +146,10 @@ class ArrayTest {
     assert.that(array.join(":")).isEqualTo("c:b:a");
   }
 
+  split(assert) {
+    assert.that(split("a123b123c", "123").join(":")).isEqualTo("a:b:c");
+  }
+
   arrayFrom(assert) {
     array = arrayFrom({0: "a", 1: "b", length: 2});
     assert.that(array.join(":")).isEqualTo("a:b");
@@ -187,6 +191,7 @@ class ArrayTest {
     this.slice(assert);
     this.splice(assert);
     this.unshift(assert);
+    this.split(assert);
     this.arrayFrom(assert);
     this.arrayOf(assert);
     this.forOf(assert);

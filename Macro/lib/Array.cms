@@ -182,7 +182,7 @@ function split(str, separator) {
     p = pos(str, separator);
     if (p > 0) {
       array.push(left(str, p - 1));
-      str = mid(str, p + 1);
+      str = mid(str, p + separator.length);
     } else {
       array.push(str);
       str = "";
