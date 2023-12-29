@@ -61,9 +61,9 @@
     <PropertyGroup Condition="'$(Base)'!=''">
         <VerInfo_MinorVer>6</VerInfo_MinorVer>
         <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
-        <VerInfo_Keys>CompanyName=;FileVersion=2.6.0.902;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=2.6.0.902;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileVersion=2.6.0.904;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=2.6.0.904;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
         <VerInfo_Locale>1041</VerInfo_Locale>
-        <VerInfo_Build>902</VerInfo_Build>
+        <VerInfo_Build>904</VerInfo_Build>
         <SanitizedProjectName>Cassava</SanitizedProjectName>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <IncludePath>$(BDSINCLUDE)\windows;$(BDS)\include\boost_1_70;$(IncludePath)</IncludePath>
@@ -98,8 +98,8 @@
         <OutputExt>exe</OutputExt>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
-        <VerInfo_Build>901</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=;FileVersion=2.6.0.901;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=2.6.0.901;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
+        <VerInfo_Build>903</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileVersion=2.6.0.903;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=2.6.0.903;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
