@@ -2517,6 +2517,10 @@ void TMainGrid::SetSelection(long Left, long Right, long Top, long Bottom)
 
     EditorMode = false;
     Options >> goEditing >> goAlwaysShowEditor;
+    if (Left == Right && Top == Bottom) {
+      Row = Top;
+      Col = Left;
+    }
     Selection = theRect;
   }
 }
