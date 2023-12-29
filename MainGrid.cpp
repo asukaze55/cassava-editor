@@ -669,22 +669,43 @@ void TMainGrid::SetHeight()
   }
 }
 //---------------------------------------------------------------------------
-void TMainGrid::CompactWidth(int *Widths, int WindowSize, int Minimum,
-                            TCanvas *Cnvs)
+void TMainGrid::CompactWidth(int *Widths, int WindowSize, int Minimum)
 {
-  int bigColSize = 0;
-  int room = WindowSize - (Minimum * (DataRight - DataLeft + 1));
-  if (!Cnvs) { Cnvs = Canvas; }
-
-  if (room <= 0) {
-    for (int i = DataLeft; i < ColCount; i++) {
-      Widths[i] = Minimum;
-    }
+  std::vector<int> sortedWidths = {0};
+  int sum = 0;
+  for (int i = DataLeft; i <= DataRight; i++) {
+    sortedWidths.push_back(Widths[i]);
+    sum += Widths[i];
+  }
+  if (sum <= WindowSize) {
     return;
   }
 
-  for (int i = DataRight + 1; i < ColCount; i++) {
-    Widths[i] = Minimum;
+  std::sort(sortedWidths.begin(), sortedWidths.end());
+  int i = sortedWidths.size();
+  while (i > 1 && sum > WindowSize) {
+    i--;
+    sum -= (sortedWidths[i] - sortedWidths[i - 1]) * (sortedWidths.size() - i);
+  }
+  int bigColSize = max(Minimum,
+      sortedWidths[i - 1] + (WindowSize - sum) / (sortedWidths.size() - i));
+  for (int x = DataLeft; x <= DataRight; x++) {
+    if (Widths[x] >= sortedWidths[i]) {
+      Widths[x] = bigColSize;
+    }
+  }
+}
+//---------------------------------------------------------------------------
+void TMainGrid::ShowAllColumn()
+{
+  int *widths = new int[ColCount];
+  int windowSize =
+      ClientWidth - 16 - (DataRight - DataLeft + 1) * GridLineWidth;
+
+  if (ShowRowCounter) {
+    widths[0] = max(MinColWidth,
+        TextWidth(Canvas, GetCellToDraw(0, DataBottom).text) + (2 * LRMargin));
+    windowSize -= widths[0];
   }
 
   int top;
@@ -699,39 +720,19 @@ void TMainGrid::CompactWidth(int *Widths, int WindowSize, int Minimum,
 
   for (int i = DataLeft; i <= DataRight; i++) {
     int maxWidth = 0;
-    for (int j = top; j <= bottom; j++){
-      maxWidth = max(maxWidth, TextWidth(Cnvs, GetCellToDraw(i, j).text));
+    for (int j = top; j <= bottom; j++) {
+      maxWidth = max(maxWidth, TextWidth(Canvas, GetCellToDraw(i, j).text));
     }
-    if (maxWidth > 0) { maxWidth += (2 * LRMargin); }
-    Widths[i] = max((maxWidth - Minimum), 0);
-    bigColSize += Widths[i];
+    widths[i] = max(MinColWidth, maxWidth + (2 * LRMargin));
   }
-
-  if (bigColSize > room) {
-    double zoom = (double)room / bigColSize;
-    for (int i = DataLeft; i <= DataRight; i++) {
-      Widths[i] = (int)(zoom * Widths[i]) + Minimum;
-    }
-  } else {
-    for (int i = DataLeft; i <= DataRight; i++) {
-      Widths[i] += Minimum;
-    }
-  }
-}
-//---------------------------------------------------------------------------
-void TMainGrid::ShowAllColumn()
-{
-  int *widths = new int[ColCount];
-  int windowSize = ClientWidth - 16;
-
-  if (ShowRowCounter) {
-    widths[0] = max(MinColWidth,
-        TextWidth(Canvas, GetCellToDraw(0, DataBottom).text) + (2 * LRMargin));
-    windowSize -= widths[0];
+  for (int i = DataRight + 1; i < ColCount; i++) {
+    widths[i] = MinColWidth;
   }
 
   CompactWidth(widths, windowSize, MinColWidth);
-  for (int i = 0; i < ColCount; i++) { ColWidths[i] = widths[i]; }
+  for (int i = 0; i < ColCount; i++) {
+    ColWidths[i] = widths[i];
+  }
   delete[] widths;
 }
 //---------------------------------------------------------------------------

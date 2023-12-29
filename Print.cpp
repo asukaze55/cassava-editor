@@ -73,8 +73,7 @@ void TfmPrint::PrintOut()
   }
   if (widthSum > pageWidth - leftMargin - rightMargin) {
     int minWidth = printer->Canvas->TextWidth("‚ ") + (2 * cellLRMargin);
-    mg->CompactWidth(widths, pageWidth - leftMargin - rightMargin, minWidth,
-                     printer->Canvas);
+    mg->CompactWidth(widths, pageWidth - leftMargin - rightMargin, minWidth);
   }
 
   int row = fmMain->MainGrid->DataTop;
