@@ -49,7 +49,7 @@ public:		// ƒ†[ƒU[éŒ¾
   __fastcall TfmPrint(TComponent* Owner);
   void PrintOut();
   int PrintPage(TCanvas *Canvas, int Width, int Height, int Top, int Widths[],
-                int page);
+                int CellLRMargin, int CellTBMargin, int Page);
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TfmPrint *fmPrint;

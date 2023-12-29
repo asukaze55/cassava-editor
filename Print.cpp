@@ -56,14 +56,26 @@ void TfmPrint::PrintOut()
   const double mmPt = printer->Canvas->Font->PixelsPerInch / 25.4;
   int leftMargin = udYohaku0->Position * mmPt;
   int rightMargin = udYohaku1->Position * mmPt;
-
-  int *widths = new int[fmMain->MainGrid->ColCount];
   int pageWidth = printer->PageWidth;
   int pageHeight = printer->PageHeight;
-  int minWidth =
-      printer->Canvas->TextWidth("‚ ") + (2 * fmMain->MainGrid->LRMargin);
-  fmMain->MainGrid->CompactWidth(
-      widths, pageWidth - leftMargin - rightMargin, minWidth, printer->Canvas);
+
+  TMainGrid *mg = fmMain->MainGrid;
+  double multiplier = (double)printer->Canvas->TextWidth("‚ ") /
+      mg->Canvas->TextWidth("‚ ");
+  int cellLRMargin = mg->LRMargin * multiplier;
+  int cellTBMargin = mg->TBMargin * multiplier;
+
+  int widthSum = 0;
+  int *widths = new int[mg->ColCount];
+  for (int i = mg->DataLeft; i <= mg->DataRight; i++) {
+    widths[i] = mg->ColWidths[i] * multiplier;
+    widthSum += widths[i];
+  }
+  if (widthSum > pageWidth - leftMargin - rightMargin) {
+    int minWidth = printer->Canvas->TextWidth("‚ ") + (2 * cellLRMargin);
+    mg->CompactWidth(widths, pageWidth - leftMargin - rightMargin, minWidth,
+                     printer->Canvas);
+  }
 
   int row = fmMain->MainGrid->DataTop;
   bool newPage = false;
@@ -73,7 +85,8 @@ void TfmPrint::PrintOut()
       if (ModalResult == mrCancel) { break; }
       printer->NewPage();
     }
-    row += PrintPage(printer->Canvas, pageWidth, pageHeight, row, widths, page);
+    row += PrintPage(printer->Canvas, pageWidth, pageHeight, row, widths,
+                     cellLRMargin, cellTBMargin, page);
     newPage = true;
   }
   printer->EndDoc();
@@ -116,7 +129,7 @@ static String formatHeaderFooter(String format, String fileName, int page)
 }
 //---------------------------------------------------------------------------
 int TfmPrint::PrintPage(TCanvas *Canvas, int Width, int Height, int Top,
-                        int Widths[], int page)
+    int Widths[], int CellLRMargin, int CellTBMargin, int Page)
 {
   TMainGrid *mg = fmMain->MainGrid;
   const double mmPt = Canvas->Font->PixelsPerInch / 25.4;
@@ -124,12 +137,10 @@ int TfmPrint::PrintPage(TCanvas *Canvas, int Width, int Height, int Top,
   int topMargin = udYohaku2->Position * mmPt;
   int right = Width - udYohaku1->Position * mmPt;
   int bottom = Height - udYohaku3->Position * mmPt;
-  int cellLRMargin = mg->LRMargin;
-  int cellTBMargin = mg->TBMargin;
 
   TRect pageRect(leftMargin, topMargin, right, bottom);
   if (edHeader->Text != "" && cbHeaderPosition->ItemIndex > 0) {
-    String header = formatHeaderFooter(edHeader->Text, fmMain->FileName, page);
+    String header = formatHeaderFooter(edHeader->Text, fmMain->FileName, Page);
     TRect size = mg->DrawTextRect(Canvas, pageRect, header, true, true);
     mg->DrawTextRect(Canvas, rectToDraw(cbHeaderPosition->ItemIndex, pageRect,
                                         size, false),
@@ -137,7 +148,7 @@ int TfmPrint::PrintPage(TCanvas *Canvas, int Width, int Height, int Top,
     topMargin += 2 * size.Height();
   }
   if (edFooter->Text != "" && cbFooterPosition->ItemIndex > 0) {
-    String footer = formatHeaderFooter(edFooter->Text, fmMain->FileName, page);
+    String footer = formatHeaderFooter(edFooter->Text, fmMain->FileName, Page);
     TRect size = mg->DrawTextRect(Canvas, pageRect, footer, true, true);
     mg->DrawTextRect(Canvas, rectToDraw(cbFooterPosition->ItemIndex, pageRect,
                                         size, true),
@@ -157,7 +168,7 @@ int TfmPrint::PrintPage(TCanvas *Canvas, int Width, int Height, int Top,
     int maxHeight = 0;
     for (int col = mg->DataLeft; col <= mg->DataRight; col++) {
       String str = mg->GetCellToDraw(col, row).text;
-      TRect rect(0, 0, Widths[col] - 2 * cellLRMargin, Height);
+      TRect rect(0, 0, Widths[col] - 2 * CellLRMargin, Height);
       int cellHeight = mg->DrawTextRect(Canvas, rect, str, true, true).Height();
       if (cellHeight > maxHeight) {
         maxHeight = cellHeight;
@@ -166,11 +177,11 @@ int TfmPrint::PrintPage(TCanvas *Canvas, int Width, int Height, int Top,
     }
 
     int x = leftMargin;
-    y += cellTBMargin;
+    y += CellTBMargin;
     for (int col = mg->DataLeft; col <= mg->DataRight; col++) {
       int width = Widths[col];
       TFormattedCell cell = mg->GetCellToDraw(col, row);
-      TRect rect(x + cellLRMargin, y, x + width - cellLRMargin, y + maxHeight);
+      TRect rect(x + CellLRMargin, y, x + width - CellLRMargin, y + maxHeight);
       if (cell.alignment == taRightJustify) {
         int left = rect.Right - Canvas->TextWidth(cell.text);
         if (rect.Left < left) {
@@ -183,12 +194,12 @@ int TfmPrint::PrintPage(TCanvas *Canvas, int Width, int Height, int Top,
         }
       }
       mg->DrawTextRect(Canvas, rect, cell.text, true, false);
-      Canvas->MoveTo(x, y);
-      Canvas->LineTo(x, y + maxHeight);
+      Canvas->MoveTo(x, y - CellTBMargin);
+      Canvas->LineTo(x, y + maxHeight + CellTBMargin);
       x += width;
     }
-    Canvas->MoveTo(x, y);
-    y += maxHeight + cellTBMargin;
+    Canvas->MoveTo(x, y - CellTBMargin);
+    y += maxHeight + CellTBMargin;
     Canvas->LineTo(x, y);
     Canvas->LineTo(leftMargin, y);
   }
