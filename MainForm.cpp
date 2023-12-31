@@ -687,7 +687,6 @@ void TfmMain::ReadToolBar()
           toolBar->Parent = CoolBar;
           toolBar->Wrapable = false;
           toolBar->AutoSize = true;
-          toolBar->AllowTextButtons = true;
           toolBar->Font->Height = 16 * PixelsPerInch / 96;
           width = 0;
         }
@@ -741,6 +740,7 @@ void TfmMain::ReadToolBar()
         if (imageIndex >= 0) {
           button->ImageIndex = imageIndex;
         } else {
+          toolBar->AllowTextButtons = true;
           button->Style = tbsTextButton;
           button->Caption = str0 != "" ? str0 : name;
         }
