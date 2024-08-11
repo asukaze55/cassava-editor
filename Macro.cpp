@@ -556,14 +556,14 @@ std::map<String, Element> Element::GetMembers() const
 String TMacro::ReadString(TStream *fs)
 {
   int length;
-  if (fs->Read(&length, sizeof(int)) == 0) {
+  if (fs->Read(&length, (int) sizeof(int)) == 0) {
     return "";
   }
   if (length == 0) {
     return "";
   }
   wchar_t *buffer = new wchar_t[length];
-  fs->Read(buffer, length * sizeof(wchar_t));
+  fs->Read(buffer, length * (int) sizeof(wchar_t));
   String value = String(buffer, length);
   delete[] buffer;
   return value;
@@ -1675,11 +1675,11 @@ Element TMacro::Do(String FileName, const std::vector<Element> &AStack,
         }
       }else if(Type == 'i'){
         int i;
-        fs->Read(&i, sizeof(int));
+        fs->Read(&i, (int) sizeof(int));
         Stack.push_back(Element(i));
       }else if(Type == 'd' || Type == 'I'){
         double d;
-        fs->Read(&d, sizeof(double));
+        fs->Read(&d, (int) sizeof(double));
         Stack.push_back(Element(d));
       }
     }

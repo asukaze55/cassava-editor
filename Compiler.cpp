@@ -832,7 +832,7 @@ void TCompiler::Output(String str, char type) {
     case '$': case '*': case '~': case '!': {
       int length = str.Length();
       fout->Write(&length, INT_SIZE);
-      fout->Write(str.c_str(), length * sizeof(wchar_t));
+      fout->Write(str.c_str(), length * (int) sizeof(wchar_t));
       break;
     }
     case '-': {
