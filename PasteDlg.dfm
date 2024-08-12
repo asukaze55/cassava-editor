@@ -7,34 +7,32 @@ object fmPasteDialog: TfmPasteDialog
   ClientHeight = 289
   ClientWidth = 390
   Color = clBtnFace
-  Font.Charset = SHIFTJIS_CHARSET
+  Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -16
-  Font.Name = #65325#65331' '#65328#12468#12471#12483#12463
+  Font.Name = 'Yu Gothic UI'
   Font.Style = []
-  OldCreateOrder = True
   Position = poScreenCenter
-  PixelsPerInch = 96
-  TextHeight = 16
+  TextHeight = 21
   object Label1: TLabel
     Left = 0
     Top = 0
-    Width = 265
-    Height = 16
+    Width = 237
+    Height = 21
     Caption = #36984#25246#38936#22495#12392#12487#12540#12479#12398#12469#12452#12474#12364#36949#12356#12414#12377#12290
   end
   object Label2: TLabel
     Left = 0
     Top = 50
-    Width = 267
-    Height = 16
+    Width = 245
+    Height = 21
     Caption = #19979#12398#26041#27861#12391#36028#12426#20184#12369#12390#12424#12429#12375#12356#12391#12377#12363#65311
   end
   object lbMessage: TLabel
     Left = 20
     Top = 20
-    Width = 5
-    Height = 16
+    Width = 4
+    Height = 21
   end
   object Way: TRadioGroup
     Left = 20

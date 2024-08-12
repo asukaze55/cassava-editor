@@ -6,16 +6,10 @@ object fmOption: TfmOption
   ClientHeight = 590
   ClientWidth = 529
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'Tahoma'
-  Font.Style = []
-  OldCreateOrder = False
+  ParentFont = True
   Position = poMainFormCenter
   OnShow = FormShow
-  PixelsPerInch = 96
-  TextHeight = 13
+  TextHeight = 15
   object tvCategory: TTreeView
     Left = 0
     Top = 0
@@ -76,12 +70,12 @@ object fmOption: TfmOption
         Left = 16
         Top = 6
         Width = 37
-        Height = 13
+        Height = 15
         Caption = 'Option'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWhite
-        Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Height = -12
+        Font.Name = 'Yu Gothic UI'
         Font.Style = [fsBold]
         ParentFont = False
         Transparent = True
@@ -100,7 +94,7 @@ object fmOption: TfmOption
       529
       35)
     object btnOK: TBitBtn
-      Left = 324
+      Left = 320
       Top = 6
       Width = 97
       Height = 27
@@ -113,7 +107,7 @@ object fmOption: TfmOption
       OnClick = btnOKClick
     end
     object btnCancel: TBitBtn
-      Left = 427
+      Left = 423
       Top = 6
       Width = 95
       Height = 27

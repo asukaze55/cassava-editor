@@ -6,43 +6,37 @@ object fmSort: TfmSort
   ClientHeight = 225
   ClientWidth = 352
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'Tahoma'
-  Font.Style = []
-  OldCreateOrder = False
+  ParentFont = True
   OnClose = FormClose
-  PixelsPerInch = 96
-  TextHeight = 13
+  TextHeight = 15
   object Label4: TLabel
     Left = 120
     Top = 73
-    Width = 12
-    Height = 13
+    Width = 13
+    Height = 15
     Caption = #65374
   end
   object Label5: TLabel
     Left = 89
     Top = 26
-    Width = 99
-    Height = 13
+    Width = 109
+    Height = 15
     Caption = #21015#30446#12398#12487#12540#12479#12391#12477#12540#12488
     FocusControl = seSortCol
   end
   object Label1: TLabel
     Left = 8
     Top = 50
-    Width = 66
-    Height = 13
+    Width = 71
+    Height = 15
     Caption = #12477#12540#12488#31684#22258'(&R)'
     FocusControl = seSortLeft
   end
   object Label2: TLabel
     Left = 8
     Top = 8
-    Width = 34
-    Height = 13
+    Width = 37
+    Height = 15
     Caption = #12461#12540'(&K)'
     FocusControl = seSortCol
   end
@@ -50,7 +44,7 @@ object fmSort: TfmSort
     Left = 16
     Top = 69
     Width = 33
-    Height = 21
+    Height = 23
     TabOrder = 2
     Text = '1'
     OnChange = seSortChange
@@ -72,7 +66,7 @@ object fmSort: TfmSort
     Left = 64
     Top = 69
     Width = 33
-    Height = 21
+    Height = 23
     TabOrder = 4
     Text = '1'
     OnChange = seSortChange
@@ -95,7 +89,7 @@ object fmSort: TfmSort
     Left = 138
     Top = 69
     Width = 33
-    Height = 21
+    Height = 23
     TabOrder = 6
     Text = '1'
     OnChange = seSortChange
@@ -118,7 +112,7 @@ object fmSort: TfmSort
     Left = 186
     Top = 69
     Width = 33
-    Height = 21
+    Height = 23
     TabOrder = 8
     Text = '1'
     OnChange = seSortChange
@@ -141,7 +135,7 @@ object fmSort: TfmSort
     Left = 17
     Top = 23
     Width = 49
-    Height = 21
+    Height = 23
     TabOrder = 0
     Text = '1'
   end
@@ -177,13 +171,7 @@ object fmSort: TfmSort
     Height = 17
     Cancel = True
     Caption = #12461#12515#12531#12475#12523
-    Font.Charset = SHIFTJIS_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -13
-    Font.Name = 'MS UI Gothic'
-    Font.Style = []
     ModalResult = 2
-    ParentFont = False
     TabOrder = 15
     OnClick = btnSortCancelClick
   end

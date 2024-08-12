@@ -28,6 +28,7 @@ int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
     Application->Initialize();
     Application->HelpFile = "";
     Application->Title = "Cassava Editor";
+    Application->DefaultFont->Name = "Yu Gothic UI";
     Application->CreateForm(__classid(TfmMain), &fmMain);
     Application->CreateForm(__classid(TfmFind), &fmFind);
     Application->CreateForm(__classid(TfmSort), &fmSort);

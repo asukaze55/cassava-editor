@@ -5,17 +5,13 @@ object fmMain: TfmMain
   ClientHeight = 561
   ClientWidth = 585
   Color = clBtnFace
-  Font.Charset = SHIFTJIS_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'Tahoma'
-  Font.Style = []
+  ParentFont = True
   Menu = Menu
   ShowHint = True
   OnAfterMonitorDpiChanged = FormAfterMonitorDpiChanged
   OnCloseQuery = FormCloseQuery
   OnShow = FormShow
-  TextHeight = 13
+  TextHeight = 15
   object StatusBar: TStatusBar
     Left = 0
     Top = 542
@@ -27,8 +23,8 @@ object fmMain: TfmMain
       end>
     PopupMenu = PopMenuStatusBar
     OnContextPopup = StatusBarContextPopup
-    ExplicitTop = 533
-    ExplicitWidth = 579
+    ExplicitTop = 534
+    ExplicitWidth = 583
   end
   object MainPanel: TPanel
     Left = 0
@@ -38,8 +34,8 @@ object fmMain: TfmMain
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
-    ExplicitWidth = 579
-    ExplicitHeight = 505
+    ExplicitWidth = 583
+    ExplicitHeight = 506
     object pnlSearch: TPanel
       Left = 0
       Top = 482
@@ -48,8 +44,8 @@ object fmMain: TfmMain
       Align = alBottom
       TabOrder = 0
       Visible = False
-      ExplicitTop = 473
-      ExplicitWidth = 579
+      ExplicitTop = 474
+      ExplicitWidth = 583
       DesignSize = (
         585
         32)
@@ -92,8 +88,8 @@ object fmMain: TfmMain
       object Label1: TLabel
         Left = 37
         Top = 10
-        Width = 30
-        Height = 13
+        Width = 39
+        Height = 15
         Caption = #26908#32034#65306
       end
       object btnSearchOption: TSpeedButton
@@ -123,7 +119,7 @@ object fmMain: TfmMain
         Left = 83
         Top = 5
         Width = 185
-        Height = 21
+        Height = 23
         TabOrder = 0
         OnKeyDown = edFindTextKeyDown
       end
@@ -139,7 +135,7 @@ object fmMain: TfmMain
     BevelEdges = [beTop]
     TabOrder = 2
     OnResize = CoolBarResize
-    ExplicitWidth = 579
+    ExplicitWidth = 583
     object tbarAdditional: TToolBar
       Left = 246
       Top = 2

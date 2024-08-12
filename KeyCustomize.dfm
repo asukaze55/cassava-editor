@@ -5,15 +5,9 @@ object fmKey: TfmKey
   ClientHeight = 400
   ClientWidth = 472
   Color = clBtnFace
-  Font.Charset = SHIFTJIS_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -16
-  Font.Name = 'MS UI Gothic'
-  Font.Style = []
-  OldCreateOrder = False
+  ParentFont = True
   OnShow = FormShow
-  PixelsPerInch = 96
-  TextHeight = 16
+  TextHeight = 15
   object tvMenu: TTreeView
     Left = 0
     Top = 0
@@ -26,8 +20,9 @@ object fmKey: TfmKey
     OnChange = tvMenuChange
     OnChanging = tvMenuChanging
     Items.NodeData = {
-      0301000000360000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFF000000
-      0000000000010C43006100730073006100760061002000E130CB30E530FC30}
+      070100000009540054007200650065004E006F00640065003700000000000000
+      00000000FFFFFFFFFFFFFFFFFFFFFFFF000000000000000000010C4300610073
+      0073006100760061002000E130CB30E530FC30}
   end
   object Panel1: TPanel
     Left = 249
@@ -99,7 +94,7 @@ object fmKey: TfmKey
       Left = 160
       Top = 72
       Width = 49
-      Height = 24
+      Height = 23
       TabOrder = 2
       OnKeyPress = edSCKeyKeyPress
     end
@@ -113,15 +108,15 @@ object fmKey: TfmKey
     end
     object StaticText1: TStaticText
       Left = 144
-      Top = 100
-      Width = 14
-      Height = 20
+      Top = 98
+      Width = 10
+      Height = 19
       Alignment = taRightJustify
       Caption = 'F'
-      Font.Charset = SHIFTJIS_CHARSET
+      Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = #65325#65331' '#65328#12468#12471#12483#12463
+      Font.Height = -12
+      Font.Name = 'Yu Gothic UI'
       Font.Style = [fsBold]
       ParentFont = False
       TabOrder = 9
@@ -165,7 +160,7 @@ object fmKey: TfmKey
       Left = 8
       Top = 0
       Width = 209
-      Height = 24
+      Height = 23
       TabOrder = 0
       OnChange = edSelectedChange
     end
@@ -173,7 +168,7 @@ object fmKey: TfmKey
       Left = 160
       Top = 96
       Width = 33
-      Height = 24
+      Height = 23
       TabOrder = 12
       Text = '1'
     end
@@ -181,7 +176,7 @@ object fmKey: TfmKey
       Left = 193
       Top = 96
       Width = 16
-      Height = 24
+      Height = 23
       Associate = csFNumber
       Min = 1
       Max = 24

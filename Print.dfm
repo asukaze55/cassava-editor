@@ -6,29 +6,23 @@ object fmPrint: TfmPrint
   ClientHeight = 270
   ClientWidth = 352
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'Tahoma'
-  Font.Style = []
-  OldCreateOrder = False
+  ParentFont = True
   Position = poScreenCenter
   OnClose = FormClose
   OnShow = FormShow
   DesignSize = (
     352
     270)
-  PixelsPerInch = 96
-  TextHeight = 13
+  TextHeight = 15
   object lblFont: TLabel
     Left = 8
     Top = 244
-    Width = 44
-    Height = 13
+    Width = 45
+    Height = 15
     Caption = 'Font: ???'
   end
   object btnPrint: TButton
-    Left = 239
+    Left = 237
     Top = 8
     Width = 105
     Height = 25
@@ -47,36 +41,36 @@ object fmPrint: TfmPrint
     object Label1: TLabel
       Left = 16
       Top = 23
-      Width = 18
-      Height = 13
+      Width = 26
+      Height = 15
       Caption = #24038#65306
     end
     object Label2: TLabel
       Left = 90
       Top = 23
-      Width = 18
-      Height = 13
+      Width = 26
+      Height = 15
       Caption = #21491#65306
     end
     object Label3: TLabel
       Left = 90
       Top = 50
-      Width = 18
-      Height = 13
+      Width = 26
+      Height = 15
       Caption = #19979#65306
     end
     object Label4: TLabel
       Left = 16
       Top = 50
-      Width = 18
-      Height = 13
+      Width = 26
+      Height = 15
       Caption = #19978#65306
     end
     object csYohaku0: TEdit
       Left = 40
       Top = 20
       Width = 28
-      Height = 21
+      Height = 23
       TabOrder = 0
       Text = '15'
     end
@@ -94,7 +88,7 @@ object fmPrint: TfmPrint
       Left = 114
       Top = 20
       Width = 28
-      Height = 21
+      Height = 23
       TabOrder = 2
       Text = '15'
     end
@@ -112,7 +106,7 @@ object fmPrint: TfmPrint
       Left = 40
       Top = 47
       Width = 28
-      Height = 21
+      Height = 23
       TabOrder = 4
       Text = '15'
     end
@@ -130,7 +124,7 @@ object fmPrint: TfmPrint
       Left = 114
       Top = 47
       Width = 28
-      Height = 21
+      Height = 23
       TabOrder = 6
       Text = '15'
     end
@@ -146,7 +140,7 @@ object fmPrint: TfmPrint
     end
   end
   object btnFont: TButton
-    Left = 239
+    Left = 237
     Top = 39
     Width = 105
     Height = 25
@@ -156,7 +150,7 @@ object fmPrint: TfmPrint
     OnClick = btnFontClick
   end
   object btnClose: TButton
-    Left = 239
+    Left = 237
     Top = 70
     Width = 105
     Height = 25
@@ -176,36 +170,36 @@ object fmPrint: TfmPrint
     object lblHeader: TLabel
       Left = 16
       Top = 24
-      Width = 32
-      Height = 13
+      Width = 41
+      Height = 15
       Caption = #12504#12483#12480#65306
     end
     object Label5: TLabel
       Left = 19
       Top = 51
-      Width = 29
-      Height = 13
+      Width = 39
+      Height = 15
       Caption = #12501#12483#12479#65306
     end
     object edHeader: TEdit
       Left = 54
       Top = 16
       Width = 217
-      Height = 21
+      Height = 23
       TabOrder = 0
     end
     object edFooter: TEdit
       Left = 54
       Top = 43
       Width = 217
-      Height = 21
+      Height = 23
       TabOrder = 2
     end
     object cbHeaderPosition: TComboBox
       Left = 277
       Top = 16
       Width = 48
-      Height = 21
+      Height = 23
       AutoDropDown = True
       Style = csDropDownList
       ItemIndex = 2
@@ -221,7 +215,7 @@ object fmPrint: TfmPrint
       Left = 277
       Top = 43
       Width = 48
-      Height = 21
+      Height = 23
       AutoDropDown = True
       Style = csDropDownList
       ItemIndex = 2
