@@ -450,6 +450,7 @@ public:     // ƒ†[ƒU[éŒ¾
   bool SortByNumber;
   bool SortIgnoreCase;
   bool SortIgnoreZenhan;
+  int SortDirection;
 
   // After fmFind loaded, Use fmFind->cbCase->Checked.
   bool FindCase;

@@ -15,6 +15,7 @@ __fastcall TfmSort::TfmSort(TComponent* Owner)
   cbNumSort->Checked = fmMain->SortByNumber;
   cbCaseSensitive->Checked = !(fmMain->SortIgnoreCase);
   cbZenhanSensitive->Checked = !(fmMain->SortIgnoreZenhan);
+  rgSortDirection->ItemIndex = fmMain->SortDirection;
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmSort::FormClose(TObject *Sender, TCloseAction &Action)
@@ -22,6 +23,7 @@ void __fastcall TfmSort::FormClose(TObject *Sender, TCloseAction &Action)
   fmMain->SortByNumber = cbNumSort->Checked;
   fmMain->SortIgnoreCase = !(cbCaseSensitive->Checked);
   fmMain->SortIgnoreZenhan = !(cbZenhanSensitive->Checked);
+  fmMain->SortDirection = rgSortDirection->ItemIndex;
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmSort::btnSortClick(TObject *Sender)

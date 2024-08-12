@@ -53,7 +53,7 @@ object fmSort: TfmSort
     Left = 49
     Top = 69
     Width = 17
-    Height = 21
+    Height = 23
     Associate = seSortLeft
     ArrowKeys = False
     Min = 1
@@ -76,7 +76,7 @@ object fmSort: TfmSort
     Left = 97
     Top = 69
     Width = 17
-    Height = 21
+    Height = 23
     Associate = seSortTop
     ArrowKeys = False
     Min = 1
@@ -99,7 +99,7 @@ object fmSort: TfmSort
     Left = 171
     Top = 69
     Width = 17
-    Height = 21
+    Height = 23
     Associate = seSortRight
     ArrowKeys = False
     Min = 1
@@ -122,7 +122,7 @@ object fmSort: TfmSort
     Left = 219
     Top = 69
     Width = 17
-    Height = 21
+    Height = 23
     Associate = seSortBottom
     ArrowKeys = False
     Min = 1
@@ -144,7 +144,7 @@ object fmSort: TfmSort
     Left = 66
     Top = 23
     Width = 17
-    Height = 21
+    Height = 23
     Associate = seSortCol
     ArrowKeys = False
     Min = 1

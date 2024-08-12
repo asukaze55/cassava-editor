@@ -423,6 +423,7 @@ void TfmMain::ReadIni()
     SortByNumber = Ini->ReadBool("Mode","SortByNumber",true);
     SortIgnoreCase = Ini->ReadBool("Mode", "SortIgnoreCase", false);
     SortIgnoreZenhan = Ini->ReadBool("Mode", "SortIgnoreZenhan", false);
+    SortDirection = Ini->ReadInteger("Mode", "SortDirection", 0);
     MainGrid->CheckKanji = Ini->ReadBool("Mode", "CheckKanji", true);
     MainGrid->DefaultCharCode =
         Ini->ReadInteger("Mode", "DefaultCharCode", CHARCODE_UTF8);
@@ -595,6 +596,7 @@ void TfmMain::WriteIni(bool PosSlide)
     Ini->WriteBool("Mode", "SortByNumber", SortByNumber);
     Ini->WriteBool("Mode", "SortIgnoreCase", SortIgnoreCase);
     Ini->WriteBool("Mode", "SortIgnoreZenhan", SortIgnoreZenhan);
+    Ini->WriteBool("Mode", "SortDirection", SortDirection);
     Ini->WriteBool("Mode", "CheckKanji", MainGrid->CheckKanji);
     Ini->WriteInteger("Mode", "DefaultCharCode", MainGrid->DefaultCharCode);
     Ini->WriteBool("Mode", "CompactColWidth", MainGrid->CompactColWidth);
