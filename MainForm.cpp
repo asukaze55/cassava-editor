@@ -780,7 +780,7 @@ TMenuItem *FindMenuItemInternal(TMenuItem *root, String name)
 //---------------------------------------------------------------------------
 TMenuItem *TfmMain::FindMenuItem(String name)
 {
-  return FindMenuItemInternal(Menu->Items, (String)"mn" + name);
+  return FindMenuItemInternal(MainMenu->Items, (String)"mn" + name);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::UserToolBarAction(TObject *Sender)
@@ -967,17 +967,19 @@ void __fastcall TfmMain::MainGridChangeModified(TObject *Sender)
 void __fastcall TfmMain::MainGridKeyDown(System::TObject* Sender,
                                Word &Key, Classes::TShiftState Shift)
 {
-  if(Key == VK_ESCAPE){
-    if(!MainGrid->AlwaysShowEditor){
+  if (Key == VK_ESCAPE) {
+    if (!MainGrid->AlwaysShowEditor) {
       MainGrid->Options >> goAlwaysShowEditor;
       MainGrid->EditorMode = false;
     }
-    if(pnlSearch->Visible){
+    if (pnlSearch->Visible) {
       pnlSearch->Visible = false;
     }
-  }else if(Key == VK_CANCEL){
+  } else if (Key == VK_CANCEL) {
     StopAllMacros();
-  }else{
+  } else if (Key == VK_MENU) {
+    Menu = MainMenu;
+  } else {
     MainGrid->KeyDownSub(Sender, Key, Shift);
   }
 }
@@ -1367,7 +1369,7 @@ void __fastcall TfmMain::tmAutoSaverTimer(TObject *Sender)
 void TfmMain::GetCheckedMenus(TStringList *list)
 {
   list->Clear();
-  TMenuItem *items = Menu->Items;
+  TMenuItem *items = MainMenu->Items;
   for(int i=0; i<items->Count; i++){
     AddCheckedMenus(list, items->Items[i]);
   }
@@ -1392,7 +1394,7 @@ void TfmMain::AddCheckedMenus(TStringList *list, TMenuItem* item)
 //---------------------------------------------------------------------------
 void TfmMain::RestoreCheckedMenus(TStringList *list)
 {
-  TMenuItem *items = Menu->Items;
+  TMenuItem *items = MainMenu->Items;
   for(int i=0; i<items->Count; i++){
     RestoreCheckedMenus(list, items->Items[i]);
   }
@@ -2095,6 +2097,11 @@ void __fastcall TfmMain::acCalcExpressionExecute(TObject *Sender)
 void __fastcall TfmMain::acCalcExpressionUpdate(TObject *Sender)
 {
   acCalcExpression->Checked = MainGrid->ExecCellMacro;
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmMain::mnHideMenuBarClick(TObject *Sender)
+{
+  Menu = nullptr;
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnShowToolbarClick(TObject *Sender)

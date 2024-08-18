@@ -207,6 +207,7 @@ Refresh();,列幅を調整して再描画,-
 Font();,フォント,-
 StayOnTop();,常に最前面に表示の切り替え,-
 CalcExpression();,セル内計算式を処理の切り替え,1.5.0
+HideMenuBar();,メニューバーを非表示にする,2.6.0
 ShowToolbar();,ツールバーの表示の切り替え,-
 ShowStatusbar();,ステータスバーの表示の切り替え,1.6.0
 FixFirstRow();,1 行目を固定の切り替え,-

@@ -27,7 +27,7 @@
 class TfmMain : public TForm
 {
 __published:	// IDE 管理のコンポーネント
-  TMainMenu *Menu;
+  TMainMenu *MainMenu;
   TMenuItem *mnFile;
   TMenuItem *mnOpen;
   TMenuItem *mnSave;
@@ -144,7 +144,9 @@ __published:	// IDE 管理のコンポーネント
   TMenuItem *mnTransChar2;
   TMenuItem *mnTransChar3;
   TMenuItem *mnN14;
+  TMenuItem *mnHideMenuBar;
   TMenuItem *mnShowToolbar;
+  TMenuItem *mnShowStatusbar;
   TMenuItem *mnAppli;
   TMenuItem *mnAppli0;
   TMenuItem *mnAppli1;
@@ -198,7 +200,6 @@ __published:	// IDE 管理のコンポーネント
   TSpeedButton *btnSearchOption;
   TSpeedButton *btnSearchCancel;
   TEdit *edFindText;
-  TMenuItem *mnShowStatusbar;
   TControlBar *CoolBar;
   TToolBar *tbarAdditional;
   TToolButton *tsbSort;
@@ -303,7 +304,9 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall mnOptionDlgClick(TObject *Sender);
   void __fastcall mnPrintClick(TObject *Sender);
   void __fastcall mnTransCharClick(TObject *Sender);
+  void __fastcall mnHideMenuBarClick(TObject *Sender);
   void __fastcall mnShowToolbarClick(TObject *Sender);
+  void __fastcall mnShowStatusbarClick(TObject *Sender);
   void __fastcall mnAppliClick(TObject *Sender);
   void __fastcall mnSequenceClick(TObject *Sender);
   void __fastcall mnSequenceCClick(TObject *Sender);
@@ -332,7 +335,6 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall btnNextClick(TObject *Sender);
   void __fastcall btnPreviousClick(TObject *Sender);
   void __fastcall btnSearchOptionClick(TObject *Sender);
-  void __fastcall mnShowStatusbarClick(TObject *Sender);
   void __fastcall CoolBarResize(TObject *Sender);
   void __fastcall mnCheckUpdateClick(TObject *Sender);
   void __fastcall acMacroTerminateExecute(TObject *Sender);

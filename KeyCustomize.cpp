@@ -40,7 +40,7 @@ void TfmKey::AddMenu(TTreeNode* Node, TMenuItem* MenuItem)
 void TfmKey::MakeTree()
 {
   TTreeNode *Root = tvMenu->Items->Item[0];
-  TMenuItem *Menu = fmMain->Menu->Items;
+  TMenuItem *Menu = fmMain->MainMenu->Items;
   for(int i=0; i<Menu->Count; i++)
     AddMenu(Root, Menu->Items[i]);
   Root->Expanded = true;

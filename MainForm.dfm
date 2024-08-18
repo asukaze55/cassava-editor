@@ -6,7 +6,7 @@ object fmMain: TfmMain
   ClientWidth = 585
   Color = clBtnFace
   ParentFont = True
-  Menu = Menu
+  Menu = MainMenu
   ShowHint = True
   OnAfterMonitorDpiChanged = FormAfterMonitorDpiChanged
   OnCloseQuery = FormCloseQuery
@@ -443,7 +443,7 @@ object fmMain: TfmMain
       end
     end
   end
-  object Menu: TMainMenu
+  object MainMenu: TMainMenu
     Left = 290
     Top = 32
     object mnFile: TMenuItem
@@ -997,6 +997,11 @@ object fmMain: TfmMain
       end
       object mnN14: TMenuItem
         Caption = '-'
+      end
+      object mnHideMenuBar: TMenuItem
+        Caption = #12513#12491#12517#12540#12496#12540'(&M)'
+        Checked = True
+        OnClick = mnHideMenuBarClick
       end
       object mnShowToolbar: TMenuItem
         Caption = #12484#12540#12523#12496#12540'(&T)'
