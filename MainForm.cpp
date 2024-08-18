@@ -644,123 +644,134 @@ void TfmMain::ReadToolBar()
   tbarAdditional->Left = tbarNormal->Left + tbarNormal->Width;
 
   String toolbarcsv = Pref->Path + "ToolBar.csv";
-  if(FileExists(toolbarcsv)){
-    ::SendMessage(CoolBar->Handle, WM_SETREDRAW, 0, 0);
-    tbarNormal->Visible = false;
-    tbarAdditional->Visible = false;
-
-    TTypeOption typeOption("CSV");
-    CsvReader reader(&typeOption, toolbarcsv, TEncoding::Default);
-    TStringList *list = new TStringList();
-    reader.ReadLine(list);
-    if(list->Count == 0 || list->Strings[0] != "(Cassava-ToolBarSetting)") {
-      delete list;
-      return;
-    }
-    TToolBar *toolBar = nullptr;
-    int width = 0;
-    int tbarTop = 0;
-    int tbarLeft = 0;
-    while(reader.ReadLine(list)){
-      while(list->Count < 3) { list->Add(""); }
-      String str0 = list->Strings[0];
-      String name = list->Strings[1];
-      String action = list->Strings[2];
-
-      if(str0 != "" && str0[1] == '='){
-        tbarTop += tbarNormal->Height;
-        tbarLeft = -1;
-      }else if(str0 != "" && str0[1] == '#'){
-        if(toolBar){
-          toolBar->Width = width;
-          if(tbarLeft >= 0){ tbarLeft += width; }
-        }
-        if(tbarLeft < 0){ tbarLeft = 0; }
-        if(str0 == "#1"){
-          toolBar = tbarNormal;
-          toolBar->Visible = true;
-          width = toolBar->Width;
-        }else if(str0 == "#2"){
-          toolBar = tbarAdditional;
-          toolBar->Visible = true;
-          width = toolBar->Width;
-        }else{
-          toolBar = new TToolBar(CoolBar);
-          toolBar->Parent = CoolBar;
-          toolBar->Wrapable = false;
-          toolBar->AutoSize = true;
-          toolBar->Font->Height = 16 * PixelsPerInch / 96;
-          width = 0;
-        }
-        toolBar->Top = tbarTop;
-        toolBar->Left = tbarLeft;
-        String toolbarbmp = Pref->Path + name;
-        if(name == "#1"){
-          if (Style == "Windows10 Dark") {
-            toolBar->Images = imlNormalDark;
-            toolBar->DisabledImages = imlNormalDarkDisabled;
-          } else {
-            toolBar->Images = imlNormal;
-            toolBar->DisabledImages = imlNormalDisabled;
-          }
-        }else if(name == "#2"){
-          if (Style == "Windows10 Dark") {
-            toolBar->Images = imlAdditionalDark;
-          } else {
-            toolBar->Images = imlAdditional;
-          }
-        }else if(name != "" && FileExists(toolbarbmp)){
-          TCustomImageList *images = new TCustomImageList(16, 16);
-          images->FileLoad(rtBitmap, toolbarbmp, clSilver);
-          toolBar->Images = images;
-        }
-      }else if(name == "-"){
-        TToolButton *button = new TToolButton(toolBar);
-        button->Style = tbsSeparator;
-        button->Left = width;
-        button->Parent = toolBar;
-        button->Width = 8;
-        width += button->Width;
-      }else if(name != ""){
-        TToolButton *button = new TToolButton(toolBar);
-        button->Left = width;
-        button->Parent = toolBar;
-        TMenuItem *menuItem = FindMenuItem(action);
-        if (menuItem) {
-          if (menuItem->Action) {
-            button->Action = menuItem->Action;
-          } else {
-            button->OnClick = menuItem->OnClick;
-          }
-          button->Hint = name;
-        } else {
-          button->OnClick = UserToolBarAction;
-          button->Hint = StringReplace(name, "|", "_",
-              TReplaceFlags() << rfReplaceAll) + "|" + action;
-        }
-        int imageIndex = str0.ToIntDef(-1);
-        if (imageIndex >= 0) {
-          button->ImageIndex = imageIndex;
-        } else {
-          toolBar->AllowTextButtons = true;
-          button->Style = tbsTextButton;
-          button->Caption = str0 != "" ? str0 : name;
-        }
-        if (action == "OpenHistory") {
-          button->OnClick = mnOpenClick;
-          button->Hint = name;
-          button->Style = tbsDropDown;
-          button->DropdownMenu = PopMenuOpen;
-        }
-        width += button->Width;
-      }
-    }
-    if(toolBar){
-      toolBar->Width = width;
-    }
-    delete list;
-    ::SendMessage(CoolBar->Handle, WM_SETREDRAW, 1, 0);
+  if (!FileExists(toolbarcsv)) {
+    return;
   }
+
+  ::SendMessage(CoolBar->Handle, WM_SETREDRAW, 0, 0);
+  bool visible = CoolBar->Visible;
+  CoolBar->Visible = true;
+  tbarNormal->Visible = false;
+  tbarAdditional->Visible = false;
+
+  TTypeOption typeOption("CSV");
+  CsvReader reader(&typeOption, toolbarcsv, TEncoding::Default);
+  TStringList *list = new TStringList();
+  reader.ReadLine(list);
+  if (list->Count == 0 || list->Strings[0] != "(Cassava-ToolBarSetting)") {
+    delete list;
+    return;
+  }
+  TToolBar *toolBar = nullptr;
+  int width = 0;
+  int tbarTop = 0;
+  int tbarLeft = 0;
+  while (reader.ReadLine(list)) {
+    while (list->Count < 3) {
+      list->Add("");
+    }
+    String str0 = list->Strings[0];
+    String name = list->Strings[1];
+    String action = list->Strings[2];
+
+    if (str0 != "" && str0[1] == '=') {
+      tbarTop += tbarNormal->Height;
+      tbarLeft = -1;
+    } else if (str0 != "" && str0[1] == '#') {
+      if (toolBar) {
+        toolBar->Width = width;
+        if (tbarLeft >= 0) {
+          tbarLeft += width;
+        }
+      }
+      if (tbarLeft < 0) {
+        tbarLeft = 0;
+      }
+      if (str0 == "#1") {
+        toolBar = tbarNormal;
+        toolBar->Visible = true;
+        width = toolBar->Width;
+      } else if (str0 == "#2") {
+        toolBar = tbarAdditional;
+        toolBar->Visible = true;
+        width = toolBar->Width;
+      } else {
+        toolBar = new TToolBar(CoolBar);
+        toolBar->Parent = CoolBar;
+        toolBar->Wrapable = false;
+        toolBar->AutoSize = true;
+        toolBar->Font->Height = 16 * PixelsPerInch / 96;
+        width = 0;
+      }
+      toolBar->Top = tbarTop;
+      toolBar->Left = tbarLeft;
+      String toolbarbmp = Pref->Path + name;
+      if (name == "#1") {
+        if (Style == "Windows10 Dark") {
+          toolBar->Images = imlNormalDark;
+          toolBar->DisabledImages = imlNormalDarkDisabled;
+        } else {
+          toolBar->Images = imlNormal;
+          toolBar->DisabledImages = imlNormalDisabled;
+        }
+      } else if (name == "#2") {
+        if (Style == "Windows10 Dark") {
+          toolBar->Images = imlAdditionalDark;
+        } else {
+          toolBar->Images = imlAdditional;
+        }
+      } else if (name != "" && FileExists(toolbarbmp)) {
+        TCustomImageList *images = new TCustomImageList(16, 16);
+        images->FileLoad(rtBitmap, toolbarbmp, clSilver);
+        toolBar->Images = images;
+      }
+    } else if (name == "-") {
+      TToolButton *button = new TToolButton(toolBar);
+      button->Style = tbsSeparator;
+      button->Left = width;
+      button->Parent = toolBar;
+      button->Width = 8;
+      width += button->Width;
+    } else if (name != "") {
+      TToolButton *button = new TToolButton(toolBar);
+      button->Left = width;
+      button->Parent = toolBar;
+      TMenuItem *menuItem = FindMenuItem(action);
+      if (menuItem) {
+        if (menuItem->Action) {
+          button->Action = menuItem->Action;
+        } else {
+          button->OnClick = menuItem->OnClick;
+        }
+        button->Hint = name;
+      } else {
+        button->OnClick = UserToolBarAction;
+        button->Hint = StringReplace(name, "|", "_",
+            TReplaceFlags() << rfReplaceAll) + "|" + action;
+      }
+      int imageIndex = str0.ToIntDef(-1);
+      if (imageIndex >= 0) {
+        button->ImageIndex = imageIndex;
+      } else {
+        toolBar->AllowTextButtons = true;
+        button->Style = tbsTextButton;
+        button->Caption = str0 != "" ? str0 : name;
+      }
+      if (action == "OpenHistory") {
+        button->OnClick = mnOpenClick;
+        button->Hint = name;
+        button->Style = tbsDropDown;
+        button->DropdownMenu = PopMenuOpen;
+      }
+      width += button->Width;
+    }
+  }
+  if (toolBar) {
+    toolBar->Width = width;
+  }
+  delete list;
+  ::SendMessage(CoolBar->Handle, WM_SETREDRAW, 1, 0);
+  CoolBar->Visible = visible;
 }
 //---------------------------------------------------------------------------
 TMenuItem *FindMenuItemInternal(TMenuItem *root, String name)
