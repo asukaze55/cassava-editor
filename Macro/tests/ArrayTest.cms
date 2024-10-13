@@ -15,6 +15,12 @@ class ArrayTest {
     assert.that(array3.join(":")).isEqualTo("a:b:c:d:e:f");
   }
 
+  every(assert) {
+    array = arrayOf(1, 2, 3, 4, 5);
+    assert.that(array.every(e => e < 5)).isFalse();
+    assert.that(array.every(e => e <= 5)).isTrue();
+  }
+
   filter(assert) {
     array = arrayOf("spray", "limit", "elite", "exuberant", "destruction", "present");
     result = array.filter(word => word.length > 6);
@@ -126,6 +132,12 @@ class ArrayTest {
     assert.that(array.slice(-11, -10).join(":")).isEqualTo("");
   }
 
+  some(assert) {
+    array = arrayOf(1, 2, 3, 4, 5);
+    assert.that(array.some(e => e > 5)).isFalse();
+    assert.that(array.some(e => e >= 5)).isTrue();
+  }
+
   splice(assert) {
     array = split("a,b,c,c", ",");
     assert.that(array.splice(1, 1).join(":")).isEqualTo("b");
@@ -177,6 +189,7 @@ class ArrayTest {
 
   test(assert) {
     this.concat(assert);
+    this.every(assert);
     this.filter(assert);
     this.findIndex(assert);
     this.includes(assert);
@@ -189,6 +202,7 @@ class ArrayTest {
     this.reverse(assert);
     this.shift(assert);
     this.slice(assert);
+    this.some(assert);
     this.splice(assert);
     this.unshift(assert);
     this.split(assert);

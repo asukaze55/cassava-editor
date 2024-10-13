@@ -10,9 +10,9 @@
 //   // e に対する処理
 // }
 //
-// Array オブジェクトに対しては concat, filter, findIndex, includes, indexOf, join, lastIndexOf,
-// map, pop, push, reverse, shift, slice, splice, unshift のメソッドを使用できます。
-// 各メソッドの仕様は実装から推測してください。
+// Array オブジェクトに対しては concat, every, filter, findIndex, includes, indexOf, join,
+// lastIndexOf, map, pop, push, reverse, shift, slice, some, splice, unshift のメソッドを
+// 使用できます。各メソッドの仕様は実装から推測してください。
 
 class Array {
   constructor() {
@@ -28,6 +28,15 @@ class Array {
       result.push(array[i]);
     }
     return result;
+  }
+
+  every(callback) {
+    for (i = 0; i < this.length; i++) {
+      if (!callback(this[i])) {
+        return false;
+      }
+    }
+    return true;
   }
 
   filter(callback) {
@@ -139,6 +148,15 @@ class Array {
       result.push(this[i]);
     }
     return result;
+  }
+
+  some(callback) {
+    for (i = 0; i < this.length; i++) {
+      if (callback(this[i])) {
+        return true;
+      }
+    }
+    return false;
   }
 
   splice(start, deleteCount, ...items) {
