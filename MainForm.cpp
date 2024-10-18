@@ -263,38 +263,8 @@ void TfmMain::ReadIni()
     mnShowStatusbarClick(this);
   }
 
-  Show();
-  SearchMacro(mnMacro);
-  // Reset DPI ratio, because the window might be shown in a sub-display.
-  Application->ProcessMessages();
-  dpiRatio = (double)ScreenDpi / iniScreenDpi;
-
-  WindowState =
-      Ini->ReadInteger("Position", "Mode", 0) == 2 ? wsMaximized : wsNormal;
-  MainGrid->Font->Name = Ini->ReadString("Font", "Name",
-      Screen->Fonts->IndexOf("Yu Gothic UI") >= 0 ? "Yu Gothic UI"
-                                                  : "‚l‚r ‚oƒSƒVƒbƒN");
-  MainGrid->Font->Size = Ini->ReadInteger("Font", "Size", 12) * dpiRatio + 0.5;
-  if (Ini->ReadBool("Font", "Bold", false)) {
-    MainGrid->Font->Style = MainGrid->Font->Style << fsBold;
-  }
-  if (Ini->ReadBool("Font", "Italic", false)) {
-    MainGrid->Font->Style = MainGrid->Font->Style << fsItalic;
-  }
-  if (Ini->ReadBool("Font", "Underline", false)) {
-    MainGrid->Font->Style = MainGrid->Font->Style << fsUnderline;
-  }
-  if (Ini->ReadBool("Font", "StrikeOut", false)) {
-    MainGrid->Font->Style = MainGrid->Font->Style << fsStrikeOut;
-  }
-  MainGrid->TBMargin = Ini->ReadInteger("Font", "TBMargin", 2);
-  MainGrid->LRMargin = Ini->ReadInteger("Font", "LRMargin", 4);
-  MainGrid->CellLineMargin = Ini->ReadInteger("Font", "CellLineMargin", 0);
   MainGrid->Color =
       (TColor) Ini->ReadInteger("Font", "BgColor", MainGrid->Color);
-  MainGrid->Font->Color =
-      (TColor) Ini->ReadInteger("Font", "FgColor", MainGrid->Font->Color);
-  MainGrid->Canvas->Font = MainGrid->Font;
   MainGrid->CalcBgColor =
       (TColor) Ini->ReadInteger("Font", "CalcBgColor", clAqua);
   MainGrid->CalcErrorBgColor =
@@ -325,6 +295,37 @@ void TfmMain::ReadIni()
   MainGrid->DecimalDigits = Ini->ReadInteger("Font", "DecimalDigits", -1);
   MainGrid->MinColWidth =
       Ini->ReadInteger("Font", "MinColWidth", MainGrid->MinColWidth);
+
+  Show();
+  SearchMacro(mnMacro);
+  // Reset DPI ratio, because the window might be shown in a sub-display.
+  Application->ProcessMessages();
+  dpiRatio = (double)ScreenDpi / iniScreenDpi;
+
+  WindowState =
+      Ini->ReadInteger("Position", "Mode", 0) == 2 ? wsMaximized : wsNormal;
+  MainGrid->Font->Name = Ini->ReadString("Font", "Name",
+      Screen->Fonts->IndexOf("Yu Gothic UI") >= 0 ? "Yu Gothic UI"
+                                                  : "‚l‚r ‚oƒSƒVƒbƒN");
+  MainGrid->Font->Size = Ini->ReadInteger("Font", "Size", 12) * dpiRatio + 0.5;
+  if (Ini->ReadBool("Font", "Bold", false)) {
+    MainGrid->Font->Style = MainGrid->Font->Style << fsBold;
+  }
+  if (Ini->ReadBool("Font", "Italic", false)) {
+    MainGrid->Font->Style = MainGrid->Font->Style << fsItalic;
+  }
+  if (Ini->ReadBool("Font", "Underline", false)) {
+    MainGrid->Font->Style = MainGrid->Font->Style << fsUnderline;
+  }
+  if (Ini->ReadBool("Font", "StrikeOut", false)) {
+    MainGrid->Font->Style = MainGrid->Font->Style << fsStrikeOut;
+  }
+  MainGrid->TBMargin = Ini->ReadInteger("Font", "TBMargin", 2);
+  MainGrid->LRMargin = Ini->ReadInteger("Font", "LRMargin", 4);
+  MainGrid->CellLineMargin = Ini->ReadInteger("Font", "CellLineMargin", 0);
+  MainGrid->Font->Color =
+      (TColor) Ini->ReadInteger("Font", "FgColor", MainGrid->Font->Color);
+  MainGrid->Canvas->Font = MainGrid->Font;
 
     PrintFontName = Ini->ReadString("Print","FontName",MainGrid->Font->Name);
     PrintFontSize = Ini->ReadInteger("Print","FontSize",MainGrid->Font->Size);
