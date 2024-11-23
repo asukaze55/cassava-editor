@@ -118,7 +118,7 @@ private:
     int TextWidth(TCanvas *cnvs, String str);
     void ShowAllColumn();
 
-    void (__closure *OnFileOpenThreadTerminate)(System::TObject* Sender);
+    TNotifyEvent OnFileOpenThreadTerminate;
 
     TStrings *LastMatch;
 
@@ -382,8 +382,7 @@ public:
     void ScrollRows(int Delta);
     void ScrollCols(int Delta);
 
-    bool LoadFromFile(String FileName, int KCode=CHARCODE_AUTO,
-        void (__closure *OnTerminate)(System::TObject* Sender) = nullptr);
+    bool LoadFromFile(String FileName, int CharCode, TNotifyEvent OnTerminate);
     TThread *FileOpenThread;
     void __fastcall FileOpenThreadTerminate(System::TObject* Sender);
 

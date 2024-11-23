@@ -1001,8 +1001,8 @@ static bool HasBom(DynamicArray<Byte> buf, int charCode)
   }
 }
 //---------------------------------------------------------------------------
-bool TMainGrid::LoadFromFile(String FileName, int KCode,
-  void (__closure *OnTerminate)(System::TObject* Sender))
+bool TMainGrid::LoadFromFile(String FileName, int CharCode,
+    TNotifyEvent OnTerminate)
 {
   TFileStream *File = new TFileStream(FileName, fmOpenRead|fmShareDenyNone);
   int bufLength = min(File->Size, 1024);
@@ -1019,14 +1019,14 @@ bool TMainGrid::LoadFromFile(String FileName, int KCode,
   byteBuffer.Length = bufLength;
   delete File;
 
-  if (KCode == CHARCODE_AUTO) {
+  if (CharCode == CHARCODE_AUTO) {
     if (CheckKanji) {
       KanjiCode = DetectEncode(&(byteBuffer[0]), bufLength, DefaultCharCode);
     } else {
       KanjiCode = DefaultCharCode;
     }
   } else {
-    KanjiCode = KCode;
+    KanjiCode = CharCode;
   }
 
   TEncoding *encoding;
@@ -1049,7 +1049,7 @@ bool TMainGrid::LoadFromFile(String FileName, int KCode,
     charBuffer.Length = readCount;
     AddBom = HasBom(byteBuffer, KanjiCode);
   } catch (...) {
-    if (KCode != CHARCODE_AUTO) {
+    if (CharCode != CHARCODE_AUTO) {
       Application->MessageBox(
           L"指定された文字コードではファイルを開けません。",
           CASSAVA_TITLE, 0);
