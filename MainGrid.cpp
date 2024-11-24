@@ -1000,7 +1000,7 @@ static bool HasBom(DynamicArray<Byte> buf, int charCode)
 }
 //---------------------------------------------------------------------------
 bool TMainGrid::LoadFromFile(String FileName, int CharCode,
-    TNotifyEvent OnTerminate)
+    const TTypeOption *Format, TNotifyEvent OnTerminate)
 {
   TFileStream *File = new TFileStream(FileName, fmOpenRead|fmShareDenyNone);
   int bufLength = min(File->Size, 1024);
@@ -1059,7 +1059,7 @@ bool TMainGrid::LoadFromFile(String FileName, int CharCode,
   }
   delete reader;
 
-  TypeOption = TypeList.FindForFileName(FileName);
+  TypeOption = Format;
   Cursor = crAppStart;
   Hint = L"ファイルを読み込み中です。";
   ShowHint = true;

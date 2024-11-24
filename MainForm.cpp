@@ -1100,7 +1100,8 @@ void TfmMain::OpenFile (String OpenFileName, int KCode)
     delete LockingFile;
     LockingFile = nullptr;
   }
-  if(!MainGrid->LoadFromFile(OpenFileName, KCode, ExecOpenMacro)){
+  const TTypeOption *Format = MainGrid->TypeList.FindForFileName(OpenFileName);
+  if (!MainGrid->LoadFromFile(OpenFileName, KCode, Format, ExecOpenMacro)) {
     return;
   }
   FileName = OpenFileName;
