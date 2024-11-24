@@ -367,7 +367,8 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall acFixFirstColUpdate(TObject *Sender);
 
 private:    // ユーザー宣言
-  void OpenFile(String OpenFileName, int KCode=CHARCODE_AUTO);
+  void OpenFile(String OpenFileName, int CharCode = CHARCODE_AUTO,
+      const TTypeOption *Format = nullptr);
   bool StartupMacroDone;
   void ExecStartupMacro();
   void ExecOpenMacro(System::TObject* Sender);

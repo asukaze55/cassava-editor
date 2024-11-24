@@ -96,7 +96,7 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
     } else {
       if (!FileOpening) {
         FileName = ParamStr(i);
-        OpenFile(FileName, CHARCODE_AUTO);
+        OpenFile(FileName);
         FileOpening = true;
       } else {
         newWindowCount++;
@@ -1088,7 +1088,8 @@ void __fastcall TfmMain::mnNewClick(TObject *Sender)
   }
 }
 //---------------------------------------------------------------------------
-void TfmMain::OpenFile (String OpenFileName, int KCode)
+void TfmMain::OpenFile(String OpenFileName, int CharCode,
+    const TTypeOption *Format)
 {
   if(!FileExists(OpenFileName)){
     Application->MessageBox(
@@ -1100,8 +1101,10 @@ void TfmMain::OpenFile (String OpenFileName, int KCode)
     delete LockingFile;
     LockingFile = nullptr;
   }
-  const TTypeOption *Format = MainGrid->TypeList.FindForFileName(OpenFileName);
-  if (!MainGrid->LoadFromFile(OpenFileName, KCode, Format, ExecOpenMacro)) {
+  if (Format == nullptr) {
+    Format = MainGrid->TypeList.FindForFileName(OpenFileName);
+  }
+  if (!MainGrid->LoadFromFile(OpenFileName, CharCode, Format, ExecOpenMacro)) {
     return;
   }
   FileName = OpenFileName;
@@ -1146,7 +1149,11 @@ void __fastcall TfmMain::mnOpenClick(TObject *Sender)
   }else{
     if(IfModifiedThenSave()) {
       if(dlgOpen->Execute()) {
-        OpenFile(dlgOpen->FileName);
+        int index = dlgOpen->FilterIndex - 1;
+        const TTypeOption *format =
+            (index > 0 && index < MainGrid->TypeList.Count)
+                ? MainGrid->TypeList.Items(index) : nullptr;
+        OpenFile(dlgOpen->FileName, CHARCODE_AUTO, format);
       }
     }
   }
