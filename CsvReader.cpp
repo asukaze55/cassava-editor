@@ -44,17 +44,17 @@ void TTypeOption::init()
   DummyEol = false;
 }
 //---------------------------------------------------------------------------
-String TTypeOption::DefExt()
+String TTypeOption::DefExt() const
 {
   return Exts.size() > 0 ? Exts[0] : (String)"";
 }
 //---------------------------------------------------------------------------
-wchar_t TTypeOption::DefSepChar()
+wchar_t TTypeOption::DefSepChar() const
 {
   return ((SepChars.Length() > 0 ) ? SepChars[1] : L'\0');
 }
 //---------------------------------------------------------------------------
-bool TTypeOption::UseQuote()
+bool TTypeOption::UseQuote() const
 {
   return (QuoteOption > 0);
 }
@@ -76,7 +76,7 @@ void TTypeOption::SetExts(String ExtString)
   }
 }
 //---------------------------------------------------------------------------
-String TTypeOption::GetExtsStr(int From)
+String TTypeOption::GetExtsStr(int From) const
 {
   String Temp = "";
   for (int i = From; i < Exts.size(); i++) {
@@ -86,7 +86,7 @@ String TTypeOption::GetExtsStr(int From)
   return Temp;
 }
 //---------------------------------------------------------------------------
-CsvReader::CsvReader(TTypeOption* TypeOption, String FileName,
+CsvReader::CsvReader(const TTypeOption* TypeOption, String FileName,
                      TEncoding *Encoding)
   : typeOption(TypeOption),
     reader(new TStreamReader(FileName, Encoding, /* DetectBOM= */ true,

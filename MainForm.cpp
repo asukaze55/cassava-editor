@@ -1851,38 +1851,23 @@ void __fastcall TfmMain::mnpPasteInsertClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnCutFormatDefaultClick(TObject *Sender)
 {
-  int XTypeIndex = MainGrid->TypeIndex;
-  MainGrid->TypeIndex = static_cast<TMenuItem *>(Sender)->Tag;
-  MainGrid->TypeOption = MainGrid->TypeList.Items(MainGrid->TypeIndex);
-
-  MainGrid->CutToClipboard();
-
-  MainGrid->TypeIndex = XTypeIndex;
-  MainGrid->TypeOption = MainGrid->TypeList.Items(MainGrid->TypeIndex);
+  const TTypeOption *Format =
+      MainGrid->TypeList.Items(static_cast<TMenuItem *>(Sender)->Tag);
+  MainGrid->CutToClipboard(Format);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnCopyFormatDefaultClick(TObject *Sender)
 {
-  int XTypeIndex = MainGrid->TypeIndex;
-  MainGrid->TypeIndex = static_cast<TMenuItem *>(Sender)->Tag;
-  MainGrid->TypeOption = MainGrid->TypeList.Items(MainGrid->TypeIndex);
-
-  MainGrid->CopyToClipboard();
-
-  MainGrid->TypeIndex = XTypeIndex;
-  MainGrid->TypeOption = MainGrid->TypeList.Items(MainGrid->TypeIndex);
+  const TTypeOption *Format =
+      MainGrid->TypeList.Items(static_cast<TMenuItem *>(Sender)->Tag);
+  MainGrid->CopyToClipboard(Format);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnPasteFormatDefaultClick(TObject *Sender)
 {
-  int XTypeIndex = MainGrid->TypeIndex;
-  MainGrid->TypeIndex = static_cast<TMenuItem *>(Sender)->Tag;
-  MainGrid->TypeOption = MainGrid->TypeList.Items(MainGrid->TypeIndex);
-
-  MainGrid->PasteFromClipboard(PASTE_OPTION_UNKNOWN);
-
-  MainGrid->TypeIndex = XTypeIndex;
-  MainGrid->TypeOption = MainGrid->TypeList.Items(MainGrid->TypeIndex);
+  const TTypeOption *Format =
+      MainGrid->TypeList.Items(static_cast<TMenuItem *>(Sender)->Tag);
+  MainGrid->PasteFromClipboard(PASTE_OPTION_UNKNOWN, Format);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnSelectAllClick(TObject *Sender)

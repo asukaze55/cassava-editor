@@ -1124,7 +1124,7 @@ static String GetClipboardText()
 }
 //---------------------------------------------------------------------------
 void TMainGrid::PasteCSV(TStrings *List, int Left, int Top, int Way,
-                         int ClipCols, int ClipRows)
+                         int ClipCols, int ClipRows, const TTypeOption *Format)
 {
   // Way
   //  0: 重なった部分のみ
@@ -1182,7 +1182,7 @@ void TMainGrid::PasteCSV(TStrings *List, int Left, int Top, int Way,
   TStringList *OneRow = new TStringList;
   for (int i = 0; i < iEnd; i++) {
     int ii = (Way == 1 && ClipRows > 0) ? i % ClipRows : i;
-    SetCsv(OneRow, List->Strings[ii]);
+    SetCsv(OneRow, List->Strings[ii], Format);
     int jEnd = OneRow->Count;
     if (Way == 0) {
       jEnd = min(selRight - Left + 1, jEnd);
@@ -1201,22 +1201,20 @@ void TMainGrid::PasteCSV(TStrings *List, int Left, int Top, int Way,
   Modified = true;
 }
 //---------------------------------------------------------------------------
-bool TMainGrid::SetCsv(TStringList *Dest, String Src)
+void TMainGrid::SetCsv(TStringList *Dest, String Src, const TTypeOption *Format)
 {
   int CellBegin = 1;
   bool Quoted = false;
   int Kugiri = 2; // 0:通常 1:弱区切り（" "） 2:強区切り（"," "\t"）
   Dest->Clear();
   for(int i=1; i<=Src.Length(); i++){
-   if(TypeOption->SepChars.Pos(Src[i]) > 0 ){
+    if (Format->SepChars.Pos(Src[i]) > 0) {
       if(!Quoted){
 	      if(Kugiri != 1) Dest->Add(Src.SubString(CellBegin,i-CellBegin));
 	      Kugiri = 2;
 	      CellBegin = i+1;
-//        if(Way == -1 && Src[i] == ',') CommaSeparated = true;
-//        else if(Way == -1 && Src[i] == '\t') TabSeparated = true;
       }
-    }else if(TypeOption->WeakSepChars.Pos(Src[i]) > 0 ){
+    } else if (Format->WeakSepChars.Pos(Src[i]) > 0) {
       if(!Quoted){
       	if(Kugiri == 0){
       	  Dest->Add(Src.SubString(CellBegin,i-CellBegin));
@@ -1224,8 +1222,7 @@ bool TMainGrid::SetCsv(TStringList *Dest, String Src)
       	}
       	CellBegin = i+1;
       }
-    }else if(TypeOption->UseQuote() &&
-             TypeOption->QuoteChars.Pos(Src[i]) > 0){
+    } else if (Format->UseQuote() && Format->QuoteChars.Pos(Src[i]) > 0) {
       if(Quoted){
       	if(i<Src.Length() && Src[i+1]=='\"'){
       	  Src.Delete(i,1);
@@ -1251,8 +1248,6 @@ bool TMainGrid::SetCsv(TStringList *Dest, String Src)
   }else if(Kugiri == 2 || Quoted){
     Dest->Add("");
   }
-
-  return Quoted;
 }
 //---------------------------------------------------------------------------
 void TMainGrid::SaveToFile(String FileName, TTypeOption *Format,
@@ -1296,7 +1291,7 @@ void TMainGrid::WriteGrid(EncodedWriter *Writer, TTypeOption *Format)
   delete Data;
 }
 //---------------------------------------------------------------------------
-String TMainGrid::StringsToCSV(TStrings* Data, TTypeOption *Format)
+String TMainGrid::StringsToCSV(TStrings* Data, const TTypeOption *Format)
 {
   char Sep = Format->DefSepChar();
   String Text = "";
@@ -1335,7 +1330,8 @@ String TMainGrid::StringsToCSV(TStrings* Data, TTypeOption *Format)
   return Text;
 }
 //---------------------------------------------------------------------------
-void TMainGrid::QuotedDataToStrings(TStrings *Lines, String Text, TTypeOption *Format)
+void TMainGrid::QuotedDataToStrings(TStrings *Lines, String Text,
+    const TTypeOption *Format)
 {
   Lines->Text = Text;
   if(Format->QuoteOption==soNone){ return; }
@@ -1375,7 +1371,7 @@ static void SetClipboard(String text) {
   delete clip;
 }
 //---------------------------------------------------------------------------
-void TMainGrid::CopyToClipboard(bool Cut)
+void TMainGrid::CopyToClipboard(const TTypeOption *Format, bool Cut)
 {
   if (EditorMode) {
     SingleCellCopiedText = InplaceEditor->SelText;
@@ -1405,8 +1401,7 @@ void TMainGrid::CopyToClipboard(bool Cut)
         SetCell(j, i, "");
       }
     }
-    String ALine = StringsToCSV(OneLine, TypeOption);
-    Data->Add(ALine);
+    Data->Add(StringsToCSV(OneLine, Format != nullptr ? Format : TypeOption));
   }
   delete OneLine;
   String Txt = Data->Text;
@@ -1424,13 +1419,17 @@ void TMainGrid::CopyToClipboard(bool Cut)
   }
 }
 //---------------------------------------------------------------------------
-void TMainGrid::CutToClipboard()
+void TMainGrid::CutToClipboard(const TTypeOption *Format)
 {
-  CopyToClipboard(true);
+  CopyToClipboard(Format, true);
 }
 //---------------------------------------------------------------------------
-void TMainGrid::PasteFromClipboard(int Way)
+void TMainGrid::PasteFromClipboard(int Way, const TTypeOption *Format)
 {
+  if (Format == nullptr) {
+    Format = TypeOption;
+  }
+
   String clipboardText = GetClipboardText();
   if (EditorMode
       && (InplaceEditor->SelStart > 0
@@ -1451,12 +1450,12 @@ void TMainGrid::PasteFromClipboard(int Way)
   int SelectColCount = SRight - SLeft + 1;
 
   TStringList *Data = new TStringList;
-  QuotedDataToStrings(Data, clipboardText, TypeOption);
+  QuotedDataToStrings(Data, clipboardText, Format);
   int ClipRowCount = Data->Count;
   int ClipColCount = 0;
   TStringList *ARow = new TStringList;
   for (int i = 0; i < ClipRowCount; i++) {
-    SetCsv(ARow, Data->Strings[i]);
+    SetCsv(ARow, Data->Strings[i], Format);
     ClipColCount = max(ARow->Count, ClipColCount);
   }
   delete ARow;
@@ -1492,7 +1491,7 @@ void TMainGrid::PasteFromClipboard(int Way)
     Way = PASTE_OPTION_OVERWRITE;
   }
   UndoList->Push();
-  PasteCSV(Data, SLeft, STop, Way, ClipColCount, ClipRowCount);
+  PasteCSV(Data, SLeft, STop, Way, ClipColCount, ClipRowCount, Format);
   UndoList->PopWithRecordedMacro((String)"Select(" + RXtoAX(SLeft) + ", " +
       RYtoAY(STop) + ", " + RXtoAX(SRight) + ", " + RYtoAY(SBottom) +
       ");\nPaste(" + Way + ");");

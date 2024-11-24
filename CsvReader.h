@@ -23,11 +23,11 @@ public:
   TTypeOption(String str);
 
   void init();
-  String DefExt();
-  wchar_t DefSepChar();
-  bool UseQuote();
+  String DefExt() const;
+  wchar_t DefSepChar() const;
+  bool UseQuote() const;
   void SetExts(String ExtString);
-  String GetExtsStr(int From);
+  String GetExtsStr(int From) const;
 };
 //---------------------------------------------------------------------------
 enum CsvReaderState
@@ -40,7 +40,7 @@ enum CsvReaderState
 class CsvReader
 {
 private:
-  TTypeOption *typeOption;
+  const TTypeOption *typeOption;
   TStreamReader *reader;
   String data;
   int last;
@@ -48,7 +48,8 @@ private:
   int delimiterType;
   void __fastcall IncrementPos(bool Quoted);
 public:
-  CsvReader(TTypeOption* TypeOption, String FileName, TEncoding *Encoding);
+  CsvReader(const TTypeOption* TypeOption, String FileName,
+      TEncoding *Encoding);
   ~CsvReader();
   CsvReaderState GetNextType();
   String Next();

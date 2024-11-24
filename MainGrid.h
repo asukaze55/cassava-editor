@@ -123,9 +123,9 @@ private:
     TStrings *LastMatch;
 
 protected:
-    void PasteCSV(TStrings *List , int Left=1 , int Top=1 , int Way=2 ,
-        int ClipCols=0 , int ClipRows=0);
-    String StringsToCSV(TStrings* Data, TTypeOption *Format);
+    void PasteCSV(TStrings *List, int Left, int Top, int Way, int ClipCols,
+        int ClipRows, const TTypeOption *Format);
+    String StringsToCSV(TStrings* Data, const TTypeOption *Format);
     void WriteGrid(EncodedWriter *Writer, TTypeOption *Format);
 
     virtual bool __fastcall SelectCell(int ACol, int ARow);
@@ -205,16 +205,17 @@ public:
     void SaveToFile(String FileName, TTypeOption *Format,
                     bool SetModifiedFals = true);
     String SingleCellCopiedText;
-    void CopyToClipboard(bool Cut = false);
-    void CutToClipboard();
+    void CopyToClipboard(const TTypeOption *Format = nullptr, bool Cut = false);
+    void CutToClipboard(const TTypeOption *Format = nullptr);
 #define PASTE_OPTION_UNKNOWN -1
 #define PASTE_OPTION_OVERWRITE 2
 #define PASTE_OPTION_EDITOR 5
 #define PASTE_OPTION_INSERT_ROW 11
 #define PASTE_OPTION_INSERT_COL 12
-    void PasteFromClipboard(int Way);
-    bool SetCsv(TStringList *Dest, String Src);
-    void QuotedDataToStrings(TStrings *Lines, String Text, TTypeOption *Format);
+    void PasteFromClipboard(int Way, const TTypeOption *Format = nullptr);
+    void SetCsv(TStringList *Dest, String Src, const TTypeOption *Format);
+    void QuotedDataToStrings(TStrings *Lines, String Text,
+        const TTypeOption *Format);
     TTypeList TypeList;
     int TypeIndex;
     TTypeOption *TypeOption;
