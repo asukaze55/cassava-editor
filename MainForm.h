@@ -371,7 +371,7 @@ private:    // ユーザー宣言
   bool StartupMacroDone;
   void ExecStartupMacro();
   void ExecOpenMacro(System::TObject* Sender);
-  void SaveFile(TTypeOption *Format);
+  void SaveFile(const TTypeOption *Format);
   void GetCheckedMenus(TStringList *list);
   void AddCheckedMenus(TStringList *list, TMenuItem* item);
   void RestoreCheckedMenus(TStringList *list);
@@ -423,7 +423,7 @@ public:     // ユーザー宣言
   void MacroScriptExec(String cmsname, String script);
   TCalculatedCell GetCalculatedCell(String Str, int ACol, int ARow);
   TFormattedCell GetFormattedCell(TCalculatedCell Cell, int AX, int AY);
-  void SaveAs(String fileName, int typeIndex);
+  void SaveAs(String AFileName, const TTypeOption *Format);
   void Export(String filename, String type);
   TMenuItem *FindMenuItem(String name);
 

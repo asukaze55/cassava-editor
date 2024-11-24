@@ -1144,7 +1144,6 @@ void TMacro::ExecFnc(String s)
       bool found = false;
       for (int i = 0; i < typeList.Count; i++) {
         if (typeList.Items(i)->Name == name) {
-          fmMain->MainGrid->TypeIndex = i;
           fmMain->MainGrid->TypeOption = typeList.Items(i);
           found = true;
           break;
@@ -1397,22 +1396,23 @@ void TMacro::ExecFnc(String s)
         throw MacroException("Cell Macro can't write to files.", ME_SECURITY);
       }
       env.Grid->ApplyPendingChanges();
-      int typeIndex = -1;
+      const TTypeOption *typeOption = nullptr;
       if (H == 1) {
-        typeIndex = env.Grid->Raw()->TypeIndex;
+        typeOption = env.Grid->Raw()->TypeOption;
       } else {
         int count = env.Grid->Raw()->TypeList.Count;
         for (int i = 0; i < count; i++) {
-          if (env.Grid->Raw()->TypeList.Items(i)->Name == STR1) {
-            typeIndex = i;
+          TTypeOption *option = env.Grid->Raw()->TypeList.Items(i);
+          if (option->Name == STR1) {
+            typeOption = option;
             break;
           }
         }
-        if (typeIndex < 0) {
+        if (typeOption == nullptr) {
           throw MacroException("•Û‘¶Œ`Ž®‚ª•s–¾‚Å‚·:" + STR1);
         }
       }
-      fmMain->SaveAs(STR0, typeIndex);
+      fmMain->SaveAs(STR0, typeOption);
     }else if(s == "Export" && H == 2){
       if (env.IsCellMacro) {
         throw MacroException("Cell Macro can't write to files.", ME_SECURITY);

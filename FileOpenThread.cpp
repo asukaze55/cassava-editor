@@ -114,7 +114,7 @@ void __fastcall FileOpenThread::ShowError()
 //---------------------------------------------------------------------------
 void __fastcall FileOpenThread::Execute()
 {
-  TTypeOption *typeOption = Grid->TypeOption;
+  const TTypeOption *typeOption = Grid->TypeOption;
   int dl = Grid->DataLeft;
   CsvReader *reader = new CsvReader(typeOption, FFileName, FEncoding);
   try {

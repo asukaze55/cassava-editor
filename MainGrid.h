@@ -126,7 +126,7 @@ protected:
     void PasteCSV(TStrings *List, int Left, int Top, int Way, int ClipCols,
         int ClipRows, const TTypeOption *Format);
     String StringsToCSV(TStrings* Data, const TTypeOption *Format);
-    void WriteGrid(EncodedWriter *Writer, TTypeOption *Format);
+    void WriteGrid(EncodedWriter *Writer, const TTypeOption *Format);
 
     virtual bool __fastcall SelectCell(int ACol, int ARow);
     DYNAMIC void __fastcall MouseDown(Controls::TMouseButton Button,
@@ -202,7 +202,7 @@ public:
     void SetDataRightBottom(int rx, int by, bool updateTableSize=true);
     int GetRowDataRight(int Row);
     void SetRowDataRight(int Row, int Right, bool ExpandOnly = false);
-    void SaveToFile(String FileName, TTypeOption *Format,
+    void SaveToFile(String FileName, const TTypeOption *Format,
                     bool SetModifiedFals = true);
     String SingleCellCopiedText;
     void CopyToClipboard(const TTypeOption *Format = nullptr, bool Cut = false);
@@ -217,8 +217,7 @@ public:
     void QuotedDataToStrings(TStrings *Lines, String Text,
         const TTypeOption *Format);
     TTypeList TypeList;
-    int TypeIndex;
-    TTypeOption *TypeOption;
+    const TTypeOption *TypeOption;
     int PasteOption;
     int DefWay;
     bool CheckKanji;

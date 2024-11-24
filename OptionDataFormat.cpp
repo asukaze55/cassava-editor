@@ -18,7 +18,8 @@ __fastcall TfrOptionDataFormat::TfrOptionDataFormat(TComponent* Owner)
 void TfrOptionDataFormat::RestoreFromMainForm()
 {
   TypeList = fmMain->MainGrid->TypeList;
-  ActiveTypeIndex = fmMain->MainGrid->TypeIndex;
+  ActiveTypeIndex =
+      fmMain->MainGrid->TypeList.IndexOf(fmMain->MainGrid->TypeOption);
   TypeIndex = ActiveTypeIndex;
   edName->Text = TypeList.Items(TypeIndex)->Name;
   RestoreDataPage(TypeIndex);
@@ -29,7 +30,6 @@ void TfrOptionDataFormat::StoreToMainForm()
 {
   StoreDataPage();
   fmMain->MainGrid->TypeList = TypeList;
-  fmMain->MainGrid->TypeIndex = ActiveTypeIndex;
   fmMain->MainGrid->TypeOption = fmMain->MainGrid->TypeList.Items(ActiveTypeIndex);
   fmMain->SetFilter();
   fmMain->SetPasteMenu(fmMain->mnPasteFormat);

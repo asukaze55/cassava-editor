@@ -57,7 +57,6 @@ __fastcall TMainGrid::TMainGrid(TComponent* Owner)  //デフォルトの設定
   Dragging = false;
   EditorMode = true;
   DragBehavior = dbMoveIfSelected;
-  TypeIndex = 0;
   TypeOption = TypeList.DefItem();
   PasteOption = -1;
   DefWay = 2;
@@ -486,7 +485,6 @@ void TMainGrid::Clear(int AColCount, int ARowCount, bool UpdateRightBottom)
   }
   UndoList->Clear();
   Modified = false;
-  TypeIndex = 0;
   TypeOption = TypeList.DefItem();
   if(UpdateRightBottom){
     FDataRight = AColCount - 1;
@@ -1061,10 +1059,7 @@ bool TMainGrid::LoadFromFile(String FileName, int CharCode,
   }
   delete reader;
 
-  String Ext = ExtractFileExt(FileName);
-  if(Ext.Length() > 1 && Ext[1]=='.'){ Ext.Delete(1,1); }
-  TypeIndex = TypeList.IndexOf(Ext);
-  TypeOption = TypeList.Items(TypeIndex);
+  TypeOption = TypeList.FindForFileName(FileName);
   Cursor = crAppStart;
   Hint = L"ファイルを読み込み中です。";
   ShowHint = true;
@@ -1250,8 +1245,8 @@ void TMainGrid::SetCsv(TStringList *Dest, String Src, const TTypeOption *Format)
   }
 }
 //---------------------------------------------------------------------------
-void TMainGrid::SaveToFile(String FileName, TTypeOption *Format,
-                          bool SetModifiedFalse)
+void TMainGrid::SaveToFile(String FileName, const TTypeOption *Format,
+    bool SetModifiedFalse)
 {
   TFileStream *fs = new TFileStream(FileName, fmCreate | fmShareDenyWrite);
   EncodedWriter *ew = new EncodedWriter(fs, KanjiCode, AddBom);
@@ -1265,7 +1260,7 @@ void TMainGrid::SaveToFile(String FileName, TTypeOption *Format,
   }
 }
 //---------------------------------------------------------------------------
-void TMainGrid::WriteGrid(EncodedWriter *Writer, TTypeOption *Format)
+void TMainGrid::WriteGrid(EncodedWriter *Writer, const TTypeOption *Format)
 {
   if (Format == nullptr) { Format = TypeOption; }
 

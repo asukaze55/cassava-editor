@@ -34,11 +34,20 @@ public:
     }
     return &v[i];
   }
-  int IndexOf(String Ext) const {
-    Ext = Ext.LowerCase();
+  const TTypeOption *FindForFileName(String FileName) const {
+    String Ext = ExtractFileExt(FileName).LowerCase();
+    if (Ext.Length() > 1 && Ext[1]=='.') { Ext.Delete(1,1); }
     for (size_t i = 1; i < v.size(); i++) {
       const std::vector<String> &exts = v[i].Exts;
       if (std::find(exts.begin(), exts.end(), Ext) != exts.end()) {
+        return &v[i];
+      }
+    }
+    return &v[0];
+  }
+  int IndexOf(const TTypeOption *Format) const {
+    for (size_t i = 1; i < v.size(); i++) {
+      if (v[i].Name == Format->Name) {
         return i;
       }
     }

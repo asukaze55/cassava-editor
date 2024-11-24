@@ -1107,7 +1107,7 @@ void TfmMain::OpenFile (String OpenFileName, int KCode)
   UpdateTitle();
   SetHistory(FileName);
   FileAge(FileName, TimeStamp);
-  dlgSave->FilterIndex = MainGrid->TypeIndex + 1;
+  dlgSave->FilterIndex = MainGrid->TypeList.IndexOf(MainGrid->TypeOption) + 1;
   tmAutoSaver->Enabled = false;
   mnReload->Enabled = true;
   mnReloadCode->Enabled = true;
@@ -1259,7 +1259,7 @@ bool TfmMain::IfModifiedThenSave()
   return true;
 }
 //---------------------------------------------------------------------------
-void TfmMain::SaveFile(TTypeOption *Format)
+void TfmMain::SaveFile(const TTypeOption *Format)
 {
   if(MainGrid->FileOpenThread){
     Application->MessageBox(
@@ -1332,14 +1332,14 @@ void __fastcall TfmMain::acSaveExecute(TObject *Sender)
 void __fastcall TfmMain::mnSaveAsClick(TObject *Sender)
 {
   if (FileName == "") {
-    TTypeOption *typeOption = MainGrid->TypeList.Items(MainGrid->TypeIndex);
+    const TTypeOption *typeOption = MainGrid->TypeOption;
     dlgSave->FileName = "–³‘è." + typeOption->DefExt();
   } else {
     dlgSave->InitialDir = ExtractFilePath(FileName);
     dlgSave->FileName = ExtractFileName(FileName);
   }
 
-  dlgSave->FilterIndex = MainGrid->TypeIndex + 1;
+  dlgSave->FilterIndex = MainGrid->TypeList.IndexOf(MainGrid->TypeOption) + 1;
   if (dlgSave->Execute()) {
     String fileName = dlgSave->FileName;
     int typeIndex = dlgSave->FilterIndex - 1;
@@ -1350,18 +1350,16 @@ void __fastcall TfmMain::mnSaveAsClick(TObject *Sender)
     if (ext == "" || (typeOption->ForceExt && ext != defExt)) {
       fileName += defExt;
     }
-    SaveAs(fileName, typeIndex);
+    SaveAs(fileName, typeOption);
   }
 }
 //---------------------------------------------------------------------------
-void TfmMain::SaveAs(String fileName, int typeIndex)
+void TfmMain::SaveAs(String AFileName, const TTypeOption *Format)
 {
-  FileName = fileName;
-  MainGrid->TypeIndex = typeIndex;
-  TTypeOption *typeOption = MainGrid->TypeList.Items(typeIndex);
-  MainGrid->TypeOption = typeOption;
+  FileName = AFileName;
+  MainGrid->TypeOption = Format;
   UpdateTitle();
-  SaveFile(typeOption);
+  SaveFile(Format);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::tmAutoSaverTimer(TObject *Sender)
