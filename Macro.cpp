@@ -1127,7 +1127,7 @@ void TMacro::ExecFnc(String s)
         throw MacroException("文字コードが不正です：" + STR0);
       }
     } else if (s == "GetDataTypes" && H == 0) {
-      TTypeList &typeList = fmMain->MainGrid->TypeList;
+      TTypeList &typeList = fmMain->TypeList;
       String dataTypes = "";
       for (int i = 0; i < typeList.Count; i++) {
         if (i > 0) {
@@ -1140,7 +1140,7 @@ void TMacro::ExecFnc(String s)
       Stack.push_back(Element(fmMain->MainGrid->TypeOption->Name));
     } else if (s == "SetActiveDataType" && H == 1) {
       String name = STR0;
-      TTypeList &typeList = fmMain->MainGrid->TypeList;
+      TTypeList &typeList = fmMain->TypeList;
       bool found = false;
       for (int i = 0; i < typeList.Count; i++) {
         if (typeList.Items(i)->Name == name) {
@@ -1400,9 +1400,9 @@ void TMacro::ExecFnc(String s)
       if (H == 1) {
         typeOption = env.Grid->Raw()->TypeOption;
       } else {
-        int count = env.Grid->Raw()->TypeList.Count;
+        int count = fmMain->TypeList.Count;
         for (int i = 0; i < count; i++) {
-          TTypeOption *option = env.Grid->Raw()->TypeList.Items(i);
+          TTypeOption *option = fmMain->TypeList.Items(i);
           if (option->Name == STR1) {
             typeOption = option;
             break;

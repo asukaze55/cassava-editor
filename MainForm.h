@@ -23,6 +23,7 @@
 #include <map>
 #include "MainGrid.h"
 #include "Preference.h"
+#include "TypeList.h"
 //---------------------------------------------------------------------------
 class TfmMain : public TForm
 {
@@ -428,6 +429,7 @@ public:     // ÉÜÅ[ÉUÅ[êÈåæ
   void Export(String filename, String type);
   TMenuItem *FindMenuItem(String name);
 
+  TTypeList TypeList;
   bool MakeNewWindow;
   bool TitleFullPath;
 

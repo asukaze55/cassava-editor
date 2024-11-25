@@ -62,6 +62,7 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
   MainGrid->OnMouseWheelDown = MainGrid->MouseWheelDown;
   MainGrid->OnGetCalculatedCell = GetCalculatedCell;
   MainGrid->TabStop = false;
+  MainGrid->TypeOption = TypeList.DefItem();
   Application->OnActivate = ApplicationActivate;
   Application->OnHint = ApplicationHint;
 
@@ -340,8 +341,8 @@ void TfmMain::ReadIni()
 
     int TypeCount = Ini->ReadInteger("DataType","Count", 0);
     if(TypeCount > 0){
-      int activeTypeIndex = MainGrid->TypeList.IndexOf(MainGrid->TypeOption);
-      MainGrid->TypeList.Clear();
+      int activeTypeIndex = TypeList.IndexOf(MainGrid->TypeOption);
+      TypeList.Clear();
       for(int i=0; i<TypeCount; i++){
         String Section = (String)"DataType:" + i;
         TTypeOption option;
@@ -356,9 +357,9 @@ void TfmMain::ReadIni()
         option.OmitComma = Ini->ReadBool(Section, "OmitComma", true);
         option.DummyEof = Ini->ReadBool(Section, "DummyEof", false);
         option.DummyEol = Ini->ReadBool(Section, "DummyEol", false);
-        MainGrid->TypeList.Add(option);
+        TypeList.Add(option);
       }
-      MainGrid->TypeOption = MainGrid->TypeList.Items(activeTypeIndex);
+      MainGrid->TypeOption = TypeList.Items(activeTypeIndex);
     }
     SetFilter();
     SetCutMenu(mnCutFormat);
@@ -546,11 +547,11 @@ void TfmMain::WriteIni(bool PosSlide)
     Ini->WriteString("Print", "Footer", PrintFooter);
     Ini->WriteInteger("Print", "FooterPosition", PrintFooterPosition);
 
-    int DataCount = MainGrid->TypeList.Count;
+    int DataCount = TypeList.Count;
     Ini->WriteInteger("DataType", "Count", DataCount);
     for(int i=0; i<DataCount; i++){
       String Section = (String)"DataType:" + i;
-      TTypeOption *TO = MainGrid->TypeList.Items(i);
+      TTypeOption *TO = TypeList.Items(i);
       Ini->WriteString(Section, "Name", TO->Name);
       Ini->WriteString(Section, "Exts", TO->GetExtsStr(0));
       Ini->WriteBool(Section, "ForceExt", TO->ForceExt);
@@ -849,8 +850,8 @@ void TfmMain::SetFilter()
   String SFilter = "";
   String FilterExt;
   TStringList *AllExts = new TStringList;
-  for(int i=0; i<MainGrid->TypeList.Count; i++){
-    TTypeOption *p = MainGrid->TypeList.Items(i);
+  for (int i = 0; i < TypeList.Count; i++) {
+    TTypeOption *p = TypeList.Items(i);
     FilterExt = "";
     for(int j=0; j<p->Exts.size(); j++){
       if(j > 0) FilterExt += ";";
@@ -907,9 +908,9 @@ String TfmMain::MakeId(String prefix, String caption, int i)
 void TfmMain::SetCutMenu(TMenuItem *Item)
 {
   Item->Clear();
-  for(int i=0; i<MainGrid->TypeList.Count; i++){
+  for (int i = 0; i < TypeList.Count; i++) {
     TMenuItem *MI = new TMenuItem(Item->Owner);
-    MI->Caption = MainGrid->TypeList.Items(i)->Name;
+    MI->Caption = TypeList.Items(i)->Name;
     if(Item == mnCutFormat){
       MI->Name = MakeId("cutformat", MI->Caption, i);
     }
@@ -922,9 +923,9 @@ void TfmMain::SetCutMenu(TMenuItem *Item)
 void TfmMain::SetCopyMenu(TMenuItem *Item)
 {
   Item->Clear();
-  for(int i=0; i<MainGrid->TypeList.Count; i++){
+  for (int i = 0; i < TypeList.Count; i++) {
     TMenuItem *MI = new TMenuItem(Item->Owner);
-    MI->Caption = MainGrid->TypeList.Items(i)->Name;
+    MI->Caption = TypeList.Items(i)->Name;
     if(Item == mnCopyFormat){
       MI->Name = MakeId("copyformat", MI->Caption, i);
     }
@@ -937,9 +938,9 @@ void TfmMain::SetCopyMenu(TMenuItem *Item)
 void TfmMain::SetPasteMenu(TMenuItem *Item)
 {
   Item->Clear();
-  for(int i=0; i<MainGrid->TypeList.Count; i++){
+  for (int i = 0; i < TypeList.Count; i++) {
     TMenuItem *MI = new TMenuItem(Item->Owner);
-    MI->Caption = MainGrid->TypeList.Items(i)->Name;
+    MI->Caption = TypeList.Items(i)->Name;
     if(Item == mnPasteFormat){
       MI->Name = MakeId("pasteformat", MI->Caption, i);
     }
@@ -1104,7 +1105,7 @@ void TfmMain::OpenFile(String OpenFileName, int CharCode,
     LockingFile = nullptr;
   }
   if (Format == nullptr) {
-    Format = MainGrid->TypeList.FindForFileName(OpenFileName);
+    Format = TypeList.FindForFileName(OpenFileName);
   }
   if (!MainGrid->LoadFromFile(OpenFileName, CharCode, Format, ExecOpenMacro)) {
     return;
@@ -1113,7 +1114,7 @@ void TfmMain::OpenFile(String OpenFileName, int CharCode,
   UpdateTitle();
   SetHistory(FileName);
   FileAge(FileName, TimeStamp);
-  dlgSave->FilterIndex = MainGrid->TypeList.IndexOf(MainGrid->TypeOption) + 1;
+  dlgSave->FilterIndex = TypeList.IndexOf(MainGrid->TypeOption) + 1;
   tmAutoSaver->Enabled = false;
   mnReload->Enabled = true;
   mnReloadCode->Enabled = true;
@@ -1153,8 +1154,8 @@ void __fastcall TfmMain::mnOpenClick(TObject *Sender)
       if(dlgOpen->Execute()) {
         int index = dlgOpen->FilterIndex - 1;
         const TTypeOption *format =
-            (index > 0 && index < MainGrid->TypeList.Count)
-                ? MainGrid->TypeList.Items(index) : nullptr;
+            (index > 0 && index < TypeList.Count)
+                ? TypeList.Items(index) : nullptr;
         OpenFile(dlgOpen->FileName, CHARCODE_AUTO, format);
       }
     }
@@ -1349,11 +1350,11 @@ void __fastcall TfmMain::mnSaveAsClick(TObject *Sender)
     dlgSave->FileName = ExtractFileName(FileName);
   }
 
-  dlgSave->FilterIndex = MainGrid->TypeList.IndexOf(MainGrid->TypeOption) + 1;
+  dlgSave->FilterIndex = TypeList.IndexOf(MainGrid->TypeOption) + 1;
   if (dlgSave->Execute()) {
     String fileName = dlgSave->FileName;
     int typeIndex = dlgSave->FilterIndex - 1;
-    TTypeOption *typeOption = MainGrid->TypeList.Items(typeIndex);
+    TTypeOption *typeOption = TypeList.Items(typeIndex);
 
     String ext = ExtractFileExt(fileName);
     String defExt = "." + typeOption->DefExt();
@@ -1860,21 +1861,21 @@ void __fastcall TfmMain::mnpPasteInsertClick(TObject *Sender)
 void __fastcall TfmMain::mnCutFormatDefaultClick(TObject *Sender)
 {
   const TTypeOption *Format =
-      MainGrid->TypeList.Items(static_cast<TMenuItem *>(Sender)->Tag);
+      TypeList.Items(static_cast<TMenuItem *>(Sender)->Tag);
   MainGrid->CutToClipboard(Format);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnCopyFormatDefaultClick(TObject *Sender)
 {
   const TTypeOption *Format =
-      MainGrid->TypeList.Items(static_cast<TMenuItem *>(Sender)->Tag);
+      TypeList.Items(static_cast<TMenuItem *>(Sender)->Tag);
   MainGrid->CopyToClipboard(Format);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnPasteFormatDefaultClick(TObject *Sender)
 {
   const TTypeOption *Format =
-      MainGrid->TypeList.Items(static_cast<TMenuItem *>(Sender)->Tag);
+      TypeList.Items(static_cast<TMenuItem *>(Sender)->Tag);
   MainGrid->PasteFromClipboard(PASTE_OPTION_UNKNOWN, Format);
 }
 //---------------------------------------------------------------------------

@@ -57,7 +57,6 @@ __fastcall TMainGrid::TMainGrid(TComponent* Owner)  //デフォルトの設定
   Dragging = false;
   EditorMode = true;
   DragBehavior = dbMoveIfSelected;
-  TypeOption = TypeList.DefItem();
   PasteOption = -1;
   DefWay = 2;
   FShowRowCounter = true;
@@ -485,7 +484,7 @@ void TMainGrid::Clear(int AColCount, int ARowCount, bool UpdateRightBottom)
   }
   UndoList->Clear();
   Modified = false;
-  TypeOption = TypeList.DefItem();
+  TypeOption = fmMain->TypeList.DefItem();
   if(UpdateRightBottom){
     FDataRight = AColCount - 1;
     FDataBottom = ARowCount - 1;

@@ -6,8 +6,8 @@
 #include <Vcl.Forms.hpp>
 #include <Vcl.Grids.hpp>
 #include <map>
+#include "CsvReader.h"
 #include "EncodedWriter.h"
-#include "TypeList.h"
 #include "Undo.h"
 //---------------------------------------------------------------------------
 #define CASSAVA_TITLE L"Cassava Editor"
@@ -216,7 +216,6 @@ public:
     void SetCsv(TStringList *Dest, String Src, const TTypeOption *Format);
     void QuotedDataToStrings(TStrings *Lines, String Text,
         const TTypeOption *Format);
-    TTypeList TypeList;
     const TTypeOption *TypeOption;
     int PasteOption;
     int DefWay;
