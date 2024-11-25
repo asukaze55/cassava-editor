@@ -340,6 +340,7 @@ void TfmMain::ReadIni()
 
     int TypeCount = Ini->ReadInteger("DataType","Count", 0);
     if(TypeCount > 0){
+      int activeTypeIndex = MainGrid->TypeList.IndexOf(MainGrid->TypeOption);
       MainGrid->TypeList.Clear();
       for(int i=0; i<TypeCount; i++){
         String Section = (String)"DataType:" + i;
@@ -357,6 +358,7 @@ void TfmMain::ReadIni()
         option.DummyEol = Ini->ReadBool(Section, "DummyEol", false);
         MainGrid->TypeList.Add(option);
       }
+      MainGrid->TypeOption = MainGrid->TypeList.Items(activeTypeIndex);
     }
     SetFilter();
     SetCutMenu(mnCutFormat);
