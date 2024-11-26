@@ -62,12 +62,18 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
   MainGrid->OnMouseWheelDown = MainGrid->MouseWheelDown;
   MainGrid->OnGetCalculatedCell = GetCalculatedCell;
   MainGrid->TabStop = false;
-  MainGrid->TypeOption = TypeList.DefItem();
   Application->OnActivate = ApplicationActivate;
   Application->OnHint = ApplicationHint;
 
   History = new TStringList;
   ScreenDpi = Screen->PixelsPerInch;
+
+  TTypeList defaultTypeList;
+  defaultTypeList.Add(TTypeOption());
+  defaultTypeList.Add(TTypeOption("CSV"));
+  defaultTypeList.Add(TTypeOption("TSV"));
+  MainGrid->TypeOption = defaultTypeList.DefItem();
+  TypeList = defaultTypeList;
 
   ReadIni();
   ReadToolBar();
@@ -341,8 +347,7 @@ void TfmMain::ReadIni()
 
     int TypeCount = Ini->ReadInteger("DataType","Count", 0);
     if(TypeCount > 0){
-      int activeTypeIndex = TypeList.IndexOf(MainGrid->TypeOption);
-      TypeList.Clear();
+      TTypeList newTypeList;
       for(int i=0; i<TypeCount; i++){
         String Section = (String)"DataType:" + i;
         TTypeOption option;
@@ -357,17 +362,10 @@ void TfmMain::ReadIni()
         option.OmitComma = Ini->ReadBool(Section, "OmitComma", true);
         option.DummyEof = Ini->ReadBool(Section, "DummyEof", false);
         option.DummyEol = Ini->ReadBool(Section, "DummyEol", false);
-        TypeList.Add(option);
+        newTypeList.Add(option);
       }
-      MainGrid->TypeOption = TypeList.Items(activeTypeIndex);
+      TypeList = newTypeList;
     }
-    SetFilter();
-    SetCutMenu(mnCutFormat);
-    SetCutMenu(mnpCutFormat);
-    SetCopyMenu(mnCopyFormat);
-    SetCopyMenu(mnpCopyFormat);
-    SetPasteMenu(mnPasteFormat);
-    SetPasteMenu(mnpPasteFormat);
 
     BackupOnSave = Ini->ReadBool("Backup","OnSave",true);
     BackupOnTime = Ini->ReadBool("Backup","OnTime",false);
@@ -842,6 +840,21 @@ void __fastcall TfmMain::CoolBarResize(TObject *Sender)
     }
     toolbar->Width = width;
   }
+}
+//---------------------------------------------------------------------------
+void TfmMain::SetTypeList(const TTypeList &TypeList)
+{
+  String name = MainGrid->TypeOption->Name;
+  FTypeList = TypeList;
+  MainGrid->TypeOption = FTypeList.Items(FTypeList.IndexOf(name));
+
+  SetFilter();
+  SetCutMenu(mnCutFormat);
+  SetCutMenu(mnpCutFormat);
+  SetCopyMenu(mnCopyFormat);
+  SetCopyMenu(mnpCopyFormat);
+  SetPasteMenu(mnPasteFormat);
+  SetPasteMenu(mnpPasteFormat);
 }
 //---------------------------------------------------------------------------
 void TfmMain::SetFilter()

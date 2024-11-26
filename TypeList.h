@@ -13,14 +13,6 @@ class TTypeList {
     return v.size();
   }
 public:
-  TTypeList() {
-    v.push_back(TTypeOption());
-    v.push_back(TTypeOption("CSV"));
-    v.push_back(TTypeOption("TSV"));
-  }
-  void Clear() {
-    v.clear();
-  }
   __property int Count = { read=GetCount };
   void Add(const TTypeOption &op) {
     v.push_back(op);
@@ -46,8 +38,11 @@ public:
     return &v[0];
   }
   int IndexOf(const TTypeOption *Format) const {
+    return IndexOf(Format->Name);
+  }
+  int IndexOf(String Name) const {
     for (size_t i = 1; i < v.size(); i++) {
-      if (v[i].Name == Format->Name) {
+      if (v[i].Name == Name) {
         return i;
       }
     }
@@ -55,10 +50,6 @@ public:
   }
   TTypeOption *DefItem() {
     return &v[0];
-  }
-  TTypeList *operator =(const TTypeList &src) {
-    v = src.v;
-    return this;
   }
 };
 //---------------------------------------------------------------------------

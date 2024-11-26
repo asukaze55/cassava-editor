@@ -383,6 +383,8 @@ private:    // ユーザー宣言
   void UpdateTitle();
   String FStyle;
   void SetStyle(String Value);
+  TTypeList FTypeList;
+  void SetTypeList(const TTypeList &TypeList);
 
 public:     // ユーザー宣言
   TMainGrid *MainGrid;
@@ -429,11 +431,11 @@ public:     // ユーザー宣言
   void Export(String filename, String type);
   TMenuItem *FindMenuItem(String name);
 
-  TTypeList TypeList;
   bool MakeNewWindow;
   bool TitleFullPath;
 
   __property String Style = {read=FStyle, write=SetStyle};
+  __property TTypeList TypeList = {read=FTypeList, write=SetTypeList};
 
   bool BackupOnSave;
   bool BackupOnTime;
