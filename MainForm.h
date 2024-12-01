@@ -368,8 +368,6 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall acFixFirstColUpdate(TObject *Sender);
 
 private:    // ユーザー宣言
-  void OpenFile(String OpenFileName, int CharCode = CHARCODE_AUTO,
-      const TTypeOption *Format = nullptr);
   bool StartupMacroDone;
   void ExecStartupMacro();
   void ExecOpenMacro(System::TObject* Sender);
@@ -427,6 +425,8 @@ public:     // ユーザー宣言
   void MacroScriptExec(String cmsname, String script);
   TCalculatedCell GetCalculatedCell(String Str, int ACol, int ARow);
   TFormattedCell GetFormattedCell(TCalculatedCell Cell, int AX, int AY);
+  void OpenFile(String OpenFileName, int CharCode = CHARCODE_AUTO,
+      const TTypeOption *Format = nullptr);
   void SaveAs(String AFileName, const TTypeOption *Format);
   void Export(String filename, String type);
   TMenuItem *FindMenuItem(String name);

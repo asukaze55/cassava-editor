@@ -1372,13 +1372,20 @@ void TMacro::ExecFnc(String s)
           throw MacroException(ope[0].Str() + "\n実行に失敗しました。");
         }
       }
-    }else if(s == "Open" && H == 1){
+    }else if(s == "Open" && (H == 1 || H == 2)){
       if (env.IsCellMacro) {
         throw MacroException("Cell Macro can't open files.", ME_SECURITY);
       }
       env.Grid->ApplyPendingChanges();
-      String filename = STR0;
-      fmMain->MainGridDropFiles(nullptr, 1, &filename);
+      const TTypeOption *typeOption = nullptr;
+      if (H > 1) {
+        int index = fmMain->TypeList.IndexOf(STR1, -1);
+        if (index == -1) {
+          throw MacroException("データ形式名が不正です：" + STR1);
+        }
+        typeOption = fmMain->TypeList.Items(index);
+      }
+      fmMain->OpenFile(STR0, CHARCODE_AUTO, typeOption);
       while (env.Grid->Raw()->FileOpenThread) {
         Sleep(100);
         Application->ProcessMessages();

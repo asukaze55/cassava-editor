@@ -113,7 +113,8 @@ GetActiveDataType(),現在使用中のデータ形式名を返します。,2.5.0
 SetActiveDataType(str);,使用するデータ形式を str に変更します。,2.5.0
 ShellOpen(filename);,指定されたファイルを関連付けられたアプリケーションで開きます。,1.7.0
 "ShellOpen(appname, filename);",filename をパラメータとして appname で指定したアプリケーションを実行します。,1.7.0
-Open(filename);,filename を Cassava で読み込みます。,1.8.1
+Open(filename);,filename を開きます。,1.8.1
+"Open(filename, type);",filename を type で指定した形式で開きます。,2.7.0
 SaveAs(filename);,現在開いているファイルを filename に保存します。,1.8.0
 "SaveAs(filename, type);",現在開いているファイルを type で指定した形式で filename に保存します。,1.8.0
 "Export(filename, type);",現在開いているファイルを type で指定した形式で filename にエクスポートします。,1.8.0
