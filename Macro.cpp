@@ -1139,19 +1139,11 @@ void TMacro::ExecFnc(String s)
     } else if (s == "GetActiveDataType" && H == 0) {
       Stack.push_back(Element(fmMain->MainGrid->TypeOption->Name));
     } else if (s == "SetActiveDataType" && H == 1) {
-      String name = STR0;
-      TTypeList &typeList = fmMain->TypeList;
-      bool found = false;
-      for (int i = 0; i < typeList.Count; i++) {
-        if (typeList.Items(i)->Name == name) {
-          fmMain->MainGrid->TypeOption = typeList.Items(i);
-          found = true;
-          break;
-        }
+      int index = fmMain->TypeList.IndexOf(STR0, -1);
+      if (index == -1) {
+        throw MacroException("データ形式名が不正です：" + STR0);
       }
-      if (!found) {
-        throw MacroException("データ形式名が不正です：" + name);
-      }
+      fmMain->MainGrid->TypeOption = fmMain->TypeList.Items(index);
     }else if(s == "write" || s == "writeln"){
       if (canWriteFile) {
         fs_io->SetEncode(env.Grid->Raw()->KanjiCode);
@@ -1400,17 +1392,11 @@ void TMacro::ExecFnc(String s)
       if (H == 1) {
         typeOption = env.Grid->Raw()->TypeOption;
       } else {
-        int count = fmMain->TypeList.Count;
-        for (int i = 0; i < count; i++) {
-          TTypeOption *option = fmMain->TypeList.Items(i);
-          if (option->Name == STR1) {
-            typeOption = option;
-            break;
-          }
+        int index = fmMain->TypeList.IndexOf(STR1, -1);
+        if (index == -1) {
+          throw MacroException("保存形式が不明です：" + STR1);
         }
-        if (typeOption == nullptr) {
-          throw MacroException("保存形式が不明です:" + STR1);
-        }
+        typeOption = fmMain->TypeList.Items(index);
       }
       fmMain->SaveAs(STR0, typeOption);
     }else if(s == "Export" && H == 2){
