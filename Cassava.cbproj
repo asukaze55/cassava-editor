@@ -121,6 +121,8 @@
         <VerInfo_Build>911</VerInfo_Build>
         <VerInfo_Keys>CompanyName=;FileVersion=2.6.0.911;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=2.6.0.911;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
+        <ILINK_OSVersion>5.0</ILINK_OSVersion>
+        <ILINK_SubSysVersion>5.0</ILINK_SubSysVersion>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
