@@ -298,8 +298,6 @@ void TfmMain::ReadIni()
 
   Show();
   SearchMacro(mnMacro);
-  // Reset DPI ratio, because the window might be shown in a sub-display.
-  Application->ProcessMessages();
   dpiRatio = (double)ScreenDpi / iniScreenDpi;
 
   WindowState =
