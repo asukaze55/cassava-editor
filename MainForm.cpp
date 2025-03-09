@@ -650,9 +650,8 @@ void TfmMain::ReadToolBar()
     return;
   }
 
-  ::SendMessage(CoolBar->Handle, WM_SETREDRAW, 0, 0);
   bool visible = CoolBar->Visible;
-  CoolBar->Visible = true;
+  CoolBar->Visible = false;
   tbarNormal->Visible = false;
   tbarAdditional->Visible = false;
 
@@ -772,7 +771,6 @@ void TfmMain::ReadToolBar()
     toolBar->Width = width;
   }
   delete list;
-  ::SendMessage(CoolBar->Handle, WM_SETREDRAW, 1, 0);
   CoolBar->Visible = visible;
 }
 //---------------------------------------------------------------------------
