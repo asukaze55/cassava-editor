@@ -1099,13 +1099,13 @@ void TMacro::ExecFnc(String s)
       fmMain->SetGridFont(env.Grid->Raw()->Font);
     } else if (s == "GetCharCode" && H == 0) {
       String encoding;
-      switch (fmMain->MainGrid->KanjiCode) {
-        case CHARCODE_SJIS: encoding = "Shift-JIS"; break;
-        case CHARCODE_EUC: encoding = "EUC"; break;
-        case CHARCODE_JIS: encoding = "JIS"; break;
-        case CHARCODE_UTF8: encoding = "UTF-8"; break;
-        case CHARCODE_UTF16LE: encoding = "UTF-16LE"; break;
-        case CHARCODE_UTF16BE: encoding = "UTF-16BE"; break;
+      switch (fmMain->MainGrid->Encoding->CodePage) {
+        case CODE_PAGE_SJIS: encoding = "Shift-JIS"; break;
+        case CODE_PAGE_EUC: encoding = "EUC"; break;
+        case CODE_PAGE_JIS: encoding = "JIS"; break;
+        case CODE_PAGE_UTF8: encoding = "UTF-8"; break;
+        case CODE_PAGE_UTF16LE: encoding = "UTF-16LE"; break;
+        case CODE_PAGE_UTF16BE: encoding = "UTF-16BE"; break;
         default: encoding = ""; break;
       }
       Stack.push_back(Element(encoding));
@@ -1146,7 +1146,7 @@ void TMacro::ExecFnc(String s)
       fmMain->MainGrid->TypeOption = fmMain->TypeList.Items(index);
     }else if(s == "write" || s == "writeln"){
       if (canWriteFile) {
-        fs_io->SetEncode(env.Grid->Raw()->KanjiCode);
+        fs_io->SetEncoding(env.Grid->Raw()->Encoding);
         for (int i = 0; i < H; i++) {
           fs_io->Write(ope[i].Str());
         }

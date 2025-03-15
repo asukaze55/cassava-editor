@@ -425,11 +425,11 @@ void TfmMain::ReadIni()
     SortIgnoreCase = Ini->ReadBool("Mode", "SortIgnoreCase", false);
     SortIgnoreZenhan = Ini->ReadBool("Mode", "SortIgnoreZenhan", false);
     SortDirection = Ini->ReadInteger("Mode", "SortDirection", 0);
-    MainGrid->CheckKanji = Ini->ReadBool("Mode", "CheckKanji", true);
-    MainGrid->DefaultCharCode =
-        Ini->ReadInteger("Mode", "DefaultCharCode", CHARCODE_UTF8);
+    EncodingDetector.Enabled = Ini->ReadBool("Mode", "CheckKanji", true);
+    EncodingDetector.DefaultEncoding =
+        ToEncoding(Ini->ReadInteger("Mode", "DefaultCharCode", CHARCODE_UTF8));
     if (FileName == "") {
-      MainGrid->KanjiCode = MainGrid->DefaultCharCode;
+      MainGrid->Encoding = EncodingDetector.DefaultEncoding;
     }
     MainGrid->CompactColWidth =
         Ini->ReadBool("Mode","CompactColWidth", true);
@@ -598,8 +598,9 @@ void TfmMain::WriteIni(bool PosSlide)
     Ini->WriteBool("Mode", "SortIgnoreCase", SortIgnoreCase);
     Ini->WriteBool("Mode", "SortIgnoreZenhan", SortIgnoreZenhan);
     Ini->WriteBool("Mode", "SortDirection", SortDirection);
-    Ini->WriteBool("Mode", "CheckKanji", MainGrid->CheckKanji);
-    Ini->WriteInteger("Mode", "DefaultCharCode", MainGrid->DefaultCharCode);
+    Ini->WriteBool("Mode", "CheckKanji", EncodingDetector.Enabled);
+    Ini->WriteInteger("Mode", "DefaultCharCode",
+        ToCharCode(EncodingDetector.DefaultEncoding));
     Ini->WriteBool("Mode", "CompactColWidth", MainGrid->CompactColWidth);
     Ini->WriteBool("Mode", "CalcWidthForAllRow", MainGrid->CalcWidthForAllRow);
     Ini->WriteFloat("Mode", "MaxRowHeightLines", MainGrid->MaxRowHeightLines);
@@ -1116,8 +1117,12 @@ void TfmMain::OpenFile(String OpenFileName, int CharCode,
   if (Format == nullptr) {
     Format = TypeList.FindForFileName(OpenFileName);
   }
-  if (!MainGrid->LoadFromFile(OpenFileName, CharCode, Format, ExecOpenMacro)) {
-    return;
+  if (CharCode == CHARCODE_AUTO) {
+    MainGrid->LoadFromFile(OpenFileName, EncodingDetector.Detect(OpenFileName),
+        /* isDetectedEncoding= */ true, Format, ExecOpenMacro);
+  } else {
+    MainGrid->LoadFromFile(OpenFileName, ToEncoding(CharCode),
+        /* isDetectedEncoding= */ false, Format, ExecOpenMacro);
   }
   FileName = OpenFileName;
   UpdateTitle();
@@ -1533,18 +1538,18 @@ void TfmMain::Export(String filename, String type)
     TStringList *checkedMenus = nullptr;
     try{
       out = new TFileStream(filename, fmCreate | fmShareDenyWrite);
-      int kanjiCode = MainGrid->KanjiCode;
+      TEncoding *encoding = MainGrid->Encoding;
       TReturnCode returnCode = MainGrid->ReturnCode;
       TReturnCode inCellReturnCode = MainGrid->InCellReturnCode;
       bool addBom = MainGrid->AddBom;
-      ew = new EncodedWriter(out, kanjiCode, addBom);
+      ew = new EncodedWriter(out, encoding, addBom);
       checkedMenus = new TStringList();
       GetCheckedMenus(checkedMenus);
 
       MacroExec(CmsFile, ew);
 
       RestoreCheckedMenus(checkedMenus);
-      MainGrid->KanjiCode = kanjiCode;
+      MainGrid->Encoding = encoding;
       MainGrid->ReturnCode = returnCode;
       MainGrid->InCellReturnCode = inCellReturnCode;
       MainGrid->AddBom = addBom;
@@ -2749,24 +2754,24 @@ void __fastcall TfmMain::mnKeyClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnCharCodeClick(TObject *Sender)
 {
-  switch (MainGrid->KanjiCode) {
-    case CHARCODE_JIS:
+  switch (MainGrid->Encoding->CodePage) {
+    case CODE_PAGE_JIS:
       mnJis->Checked = true;
       mnReloadCodeJIS->Checked = true;
       break;
-    case CHARCODE_EUC:
+    case CODE_PAGE_EUC:
       mnEuc->Checked = true;
       mnReloadCodeEUC->Checked = true;
       break;
-    case CHARCODE_UTF8:
+    case CODE_PAGE_UTF8:
       mnUtf8->Checked = true;
       mnReloadCodeUTF8->Checked = true;
       break;
-    case CHARCODE_UTF16BE:
+    case CODE_PAGE_UTF16BE:
       mnUtf16be->Checked = true;
       mnReloadCodeUTF16BE->Checked = true;
       break;
-    case CHARCODE_UTF16LE:
+    case CODE_PAGE_UTF16LE:
       mnUnicode->Checked = true;
       mnReloadCodeUnicode->Checked = true;
       break;
@@ -2798,8 +2803,8 @@ void __fastcall TfmMain::mnKCodeClick(TObject *Sender)
 {
   TMenuItem *Menu = static_cast<TMenuItem *>(Sender);
 
-  if (MainGrid->KanjiCode != Menu->Tag) {
-    MainGrid->KanjiCode = Menu->Tag;
+  if (ToCharCode(MainGrid->Encoding) != Menu->Tag) {
+    MainGrid->Encoding = ToEncoding(Menu->Tag);
     MainGrid->Modified = true;
   }
 }
@@ -2835,8 +2840,9 @@ void __fastcall TfmMain::mnReturnCodeClick(TObject *Sender)
 void __fastcall TfmMain::mnBomClick(TObject *Sender)
 {
   MainGrid->AddBom = !MainGrid->AddBom;
-  int kc = MainGrid->KanjiCode;
-  if (kc == CHARCODE_UTF8 || kc == CHARCODE_UTF16LE || kc == CHARCODE_UTF16BE) {
+  int cp = MainGrid->Encoding->CodePage;
+  if (cp == CODE_PAGE_UTF8 || cp == CODE_PAGE_UTF16LE ||
+      cp == CODE_PAGE_UTF16BE) {
     MainGrid->Modified = true;
   }
 }

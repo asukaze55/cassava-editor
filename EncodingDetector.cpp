@@ -4,6 +4,11 @@
 //---------------------------------------------------------------------------
 typedef void funcNext(byte b, int i, int &error, int &hit, int &flag);
 //---------------------------------------------------------------------------
+static inline int min(int a, int b)
+{
+  return (a < b ? a : b);
+}
+//---------------------------------------------------------------------------
 void SJIS_Next(byte b, int i, int &error, int &hit, int &flag)
 {
   if(flag){
@@ -100,7 +105,7 @@ void UTF16BE_Next(byte b, int i, int &error, int &hit, int &flag)
   }
 }
 //---------------------------------------------------------------------------
-int DetectEncode(byte *buf, int len, int def)
+int DetectCharCode(byte *buf, int len, int def)
 {
 #define CHARCODE_COUNT 6
   funcNext *next[CHARCODE_COUNT];
@@ -152,6 +157,69 @@ int DetectEncode(byte *buf, int len, int def)
     }
   }
   return result;
+}
+//---------------------------------------------------------------------------
+TEncoding *TEncodingDetector::Detect(String fileName)
+{
+  if (!Enabled) {
+    return DefaultEncoding;
+  }
+
+  TFileStream *file = new TFileStream(fileName, fmOpenRead|fmShareDenyNone);
+  int bufLength = min(file->Size, 1024);
+  if (bufLength == 0) {
+    delete file;
+    return DefaultEncoding;
+  }
+
+  DynamicArray<Byte> byteBuffer;
+  byteBuffer.Length = bufLength;
+  bufLength = file->Read(&(byteBuffer[0]), bufLength);
+  byteBuffer.Length = bufLength;
+  delete file;
+
+  return ToEncoding(
+      DetectCharCode(&(byteBuffer[0]), bufLength, ToCharCode(DefaultEncoding)));
+}
+//---------------------------------------------------------------------------
+TEncoding *ToEncoding(int charCode)
+{
+  switch (charCode){
+    case CHARCODE_SJIS:
+      return TEncoding::GetEncoding(CODE_PAGE_SJIS);
+    case CHARCODE_EUC:
+      return TEncoding::GetEncoding(CODE_PAGE_EUC);
+    case CHARCODE_JIS:
+      return TEncoding::GetEncoding(CODE_PAGE_JIS);
+    case CHARCODE_UTF8:
+      return TEncoding::UTF8;
+    case CHARCODE_UTF16LE:
+      return TEncoding::Unicode;
+    case CHARCODE_UTF16BE:
+      return TEncoding::BigEndianUnicode;
+    default:
+      return TEncoding::Default;
+  }
+}
+//---------------------------------------------------------------------------
+TCharCode ToCharCode(TEncoding * encoding)
+{
+  switch (encoding->CodePage){
+    case CODE_PAGE_SJIS:
+      return CHARCODE_SJIS;
+    case CODE_PAGE_EUC:
+      return CHARCODE_EUC;
+    case CODE_PAGE_JIS:
+      return CHARCODE_JIS;
+    case CODE_PAGE_UTF8:
+      return CHARCODE_UTF8;
+    case CODE_PAGE_UTF16LE:
+      return CHARCODE_UTF16LE;
+    case CODE_PAGE_UTF16BE:
+      return CHARCODE_UTF16BE;
+    default:
+      return CHARCODE_SJIS;
+  }
 }
 //---------------------------------------------------------------------------
 #pragma package(smart_init)

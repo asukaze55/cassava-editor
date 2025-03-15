@@ -18,9 +18,9 @@ __fastcall TfrOptionFile::TfrOptionFile(TComponent* Owner)
 //---------------------------------------------------------------------------
 void TfrOptionFile::RestoreFromMainForm()
 {
-  cbCheckKanji->Checked = fmMain->MainGrid->CheckKanji;
+  cbCheckKanji->Checked = fmMain->EncodingDetector.Enabled;
   cbUseUtf8AsDefault->Checked =
-      (fmMain->MainGrid->DefaultCharCode == CHARCODE_UTF8);
+      (fmMain->EncodingDetector.DefaultEncoding->CodePage == CODE_PAGE_UTF8);
   cbNewWindow->Checked = fmMain->MakeNewWindow;
   cbTitleFullPath->Checked = fmMain->TitleFullPath;
   cbLockFile->ItemIndex = fmMain->LockFile;
@@ -29,9 +29,9 @@ void TfrOptionFile::RestoreFromMainForm()
 //---------------------------------------------------------------------------
 void TfrOptionFile::StoreToMainForm()
 {
-  fmMain->MainGrid->CheckKanji = cbCheckKanji->Checked;
-  fmMain->MainGrid->DefaultCharCode =
-      cbUseUtf8AsDefault->Checked ? CHARCODE_UTF8 : CHARCODE_SJIS;
+  fmMain->EncodingDetector.Enabled = cbCheckKanji->Checked;
+  fmMain->EncodingDetector.DefaultEncoding = cbUseUtf8AsDefault->Checked
+      ? TEncoding::UTF8 : TEncoding::GetEncoding(CODE_PAGE_SJIS);
   fmMain->MakeNewWindow = cbNewWindow->Checked;
   fmMain->TitleFullPath = cbTitleFullPath->Checked;
   fmMain->LockFile = cbLockFile->ItemIndex;

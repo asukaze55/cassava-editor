@@ -983,23 +983,24 @@ void __fastcall TMainGrid::DropCsvFiles(TWMDropFiles inMsg)
   delete[] fileNames;
 }
 //---------------------------------------------------------------------------
-static bool HasBom(DynamicArray<Byte> buf, int charCode)
+static bool HasBom(DynamicArray<Byte> buf, TEncoding *encoding)
 {
-  switch (charCode) {
-    case CHARCODE_UTF8:
+  switch (encoding->CodePage) {
+    case CODE_PAGE_UTF8:
       return buf.Length > 3
              && buf[0] == 0xef && buf[1] == 0xbb && buf[2] == 0xbf;
-    case CHARCODE_UTF16LE:
+    case CODE_PAGE_UTF16LE:
       return buf.Length > 2 && buf[0] == 0xff && buf[1] == 0xfe;
-    case CHARCODE_UTF16BE:
+    case CODE_PAGE_UTF16BE:
       return buf.Length > 2 && buf[0] == 0xfe && buf[1] == 0xff;
     default:
       return false;
   }
 }
 //---------------------------------------------------------------------------
-bool TMainGrid::LoadFromFile(String FileName, int CharCode,
-    const TTypeOption *Format, TNotifyEvent OnTerminate)
+void TMainGrid::LoadFromFile(String FileName, TEncoding *encoding,
+    bool isDetectedEncoding, const TTypeOption *Format,
+    TNotifyEvent OnTerminate)
 {
   TFileStream *File = new TFileStream(FileName, fmOpenRead|fmShareDenyNone);
   int bufLength = min(File->Size, 1024);
@@ -1008,7 +1009,7 @@ bool TMainGrid::LoadFromFile(String FileName, int CharCode,
     delete File;
     Modified = false;
     OnTerminate(this);
-    return true;
+    return;
   }
   DynamicArray<Byte> byteBuffer;
   byteBuffer.Length = bufLength;
@@ -1016,43 +1017,23 @@ bool TMainGrid::LoadFromFile(String FileName, int CharCode,
   byteBuffer.Length = bufLength;
   delete File;
 
-  if (CharCode == CHARCODE_AUTO) {
-    if (CheckKanji) {
-      KanjiCode = DetectEncode(&(byteBuffer[0]), bufLength, DefaultCharCode);
-    } else {
-      KanjiCode = DefaultCharCode;
-    }
-  } else {
-    KanjiCode = CharCode;
-  }
-
-  TEncoding *encoding;
-  switch(KanjiCode){
-    case CHARCODE_SJIS:    encoding = TEncoding::GetEncoding(932); break;
-    case CHARCODE_EUC:     encoding = TEncoding::GetEncoding(20932); break;
-    case CHARCODE_JIS:     encoding = TEncoding::GetEncoding(50221); break;
-    case CHARCODE_UTF8:    encoding = TEncoding::UTF8; break;
-    case CHARCODE_UTF16LE: encoding = TEncoding::Unicode; break;
-    case CHARCODE_UTF16BE: encoding = TEncoding::BigEndianUnicode; break;
-    default:               encoding = TEncoding::Default; break;
-  }
   DynamicArray<wchar_t> charBuffer;
   charBuffer.Length = bufLength;
   TStreamReader *reader =
       new TStreamReader(FileName, encoding, /* DetectBOM= */ true,
                         /* BufferSize= */ 4096);
   try {
+    Encoding = encoding;
     int readCount = reader->ReadBlock(charBuffer, 0, bufLength);
     charBuffer.Length = readCount;
-    AddBom = HasBom(byteBuffer, KanjiCode);
+    AddBom = HasBom(byteBuffer, encoding);
   } catch (...) {
-    if (CharCode != CHARCODE_AUTO) {
+    if (!isDetectedEncoding) {
       Application->MessageBox(
           L"指定された文字コードではファイルを開けません。",
           CASSAVA_TITLE, 0);
     }
-    KanjiCode = CHARCODE_SJIS;
-    encoding = TEncoding::Default;
+    Encoding = TEncoding::Default;
     charBuffer = TEncoding::Default->GetChars(byteBuffer);
     AddBom = false;
   }
@@ -1067,12 +1048,11 @@ bool TMainGrid::LoadFromFile(String FileName, int CharCode,
                 &InCellReturnCode);
 
   OnFileOpenThreadTerminate = OnTerminate;
-  FileOpenThread = ThreadFileOpen(this, FileName, encoding);
+  FileOpenThread = ThreadFileOpen(this, FileName, Encoding);
   FileOpenThread->OnTerminate = FileOpenThreadTerminate;
   FileOpenThread->FreeOnTerminate = true;
   FileOpenThread->Start();
   Modified = false;
-  return true;
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainGrid::FileOpenThreadTerminate(System::TObject* Sender)
@@ -1248,7 +1228,7 @@ void TMainGrid::SaveToFile(String FileName, const TTypeOption *Format,
     bool SetModifiedFalse)
 {
   TFileStream *fs = new TFileStream(FileName, fmCreate | fmShareDenyWrite);
-  EncodedWriter *ew = new EncodedWriter(fs, KanjiCode, AddBom);
+  EncodedWriter *ew = new EncodedWriter(fs, Encoding, AddBom);
 
   WriteGrid(ew, Format);
 

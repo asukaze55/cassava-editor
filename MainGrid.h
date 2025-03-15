@@ -219,9 +219,7 @@ public:
     const TTypeOption *TypeOption;
     int PasteOption;
     int DefWay;
-    bool CheckKanji;
-    int DefaultCharCode;
-    int KanjiCode;
+    TEncoding *Encoding;
     bool AddBom;
     TReturnCode ReturnCode;
     TReturnCode InCellReturnCode;
@@ -381,7 +379,8 @@ public:
     void ScrollRows(int Delta);
     void ScrollCols(int Delta);
 
-    bool LoadFromFile(String FileName, int CharCode, const TTypeOption *Format,
+    void LoadFromFile(String FileName, TEncoding *encoding,
+        bool isDetectedEncoding, const TTypeOption *Format,
         TNotifyEvent OnTerminate);
     TThread *FileOpenThread;
     void __fastcall FileOpenThreadTerminate(System::TObject* Sender);

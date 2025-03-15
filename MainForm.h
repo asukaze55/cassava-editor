@@ -21,6 +21,7 @@
 #include <Vcl.StdCtrls.hpp>
 #include <Vcl.VirtualImageList.hpp>
 #include <map>
+#include "EncodingDetector.h"
 #include "MainGrid.h"
 #include "Preference.h"
 #include "TypeList.h"
@@ -431,6 +432,7 @@ public:     // ÉÜÅ[ÉUÅ[êÈåæ
   void Export(String filename, String type);
   TMenuItem *FindMenuItem(String name);
 
+  TEncodingDetector EncodingDetector;
   bool MakeNewWindow;
   bool TitleFullPath;
 
