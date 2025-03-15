@@ -656,7 +656,8 @@ void TfmMain::ReadToolBar()
   tbarAdditional->Visible = false;
 
   TTypeOption typeOption("CSV");
-  CsvReader reader(&typeOption, toolbarcsv, TEncoding::Default);
+  CsvReader reader(
+      &typeOption, toolbarcsv, EncodingDetector.Detect(toolbarcsv));
   TStringList *list = new TStringList();
   reader.ReadLine(list);
   if (list->Count == 0 || list->Strings[0] != "(Cassava-ToolBarSetting)") {
