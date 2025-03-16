@@ -371,7 +371,7 @@ __published:	// IDE 管理のコンポーネント
 private:    // ユーザー宣言
   bool StartupMacroDone;
   void ExecStartupMacro();
-  void ExecOpenMacro(System::TObject* Sender);
+  void __fastcall ExecOpenMacro(System::TObject* Sender);
   void SaveFile(const TTypeOption *Format);
   void GetCheckedMenus(TStringList *list);
   void AddCheckedMenus(TStringList *list, TMenuItem* item);

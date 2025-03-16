@@ -192,7 +192,7 @@ void TfmMain::ExecStartupMacro()
   }
 }
 //---------------------------------------------------------------------------
-void TfmMain::ExecOpenMacro(System::TObject* Sender)
+void __fastcall TfmMain::ExecOpenMacro(System::TObject* Sender)
 {
   if(!StartupMacroDone){
     StartupMacroDone = true;
