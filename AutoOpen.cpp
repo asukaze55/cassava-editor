@@ -29,7 +29,7 @@ bool AutoOpen(String FileName, String BasePath)
     if(!FileExists(FullName)){
       if(FullName != ""){
         Application->MessageBox(
-          (FullName + "\nファイルが見つかりません。").c_str(),
+          (FullName + L"\nファイルが見つかりません。").c_str(),
           L"Not Found", 0);
       }
       return false;

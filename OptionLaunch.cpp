@@ -63,7 +63,7 @@ void __fastcall TfrOptionLaunch::edLaunchChange(TObject *Sender)
 
   if(Ed->Text==""){
     LName->Enabled = false;
-    LName->Text = "–¢İ’è";
+    LName->Text = L"–¢İ’è";
   }else{
     LName->Text = ChangeFileExt(ExtractFileName(Ed->Text), "");
     LName->Enabled = true;

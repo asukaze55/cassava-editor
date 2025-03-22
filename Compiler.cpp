@@ -141,7 +141,7 @@ wchar_t TTokenizer::ReadHex()
   } else if (c >= 'a' && c <= 'f') {
     return (c - 'a') + 10;
   }
-  throw CMCException((String)"エスケープシーケンス が不正です：" + c);
+  throw CMCException((String)L"エスケープシーケンス が不正です：" + c);
 }
 //---------------------------------------------------------------------------
 wchar_t TTokenizer::Peek() const
@@ -161,7 +161,7 @@ String TTokenizer::GetString(wchar_t EOS)
     if (c == EOS) {
       return s + ansiStr;
     } else if (c == '\n') {
-      throw CMCException("文字列定数が終了していません。");
+      throw CMCException(L"文字列定数が終了していません。");
     } else if (c == '\\') {
       Read(&c);
       if (c == 'n') {
@@ -183,7 +183,7 @@ String TTokenizer::GetString(wchar_t EOS)
     }
     s += c;
   }
-  throw CMCException("文字列定数が終了していません。");
+  throw CMCException(L"文字列定数が終了していません。");
 }
 //---------------------------------------------------------------------------
 String TTokenizer::GetRegExp()
@@ -192,7 +192,7 @@ String TTokenizer::GetRegExp()
   wchar_t c;
   while (true) {
     if (!Read(&c) || c == '\n') {
-      throw CMCException("正規表現リテラルが終了していません。");
+      throw CMCException(L"正規表現リテラルが終了していません。");
     }
     if (c == '/') {
       break;
@@ -238,7 +238,7 @@ CMCElement TTokenizer::GetR()
   } while (c <= ' ' || c == L'　' || c == L'\ufeff');
 
   if (c == '$' || c == '#' || c == '@' || c >= '~') {
-    throw CMCException((String)"不正な文字です：" + c);
+    throw CMCException((String)L"不正な文字です：" + c);
   }
 
   if (c == DBLQUOTE || c == QUOTE) {
@@ -315,7 +315,7 @@ CMCElement TTokenizer::GetR()
     } else if (s1 == "/") {
       return CMCElement(GetRegExp(), prElement, tpRegExp);
     } else {
-      throw CMCException("演算子の位置が不正です：" + elm.str);
+      throw CMCException(L"演算子の位置が不正です：" + elm.str);
     }
   }
   return elm;
@@ -629,7 +629,7 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
     } else if (lex->Get().str == "(") {
       ImportedFunctions[functionName] = InName + "\n" + functionName;
     } else {
-      throw CMCException("function文が不正です：" + functionName);
+      throw CMCException(L"function文が不正です：" + functionName);
     }
   }
 
@@ -658,10 +658,10 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
         e = lex->Get();
       }
       if (e.type != tpVar) {
-        throw CMCException("引数名が不正です：" + e.str);
+        throw CMCException(L"引数名が不正です：" + e.str);
       }
       if (e.isSystemVar() || Variables->IndexOf(e.str) >= 0) {
-        throw CMCException("引数名がすでに使用されています：" + e.str);
+        throw CMCException(L"引数名がすでに使用されています：" + e.str);
       }
       Variables->Add(e.str);
       parameters->Add(e.str);
@@ -679,9 +679,9 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
       if (e.str == ')') {
         break;
       } else if (varArg) {
-        throw CMCException(") が必要です：" + e.str);
+        throw CMCException(L") が必要です：" + e.str);
       } else if (e.str != ',') {
-        throw CMCException(", もしくは ) が必要です：" + e.str);
+        throw CMCException(L", もしくは ) が必要です：" + e.str);
       }
     }
   }
@@ -698,7 +698,7 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
   if (functionType == LAMBDA) {
     CMCElement arrow = lex->Get();
     if (arrow.str != "=>") {
-      throw CMCException("ラムダ式が不正です：" + arrow.str);
+      throw CMCException(L"ラムダ式が不正です：" + arrow.str);
     }
     if (lex->GetNext().str != "{") {
       funcEqual = true;
@@ -752,7 +752,7 @@ void TCompiler::GetReturn(char EOS)
   } else if(H == 1) {
     Output(CMO_Return, tpOpe);
   } else {
-    throw CMCException((String)"return 文に引数が" + (int)H + "個あります。");
+    throw CMCException((String)L"return 文に引数が" + (int)H + L"個あります。");
   }
 }
 //---------------------------------------------------------------------------
@@ -804,8 +804,8 @@ void TCompiler::GetCell()
   if (H == 2) {
     Output(CMO_Cell, tpOpe);
   } else {
-    throw CMCException((String)"[x,y] 形式に , が"
-                     + (int)(H-1) + "個あります。");
+    throw CMCException((String)L"[x,y] 形式に , が"
+                     + (int)(H-1) + L"個あります。");
   }
 }
 //---------------------------------------------------------------------------
@@ -842,7 +842,7 @@ void TCompiler::Output(String str, char type) {
       } else {
         char c = CMOCode(str);
         if (c == '\0') {
-          throw CMCException("サポートされていない演算子です：" + str);
+          throw CMCException(L"サポートされていない演算子です：" + str);
         } else {
           fout->Write(&c, 1);
         }
@@ -929,7 +929,7 @@ String TCompiler::GetObject()
       CMCElement colon = lex->Get();
       if (colon.str != ":") {
         throw CMCException(
-            "オブジェクトリテラルの形式が正しくありません：" + key.str);
+            L"オブジェクトリテラルの形式が正しくありません：" + key.str);
       }
       Output(key);
       bool inBlock = GetValues(',');
@@ -947,10 +947,10 @@ String TCompiler::GetObject()
     } else if (key.str == "}") {
       return constructor;
     } else if (key.iseof()) {
-      throw CMCException("オブジェクトリテラルが終了していません。");
+      throw CMCException(L"オブジェクトリテラルが終了していません。");
     } else {
       throw CMCException(
-          "オブジェクトリテラルの形式が正しくありません：" + key.str);
+          L"オブジェクトリテラルの形式が正しくありません：" + key.str);
     }
   }
 }
@@ -960,7 +960,7 @@ void TCompiler::GetObjectKey()
   char H;
   GetValues(']', &H);
   if(H != 1){
-    throw CMCException("obj[key] 形式が正しくありません。");
+    throw CMCException(L"obj[key] 形式が正しくありません。");
   }
   Output(".", tpOpe);
 }
@@ -970,7 +970,7 @@ void TCompiler::GetClass()
   String name = lex->Get().str;
   String paren = lex->Get().str;
   if (paren != "{") {
-    throw CMCException("クラス宣言には { が必要です：" + paren);
+    throw CMCException(L"クラス宣言には { が必要です：" + paren);
   }
   ImportedFunctions[name] = InName + "\n" + name;
   TStream *orgFOut = fout;
@@ -996,13 +996,13 @@ void TCompiler::GetImport()
 {
   CMCElement e = lex->Get();
   if (e.str != "{") {
-    throw CMCException("import 文に { が必要です：" + e.str);
+    throw CMCException(L"import 文に { が必要です：" + e.str);
   }
   std::map<String, String> nameMap;
   while (true) {
     e = lex->Get();
     if (e.type != tpVar) {
-      throw CMCException("import する関数名・クラス名が不正です：" + e.str);
+      throw CMCException(L"import する関数名・クラス名が不正です：" + e.str);
     }
     String originalName = e.str;
     String aliasName = originalName;
@@ -1010,7 +1010,7 @@ void TCompiler::GetImport()
     if (e.str == "as") {
       e = lex->Get();
       if (e.type != tpVar) {
-        throw CMCException("import の別名が不正です：" + e.str);
+        throw CMCException(L"import の別名が不正です：" + e.str);
       }
       aliasName = e.str;
       e = lex->Get();
@@ -1018,16 +1018,16 @@ void TCompiler::GetImport()
     nameMap[aliasName] = originalName;
     if (e.str == "}") { break; }
     if (e.str != ",") {
-      throw CMCException(", もしくは } が必要です：" + e.str);
+      throw CMCException(L", もしくは } が必要です：" + e.str);
     }
   }
   e = lex->Get();
   if (e.str != "from") {
-    throw CMCException("import 文に from が必要です：" + e.str);
+    throw CMCException(L"import 文に from が必要です：" + e.str);
   }
   e = lex->Get();
   if (e.type != tpString) {
-    throw CMCException("import するファイル名が不正です：" + e.str);
+    throw CMCException(L"import するファイル名が不正です：" + e.str);
   }
   String libName = e.str;
   if (import->IndexOf(libName) < 0) {
@@ -1039,7 +1039,7 @@ void TCompiler::GetImport()
   }
   e = lex->Get();
   if (e.str != ";") {
-    throw CMCException("import 文に ; が必要です：" + e.str);
+    throw CMCException(L"import 文に ; が必要です：" + e.str);
   }
 }
 //---------------------------------------------------------------------------
@@ -1101,9 +1101,9 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
       case ';': case ')': case ']':
         if(c != EOS){
           if (EOS == ':') {
-            throw CMCException(": が見つかりません。");
+            throw CMCException(L": が見つかりません。");
           } else {
-            throw CMCException("括弧の対応が正しくありません。");
+            throw CMCException(L"括弧の対応が正しくありません。");
           }
         }
         PushAll(&ls);
@@ -1120,7 +1120,7 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
           return false;
         }
         if (!firstloop) {
-          throw CMCException("} の前に ; が必要です。");
+          throw CMCException(L"} の前に ; が必要です。");
         }
         return false; // ブロック終了
       case '(':
@@ -1144,7 +1144,7 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
           if(nHikisu) *nHikisu = hikisu;
           return true;
         } else if (EOS == ':') {
-          throw CMCException(": が見つかりません。");
+          throw CMCException(L": が見つかりません。");
         }
         hikisu++;
         Push(e, &ls);
@@ -1171,7 +1171,7 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         Push(CMCElement(funcName, prElement, tpString), &ls);
       } else if (AnsiPos("/" + e.str + "/", "/if/while/for/return/") > 0) {
         if (!firstloop) {
-          throw CMCException(e.str + " の前に ; が必要です。");
+          throw CMCException(e.str + L" の前に ; が必要です。");
         }
         if (e.str == "if") {
           GetIf();
@@ -1234,7 +1234,7 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         lex->Get(); // "."
         CMCElement f = lex->Get();
         if (lex->GetNext().str != "(") {
-          throw CMCException("値が代入されていない変数です：" + e.str);
+          throw CMCException(L"値が代入されていない変数です：" + e.str);
         }
         lex->Get(); // "("
         char H;
@@ -1249,10 +1249,10 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         bool isConst = (e.str == "const");
         e = lex->Get();
         if (IsKnownVariable(e)) {
-          throw CMCException("変数名がすでに使用されています：" + e.str);
+          throw CMCException(L"変数名がすでに使用されています：" + e.str);
         } else if (isConst && lex->GetNext().str != "=") {
           throw CMCException(
-              "定数宣言が不正です。「=」で初期値を代入してください：" + e.str);
+              L"定数宣言が不正です。「=」で初期値を代入してください：" + e.str);
         }
         Variables->Add(e.str);
         if (isConst) {
@@ -1261,26 +1261,26 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         Push(e, &ls);
       } else if (e.str == "break" && firstloop && lex->GetNext().str == ";") {
         if (!Breaks) {
-          throw CMCException("break はループ内でのみ使用できます。");
+          throw CMCException(L"break はループ内でのみ使用できます。");
         }
         Breaks->push_back(OutputPositionPlaceholder());
         Output(CMO_Goto, tpOpe);
       } else if (e.str == "continue" && firstloop
                  && lex->GetNext().str == ";") {
         if (!Continues) {
-          throw CMCException("continue はループ内でのみ使用できます。");
+          throw CMCException(L"continue はループ内でのみ使用できます。");
         }
         Continues->push_back(OutputPositionPlaceholder());
         Output(CMO_Goto, tpOpe);
       } else if (e.str == "class" && lex->GetNext().type == tpVar) {
         if (!firstloop) {
-          throw CMCException(e.str + " 宣言の前に ; が必要です。");
+          throw CMCException(e.str + L" 宣言の前に ; が必要です。");
         }
         GetClass();
         return true;
       } else if (e.str == "import" && lex->GetNext().str == "{") {
         if (!firstloop) {
-          throw CMCException(e.str + " 文の前に ; が必要です。");
+          throw CMCException(e.str + L" 文の前に ; が必要です。");
         }
         GetImport();
         return true;
@@ -1291,19 +1291,19 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         GetLambda(e.str);
       } else if (lex->GetNext().type != tpStructure
                  && lex->GetNext().type != tpOpe) {
-        throw CMCException(e.str + " と " + lex->GetNext().str
-            + " の間に演算子が必要です。");
+        throw CMCException(e.str + L" と " + lex->GetNext().str
+            + L" の間に演算子が必要です。");
       } else {
         if (isUndefined) {
           if (lex->GetNext().str != "=") {
-            throw CMCException("値が代入されていない変数です：" + e.str);
+            throw CMCException(L"値が代入されていない変数です：" + e.str);
           }
           Variables->Add(e.str);
         } else if (lex->GetNext().str == "=") {
           if (Constants->IndexOf(e.str) >= 0) {
-            throw CMCException("定数への再代入はできません：" + e.str);
+            throw CMCException(L"定数への再代入はできません：" + e.str);
           } else if (CapturableVariables->IndexOf(e.str) >= 0) {
-            throw CMCException("ラムダ式内では変数への再代入はできません：" +
+            throw CMCException(L"ラムダ式内では変数への再代入はできません：" +
                                e.str);
           }
         } else if (Variables->IndexOf(e.str) < 0 &&
@@ -1321,7 +1321,7 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
       if (e.str == "::") {
         CMCElement f = lex->Get();
         if (lex->GetNext().str != "(") {
-          throw CMCException("関数呼び出しには () が必要です：" + f.str);
+          throw CMCException(L"関数呼び出しには () が必要です：" + f.str);
         }
         lex->Get(); // "("
         char H;
@@ -1345,7 +1345,7 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
       } else if (e.str == ":") {
         PushAll(&ls);
         if (EOS != ':') {
-          throw CMCException(": の位置が正しくありません。");
+          throw CMCException(L": の位置が正しくありません。");
         }
         return true;
       } else {
@@ -1353,8 +1353,8 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
       }
     } else{
       if (lex->GetNext().type != tpStructure && lex->GetNext().type != tpOpe) {
-        throw CMCException(e.str + " と " + lex->GetNext().str
-            + " の間に演算子が必要です。");
+        throw CMCException(e.str + L" と " + lex->GetNext().str
+            + L" の間に演算子が必要です。");
       }
       Push(e, &ls);
     }
@@ -1379,7 +1379,7 @@ String TCompiler::MaybeAddLibToLibName(String libName)
       return "lib/" + libName;
     }
   }
-  throw CMCException(libName + "\nファイルが見つかりません。");
+  throw CMCException(libName + L"\nファイルが見つかりません。");
 }
 //---------------------------------------------------------------------------
 bool TCompiler::Compile(String string, String filePath, String libName,
@@ -1405,7 +1405,7 @@ bool TCompiler::Compile(String string, String filePath, String libName,
   } catch (CMCException e) {
     if (showMessage) {
       Application->MessageBox(
-          (filePath + "\n" + lex->y + "行目\t" + lex->x + "文字目\n"
+          (filePath + "\n" + lex->y + L"行目\t" + lex->x + L"文字目\n"
               + e.Message).c_str(),
           L"Cassava Macro Compiler", 0);
     }
@@ -1413,7 +1413,7 @@ bool TCompiler::Compile(String string, String filePath, String libName,
   } catch (Exception *e) {
     if (showMessage) {
       Application->MessageBox(
-          (filePath + "\n" + lex->y + "行目\t" + lex->x + "文字目\n"
+          (filePath + "\n" + lex->y + L"行目\t" + lex->x + L"文字目\n"
               + e->Message).c_str(),
           L"Cassava Macro Compiler", 0);
     }
@@ -1470,7 +1470,7 @@ bool MacroCompile(String *source, String name, TStringList *macroDirs,
       if (libFileName == "" || !FileExists(libFileName)) {
         if (showMessage) {
           Application->MessageBox(
-              (libName + "\nファイルが見つかりません。").c_str(),
+              (libName + L"\nファイルが見つかりません。").c_str(),
               L"Cassava Macro Compiler", 0);
         }
         return false;

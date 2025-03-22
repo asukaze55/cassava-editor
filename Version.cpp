@@ -29,9 +29,9 @@ String Version::CurrentText()
     text = text.SubString(0, pre - 1) + " pre";
   }
   TReplaceFlags replaceAll = TReplaceFlags() << rfReplaceAll;
-  text = StringReplace(text, "a", " α", replaceAll);
-  text = StringReplace(text, "b", " β", replaceAll);
-  text = StringReplace(text, "rc", " RC", replaceAll);
+  text = StringReplace(text, L"a", L" α", replaceAll);
+  text = StringReplace(text, L"b", L" β", replaceAll);
+  text = StringReplace(text, L"rc", L" RC", replaceAll);
 #if _WIN64
   text += " (64 bit)";
 #else
@@ -82,8 +82,8 @@ void __fastcall UpdateCheckThread::Execute()
   delete list;
   String message;
   if(Version::Compare(newDate, Version::CurrentDate()) > 0){
-    message = (String)"バージョン " + newVer + " が見つかりました。\n"
-      + newUrl + "を開きますか？";
+    message = (String)L"バージョン " + newVer + L" が見つかりました。\n"
+      + newUrl + L"を開きますか？";
     int mr = Application->MessageBox(message.c_str(), title, MB_OKCANCEL);
     if(mr == IDOK){
       AutoOpen(newUrl, "");
