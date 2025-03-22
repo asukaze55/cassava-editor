@@ -179,7 +179,7 @@ void TfmMain::ExecStartupMacro()
       MacroExec(ParamCmsFile, nullptr);
     } else {
       Application->MessageBox(
-          (ParamCmsFile + "\nファイルが見つかりません。").c_str(),
+          (ParamCmsFile + L"\nファイルが見つかりません。").c_str(),
           CASSAVA_TITLE, 0);
     }
   }
@@ -303,8 +303,8 @@ void TfmMain::ReadIni()
   WindowState =
       Ini->ReadInteger("Position", "Mode", 0) == 2 ? wsMaximized : wsNormal;
   MainGrid->Font->Name = Ini->ReadString("Font", "Name",
-      Screen->Fonts->IndexOf("Yu Gothic UI") >= 0 ? "Yu Gothic UI"
-                                                  : "ＭＳ Ｐゴシック");
+      Screen->Fonts->IndexOf(L"Yu Gothic UI") >= 0 ? L"Yu Gothic UI"
+                                                   : L"ＭＳ Ｐゴシック");
   MainGrid->Font->Size = Ini->ReadInteger("Font", "Size", 12) * dpiRatio + 0.5;
   if (Ini->ReadBool("Font", "Bold", false)) {
     MainGrid->Font->Style = MainGrid->Font->Style << fsBold;
@@ -342,7 +342,7 @@ void TfmMain::ReadIni()
       for(int i=0; i<TypeCount; i++){
         String Section = (String)"DataType:" + i;
         TTypeOption option;
-        option.Name = Ini->ReadString(Section, "Name", "[新規]");
+        option.Name = Ini->ReadString(Section, "Name", L"[新規]");
         String exts = Ini->ReadString(Section, "Exts", "csv");
         option.SetExts(exts);
         option.ForceExt = Ini->ReadBool(Section, "ForceExt", false);
@@ -448,15 +448,15 @@ void TfmMain::ReadIni()
     mnAppli0->Hint = Ini->ReadString("Application", "E0", "");
     mnAppli0->Tag  = Ini->ReadBool("Application", "Q0", true);
     mnAppli0->Enabled = (mnAppli0->Hint != "");
-    LaunchName[0]  = Ini->ReadString("Application", "N0", "未設定");
+    LaunchName[0]  = Ini->ReadString("Application", "N0", L"未設定");
     mnAppli1->Hint = Ini->ReadString("Application", "E1", "");
     mnAppli1->Tag  = Ini->ReadBool("Application", "Q1", true);
     mnAppli1->Enabled = (mnAppli1->Hint != "");
-    LaunchName[1]  = Ini->ReadString("Application", "N1", "未設定");
+    LaunchName[1]  = Ini->ReadString("Application", "N1", L"未設定");
     mnAppli2->Hint = Ini->ReadString("Application", "E2", "");
     mnAppli2->Tag  = Ini->ReadBool("Application", "Q2", true);
     mnAppli2->Enabled = (mnAppli2->Hint != "");
-    LaunchName[2]  = Ini->ReadString("Application", "N2", "未設定");
+    LaunchName[2]  = Ini->ReadString("Application", "N2", L"未設定");
     MainGrid->BrowserFileName = Ini->ReadString("Application", "Browser", "");
 
   History->Clear();
@@ -863,7 +863,7 @@ void TfmMain::SetFilter()
     FilterExt += "*." + AllExts->Strings[i];
   }
   String CFilter = (String)"Cassava (" + FilterExt + ")|" + FilterExt + "|";
-  dlgOpen->Filter = CFilter + OFilter + "すべてのファイル (*.*)|*.*";
+  dlgOpen->Filter = CFilter + OFilter + L"すべてのファイル (*.*)|*.*";
   dlgSave->Filter = SFilter;
   delete AllExts;
 }
@@ -1088,7 +1088,7 @@ void TfmMain::OpenFile (String OpenFileName, int KCode)
 {
   if(!FileExists(OpenFileName)){
     Application->MessageBox(
-      ("ファイル " + OpenFileName + " は存在しません").c_str(),
+      (L"ファイル " + OpenFileName + L" は存在しません").c_str(),
       ExtractFileName(OpenFileName).c_str(), MB_ICONERROR);
     return;
   }
@@ -1203,7 +1203,7 @@ void __fastcall TfmMain::mnReloadCodeClick(TObject *Sender)
 String TfmMain::GetUiFileName()
 {
   if (FileName == "") {
-    return "無題";
+    return L"無題";
   }
   return TitleFullPath ? FileName : ExtractFileName(FileName);
 }
@@ -1224,7 +1224,7 @@ bool TfmMain::IfModifiedThenSave()
 {
   if (MainGrid->Modified) {
     int a = Application->MessageBox(
-                (GetUiFileName() + " への変更を保存しますか？").c_str(),
+                (GetUiFileName() + L" への変更を保存しますか？").c_str(),
                 CASSAVA_TITLE, MB_YESNOCANCEL + MB_ICONQUESTION);
     if (a == IDYES) {
       if (MainGrid->FileOpenThread) {
@@ -1329,7 +1329,7 @@ void __fastcall TfmMain::mnSaveAsClick(TObject *Sender)
 {
   if (FileName == "") {
     TTypeOption *typeOption = MainGrid->TypeList.Items(MainGrid->TypeIndex);
-    dlgSave->FileName = "無題." + typeOption->DefExt();
+    dlgSave->FileName = L"無題." + typeOption->DefExt();
   } else {
     dlgSave->InitialDir = ExtractFilePath(FileName);
     dlgSave->FileName = ExtractFileName(FileName);
@@ -1455,7 +1455,7 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
       String type = ChangeFileExt(sr.Name,"");
       String ext = ExtractFileExt(type);
       if(ext == ""){ ext = (String)"." + type; }
-      strFilter += type.UpperCase() + " 形式 (*" + ext + ")|*" + ext + "|";
+      strFilter += type.UpperCase() + L" 形式 (*" + ext + ")|*" + ext + "|";
       types->Add(type);
     }while (FindNext(sr) == 0);
     FindClose(sr);
@@ -1465,7 +1465,7 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
       String type = ChangeFileExt(sr.Name,"");
       String ext = ExtractFileExt(type);
       if(ext == ""){ ext = (String)"." + type; }
-      strFilter += type.UpperCase() + " 形式 (*" + ext + ")|*" + ext + "|";
+      strFilter += type.UpperCase() + L" 形式 (*" + ext + ")|*" + ext + "|";
       types->Add(type);
     }while (FindNext(sr) == 0);
     FindClose(sr);
@@ -1501,7 +1501,7 @@ void TfmMain::Export(String filename, String type)
     }
     if(!FileExists(CmsFile)){
       Application->MessageBox(
-          (type + " 形式ではエクスポートできません。").c_str(),
+          (type + L" 形式ではエクスポートできません。").c_str(),
           L"Cassava Export", 0);
       return;
     }
@@ -1559,7 +1559,7 @@ void TfmMain::SetHistory(String S)
       MnHist[i]->Visible = true;
     } else {
       MnHist[i]->Visible = false;
-      MnHist[i]->Caption = (String)"&" + i + ": (なし)";
+      MnHist[i]->Caption = (String)"&" + i + L": (なし)";
     }
   }
   if(History->Count == 0){
@@ -1577,7 +1577,7 @@ void __fastcall TfmMain::mnOpenHistorysClick(TObject *Sender)
     History->Delete(Num);
     SetHistory("");
     Application->MessageBox(
-      ("ファイル " + FN + " は存在しません").c_str(),
+      (L"ファイル " + FN + L" は存在しません").c_str(),
       ExtractFileName(FN).c_str(), MB_ICONERROR);
     return;
   }
@@ -2459,7 +2459,7 @@ void __fastcall TfmMain::acMacroTerminateUpdate(TObject *Sender)
 void TfmMain::MacroExec(String CmsFile, EncodedWriter *io)
 {
   MainGrid->Cursor = crAppStart;
-  MainGrid->Hint = "マクロを実行中です。";
+  MainGrid->Hint = L"マクロを実行中です。";
   MainGrid->ShowHint = true;
   Application->Hint = MainGrid->Hint;
   ApplicationHint(nullptr);
@@ -2853,7 +2853,7 @@ void __fastcall TfmMain::mnCheckUpdateClick(TObject *Sender)
 void __fastcall TfmMain::mnAboutClick(TObject *Sender)
 {
   String message = "Cassava Editor\n   Ver. " + Version::CurrentText()
-    + "\n   by あすかぜ\n                " + Version::CurrentDate();
+    + L"\n   by あすかぜ\n                " + Version::CurrentDate();
   Application->MessageBox(message.c_str(), L"バージョン情報", 0);
 }
 //---------------------------------------------------------------------------

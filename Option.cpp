@@ -156,14 +156,14 @@ void __fastcall TfmOption::btnOKClick(TObject *Sender)
     }
     if (p->Exts.size() == 0) {
       Application->MessageBox(
-          (p->Name + " に標準拡張子が設定されていません。").c_str(),
+          (p->Name + L" に標準拡張子が設定されていません。").c_str(),
           L"Cassava Option", MB_ICONWARNING);
       ModalResult = mrNone;
       return;
     }
     if (p->SepChars.Length() == 0) {
       Application->MessageBox(
-          (p->Name + " に標準区切り文字が設定されていません。").c_str(),
+          (p->Name + L" に標準区切り文字が設定されていません。").c_str(),
           L"Cassava Option", MB_ICONWARNING);
       ModalResult = mrNone;
       return;

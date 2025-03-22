@@ -317,7 +317,7 @@ for(int ibox=0; ibox<2; ibox++){
       if(Msg == " " || Msg == "_"){
         PCY += YItv;
       }else if(verticalFont){
-        if(num || Msg == "｜"){
+        if(num || Msg == L"｜"){
           Canvas->TextOut((BoxMiddle + PX)*mmPt - (Canvas->TextWidth(Msg) / 2),
                           PCY*mmPt, Msg);
           PCY += (Canvas->TextHeight(Msg) / mmPt);
@@ -392,38 +392,38 @@ void __fastcall TfmLetter::btnSaveClick(TObject *Sender)
 void TfmLetter::DataSave(String FileName)
 {
   IniFile *Ini = new IniFile(FileName);
-  Ini->WriteString("差出人","Name",edMyName->Text);
-  Ini->WriteString("差出人","Name2",edMyName2->Text);
-  Ini->WriteString("差出人","Number",edMyNumber->Text);
-  Ini->WriteString("差出人","Address1",edMyAddress1->Text);
-  Ini->WriteString("差出人","Address2",edMyAddress2->Text);
-  Ini->WriteBool("差出人","UseDataInCsv",cbMyDataInCsv->Checked);
-  Ini->WriteString("差出人","DataInCsv",edMyDataInCsv->Text);
-  Ini->WriteBool("差出人","Nenga",cbNenga->Checked);
-  Ini->WriteString("宛先","Name",edToName->Text);
-  Ini->WriteString("宛先","Name2",edToName2->Text);
+  Ini->WriteString(L"差出人","Name",edMyName->Text);
+  Ini->WriteString(L"差出人","Name2",edMyName2->Text);
+  Ini->WriteString(L"差出人","Number",edMyNumber->Text);
+  Ini->WriteString(L"差出人","Address1",edMyAddress1->Text);
+  Ini->WriteString(L"差出人","Address2",edMyAddress2->Text);
+  Ini->WriteBool(L"差出人","UseDataInCsv",cbMyDataInCsv->Checked);
+  Ini->WriteString(L"差出人","DataInCsv",edMyDataInCsv->Text);
+  Ini->WriteBool(L"差出人","Nenga",cbNenga->Checked);
+  Ini->WriteString(L"宛先","Name",edToName->Text);
+  Ini->WriteString(L"宛先","Name2",edToName2->Text);
   if (edPrefix->Text != "" && edPrefix->Text[1] == ' ') {
     String Str = edPrefix->Text;
     Str[1] = '_';
     edPrefix->Text = Str;
   }
-  Ini->WriteString("宛先","Prefix",edPrefix->Text);
-  Ini->WriteString("宛先","Number",edToNumber->Text);
-  Ini->WriteString("宛先","Address1",edToAddress1->Text);
-  Ini->WriteString("宛先","Address2",edToAddress2->Text);
-  Ini->WriteString("宛先","Note",edToNote->Text);
-  Ini->WriteBool("備考","Use",cbUseNote->Checked);
-  Ini->WriteString("備考","KeyWord",edUseNote->Text);
-  Ini->WriteInteger("備考","How",cbxHowUseNote->ItemIndex);
-  Ini->WriteBool("フォント","HorzNum",cbHorzNum->Checked);
-  Ini->WriteString("フォント","HorzNumMax",seHorzNumMax->Text);
-  Ini->WriteInteger("フォント","Font",cbxFont->ItemIndex);
-  Ini->WriteString("フォント", "ZipCodeFontName", ZipCodeFontName);
-  Ini->WriteString("微調整","Horz",edHorz->Text);
-  Ini->WriteString("微調整","Vert",edVert->Text);
+  Ini->WriteString(L"宛先","Prefix",edPrefix->Text);
+  Ini->WriteString(L"宛先","Number",edToNumber->Text);
+  Ini->WriteString(L"宛先","Address1",edToAddress1->Text);
+  Ini->WriteString(L"宛先","Address2",edToAddress2->Text);
+  Ini->WriteString(L"宛先","Note",edToNote->Text);
+  Ini->WriteBool(L"備考","Use",cbUseNote->Checked);
+  Ini->WriteString(L"備考","KeyWord",edUseNote->Text);
+  Ini->WriteInteger(L"備考","How",cbxHowUseNote->ItemIndex);
+  Ini->WriteBool(L"フォント","HorzNum",cbHorzNum->Checked);
+  Ini->WriteString(L"フォント","HorzNumMax",seHorzNumMax->Text);
+  Ini->WriteInteger(L"フォント","Font",cbxFont->ItemIndex);
+  Ini->WriteString(L"フォント", "ZipCodeFontName", ZipCodeFontName);
+  Ini->WriteString(L"微調整","Horz",edHorz->Text);
+  Ini->WriteString(L"微調整","Vert",edVert->Text);
 
   for(int i=0; i<2; i++){
-    String Section = (i==0 ? "印刷位置：宛先" : "印刷位置：差出人");
+    String Section = (i==0 ? L"印刷位置：宛先" : L"印刷位置：差出人");
     Ini->WriteInteger(Section,"NumberTop",NumberTop[i]);
     for(int j=0; j<7; j++){
       Ini->WriteFloat(Section, (String)"NumberLeft" + j, NumberLeft[i][j]);
@@ -456,33 +456,33 @@ void __fastcall TfmLetter::btnReadClick(TObject *Sender)
 void TfmLetter::DataRead(String FileName)
 {
   IniFile *Ini = new IniFile(FileName);
-  edMyName->Text = Ini->ReadString("差出人","Name",edMyName->Text);
-  edMyName2->Text = Ini->ReadString("差出人","Name2",edMyName->Text);
-  edMyNumber->Text = Ini->ReadString("差出人","Number",edMyNumber->Text);
-  edMyAddress1->Text = Ini->ReadString("差出人","Address1",edMyAddress1->Text);
-  edMyAddress2->Text = Ini->ReadString("差出人","Address2",edMyAddress2->Text);
-  cbMyDataInCsv->Checked = Ini->ReadBool("差出人","UseDataInCsv",cbMyDataInCsv->Checked);
-  edMyDataInCsv->Text = Ini->ReadString("差出人","DataInCsv",edMyDataInCsv->Text);
-  cbNenga->Checked = Ini->ReadBool("差出人","Nenga",cbNenga->Checked);
-  edToName->Text = Ini->ReadString("宛先","Name",edToName->Text);
-  edToName2->Text = Ini->ReadString("宛先","Name2",edToName2->Text);
-  edPrefix->Text = Ini->ReadString("宛先","Prefix",edPrefix->Text);
-  edToNumber->Text = Ini->ReadString("宛先","Number",edToNumber->Text);
-  edToAddress1->Text = Ini->ReadString("宛先","Address1",edToAddress1->Text);
-  edToAddress2->Text = Ini->ReadString("宛先","Address2",edToAddress2->Text);
-  edToNote->Text = Ini->ReadString("宛先","Note",edToNote->Text);
-  cbUseNote->Checked = Ini->ReadBool("備考","Use",cbUseNote->Checked);
-  edUseNote->Text = Ini->ReadString("備考","KeyWord",edUseNote->Text);
-  cbxHowUseNote->ItemIndex = Ini->ReadInteger("備考","How",cbxHowUseNote->ItemIndex);
-  cbHorzNum->Checked = Ini->ReadBool("フォント","HorzNum",cbHorzNum->Checked);
-  seHorzNumMax->Text = Ini->ReadString("フォント","HorzNumMax",seHorzNumMax->Text);
-  cbxFont->ItemIndex = Ini->ReadInteger("フォント","Font",cbxFont->ItemIndex);
-  ZipCodeFontName = Ini->ReadString("フォント", "ZipCodeFontName", "ＭＳ Ｐ明朝");
-  edHorz->Text = Ini->ReadString("微調整","Horz",edHorz->Text);
-  edVert->Text = Ini->ReadString("微調整","Vert",edVert->Text);
+  edMyName->Text = Ini->ReadString(L"差出人","Name",edMyName->Text);
+  edMyName2->Text = Ini->ReadString(L"差出人","Name2",edMyName->Text);
+  edMyNumber->Text = Ini->ReadString(L"差出人","Number",edMyNumber->Text);
+  edMyAddress1->Text = Ini->ReadString(L"差出人","Address1",edMyAddress1->Text);
+  edMyAddress2->Text = Ini->ReadString(L"差出人","Address2",edMyAddress2->Text);
+  cbMyDataInCsv->Checked = Ini->ReadBool(L"差出人","UseDataInCsv",cbMyDataInCsv->Checked);
+  edMyDataInCsv->Text = Ini->ReadString(L"差出人","DataInCsv",edMyDataInCsv->Text);
+  cbNenga->Checked = Ini->ReadBool(L"差出人","Nenga",cbNenga->Checked);
+  edToName->Text = Ini->ReadString(L"宛先","Name",edToName->Text);
+  edToName2->Text = Ini->ReadString(L"宛先","Name2",edToName2->Text);
+  edPrefix->Text = Ini->ReadString(L"宛先","Prefix",edPrefix->Text);
+  edToNumber->Text = Ini->ReadString(L"宛先","Number",edToNumber->Text);
+  edToAddress1->Text = Ini->ReadString(L"宛先","Address1",edToAddress1->Text);
+  edToAddress2->Text = Ini->ReadString(L"宛先","Address2",edToAddress2->Text);
+  edToNote->Text = Ini->ReadString(L"宛先","Note",edToNote->Text);
+  cbUseNote->Checked = Ini->ReadBool(L"備考","Use",cbUseNote->Checked);
+  edUseNote->Text = Ini->ReadString(L"備考","KeyWord",edUseNote->Text);
+  cbxHowUseNote->ItemIndex = Ini->ReadInteger(L"備考","How",cbxHowUseNote->ItemIndex);
+  cbHorzNum->Checked = Ini->ReadBool(L"フォント","HorzNum",cbHorzNum->Checked);
+  seHorzNumMax->Text = Ini->ReadString(L"フォント","HorzNumMax",seHorzNumMax->Text);
+  cbxFont->ItemIndex = Ini->ReadInteger(L"フォント","Font",cbxFont->ItemIndex);
+  ZipCodeFontName = Ini->ReadString(L"フォント", "ZipCodeFontName", L"ＭＳ Ｐ明朝");
+  edHorz->Text = Ini->ReadString(L"微調整","Horz",edHorz->Text);
+  edVert->Text = Ini->ReadString(L"微調整","Vert",edVert->Text);
 
   for(int i=0; i<2; i++){
-    String Section = (i==0 ? "印刷位置：宛先" : "印刷位置：差出人");
+    String Section = (i==0 ? L"印刷位置：宛先" : L"印刷位置：差出人");
     NumberTop[i] = Ini->ReadInteger(Section,"NumberTop",NumberTop[i]);
     for(int j=0; j<7; j++){
       NumberLeft[i][j] =

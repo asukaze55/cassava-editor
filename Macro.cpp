@@ -387,7 +387,7 @@ double Element::Val() const
     Element &e = GetVar();
     if (e.Type == etErr) {
       if (e.st != "") { throw MacroException(e.st); }
-      throw MacroException("値が代入されていない変数・フィールドです：" + st);
+      throw MacroException(L"値が代入されていない変数・フィールドです：" + st);
     }
     return e.Val();
   } else if (Type == etSystem) {
@@ -415,7 +415,7 @@ String Element::Str() const
     Element &e = GetVar();
     if (e.Type == etErr) {
       if (e.st != "") { throw MacroException(e.st); }
-      throw MacroException("値が代入されていない変数・フィールドです：" + st);
+      throw MacroException(L"値が代入されていない変数・フィールドです：" + st);
     }
     return e.Str();
   } else if (Type == etSystem) {
@@ -457,7 +457,7 @@ Element Element::Value() const
     Element& e = GetVar();
     if (e.Type == etErr) {
       if (e.st != "") { throw MacroException(e.st); }
-      throw MacroException("値が代入されていない変数・フィールドです：" + st);
+      throw MacroException(L"値が代入されていない変数・フィールドです：" + st);
     }
     return e;
   } else if (Type == etCell) {
@@ -536,7 +536,7 @@ void Element::Sbst(const Element &e)
   } else if (Type == etCell) {
     env->Grid->SetCell(X, Y, e.Value().Str());
   } else {
-    throw MacroException("代入先が左辺値ではありません：" + Str());
+    throw MacroException(L"代入先が左辺値ではありません：" + Str());
   }
 }
 //---------------------------------------------------------------------------
@@ -616,20 +616,20 @@ void TMacro::ExecMethod(String name, int H, const std::vector<Element>& ope,
     GetStreamFor(funcPtr.Str());
   } catch (...) {
     throw MacroException(isLambda
-        ? "関数オブジェクトではありません：" + objName
-        : "メソッドではありません：" + objName + "." + name);
+        ? L"関数オブジェクトではありません：" + objName
+        : L"メソッドではありません：" + objName + "." + name);
   }
   int slash = funcName.LastDelimiter("/");
   bool isVarArg = (funcName[slash + 1] == '+');
   int funcArity = funcName.SubString(slash + 1, funcName.Length()).ToIntDef(0);
   if (!isVarArg && funcArity != H - 1) {
-    throw MacroException("引数の数が一致しません。\n"
-        + (isLambda ? objName : name) + "/" + funcArity + " に引数が "
-        + (H - 1) + " 個渡されています。");
+    throw MacroException(L"引数の数が一致しません。\n"
+        + (isLambda ? objName : name) + "/" + funcArity + L" に引数が "
+        + (H - 1) + L" 個渡されています。");
   } else if (isVarArg && funcArity > H - 1) {
-    throw MacroException("引数の数が一致しません。\n"
-        + (isLambda ? objName : name) + " には引数が " + funcArity
-        + " 個以上必要です。");
+    throw MacroException(L"引数の数が一致しません。\n"
+        + (isLambda ? objName : name) + L" には引数が " + funcArity
+        + L" 個以上必要です。");
   }
 
   std::vector<Element> argStack;
@@ -643,8 +643,8 @@ void TMacro::ExecMethod(String name, int H, const std::vector<Element>& ope,
     Stack.push_back(r);
   } else {
     Stack.push_back(Element(isLambda
-        ? "関数オブジェクトが値を返しません：" + objName
-        : "メソッドは値を返しません：" + name + "/" + (H - 1), etErr, nullptr));
+        ? L"関数オブジェクトが値を返しません：" + objName
+        : L"メソッドは値を返しません：" + name + "/" + (H - 1), etErr, nullptr));
   }
 }
 //---------------------------------------------------------------------------
@@ -804,7 +804,7 @@ void TMacro::ExecPrimitiveMethod(String s, int H,
     RegExp regExp = ParseRegExp(ope[1]);
     if (regExp.isRegExp && !regExp.isReplaceAll) {
       throw MacroException(
-          "replaceAll で使用する正規表現には g フラグが必要です：" + STR1);
+          L"replaceAll で使用する正規表現には g フラグが必要です：" + STR1);
     }
     regExp.isReplaceAll = true;
     Stack.push_back(Element(regExp.Replace(STR0, STR2)));
@@ -847,7 +847,7 @@ void TMacro::ExecPrimitiveMethod(String s, int H,
   } else if (s == "trimStart" && H == 1) {
     Stack.push_back(Element(STR0.TrimLeft()));
   } else {
-    throw MacroException("定義されていないメソッドです：" + s + "/" + (H - 1));
+    throw MacroException(L"定義されていないメソッドです：" + s + "/" + (H - 1));
   }
 }
 //---------------------------------------------------------------------------
@@ -867,7 +867,7 @@ void TMacro::ExecFnc(String s)
   ope.assign(Stack.end() - H, Stack.end());
   Stack.erase(Stack.end() - H, Stack.end());
 
-  String notFoundMessage = "定義されていない関数です:" + s + "/" + H;
+  String notFoundMessage = L"定義されていない関数です:" + s + "/" + H;
   if (s[1] == '.' || s[1] == '>') {
     bool isLambda = (s[1] == '>');
     s.Delete(1,1);
@@ -883,7 +883,7 @@ void TMacro::ExecFnc(String s)
       if (!isLambda) {
         throw;
       }
-      notFoundMessage = "関数オブジェクトではありません：" + ope[0].Name();
+      notFoundMessage = L"関数オブジェクトではありません：" + ope[0].Name();
     }
     H--;
     ope.erase(ope.begin());
@@ -905,7 +905,7 @@ void TMacro::ExecFnc(String s)
         }
       }
       if (minArgs < 0) {
-        throw MacroException(s + "/" + H + "\nユーザー関数が見つかりません。");
+        throw MacroException(s + "/" + H + L"\nユーザー関数が見つかりません。");
       }
     }
     std::vector<Element> argStack;
@@ -917,7 +917,7 @@ void TMacro::ExecFnc(String s)
       Stack.push_back(r);
     } else {
       Stack.push_back(
-          Element("関数は値を返しません：" + s + "/" + H, etErr, nullptr));
+          Element(L"関数は値を返しません：" + s + "/" + H, etErr, nullptr));
     }
   }else if(s == "{}") {
       std::vector<TEnvironment*> *objects = env.GetObjects();
@@ -964,7 +964,7 @@ void TMacro::ExecFnc(String s)
       if (isOk) {
         Stack.push_back(Element(Value));
       } else {
-        throw MacroException("キャンセルされました。", ME_CANCELED);
+        throw MacroException(L"キャンセルされました。", ME_CANCELED);
       }
     }else if(s == "InputBoxMultiLine"){
       if (env.IsCellMacro) {
@@ -978,7 +978,7 @@ void TMacro::ExecFnc(String s)
       if (isOk) {
         Stack.push_back(Element(NormalizeNewLine(Value)));
       } else {
-        throw MacroException("キャンセルされました。", ME_CANCELED);
+        throw MacroException(L"キャンセルされました。", ME_CANCELED);
       }
     }else if(s == "GetRowHeight" && H == 0){
       Stack.push_back(Element(env.Grid->Raw()->DefaultRowHeight));
@@ -1072,7 +1072,7 @@ void TMacro::ExecFnc(String s)
       const Element &value2 = ope[2].Value();
       if (value2.Type == etObject) {
         throw MacroException(
-            s + " の第 3 引数にはキャプチャを使用しないラムダ式が必要です。");
+            s + L" の第 3 引数にはキャプチャを使用しないラムダ式が必要です。");
       }
       fmMain->StatusBarPopUp[VAL0] = {STR1, value2.Str()};
     }else if(s == "LoadIniSetting" && H == 0){
@@ -1124,7 +1124,7 @@ void TMacro::ExecFnc(String s)
       } else if (encoding == "UTF-16BE") {
         CallOnClick(fmMain->mnUtf16be);
       } else {
-        throw MacroException("文字コードが不正です：" + STR0);
+        throw MacroException(L"文字コードが不正です：" + STR0);
       }
     } else if (s == "GetDataTypes" && H == 0) {
       TTypeList &typeList = fmMain->MainGrid->TypeList;
@@ -1151,7 +1151,7 @@ void TMacro::ExecFnc(String s)
         }
       }
       if (!found) {
-        throw MacroException("データ形式名が不正です：" + name);
+        throw MacroException(L"データ形式名が不正です：" + name);
       }
     }else if(s == "write" || s == "writeln"){
       if (canWriteFile) {
@@ -1182,7 +1182,7 @@ void TMacro::ExecFnc(String s)
     }else if(s == "GetRecordedMacro" && H == 0) {
       Stack.push_back(Element(env.Grid->Raw()->UndoList->GetRecordedMacro()));
     }else if(s == "MacroTerminate") {
-      throw MacroException("中断されました。", ME_CANCELED);
+      throw MacroException(L"中断されました。", ME_CANCELED);
     }else if(H == 0){
       env.Grid->ApplyPendingChanges();
       TMenuItem *menu = nullptr;
@@ -1376,9 +1376,9 @@ void TMacro::ExecFnc(String s)
 
       if(result == -1){
         if(errno == ENOENT){
-          throw MacroException(ope[0].Str() + "\nファイルが見つかりません。");
+          throw MacroException(ope[0].Str() + L"\nファイルが見つかりません。");
         }else{
-          throw MacroException(ope[0].Str() + "\n実行に失敗しました。");
+          throw MacroException(ope[0].Str() + L"\n実行に失敗しました。");
         }
       }
     }else if(s == "Open" && H == 1){
@@ -1409,7 +1409,7 @@ void TMacro::ExecFnc(String s)
           }
         }
         if (typeIndex < 0) {
-          throw MacroException("保存形式が不明です:" + STR1);
+          throw MacroException(L"保存形式が不明です:" + STR1);
         }
       }
       fmMain->SaveAs(STR0, typeIndex);
@@ -1484,10 +1484,10 @@ void TMacro::ExecOpe(char c){
       LoopCount++;
       Application->ProcessMessages();
       if (MaxLoop > 0 && LoopCount > MaxLoop) {
-        throw MacroException((String)"ループ回数が" + MaxLoop +
-              "に達しました。処理を中断します。");
+        throw MacroException((String)L"ループ回数が" + MaxLoop +
+            L"に達しました。処理を中断します。");
       }
-      if (!RunningOk) { throw MacroException("中断しました"); }
+      if (!RunningOk) { throw MacroException(L"中断しました"); }
     }
     else if (c == CMO_Jump) { fs->Position = ope.Val(); }
     else if (c == CMO_Minus) { Stack.push_back(Element(-(ope.Val()))); }
@@ -1588,13 +1588,13 @@ void TMacro::ExecOpe(char c){
           }
           return;
         }
-        throw MacroException("「.」の左がオブジェクトではありません："
+        throw MacroException(L"「.」の左がオブジェクトではありません："
             + (ope1.Type == etVar ? ope1.Name() : ope1.Str()));
       }
       Stack.push_back(ope1.GetMember(ope2.Str()));
     } else if (c == CMO_In) {
       if (ope2.Value().Type != etObject) {
-        throw MacroException("in の右がオブジェクトではありません："
+        throw MacroException(L"in の右がオブジェクトではありません："
             + (ope2.Type == etVar ? ope2.Name() : ope2.Str()));
       }
       map<String, Element>& vars = env.GetObject(ope2.Val())->Vars;
@@ -1620,12 +1620,12 @@ TStream *TMacro::GetStreamFor(String funcName){
   try {
     int index = modules->IndexOf(funcName);
     if (index < 0) {
-      throw MacroException("ユーザー関数が見つかりません。");
+      throw MacroException(L"ユーザー関数が見つかりません。");
     }
     TObject *obj = modules->Objects[index];
     result = static_cast<TStream *>(obj);
   } catch (...) {
-    throw MacroException(funcName + "\nユーザー関数が見つかりません。");
+    throw MacroException(funcName + L"\nユーザー関数が見つかりません。");
   }
   return result;
 }
@@ -1726,7 +1726,7 @@ TMacroValue ExecMacro(String FileName, int MaxLoop, TStringList *Modules,
       throw e;
     } else if (e.Type != ME_CANCELED) {
       if (e.Type == ME_HIKISU) {
-        e.Message = "引数の数が足りません:" + e.Message;
+        e.Message = L"引数の数が足りません:" + e.Message;
       }
       Application->MessageBox((FileName + "\n" + e.Message).c_str(),
                               L"Cassava Macro Interpreter", 0);

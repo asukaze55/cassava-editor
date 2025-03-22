@@ -123,10 +123,10 @@ void __fastcall TfmKey::tvMenuChange(TObject *Sender, TTreeNode *Node)
     SCShift = NowMSC->Shift;
     rgSCKey->Enabled = true;
     if(NowMSC->Modified){
-      stUseSC->Caption = "★";
+      stUseSC->Caption = L"★";
       stUseSC->Visible = true;
     } else {
-      stUseSC->Caption = "☆";
+      stUseSC->Caption = L"☆";
       stUseSC->Visible = (SCKey != '\0');
     }
   }
@@ -173,9 +173,9 @@ void __fastcall TfmKey::tvMenuChanging(TObject *Sender, TTreeNode *Node,
         = static_cast<TMenuShortCut*>(tvMenu->Items->Item[i]->Data);
       if(MSC != NowMSC && NowMSC->MShortCut == MSC->MShortCut){
         if(Application->MessageBox(
-             (ShortCutToText(NowMSC->MShortCut) + " は、「" +
+             (ShortCutToText(NowMSC->MShortCut) + L" は、「" +
              MSC->MenuItem->Caption +
-             "」ですでに設定されています。").c_str(),
+             L"」ですでに設定されています。").c_str(),
              CASSAVA_TITLE,
              MB_OKCANCEL) == IDCANCEL){
           AllowChange = false;

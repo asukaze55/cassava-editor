@@ -639,7 +639,7 @@ void TMainGrid::SetHeight(int j, bool useMaxRowHeightLines)
   }
   if (useMaxRowHeightLines) {
     maxRowHeight = min(maxRowHeight,
-        (Canvas->TextHeight("あ") * MaxRowHeightLines)
+        (Canvas->TextHeight(L"あ") * MaxRowHeightLines)
             + (CellLineMargin * (MaxRowHeightLines - 1))
             + (2 * TBMargin));
   }
@@ -1471,8 +1471,8 @@ void TMainGrid::PasteFromClipboard(int Way)
       TfmPasteDialog *PstDlg = new TfmPasteDialog(Application);
       PstDlg->Way->ItemIndex = DefWay;
       PstDlg->lbMessage->Caption =
-          (String)"選択サイズ： " + SelectColCount + " × " + SelectRowCount +
-          "　クリップボードサイズ： " + ClipColCount + " × " + ClipRowCount;
+          (String)L"選択サイズ： " + SelectColCount + L" × " + SelectRowCount +
+          L"　クリップボードサイズ： " + ClipColCount + L" × " + ClipRowCount;
       if (PstDlg->ShowModal() != IDOK) {
         delete PstDlg;
         delete Data;
@@ -2672,10 +2672,10 @@ void __fastcall TMainGrid::MouseMove(Classes::TShiftState Shift, int X, int Y)
       Hint = data;
       ShowHint = true;
     }else if(FileOpenThread){
-      Hint = "ファイルを読み込み中です。";
+      Hint = L"ファイルを読み込み中です。";
       ShowHint = true;
     }else if(GetRunningMacroCount() > 0){
-      Hint = "マクロを実行中です。";
+      Hint = L"マクロを実行中です。";
       ShowHint = true;
     }else{
       Application->CancelHint();
@@ -3032,8 +3032,8 @@ static bool FindHit(String CellText, int x, int y)
 //---------------------------------------------------------------------------
 void ShowRegexErrorMessage(const boost::regex_error& e) {
   Application->MessageBox(
-     ((String)"正規表現検索中にエラーが発生しました。\n" +
-         "正規表現検索オプションを解除するか検索文字列を修正してください。\n" +
+     ((String)L"正規表現検索中にエラーが発生しました。\n" +
+         L"正規表現検索オプションを解除するか検索文字列を修正してください。\n" +
          e.what()).c_str(),
      CASSAVA_TITLE, 0);
 }
