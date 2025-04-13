@@ -43,9 +43,9 @@ str.padEnd(x),文字列 str の長さが x になるように末尾に空白を�
 str.padStart(x),文字列 str の長さが x になるように先頭に空白を追加した文字列を返します。全角文字を1文字と数えます。,2.3.0
 "str1.padStart(x, str2)",文字列 str1 の長さが x になるように先頭に str2 を追加した文字列を返します。全角文字を1文字と数えます。,2.3.0
 str.repeat(x),文字列 str を x 回繰り返した文字列を返します。,2.3.0
-"str1.replace(pattern, str2)",文字列 str1 中で pattern に最初にマッチする箇所を str2 に置換した文字列を返します。元の str1 は変化しません。,2.5.0
-"str1.replaceAll(pattern, str2)",文字列 str1 中の pattern にマッチする箇所をすべて str2 に置換した文字列を返します。元の str1 は変化しません。,2.5.0
-str.search(pattern),文字列 str の中で最初に pattern にマッチする位置を返します。pattern に文字列が渡された場合も正規表現として解釈されます。最初の文字のインデックスは 0 です。 マッチしなかった場合、 -1 が返されます。 全角文字を1文字と数えます。,2.5.0
+"str1.replace(pattern, str2)",文字列 str1 中で pattern に最初にマッチする箇所を str2 に置換した文字列を返します。元の str1 は変化しません。pattern には文字列もしくは正規表現オブジェクトを指定できます。,2.5.0
+"str1.replaceAll(pattern, str2)",文字列 str1 中の pattern にマッチする箇所をすべて str2 に置換した文字列を返します。元の str1 は変化しません。pattern には文字列もしくは正規表現オブジェクトを指定できます。,2.5.0
+str.search(pattern),文字列 str の中で最初に pattern にマッチする位置を返します。pattern には文字列もしくは正規表現オブジェクトを指定できますが、pattern に文字列が渡された場合も正規表現として解釈されます。最初の文字のインデックスは 0 です。 マッチしなかった場合、 -1 が返されます。 全角文字を1文字と数えます。,2.5.0
 str1.startsWith(str2),文字列 str1 が str2 で始まるかを返します。,2.3.0
 "str1.startsWith(str2, x)",文字列 str1 の x 文字目以降が str2 で始まるかを返します。最初の文字のインデックスは 0 です。全角文字を1文字と数えます。,2.3.0
 str.substring(x),文字列 str の x 文字以降を切り出して返します。 最初の文字のインデックスは 0 です。 全角文字を1文字と数えます。,2.3.0
@@ -57,7 +57,7 @@ str.trimEnd(),文字列 str から末尾の空白文字を除いた文字列を�
 str.trimStart(),文字列 str から先頭の空白文字を除いた文字列を返します。,2.3.0
 x.toString(),x の文字列表現を返します。,2.3.0
 "/pattern/flags
-new RegExp(pattern, flags)","str1.replace(regexp, str2), str1.replaceAll(regexp, str2), str.search(regexp) で使用できる正規表現オブジェクトを生成します。flags には空文字列もしくは「g」「i」「gi」が指定できます。最初のマッチだけでなく一致するものをすべて置換する場合は「g」を、大文字小文字を区別せずに検索する場合は「i」を指定してください。",2.5.0
+new RegExp(pattern, flags)","str1.replace(regexp, str2), str1.replaceAll(regexp, str2), str.search(regexp), ReplaceAll(pattern, str) で使用できる正規表現オブジェクトを生成します。flags には空文字列もしくは「g」「i」「gi」が指定できます。最初のマッチだけでなく一致するものをすべて置換する場合は「g」を、大文字小文字を区別せずに検索する場合は「i」を指定してください。",2.5.0
 "sum(l, t, r, b)",t 行 l 列から b 行 r 列までの範囲の数値データの合計値を返します。,1.5.0
 "avr(l, t, r, b)",t 行 l 列から b 行 r 列までの範囲の数値データの平均値を返します。,1.5.0
 random(x),0 以上 x 未満のランダムな整数値を返します。,1.26
@@ -123,9 +123,9 @@ FileExists(filename),filename という名前のファイルが存在するか�
 "Sort(l, t, r, b, x, dir, num, case, zenhan);",t 行 l 列から b 行 r 列までの範囲を x 列でソートします。第六引数以降は真偽値のフラグで、順に「降順ソート」「数字のセルは数値の大小でソートする」「大文字と小文字を同一視する」「全角と半角を同一視する」を表します。,1.9.0
 "Select(l, t, r, b);",t 行 l 列から b 行 r 列までの範囲を選択します。,2.3.0
 Paste(x);,オプションを指定して貼り付けます。x は 0 以上 5 以下の整数で、PasteOption0() ～ PasteOption5() に対応します。,2.3.0
-"ReplaceAll(str1, str2);",固定セルを除く編集中のデータ内の str1 をすべて str2 に置換します。,2.0.0
-"ReplaceAll(str1, str2, ignoreCase, wholeCell, regex);",固定セルを除く編集中のデータ内の str1 をすべて str2 に置換します。第三引数以降は真偽値のフラグで、順に「大文字と小文字を同一視」「セル内容が完全に同一であるものを検索」「正規表現検索」を表します。,2.0.0
-"ReplaceAll(str1, str2, ignoreCase, wholeCell, regex, l, t, r, b);",t 行 l 列から b 行 r 列までの範囲内の str1 をすべて str2 に置換します。第三引数から第五引数までは真偽値のフラグで、順に「大文字と小文字を同一視」「セル内容が完全に同一であるものを検索」「正規表現検索」を表します。,2.0.0
+"ReplaceAll(pattern, str);",固定セルを除く編集中のデータ内の pattern をすべて str に置換します。Ver.2.7 以降では、pattern には文字列もしくは正規表現オブジェクトを指定できます。,2.0.0
+"ReplaceAll(pattern, str, ignoreCase, wholeCell, regex);",固定セルを除く編集中のデータ内の pattern をすべて str に置換します。第三引数以降は真偽値のフラグで、順に「大文字と小文字を同一視」「セル内容が完全に同一であるものを検索」「正規表現検索」を表します。Ver.2.7 以降では、regex が true の場合 pattern には文字列もしくは正規表現オブジェクトを指定できます。,2.0.0
+"ReplaceAll(pattern, str, ignoreCase, wholeCell, regex, l, t, r, b);",t 行 l 列から b 行 r 列までの範囲内の pattern をすべて str に置換します。第三引数から第五引数までは真偽値のフラグで、順に「大文字と小文字を同一視」「セル内容が完全に同一であるものを検索」「正規表現検索」を表します。Ver.2.7 以降では、regex が true の場合 pattern には文字列もしくは正規表現オブジェクトを指定できます。,2.0.0
 GetFileName(),編集中の CSV ファイルのファイル名を返します。新規作成したデータを編集中は空の文字列が返されます。,1.24
 GetFilePath(),編集中の CSV ファイルの絶対パスを返します。新規作成したデータを編集中は空の文字列が返されます。それ以外の場合、必ず「\」で終わる文字列が返されます。,1.24
 GetYear(),実行時の日付の「年」を返します。4 桁の整数が返されます。,1.24

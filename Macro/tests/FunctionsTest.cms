@@ -155,6 +155,12 @@ class FunctionsTest {
     ReplaceAll("(.*)", "($1)", false, false, true);
     assert.that([1,1]).isEqualTo("(A\nZ\n\nD)");
     assert.that([2,1]).isEqualTo("");
+    [1,1] = "AABBaabb";
+    ReplaceAll(/(A+)/g, "($1)");
+    assert.that([1,1]).isEqualTo("(AA)BBaabb");
+    [1,1] = "AABBaabb";
+    ReplaceAll(/(A+)/gi, "($1)");
+    assert.that([1,1]).isEqualTo("(AA)BB(aa)bb");
 
     cell(3, 1) = "abc";
     assert.that(cell(3, 1)).isEqualTo("abc");

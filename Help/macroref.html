@@ -327,17 +327,17 @@
 </tr>
 <tr>
   <td>str1.replace(pattern, str2)</td>
-  <td>文字列 str1 中で pattern に最初にマッチする箇所を str2 に置換した文字列を返します。元の str1 は変化しません。</td>
+  <td>文字列 str1 中で pattern に最初にマッチする箇所を str2 に置換した文字列を返します。元の str1 は変化しません。pattern には文字列もしくは正規表現オブジェクトを指定できます。</td>
   <td>2.5.0</td>
 </tr>
 <tr>
   <td>str1.replaceAll(pattern, str2)</td>
-  <td>文字列 str1 中の pattern にマッチする箇所をすべて str2 に置換した文字列を返します。元の str1 は変化しません。</td>
+  <td>文字列 str1 中の pattern にマッチする箇所をすべて str2 に置換した文字列を返します。元の str1 は変化しません。pattern には文字列もしくは正規表現オブジェクトを指定できます。</td>
   <td>2.5.0</td>
 </tr>
 <tr>
   <td>str.search(pattern)</td>
-  <td>文字列 str の中で最初に pattern にマッチする位置を返します。pattern に文字列が渡された場合も正規表現として解釈されます。最初の文字のインデックスは 0 です。 マッチしなかった場合、 -1 が返されます。 全角文字を1文字と数えます。</td>
+  <td>文字列 str の中で最初に pattern にマッチする位置を返します。pattern には文字列もしくは正規表現オブジェクトを指定できますが、pattern に文字列が渡された場合も正規表現として解釈されます。最初の文字のインデックスは 0 です。 マッチしなかった場合、 -1 が返されます。 全角文字を1文字と数えます。</td>
   <td>2.5.0</td>
 </tr>
 <tr>
@@ -392,7 +392,7 @@
 </tr>
 <tr>
   <td>/pattern/flags<br>new RegExp(pattern, flags)</td>
-  <td>str1.replace(regexp, str2), str1.replaceAll(regexp, str2), str.search(regexp) で使用できる正規表現オブジェクトを生成します。flags には空文字列もしくは「g」「i」「gi」が指定できます。最初のマッチだけでなく一致するものをすべて置換する場合は「g」を、大文字小文字を区別せずに検索する場合は「i」を指定してください。</td>
+  <td>str1.replace(regexp, str2), str1.replaceAll(regexp, str2), str.search(regexp), ReplaceAll(pattern, str) で使用できる正規表現オブジェクトを生成します。flags には空文字列もしくは「g」「i」「gi」が指定できます。最初のマッチだけでなく一致するものをすべて置換する場合は「g」を、大文字小文字を区別せずに検索する場合は「i」を指定してください。</td>
   <td>2.5.0</td>
 </tr>
 <tr>
@@ -721,18 +721,18 @@
   <td>2.3.0</td>
 </tr>
 <tr>
-  <td>ReplaceAll(str1, str2);</td>
-  <td>固定セルを除く編集中のデータ内の str1 をすべて str2 に置換します。</td>
+  <td>ReplaceAll(pattern, str);</td>
+  <td>固定セルを除く編集中のデータ内の pattern をすべて str に置換します。Ver.2.7 以降では、pattern には文字列もしくは正規表現オブジェクトを指定できます。</td>
   <td>2.0.0</td>
 </tr>
 <tr>
-  <td>ReplaceAll(str1, str2, ignoreCase, wholeCell, regex);</td>
-  <td>固定セルを除く編集中のデータ内の str1 をすべて str2 に置換します。第三引数以降は真偽値のフラグで、順に「大文字と小文字を同一視」「セル内容が完全に同一であるものを検索」「正規表現検索」を表します。</td>
+  <td>ReplaceAll(pattern, str, ignoreCase, wholeCell, regex);</td>
+  <td>固定セルを除く編集中のデータ内の pattern をすべて str に置換します。第三引数以降は真偽値のフラグで、順に「大文字と小文字を同一視」「セル内容が完全に同一であるものを検索」「正規表現検索」を表します。Ver.2.7 以降では、regex が true の場合 pattern には文字列もしくは正規表現オブジェクトを指定できます。</td>
   <td>2.0.0</td>
 </tr>
 <tr>
-  <td>ReplaceAll(str1, str2, ignoreCase, wholeCell, regex, l, t, r, b);</td>
-  <td>t 行 l 列から b 行 r 列までの範囲内の str1 をすべて str2 に置換します。第三引数から第五引数までは真偽値のフラグで、順に「大文字と小文字を同一視」「セル内容が完全に同一であるものを検索」「正規表現検索」を表します。</td>
+  <td>ReplaceAll(pattern, str, ignoreCase, wholeCell, regex, l, t, r, b);</td>
+  <td>t 行 l 列から b 行 r 列までの範囲内の pattern をすべて str に置換します。第三引数から第五引数までは真偽値のフラグで、順に「大文字と小文字を同一視」「セル内容が完全に同一であるものを検索」「正規表現検索」を表します。Ver.2.7 以降では、regex が true の場合 pattern には文字列もしくは正規表現オブジェクトを指定できます。</td>
   <td>2.0.0</td>
 </tr>
 <tr>
@@ -1332,7 +1332,7 @@
   2003.11.29.<br />
 </address>
 <address>
-  Copyright (C) 2007-2023 asukaze, Some Rights Reserved.<br />
+  Copyright (C) 2007-2025 asukaze, Some Rights Reserved.<br />
   mail (at) asukaze.net<br />
 </address>
 <!-- ==== -->

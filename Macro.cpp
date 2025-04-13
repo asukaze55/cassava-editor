@@ -1440,7 +1440,7 @@ void TMacro::ExecFnc(String s)
       env.Grid->Sort(left, top, right, bottom, col, direction, numSort,
           ignoreCase, ignoreZenhan);
     }else if(s == "ReplaceAll" && (H == 2 || H == 5 || H == 9)) {
-      RegExp regExp = ParseRegExp(STR0);
+      RegExp regExp = ParseRegExp(ope[0]);
       String find = regExp.pattern;
       String replace = STR1;
       bool ignoreCase = (H > 2 ? VAL2 : regExp.isIgnoreCase);
