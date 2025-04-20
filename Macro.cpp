@@ -1172,7 +1172,10 @@ void TMacro::ExecFnc(String s)
       env.Grid->Raw()->UndoList->StopMacroRecording();
     }else if(s == "GetRecordedMacro" && H == 0) {
       Stack.push_back(Element(env.Grid->Raw()->UndoList->GetRecordedMacro()));
-    }else if(s == "MacroTerminate") {
+    }else if(s == "MacroTerminate" && H == 0) {
+      throw MacroException(L"’†’f‚³‚ê‚Ü‚µ‚½B", ME_CANCELED);
+    }else if(s == "End" && H == 0) {
+      fmMain->Close();
       throw MacroException(L"’†’f‚³‚ê‚Ü‚µ‚½B", ME_CANCELED);
     }else if(H == 0){
       env.Grid->ApplyPendingChanges();
