@@ -640,20 +640,139 @@ void TfmMain::WriteIni(bool PosSlide)
   }catch(...){}
 }
 //---------------------------------------------------------------------------
+TToolButton *TfmMain::AddToolButton(String Label, String Name, String Action,
+    int Left, TToolBar *ToolBar)
+{
+  TToolButton *button = new TToolButton(ToolBar);
+  button->Left = Left;
+  button->Parent = ToolBar;
+
+  if (Name == "-") {
+    button->Style = tbsSeparator;
+    button->Width = 8;
+    return button;
+  }
+
+  TMenuItem *menuItem = FindMenuItem(Action);
+  if (menuItem) {
+    if (menuItem->Action) {
+      button->Action = menuItem->Action;
+    } else {
+      button->OnClick = menuItem->OnClick;
+    }
+    button->Hint = Name;
+  } else {
+    button->OnClick = UserToolBarAction;
+    button->Hint = StringReplace(
+        Name, "|", "_", TReplaceFlags() << rfReplaceAll) + "|" + Action;
+  }
+
+  int imageIndex = Label.ToIntDef(-1);
+  if (imageIndex >= 0) {
+    button->ImageIndex = imageIndex;
+  } else {
+    ToolBar->AllowTextButtons = true;
+    button->Style = tbsTextButton;
+    button->Caption = Label != "" ? Label : Name;
+  }
+
+  if (Action == "OpenHistory") {
+    button->OnClick = mnOpenClick;
+    button->Hint = Name;
+    button->Style = tbsDropDown;
+    button->DropdownMenu = PopMenuOpen;
+  }
+  return button;
+}
+//---------------------------------------------------------------------------
+TToolBar *TfmMain::AddToolBar(String Label, String ImageList, int Top, int Left)
+{
+  TToolBar *toolBar = new TToolBar(CoolBar);
+  toolBar->Parent = CoolBar;
+  toolBar->Wrapable = false;
+  toolBar->AutoSize = true;
+  toolBar->Font->Height = 16 * PixelsPerInch / 96;
+  toolBar->Top = Top;
+  toolBar->Left = Left;
+
+  String imageListFileName = Pref->Path + ImageList;
+  if (Label == "#1" || ImageList == "#1") {
+    if (Style == "Windows10 Dark") {
+      toolBar->Images = imlNormalDark;
+      toolBar->DisabledImages = imlNormalDarkDisabled;
+    } else {
+      toolBar->Images = imlNormal;
+      toolBar->DisabledImages = imlNormalDisabled;
+    }
+  } else if (Label == "#2" || ImageList == "#2") {
+    if (Style == "Windows10 Dark") {
+      toolBar->Images = imlAdditionalDark;
+    } else {
+      toolBar->Images = imlAdditional;
+    }
+  } else if (ImageList != "" && FileExists(imageListFileName)) {
+    TCustomImageList *images = new TCustomImageList(16, 16);
+    images->FileLoad(rtBitmap, imageListFileName, clSilver);
+    toolBar->Images = images;
+  }
+
+  if (Label == "#1") {
+    int width = 0;
+    width += AddToolButton("6", L"新規作成", "New", width, toolBar)->Width;
+    width += AddToolButton("7", L"開く", "OpenHistory", width, toolBar)->Width;
+    width += AddToolButton("8", L"上書き保存", "Save", width, toolBar)->Width;
+    width += AddToolButton("", "-", "", width, toolBar)->Width;
+    width += AddToolButton("0", L"切り取り", "Cut", width, toolBar)->Width;
+    width += AddToolButton("1", L"コピー", "Copy", width, toolBar)->Width;
+    width += AddToolButton("2", L"貼り付け", "Paste", width, toolBar)->Width;
+    width += AddToolButton("", "-", "", width, toolBar)->Width;
+    width += AddToolButton("3", L"元に戻す", "Undo", width, toolBar)->Width;
+    width += AddToolButton("4", L"やり直し", "Redo", width, toolBar)->Width;
+    toolBar->Width = width;
+  } else if (Label == "#2") {
+    int width = 0;
+    width += AddToolButton("0", L"ソート", "Sort", width, toolBar)->Width;
+    width += AddToolButton("", "-", "", width, toolBar)->Width;
+    width += AddToolButton("1", L"１行挿入", "InsRow", width, toolBar)->Width;
+    width += AddToolButton("2", L"１列挿入", "InsCol", width, toolBar)->Width;
+    width += AddToolButton("3", L"１行削除", "CutRow", width, toolBar)->Width;
+    width += AddToolButton("4", L"１列削除", "CutCol", width, toolBar)->Width;
+    width += AddToolButton("", "-", "", width, toolBar)->Width;
+    width += AddToolButton("5", L"検索・置換", "Find", width, toolBar)->Width;
+    width += AddToolButton("", "-", "", width, toolBar)->Width;
+    width +=
+        AddToolButton("6", L"表示の更新", "Refresh", width, toolBar)->Width;
+    width += AddToolButton("8", L"フォント", "Font", width, toolBar)->Width;
+    width += AddToolButton(
+        "12", L"セル内計算式を処理", "CalcExpression", width, toolBar)->Width;
+    width += AddToolButton("", "-", "", width, toolBar)->Width;
+    width += AddToolButton(
+        "9", L"カーソル位置までを固定", "FixUpLeft", width, toolBar)->Width;
+    width += AddToolButton(
+        "10", L"１行目を固定", "FixFirstRow", width, toolBar)->Width;
+    width += AddToolButton(
+        "11", L"１列目を固定", "FixFirstCol", width, toolBar)->Width;
+    toolBar->Width = width;
+  } else {
+    toolBar->Width = 0;
+  }
+  return toolBar;
+}
+//---------------------------------------------------------------------------
 void TfmMain::ReadToolBar()
 {
   CoolBarResize(nullptr);
-  tbarAdditional->Left = tbarNormal->Left + tbarNormal->Width;
-
-  String toolbarcsv = Pref->Path + "ToolBar.csv";
-  if (!FileExists(toolbarcsv)) {
-    return;
-  }
 
   bool visible = CoolBar->Visible;
   CoolBar->Visible = false;
-  tbarNormal->Visible = false;
-  tbarAdditional->Visible = false;
+
+  String toolbarcsv = Pref->Path + "ToolBar.csv";
+  if (!FileExists(toolbarcsv)) {
+    TToolBar *tbarNormal = AddToolBar("#1", "", 0, 0);
+    AddToolBar("#2", "", 0, tbarNormal->Width);
+    CoolBar->Visible = visible;
+    return;
+  }
 
   TTypeOption typeOption("CSV");
   CsvReader reader(
@@ -677,7 +796,7 @@ void TfmMain::ReadToolBar()
     String action = list->Strings[2];
 
     if (str0 != "" && str0[1] == '=') {
-      tbarTop += tbarNormal->Height;
+      tbarTop += CoolBar->RowSize;
       tbarLeft = -1;
     } else if (str0 != "" && str0[1] == '#') {
       if (toolBar) {
@@ -689,83 +808,10 @@ void TfmMain::ReadToolBar()
       if (tbarLeft < 0) {
         tbarLeft = 0;
       }
-      if (str0 == "#1") {
-        toolBar = tbarNormal;
-        toolBar->Visible = true;
-        width = toolBar->Width;
-      } else if (str0 == "#2") {
-        toolBar = tbarAdditional;
-        toolBar->Visible = true;
-        width = toolBar->Width;
-      } else {
-        toolBar = new TToolBar(CoolBar);
-        toolBar->Parent = CoolBar;
-        toolBar->Wrapable = false;
-        toolBar->AutoSize = true;
-        toolBar->Font->Height = 16 * PixelsPerInch / 96;
-        width = 0;
-      }
-      toolBar->Top = tbarTop;
-      toolBar->Left = tbarLeft;
-      String toolbarbmp = Pref->Path + name;
-      if (name == "#1") {
-        if (Style == "Windows10 Dark") {
-          toolBar->Images = imlNormalDark;
-          toolBar->DisabledImages = imlNormalDarkDisabled;
-        } else {
-          toolBar->Images = imlNormal;
-          toolBar->DisabledImages = imlNormalDisabled;
-        }
-      } else if (name == "#2") {
-        if (Style == "Windows10 Dark") {
-          toolBar->Images = imlAdditionalDark;
-        } else {
-          toolBar->Images = imlAdditional;
-        }
-      } else if (name != "" && FileExists(toolbarbmp)) {
-        TCustomImageList *images = new TCustomImageList(16, 16);
-        images->FileLoad(rtBitmap, toolbarbmp, clSilver);
-        toolBar->Images = images;
-      }
-    } else if (name == "-") {
-      TToolButton *button = new TToolButton(toolBar);
-      button->Style = tbsSeparator;
-      button->Left = width;
-      button->Parent = toolBar;
-      button->Width = 8;
-      width += button->Width;
+      toolBar = AddToolBar(str0, name, tbarTop, tbarLeft);
+      width = toolBar->Width;
     } else if (name != "") {
-      TToolButton *button = new TToolButton(toolBar);
-      button->Left = width;
-      button->Parent = toolBar;
-      TMenuItem *menuItem = FindMenuItem(action);
-      if (menuItem) {
-        if (menuItem->Action) {
-          button->Action = menuItem->Action;
-        } else {
-          button->OnClick = menuItem->OnClick;
-        }
-        button->Hint = name;
-      } else {
-        button->OnClick = UserToolBarAction;
-        button->Hint = StringReplace(name, "|", "_",
-            TReplaceFlags() << rfReplaceAll) + "|" + action;
-      }
-      int imageIndex = str0.ToIntDef(-1);
-      if (imageIndex >= 0) {
-        button->ImageIndex = imageIndex;
-      } else {
-        toolBar->AllowTextButtons = true;
-        button->Style = tbsTextButton;
-        button->Caption = str0 != "" ? str0 : name;
-      }
-      if (action == "OpenHistory") {
-        button->OnClick = mnOpenClick;
-        button->Hint = name;
-        button->Style = tbsDropDown;
-        button->DropdownMenu = PopMenuOpen;
-      }
-      width += button->Width;
+      width += AddToolButton(str0, name, action, width, toolBar)->Width;
     }
   }
   if (toolBar) {
@@ -828,8 +874,6 @@ void __fastcall TfmMain::UserToolBarAction(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::CoolBarResize(TObject *Sender)
 {
-  CoolBar->RowSize = tbarNormal->Height + 4;
-
   for (int i = 0; i < CoolBar->ControlCount; i++) {
     TToolBar *toolbar = static_cast<TToolBar *>(CoolBar->Controls[i]);
     int width = 0;
@@ -969,14 +1013,21 @@ void TfmMain::SetStyle(String Value)
 
   FStyle = Value;
   TStyleManager::TrySetStyle(FStyle);
-  if (Style == "Windows10 Dark") {
-    tbarNormal->Images = imlNormalDark;
-    tbarNormal->DisabledImages = imlNormalDarkDisabled;
-    tbarAdditional->Images = imlAdditionalDark;
-  } else {
-    tbarNormal->Images = imlNormal;
-    tbarNormal->DisabledImages = imlNormalDisabled;
-    tbarAdditional->Images = imlAdditional;
+
+  bool isDark = (Style == "Windows10 Dark");
+  for (int i = 0; i < CoolBar->ControlCount; i++) {
+    TToolBar *toolbar = static_cast<TToolBar *>(CoolBar->Controls[i]);
+    if (toolbar->Images == imlNormal && isDark) {
+      toolbar->Images = imlNormalDark;
+      toolbar->DisabledImages = imlNormalDarkDisabled;
+    } else if (toolbar->Images == imlNormalDark && !isDark) {
+      toolbar->Images = imlNormal;
+      toolbar->DisabledImages = imlNormalDisabled;
+    } else if (toolbar->Images == imlAdditional && isDark) {
+      toolbar->Images = imlAdditionalDark;
+    } else if (toolbar->Images == imlAdditionalDark && !isDark) {
+      toolbar->Images = imlAdditional;
+    }
   }
 }
 //---------------------------------------------------------------------------
@@ -2196,7 +2247,6 @@ void __fastcall TfmMain::acFixFirstRowExecute(TObject *Sender)
 {
   if(MainGrid->FileOpenThread){
     mnFixFirstRow->Checked = !MainGrid->ShowColCounter;
-    tsbFixFirstRow->Down   = !MainGrid->ShowColCounter;
     Application->MessageBox(
         L"ファイルの読み込み中は固定セルを変更できません。",
         CASSAVA_TITLE, MB_ICONERROR);

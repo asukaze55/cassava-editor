@@ -203,34 +203,6 @@ __published:	// IDE 管理のコンポーネント
   TSpeedButton *btnSearchCancel;
   TEdit *edFindText;
   TControlBar *CoolBar;
-  TToolBar *tbarAdditional;
-  TToolButton *tsbSort;
-  TToolButton *ToolButton12;
-  TToolButton *tsbInsRow;
-  TToolButton *tsbInsCol;
-  TToolButton *tsbCutRow;
-  TToolButton *tsbCutCol;
-  TToolButton *ToolButton17;
-  TToolButton *tsbFind;
-  TToolButton *ToolButton19;
-  TToolButton *tsbRefresh;
-  TToolButton *tsbFont;
-  TToolButton *sbCalcExpression;
-  TToolButton *ToolButton23;
-  TToolButton *tsbFixUpLeft;
-  TToolButton *tsbFixFirstRow;
-  TToolButton *tsbFixFirstCol;
-  TToolBar *tbarNormal;
-  TToolButton *tsbNew;
-  TToolButton *tsbOpen;
-  TToolButton *tsbSave;
-  TToolButton *ToolButton4;
-  TToolButton *tsbCut;
-  TToolButton *tsbCopy;
-  TToolButton *tsbPaste;
-  TToolButton *ToolButton8;
-  TToolButton *tsbUndo;
-  TToolButton *tsbRedo;
   TMenuItem *mnCheckUpdate;
   TMenuItem *mnMacroTerminate;
   TActionList *ActionList;
@@ -384,6 +356,10 @@ private:    // ユーザー宣言
   void SetStyle(String Value);
   TTypeList FTypeList;
   void SetTypeList(const TTypeList &TypeList);
+  void ReadToolBar();
+  TToolButton *AddToolButton(String Label, String Name, String Action,
+      int Left, TToolBar *ToolBar);
+  TToolBar *AddToolBar(String Label, String ImageList, int Top, int Left);
 
 public:     // ユーザー宣言
   TMainGrid *MainGrid;
@@ -392,7 +368,6 @@ public:     // ユーザー宣言
   bool IfModifiedThenSave();
   void ReadIni();
   void WriteIni(bool PosSlide = false);
-  void ReadToolBar();
   void __fastcall UserToolBarAction(TObject *Sender);
   void __fastcall MainGridChangeModified(TObject *Sender);
   void __fastcall MainGridDropFiles(TObject *Sender, int iFiles,
