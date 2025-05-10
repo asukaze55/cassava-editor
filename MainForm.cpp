@@ -685,6 +685,33 @@ TToolButton *TfmMain::AddToolButton(String Label, String Name, String Action,
   return button;
 }
 //---------------------------------------------------------------------------
+void AddToImageCollection(TBitmap *Bitmap, TImageCollection *ImageCollection)
+{
+  TBitmap *maskBitmap = new TBitmap();
+  maskBitmap->Assign(Bitmap);
+  maskBitmap->Mask(clSilver);
+
+  TIconInfo iconInfo;
+  iconInfo.fIcon = true;
+  iconInfo.xHotspot = 0;
+  iconInfo.yHotspot = 0;
+  iconInfo.hbmMask = maskBitmap->Handle;
+  iconInfo.hbmColor = Bitmap->Handle;
+
+  TIcon *icon = new TIcon();
+  icon->Handle = CreateIconIndirect(&iconInfo);
+
+  TMemoryStream *stream = new TMemoryStream();
+  icon->SaveToStream(stream);
+
+  ImageCollection->Images->Add()->SourceImages->Add()->Image
+      ->LoadFromStream(stream);
+
+  delete stream;
+  delete icon;
+  delete maskBitmap;
+}
+//---------------------------------------------------------------------------
 TToolBar *TfmMain::AddToolBar(String Label, String ImageList, int Top, int Left)
 {
   TToolBar *toolBar = new TToolBar(CoolBar);
@@ -711,9 +738,22 @@ TToolBar *TfmMain::AddToolBar(String Label, String ImageList, int Top, int Left)
       toolBar->Images = imlAdditional;
     }
   } else if (ImageList != "" && FileExists(imageListFileName)) {
-    TCustomImageList *images = new TCustomImageList(16, 16);
-    images->FileLoad(rtBitmap, imageListFileName, clSilver);
-    toolBar->Images = images;
+    TBitmap *imageListBitmap = new TBitmap();
+    imageListBitmap->LoadFromFile(imageListFileName);
+
+    TImageCollection *imageCollection = new TImageCollection(this);
+    for (int x = 0; x < imageListBitmap->Width; x += 16) {
+      TBitmap *bitmap = new TBitmap(16, 16);
+      bitmap->Canvas->Draw(-x, 0, imageListBitmap);
+      AddToImageCollection(bitmap, imageCollection);
+      delete bitmap;
+    }
+    delete imageListBitmap;
+
+    TVirtualImageList *virtualImageList = new TVirtualImageList(this);
+    virtualImageList->AutoFill = true;
+    virtualImageList->ImageCollection = imageCollection;
+    toolBar->Images = virtualImageList;
   }
 
   if (Label == "#1") {
