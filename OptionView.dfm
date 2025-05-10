@@ -8,49 +8,49 @@ object frOptionView: TfrOptionView
     Left = 3
     Top = 3
     Width = 354
-    Height = 137
+    Height = 134
     Caption = #12501#12457#12531#12488
     TabOrder = 0
     object lblTBMargin: TLabel
       Left = 13
       Top = 53
-      Width = 68
-      Height = 13
+      Width = 81
+      Height = 15
       Caption = #19978#19979#12510#12540#12472#12531#65306
     end
     object lblTBMarginPt: TLabel
       Left = 319
       Top = 53
       Width = 12
-      Height = 13
+      Height = 15
       Caption = 'px'
     end
     object lblLRMargin: TLabel
       Left = 13
       Top = 80
-      Width = 68
-      Height = 13
+      Width = 81
+      Height = 15
       Caption = #24038#21491#12510#12540#12472#12531#65306
     end
     object lblLRMarginPt: TLabel
       Left = 319
       Top = 80
       Width = 12
-      Height = 13
+      Height = 15
       Caption = 'px'
     end
     object lblCellLineMargin: TLabel
       Left = 13
       Top = 109
-      Width = 96
-      Height = 13
+      Width = 111
+      Height = 15
       Caption = #12475#12523#20869#25913#34892#12398#34892#38291#65306
     end
     object lblCellLineMarginPt: TLabel
       Left = 319
       Top = 107
       Width = 12
-      Height = 13
+      Height = 15
       Caption = 'px'
     end
     object btnFont: TButton
@@ -65,8 +65,8 @@ object frOptionView: TfrOptionView
     object stFont: TStaticText
       Left = 170
       Top = 19
-      Width = 75
-      Height = 17
+      Width = 81
+      Height = 19
       Alignment = taCenter
       BorderStyle = sbsSunken
       Caption = 'Aa'#12354#12353#12450#12449#20124#23431
@@ -78,7 +78,7 @@ object frOptionView: TfrOptionView
       Left = 226
       Top = 50
       Width = 73
-      Height = 21
+      Height = 23
       NumbersOnly = True
       TabOrder = 2
       Text = '0'
@@ -87,7 +87,7 @@ object frOptionView: TfrOptionView
       Left = 299
       Top = 50
       Width = 16
-      Height = 21
+      Height = 23
       Associate = edTBMargin
       TabOrder = 3
     end
@@ -95,7 +95,7 @@ object frOptionView: TfrOptionView
       Left = 299
       Top = 77
       Width = 16
-      Height = 21
+      Height = 23
       Associate = edLRMargin
       TabOrder = 5
     end
@@ -103,7 +103,7 @@ object frOptionView: TfrOptionView
       Left = 226
       Top = 104
       Width = 73
-      Height = 21
+      Height = 23
       NumbersOnly = True
       TabOrder = 6
       Text = '0'
@@ -112,7 +112,7 @@ object frOptionView: TfrOptionView
       Left = 299
       Top = 104
       Width = 16
-      Height = 21
+      Height = 23
       Associate = edCellLineMargin
       TabOrder = 7
     end
@@ -120,7 +120,7 @@ object frOptionView: TfrOptionView
       Left = 226
       Top = 77
       Width = 73
-      Height = 21
+      Height = 23
       NumbersOnly = True
       TabOrder = 4
       Text = '0'
@@ -128,17 +128,17 @@ object frOptionView: TfrOptionView
   end
   object gbView: TGroupBox
     Left = 3
-    Top = 146
+    Top = 143
     Width = 354
-    Height = 146
+    Height = 119
     Caption = #34920#31034#12458#12503#12471#12519#12531
     TabOrder = 1
-    object Label1: TLabel
-      Left = 40
-      Top = 119
-      Width = 90
-      Height = 13
-      Caption = #23567#25968#28857#20197#19979#26689#25968#65306
+    object lblOmitDigits: TLabel
+      Left = 170
+      Top = 93
+      Width = 39
+      Height = 15
+      Caption = #26689#25968#65306
     end
     object cbWordWrap: TCheckBox
       Left = 13
@@ -165,7 +165,7 @@ object frOptionView: TfrOptionView
       TabOrder = 2
     end
     object cbOmitDecimal: TCheckBox
-      Left = 13
+      Left = 14
       Top = 93
       Width = 337
       Height = 17
@@ -174,18 +174,18 @@ object frOptionView: TfrOptionView
     end
     object udOmitDigits: TUpDown
       Left = 299
-      Top = 116
+      Top = 90
       Width = 16
-      Height = 21
+      Height = 23
       Associate = edOmitDigits
       Position = 2
       TabOrder = 4
     end
     object edOmitDigits: TEdit
       Left = 226
-      Top = 116
+      Top = 90
       Width = 73
-      Height = 21
+      Height = 23
       NumbersOnly = True
       TabOrder = 5
       Text = '2'
@@ -193,38 +193,24 @@ object frOptionView: TfrOptionView
   end
   object gbTooltip: TGroupBox
     Left = 3
-    Top = 403
+    Top = 429
     Width = 354
-    Height = 105
+    Height = 78
     Caption = #12484#12540#12523#12481#12483#12503
     TabOrder = 3
     object lblHintPause: TLabel
-      Left = 13
-      Top = 52
-      Width = 196
-      Height = 13
-      Caption = #12509#12483#12503#12450#12483#12503#34920#31034#12414#12391#12398#24453#27231#26178#38291#65288#12511#12522#31186#65289#65306
+      Left = 109
+      Top = 50
+      Width = 62
+      Height = 15
+      Caption = #12511#12522#31186#24460#12363#12425
     end
     object lblHintHidePause: TLabel
-      Left = 13
-      Top = 77
-      Width = 143
-      Height = 13
-      Caption = #12509#12483#12503#12450#12483#12503#34920#31034#26178#38291#65288#12511#12522#31186#65289#65306
-    end
-    object lblHintPauseMs: TLabel
-      Left = 321
-      Top = 52
-      Width = 13
-      Height = 13
-      Caption = 'ms'
-    end
-    object lblHintHidePauseMs: TLabel
-      Left = 321
-      Top = 77
-      Width = 13
-      Height = 13
-      Caption = 'ms'
+      Left = 289
+      Top = 50
+      Width = 42
+      Height = 15
+      Caption = #12511#12522#31186#38291
     end
     object cbShowToolTipForLongCell: TCheckBox
       Left = 13
@@ -237,38 +223,38 @@ object frOptionView: TfrOptionView
       TabOrder = 0
     end
     object edHintHidePause: TEdit
-      Left = 226
-      Top = 74
+      Left = 193
+      Top = 47
       Width = 73
-      Height = 21
+      Height = 23
       NumbersOnly = True
       TabOrder = 3
       Text = '500'
     end
     object edHintPause: TEdit
-      Left = 226
+      Left = 14
       Top = 47
       Width = 73
-      Height = 21
+      Height = 23
       NumbersOnly = True
       TabOrder = 1
       Text = '2,500'
     end
     object udHintPause: TUpDown
-      Left = 299
+      Left = 87
       Top = 47
       Width = 16
-      Height = 21
+      Height = 23
       Associate = edHintPause
       Max = 2147483647
       Position = 2500
       TabOrder = 2
     end
     object udHintHidePause: TUpDown
-      Left = 299
-      Top = 74
+      Left = 266
+      Top = 47
       Width = 16
-      Height = 21
+      Height = 23
       Associate = edHintHidePause
       Max = 2147483647
       Position = 500
@@ -277,23 +263,23 @@ object frOptionView: TfrOptionView
   end
   object gbRefresh: TGroupBox
     Left = 3
-    Top = 298
+    Top = 268
     Width = 354
-    Height = 99
+    Height = 96
     Caption = #21015#24133#12392#34892#12398#39640#12373
     TabOrder = 2
     object lblMaxRowHeightLines: TLabel
       Left = 14
       Top = 70
-      Width = 181
-      Height = 13
+      Width = 204
+      Height = 15
       Caption = #12475#12523#20869#25913#34892#12434#21547#12416#34892#12398#39640#12373#12398#26368#22823#20516#65306
     end
     object lblMaxRowHeightLinesUnit: TLabel
       Left = 321
       Top = 70
-      Width = 12
-      Height = 13
+      Width = 13
+      Height = 15
       Caption = #34892
     end
     object cbCompactColWidth: TCheckBox
@@ -308,7 +294,7 @@ object frOptionView: TfrOptionView
       Left = 226
       Top = 67
       Width = 89
-      Height = 21
+      Height = 23
       TabOrder = 2
       Text = '1.5'
     end
@@ -318,6 +304,45 @@ object frOptionView: TfrOptionView
       Width = 337
       Height = 17
       Caption = #30011#38754#22806#12398#34892#12418#21015#24133#35519#25972#12398#23550#35937#12392#12377#12427
+      TabOrder = 1
+    end
+  end
+  object gbToolBar: TGroupBox
+    Left = 3
+    Top = 370
+    Width = 354
+    Height = 53
+    Caption = #12484#12540#12523#12496#12540
+    TabOrder = 4
+    object lblToolBarSize: TLabel
+      Left = 16
+      Top = 24
+      Width = 109
+      Height = 15
+      Caption = #12484#12540#12523#12496#12540#12398#12469#12452#12474#65306
+    end
+    object lblToolBarSizePx: TLabel
+      Left = 319
+      Top = 24
+      Width = 12
+      Height = 15
+      Caption = 'px'
+    end
+    object edToolBarSize: TEdit
+      Left = 226
+      Top = 21
+      Width = 73
+      Height = 23
+      NumbersOnly = True
+      TabOrder = 0
+      Text = '0'
+    end
+    object udToolBarSize: TUpDown
+      Left = 299
+      Top = 21
+      Width = 16
+      Height = 23
+      Associate = edToolBarSize
       TabOrder = 1
     end
   end

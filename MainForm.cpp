@@ -227,7 +227,9 @@ void TfmMain::ReadIni()
 
   IniFile *Ini = Pref->GetInifile();
 
-  Style = Ini->ReadString("Mode", "Style", "Windows");
+  FStyle = Ini->ReadString("Mode", "Style", "Windows");
+  TStyleManager::TrySetStyle(FStyle);
+
   int iniScreenDpi = Ini->ReadInteger("Position", "Dpi", ScreenDpi);
   double dpiRatio = (double)ScreenDpi / iniScreenDpi;
   int screenWidth = GetSystemMetrics (SM_CXSCREEN);
@@ -265,6 +267,7 @@ void TfmMain::ReadIni()
   if (Ini->ReadBool("Mode", "ShowToolbar", true) != mnShowToolbar->Checked) {
     mnShowToolbarClick(this);
   }
+  FToolBarSize = Ini->ReadInteger("Mode", "ToolbarSize", 16 * ScreenDpi / 96);
   if (Ini->ReadBool("Mode", "ShowStatusbar", true)
       != mnShowStatusbar->Checked) {
     mnShowStatusbarClick(this);
@@ -578,6 +581,7 @@ void TfmMain::WriteIni(bool PosSlide)
     Ini->WriteInteger("Mode","FixLeftCol",
       MainGrid->ShowRowCounter ? 0 : MainGrid->FixedCols);
     Ini->WriteBool("Mode","ShowToolbar",mnShowToolbar->Checked);
+    Ini->WriteInteger("Mode", "ToolbarSize", ToolBarSize);
     Ini->WriteBool("Mode","ShowStatusbar",mnShowStatusbar->Checked);
     Ini->WriteBool("Mode", "ShowToolTipForLongCell",
       MainGrid->ShowToolTipForLongCell);
@@ -722,20 +726,22 @@ TToolBar *TfmMain::AddToolBar(String Label, String ImageList, int Top, int Left)
   toolBar->Top = Top;
   toolBar->Left = Left;
 
+  TVirtualImageList *images = nullptr;
+  TVirtualImageList *disabledImages = nullptr;
   String imageListFileName = Pref->Path + ImageList;
   if (Label == "#1" || ImageList == "#1") {
     if (Style == "Windows10 Dark") {
-      toolBar->Images = imlNormalDark;
-      toolBar->DisabledImages = imlNormalDarkDisabled;
+      images = imlNormalDark;
+      disabledImages = imlNormalDarkDisabled;
     } else {
-      toolBar->Images = imlNormal;
-      toolBar->DisabledImages = imlNormalDisabled;
+      images = imlNormal;
+      disabledImages = imlNormalDisabled;
     }
   } else if (Label == "#2" || ImageList == "#2") {
     if (Style == "Windows10 Dark") {
-      toolBar->Images = imlAdditionalDark;
+      images = imlAdditionalDark;
     } else {
-      toolBar->Images = imlAdditional;
+      images = imlAdditional;
     }
   } else if (ImageList != "" && FileExists(imageListFileName)) {
     TBitmap *imageListBitmap = new TBitmap();
@@ -750,11 +756,19 @@ TToolBar *TfmMain::AddToolBar(String Label, String ImageList, int Top, int Left)
     }
     delete imageListBitmap;
 
-    TVirtualImageList *virtualImageList = new TVirtualImageList(this);
-    virtualImageList->AutoFill = true;
-    virtualImageList->ImageCollection = imageCollection;
-    toolBar->Images = virtualImageList;
+    images = new TVirtualImageList(this);
+    images->AutoFill = true;
+    images->ImageCollection = imageCollection;
   }
+  if (images) {
+    images->SetSize(ToolBarSize, ToolBarSize);
+    toolBar->Images = images;
+  }
+  if (disabledImages) {
+    disabledImages->SetSize(ToolBarSize, ToolBarSize);
+    toolBar->DisabledImages = disabledImages;
+  }
+  toolBar->Font->Height = ToolBarSize < 22 ? 22 : ToolBarSize;
 
   if (Label == "#1") {
     int width = 0;
@@ -801,10 +815,15 @@ TToolBar *TfmMain::AddToolBar(String Label, String ImageList, int Top, int Left)
 //---------------------------------------------------------------------------
 void TfmMain::ReadToolBar()
 {
-  CoolBarResize(nullptr);
-
   bool visible = CoolBar->Visible;
   CoolBar->Visible = false;
+
+  for (int i = CoolBar->ControlCount - 1; i >= 0; i--) {
+    TToolBar *toolbar = static_cast<TToolBar *>(CoolBar->Controls[i]);
+    toolbar->Parent = nullptr;
+    delete toolbar;
+  }
+  CoolBar->RowSize = (ToolBarSize < 22 ? 22 : ToolBarSize) + 10;
 
   String toolbarcsv = Pref->Path + "ToolBar.csv";
   if (!FileExists(toolbarcsv)) {
@@ -922,6 +941,12 @@ void __fastcall TfmMain::CoolBarResize(TObject *Sender)
     }
     toolbar->Width = width;
   }
+}
+//---------------------------------------------------------------------------
+void TfmMain::SetToolBarSize(int Size)
+{
+  FToolBarSize = Size;
+  ReadToolBar();
 }
 //---------------------------------------------------------------------------
 void TfmMain::SetTypeList(const TTypeList &TypeList)
@@ -1053,22 +1078,7 @@ void TfmMain::SetStyle(String Value)
 
   FStyle = Value;
   TStyleManager::TrySetStyle(FStyle);
-
-  bool isDark = (Style == "Windows10 Dark");
-  for (int i = 0; i < CoolBar->ControlCount; i++) {
-    TToolBar *toolbar = static_cast<TToolBar *>(CoolBar->Controls[i]);
-    if (toolbar->Images == imlNormal && isDark) {
-      toolbar->Images = imlNormalDark;
-      toolbar->DisabledImages = imlNormalDarkDisabled;
-    } else if (toolbar->Images == imlNormalDark && !isDark) {
-      toolbar->Images = imlNormal;
-      toolbar->DisabledImages = imlNormalDisabled;
-    } else if (toolbar->Images == imlAdditional && isDark) {
-      toolbar->Images = imlAdditionalDark;
-    } else if (toolbar->Images == imlAdditionalDark && !isDark) {
-      toolbar->Images = imlAdditional;
-    }
-  }
+  ReadToolBar();
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::MainGridChangeModified(TObject *Sender)

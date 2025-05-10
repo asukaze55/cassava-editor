@@ -360,6 +360,8 @@ private:    // ユーザー宣言
   TToolButton *AddToolButton(String Label, String Name, String Action,
       int Left, TToolBar *ToolBar);
   TToolBar *AddToolBar(String Label, String ImageList, int Top, int Left);
+  int FToolBarSize;
+  void SetToolBarSize(int Size);
 
 public:     // ユーザー宣言
   TMainGrid *MainGrid;
@@ -413,6 +415,7 @@ public:     // ユーザー宣言
 
   __property String Style = {read=FStyle, write=SetStyle};
   __property TTypeList TypeList = {read=FTypeList, write=SetTypeList};
+  __property int ToolBarSize = {read=FToolBarSize, write=SetToolBarSize};
 
   bool BackupOnSave;
   bool BackupOnTime;

@@ -11,19 +11,19 @@
 class TfrOptionView : public TFrame
 {
 __published:	// IDE 管理のコンポーネント
-    TGroupBox *gbView;
-    TCheckBox *cbWordWrap;
-    TCheckBox *cbNumAlignRight;
-    TCheckBox *cbNum3;
-    TCheckBox *cbOmitDecimal;
-    TLabel *Label1;
-    TUpDown *udOmitDigits;
-    TEdit *edOmitDigits;
-    TGroupBox *gbFont;
+  TGroupBox *gbView;
+  TCheckBox *cbWordWrap;
+  TCheckBox *cbNumAlignRight;
+  TCheckBox *cbNum3;
+  TCheckBox *cbOmitDecimal;
+  TLabel *lblOmitDigits;
+  TUpDown *udOmitDigits;
+  TEdit *edOmitDigits;
+  TGroupBox *gbFont;
   TLabel *lblTBMargin;
   TLabel *lblTBMarginPt;
-    TButton *btnFont;
-    TStaticText *stFont;
+  TButton *btnFont;
+  TStaticText *stFont;
   TEdit *edTBMargin;
   TUpDown *udTBMargin;
   TLabel *lblLRMargin;
@@ -42,20 +42,23 @@ __published:	// IDE 管理のコンポーネント
   TUpDown *udHintPause;
   TEdit *edHintHidePause;
   TUpDown *udHintHidePause;
-  TLabel *lblHintPauseMs;
-  TLabel *lblHintHidePauseMs;
-    TGroupBox *gbRefresh;
-    TLabel *lblMaxRowHeightLines;
-    TLabel *lblMaxRowHeightLinesUnit;
-    TCheckBox *cbCompactColWidth;
-    TEdit *edMaxRowHeightLines;
-    TCheckBox *cbCalcWidthForAllRow;
-    void __fastcall btnFontClick(TObject *Sender);
+  TGroupBox *gbRefresh;
+  TLabel *lblMaxRowHeightLines;
+  TLabel *lblMaxRowHeightLinesUnit;
+  TCheckBox *cbCompactColWidth;
+  TEdit *edMaxRowHeightLines;
+  TCheckBox *cbCalcWidthForAllRow;
+  TGroupBox *gbToolBar;
+  TLabel *lblToolBarSize;
+  TEdit *edToolBarSize;
+  TUpDown *udToolBarSize;
+  TLabel *lblToolBarSizePx;
+  void __fastcall btnFontClick(TObject *Sender);
 private:	// ユーザー宣言
 public:		// ユーザー宣言
-    __fastcall TfrOptionView(TComponent* Owner);
-    void RestoreFromMainForm();
-    void StoreToMainForm();
+  __fastcall TfrOptionView(TComponent* Owner);
+  void RestoreFromMainForm();
+  void StoreToMainForm();
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TfrOptionView *frOptionView;

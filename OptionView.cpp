@@ -36,6 +36,8 @@ void TfrOptionView::RestoreFromMainForm()
   cbCalcWidthForAllRow->Checked = fmMain->MainGrid->CalcWidthForAllRow;
   edMaxRowHeightLines->Text = fmMain->MainGrid->MaxRowHeightLines;
 
+  udToolBarSize->Position = fmMain->ToolBarSize;
+
   cbShowToolTipForLongCell->Checked = fmMain->MainGrid->ShowToolTipForLongCell;
   udHintPause->Position = Application->HintPause;
   udHintHidePause->Position = Application->HintHidePause;
@@ -59,6 +61,8 @@ void TfrOptionView::StoreToMainForm()
   fmMain->MainGrid->CompactColWidth = cbCompactColWidth->Checked;
   fmMain->MainGrid->CalcWidthForAllRow = cbCalcWidthForAllRow->Checked;
   fmMain->MainGrid->MaxRowHeightLines = edMaxRowHeightLines->Text.ToDouble();
+
+  fmMain->ToolBarSize = udToolBarSize->Position;
 
   fmMain->MainGrid->ShowToolTipForLongCell = cbShowToolTipForLongCell->Checked;
   Application->HintPause = udHintPause->Position;
