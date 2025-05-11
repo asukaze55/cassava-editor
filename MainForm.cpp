@@ -716,13 +716,19 @@ void AddToImageCollection(TBitmap *Bitmap, TImageCollection *ImageCollection)
   delete maskBitmap;
 }
 //---------------------------------------------------------------------------
+static inline int GetToolBarButtonSize(int ToolBarSize, int ScreenDpi)
+{
+  int minSize = (24 * ScreenDpi / 96) - 8;
+  return ToolBarSize < minSize ? minSize : ToolBarSize;
+}
+//---------------------------------------------------------------------------
 TToolBar *TfmMain::AddToolBar(String Label, String ImageList, int Top, int Left)
 {
   TToolBar *toolBar = new TToolBar(CoolBar);
   toolBar->Parent = CoolBar;
   toolBar->Wrapable = false;
   toolBar->AutoSize = true;
-  toolBar->Font->Height = 16 * PixelsPerInch / 96;
+  toolBar->Font->Height = GetToolBarButtonSize(ToolBarSize, ScreenDpi);
   toolBar->Top = Top;
   toolBar->Left = Left;
 
@@ -768,7 +774,6 @@ TToolBar *TfmMain::AddToolBar(String Label, String ImageList, int Top, int Left)
     disabledImages->SetSize(ToolBarSize, ToolBarSize);
     toolBar->DisabledImages = disabledImages;
   }
-  toolBar->Font->Height = ToolBarSize < 22 ? 22 : ToolBarSize;
 
   if (Label == "#1") {
     int width = 0;
@@ -823,7 +828,7 @@ void TfmMain::ReadToolBar()
     toolbar->Parent = nullptr;
     delete toolbar;
   }
-  CoolBar->RowSize = (ToolBarSize < 22 ? 22 : ToolBarSize) + 10;
+  CoolBar->RowSize = GetToolBarButtonSize(ToolBarSize, ScreenDpi) + 10;
 
   String toolbarcsv = Pref->Path + "ToolBar.csv";
   if (!FileExists(toolbarcsv)) {
