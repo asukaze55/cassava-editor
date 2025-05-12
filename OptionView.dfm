@@ -335,7 +335,7 @@ object frOptionView: TfrOptionView
       Height = 23
       NumbersOnly = True
       TabOrder = 0
-      Text = '0'
+      Text = '16'
     end
     object udToolBarSize: TUpDown
       Left = 299
@@ -343,6 +343,9 @@ object frOptionView: TfrOptionView
       Width = 16
       Height = 23
       Associate = edToolBarSize
+      Min = 1
+      Max = 512
+      Position = 16
       TabOrder = 1
     end
   end
