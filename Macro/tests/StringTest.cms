@@ -108,6 +108,8 @@ class StringTest {
     assert.that("   foo   ".trim()).isEqualTo("foo");
     assert.that("   foo   ".trimEnd()).isEqualTo("   foo");
     assert.that("   foo   ".trimStart()).isEqualTo("foo   ");
+
+    Clear();
   }
 }
 

@@ -5,14 +5,6 @@ class FunctionsTest {
     return "FunctionsTest";
   }
 
-  clear() {
-    Right = 1;
-    Bottom = 1;
-    Col = 1;
-    Row = 1;
-    [1,1] = "";
-  }
-
   getValues(l, t, r, b) {
     result = "";
     for (y = t; y <= b; y++) {
@@ -24,7 +16,7 @@ class FunctionsTest {
   }
 
   test(assert) {
-    this.clear();
+    Clear();
 
     moveto(1, 2);
     assert.that(Col).isEqualTo(1);
@@ -222,7 +214,7 @@ class FunctionsTest {
     assert.that(SelRight).isEqualTo(4);
     assert.that(SelBottom).isEqualTo(5);
 
-    this.clear();
+    Clear();
   }
 }
 

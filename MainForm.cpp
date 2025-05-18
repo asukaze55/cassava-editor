@@ -1175,36 +1175,40 @@ void __fastcall TfmMain::FormShow(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnNewClick(TObject *Sender)
 {
-  if(MakeNewWindow){
+  if (MakeNewWindow) {
     WriteIni(true);
     _wspawnl(P_NOWAITO, ParamStr(0).c_str(), ParamStr(0).c_str(), nullptr);
-  }else{
-    if(IfModifiedThenSave())
-    {
-      MainGrid->Clear();
-      if(mnFixFirstRow->Checked || mnFixFirstCol->Checked) {
-        // Clear() でファイル読み込みを中断した後で固定解除する必要がある
-        if (mnFixFirstRow->Checked) {
-          acFixFirstRowExecute(this);
-        }
-        if (mnFixFirstCol->Checked) {
-          acFixFirstColExecute(this);
-        }
-        // 1列目・1行目の幅を初期値に戻すため、再度 Clear()
-        MainGrid->Clear();
-      }
-      FileName = "";
-      UpdateTitle();
-      dlgSave->FilterIndex = 0;
-      mnReload->Enabled = false;
-      mnReloadCode->Enabled = false;
-      UpdateStatusbar();
-
-      if(LockingFile){
-        delete LockingFile;
-        LockingFile = nullptr;
-      }
+  } else {
+    if (IfModifiedThenSave()) {
+      Clear();
     }
+  }
+}
+//---------------------------------------------------------------------------
+void TfmMain::Clear()
+{
+  MainGrid->Clear();
+  if (mnFixFirstRow->Checked || mnFixFirstCol->Checked) {
+    // Clear() でファイル読み込みを中断した後で固定解除する必要がある
+    if (mnFixFirstRow->Checked) {
+      acFixFirstRowExecute(this);
+    }
+    if (mnFixFirstCol->Checked) {
+      acFixFirstColExecute(this);
+    }
+    // 1列目・1行目の幅を初期値に戻すため、再度 Clear()
+    MainGrid->Clear();
+  }
+  FileName = "";
+  UpdateTitle();
+  dlgSave->FilterIndex = 0;
+  mnReload->Enabled = false;
+  mnReloadCode->Enabled = false;
+  UpdateStatusbar();
+
+  if (LockingFile) {
+    delete LockingFile;
+    LockingFile = nullptr;
   }
 }
 //---------------------------------------------------------------------------

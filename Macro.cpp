@@ -1174,6 +1174,8 @@ void TMacro::ExecFnc(String s)
       Stack.push_back(Element(env.Grid->Raw()->UndoList->GetRecordedMacro()));
     }else if(s == "MacroTerminate" && H == 0) {
       throw MacroException(L"’†’f‚³‚ê‚Ü‚µ‚½B", ME_CANCELED);
+    }else if(s == "Clear" && H == 0) {
+      fmMain->Clear();
     }else if(s == "End" && H == 0) {
       fmMain->Close();
       throw MacroException(L"’†’f‚³‚ê‚Ü‚µ‚½B", ME_CANCELED);

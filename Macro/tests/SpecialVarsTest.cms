@@ -5,19 +5,11 @@ class SpecialVarsTest {
     return "SpecialVarsTest";
   }
 
-  clear() {
-    Right = 1;
-    Bottom = 1;
-    Col = 1;
-    Row = 1;
-    [1,1] = "";
-  }
-
   test(assert) {
     assert.that(x).isEqualTo(Col);
     assert.that(y).isEqualTo(Row);
 
-    this.clear();
+    Clear();
     assert.that(Right).isEqualTo(1);
     assert.that(Bottom).isEqualTo(1);
 
@@ -57,7 +49,7 @@ class SpecialVarsTest {
     assert.that(null).isEqualTo(false);
     assert.that("null").isEqualTo("nul" + "l");
 
-    this.clear();
+    Clear();
   }
 }
 

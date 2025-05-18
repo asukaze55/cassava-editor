@@ -368,6 +368,7 @@ public:     // ƒ†[ƒU[éŒ¾
   __fastcall TfmMain(TComponent* Owner);
   __fastcall virtual ~TfmMain();
   bool IfModifiedThenSave();
+  void Clear();
   void ReadIni();
   void WriteIni(bool PosSlide = false);
   void __fastcall UserToolBarAction(TObject *Sender);

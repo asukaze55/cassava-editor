@@ -111,6 +111,7 @@ SetCharCode(str);,保存時文字コードを str に変更します。,2.5.0
 GetDataTypes(),登録されているデータ形式名の一覧を改行区切りの文字列で返します。,2.5.0
 GetActiveDataType(),現在使用中のデータ形式名を返します。,2.5.0
 SetActiveDataType(str);,使用するデータ形式を str に変更します。,2.5.0
+Clear();,変更を破棄して新規テーブルを作成します。,2.7.0
 ShellOpen(filename);,指定されたファイルを関連付けられたアプリケーションで開きます。,1.7.0
 "ShellOpen(appname, filename);",filename をパラメータとして appname で指定したアプリケーションを実行します。,1.7.0
 Open(filename);,filename を開きます。,1.8.1
