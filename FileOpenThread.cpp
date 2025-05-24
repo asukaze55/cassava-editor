@@ -83,7 +83,7 @@ void __fastcall FileOpenThread::UpdateGrid()
     return;
   }
   if (maxCol >= Grid->ColCount) {
-    Grid->ColCount = maxCol + 1;
+    Grid->ChangeColCount(maxCol + 1);
   }
   int dt = updatedRows + Grid->DataTop;
   int maxRow = allCells->Count + dt - 1;
@@ -93,8 +93,12 @@ void __fastcall FileOpenThread::UpdateGrid()
   Grid->SetDataRightBottom(maxCol, maxRow, true);
   for (int i = 0; i < allCells->Count; i++) {
     TStringList *row = static_cast<TStringList*>(allCells->Items[i]);
+    int count = row->Count;
+    for (int x = count; x <= Grid->ColCount; x++) {
+      row->Add("");
+    }
     Grid->Rows[i + dt] = row;
-    Grid->SetRowDataRight(i + dt, row->Count - 1);
+    Grid->SetRowDataRight(i + dt, count - 1);
     delete row;
   }
   Grid->SetWidth();
