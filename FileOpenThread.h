@@ -5,6 +5,7 @@
 #include <Classes.hpp>
 #include "MainGrid.h"
 //---------------------------------------------------------------------------
-TThread *ThreadFileOpen(TMainGrid *Grid, String FileName, TEncoding *Encoding);
+TThread *ThreadFileOpen(TMainGrid *Grid, String FileName, TEncoding *Encoding,
+    bool IsDetectedEncoding);
 //---------------------------------------------------------------------------
 #endif

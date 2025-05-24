@@ -1048,7 +1048,7 @@ void TMainGrid::LoadFromFile(String FileName, TEncoding *encoding,
                 &InCellReturnCode);
 
   OnFileOpenThreadTerminate = OnTerminate;
-  FileOpenThread = ThreadFileOpen(this, FileName, Encoding);
+  FileOpenThread = ThreadFileOpen(this, FileName, Encoding, isDetectedEncoding);
   FileOpenThread->OnTerminate = FileOpenThreadTerminate;
   FileOpenThread->FreeOnTerminate = true;
   FileOpenThread->Start();

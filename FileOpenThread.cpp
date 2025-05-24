@@ -33,30 +33,33 @@ private:
   TMainGrid *FGrid;
   String FFileName;
   TEncoding *FEncoding;
+  bool FIsDetectedEncoding;
   TList *allCells;
   int updatedRows;
   int maxCol;
-  bool failed;
   void __fastcall UpdateGrid();
   void __fastcall ShowError();
   String __fastcall NormalizeCRLF(String Val);
+  bool __fastcall ExecuteOnce();
 protected:
   void __fastcall Execute();
 public:
   __fastcall FileOpenThread(TMainGrid *AGrid, String AFileName,
-                            TEncoding *AEncoding);
+      TEncoding *AEncoding, bool AIsDetectedEncoding);
   __property TMainGrid *Grid = { read=FGrid, write=FGrid };
   __property String FileName = { read=FFileName, write=FFileName };
 };
 //---------------------------------------------------------------------------
-TThread *ThreadFileOpen(TMainGrid *Grid, String FileName, TEncoding *Encoding)
+TThread *ThreadFileOpen(TMainGrid *Grid, String FileName, TEncoding *Encoding,
+    bool IsDetectedEncoding)
 {
-  return new FileOpenThread(Grid, FileName, Encoding);
+  return new FileOpenThread(Grid, FileName, Encoding, IsDetectedEncoding);
 }
 //---------------------------------------------------------------------------
 __fastcall FileOpenThread::FileOpenThread(TMainGrid *AGrid, String AFileName,
-                                          TEncoding *AEncoding)
-  : TThread(true), FGrid(AGrid), FFileName(AFileName), FEncoding(AEncoding)
+    TEncoding *AEncoding, bool AIsDetectedEncoding)
+  : TThread(true), FGrid(AGrid), FFileName(AFileName), FEncoding(AEncoding),
+    FIsDetectedEncoding(AIsDetectedEncoding)
 {
 }
 //---------------------------------------------------------------------------
@@ -79,9 +82,6 @@ String __fastcall FileOpenThread::NormalizeCRLF(String Val)
 //---------------------------------------------------------------------------
 void __fastcall FileOpenThread::UpdateGrid()
 {
-  if (failed) {
-    return;
-  }
   if (maxCol >= Grid->ColCount) {
     Grid->ChangeColCount(maxCol + 1);
   }
@@ -113,24 +113,21 @@ void __fastcall FileOpenThread::ShowError()
   Application->MessageBox(
       L"ファイルの読み込みに失敗しました。", CASSAVA_TITLE, 0);
   Grid->Clear();
-  failed = true;
 }
 //---------------------------------------------------------------------------
-void __fastcall FileOpenThread::Execute()
+bool __fastcall FileOpenThread::ExecuteOnce()
 {
-  const TTypeOption *typeOption = Grid->TypeOption;
   int dl = Grid->DataLeft;
-  CsvReader *reader = new CsvReader(typeOption, FFileName, FEncoding);
+  CsvReader reader(Grid->TypeOption, FFileName, FEncoding);
   try {
     allCells = new TList();
     maxCol = 1;
     updatedRows = 0;
-    failed = false;
     TStringList *nextRow = new TStringList();
     if (dl) { nextRow->Add(""); }
     int x = dl;
     while (true) {
-      int type = reader->GetNextType();
+      int type = reader.GetNextType();
       if (type == NEXT_TYPE_END_OF_FILE) {
         if (nextRow->Count > dl + 1 ||
             (nextRow->Count == dl + 1 && nextRow->Strings[dl] != "")) {
@@ -152,14 +149,30 @@ void __fastcall FileOpenThread::Execute()
           Synchronize(&UpdateGrid);
         }
       }
-      nextRow->Add(NormalizeCRLF(reader->Next()));
+      nextRow->Add(NormalizeCRLF(reader.Next()));
       x++;
     }
   } catch (...) {
-    Synchronize(&ShowError);
+    delete allCells;
+    return false;
   }
-  delete reader;
   Synchronize(&UpdateGrid);
   delete allCells;
+  return true;
+}
+//---------------------------------------------------------------------------
+void __fastcall FileOpenThread::Execute()
+{
+  bool ok = ExecuteOnce();
+  if (!ok && FIsDetectedEncoding &&
+      FEncoding->CodePage != TEncoding::Default->CodePage) {
+    FEncoding = TEncoding::Default;
+    Grid->Encoding = TEncoding::Default;
+    Grid->AddBom = false;
+    ok = ExecuteOnce();
+  }
+  if (!ok) {
+    Synchronize(&ShowError);
+  }
 }
 //---------------------------------------------------------------------------
