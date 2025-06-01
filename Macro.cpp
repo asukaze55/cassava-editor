@@ -946,12 +946,11 @@ void TMacro::ExecFnc(String s)
         throw MacroException("Cell Macro can't show dialogs.", ME_SECURITY);
       }
       env.Grid->ApplyPendingChanges();
-      const wchar_t *text =
-          H >= 1 ? STR0.c_str() : L"ブレークポイントです";
+      String text = (H >= 1 ? STR0 : L"ブレークポイントです");
       int flag = (H >= 2 ? ope[H - 1].Val() : MB_OK);
-      const wchar_t *caption = (H >= 3 ? STR1.c_str() : L"Cassava Macro");
-      Stack.push_back(
-          Element(MessageBoxW(Application->Handle, text, caption, flag)));
+      String caption = (H >= 3 ? STR1 : L"Cassava Macro");
+      Stack.push_back(Element(
+          Application->MessageBox(text.c_str(), caption.c_str(), flag)));
     }else if(s == "InputBox"){
       if (env.IsCellMacro) {
         throw MacroException("Cell Macro can't show dialogs.", ME_SECURITY);
