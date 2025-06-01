@@ -858,6 +858,141 @@ void CallOnClick(TMenuItem *menuItem)
   }
 }
 //---------------------------------------------------------------------------
+class UserDialog {
+ private:
+  TForm *Form;
+  std::map<TObject *, Element> ElementMap;
+
+  TControl *ConvertDialogControl(const Element& element, TWinControl *parent);
+  void __fastcall ButtonClick(TObject *Sender);
+  void __fastcall EditChange(TObject *Sender);
+ public:
+  String ReturnValue;
+
+  UserDialog(const Element& element);
+  ~UserDialog() {
+    delete Form;
+  }
+  void ShowModal() {
+    Form->ShowModal();
+  }
+};
+//---------------------------------------------------------------------------
+UserDialog::UserDialog(const Element& element)
+{
+  Form = new TForm(fmMain);
+  Form->BorderStyle = bsDialog;
+  Form->Caption = "Cassava Macro";
+  Form->Position = poScreenCenter;
+  TControl *control = ConvertDialogControl(element.Value(), Form);
+  control->Left = 8;
+  control->Top = 8;
+  Form->ClientHeight = control->Height + 16;
+  Form->ClientWidth = control->Width + 16;
+  ReturnValue = "";
+}
+//---------------------------------------------------------------------------
+TControl *UserDialog::ConvertDialogControl(
+    const Element& element, TWinControl *parent)
+{
+  if (element.GetMembers().count("tagName") == 0) {
+    TLabel *label = new TLabel(Form);
+    label->Parent = parent;
+    label->Caption = element.Str();
+    label->Height = Form->Canvas->TextHeight(label->Caption) + 12;
+    label->Width = Form->Canvas->TextWidth(label->Caption);
+    return label;
+  }
+
+  String tagName = element.GetMember("tagName").Str().UpperCase();
+  Element childNodes = element.GetMember("childNodes").Value();
+  if (tagName == "BUTTON") {
+    TButton *button = new TButton(Form);
+    button->Parent = parent;
+    button->Caption =  (childNodes.GetMembers().count("0") > 0)
+        ? childNodes.GetMember("0").Str(): (String)" ";
+    button->ClientHeight = Form->Canvas->TextHeight(button->Caption) + 16;
+    button->ClientWidth = Form->Canvas->TextWidth(button->Caption) + 32;
+    button->OnClick = ButtonClick;
+    ElementMap[button] = element;
+    return button;
+  } else if (tagName == "INPUT") {
+    TEdit *edit = new TEdit(Form);
+    edit->Parent = parent;
+    edit->Width = 360;
+    if (element.GetMembers().count("value") > 0) {
+      edit->Text = element.GetMember("value").Str();
+    }
+    edit->OnChange = EditChange;
+    ElementMap[edit] = element;
+    return edit;
+  } else if (tagName == "TEXTAREA") {
+    TMemo *memo = new TMemo(Form);
+    memo->Parent = parent;
+    memo->Width = 360;
+    memo->Height = 100;
+    String text = "";
+    if (element.GetMembers().count("value") > 0) {
+      text = element.GetMember("value").Str();
+    }
+    if (text == "" && childNodes.GetMembers().count("0") > 0) {
+      text = childNodes.GetMember("0").Str();
+      element.GetMember("value").Sbst(Element(text));
+    }
+    memo->Text =
+        StringReplace(text, "\n", "\r\n", TReplaceFlags() << rfReplaceAll);
+    memo->OnChange = EditChange;
+    ElementMap[memo] = element;
+    return memo;
+  } else {
+    TPanel *panel = new TPanel(Form);
+    panel->BevelOuter = bvNone;
+    panel->Parent = parent;
+    int height = 0;
+    int left = 0;
+    int top = 0;
+    int width = 0;
+    for (int i = 0; i < childNodes.GetMember("length").Val(); i++) {
+      const Element &childNode = childNodes.GetMember((String)i).Value();
+      bool isBlock = childNode.GetMembers().count("tagName") > 0 &&
+          childNode.GetMember("tagName").Str().UpperCase() == "DIV";
+      TControl *child = ConvertDialogControl(childNode, panel);
+      child->Left = left;
+      child->Top = top;
+      if (top + child->Height > height) {
+        height = top + child->Height;
+      }
+      if (left + child->Width > width) {
+        width = left + child->Width;
+      }
+      if (isBlock) {
+        left = 0;
+        top = height;
+      } else {
+        left = left + child->Width;
+      }
+    }
+    panel->ClientWidth = width;
+    panel->ClientHeight = height;
+    return panel;
+  }
+}
+//---------------------------------------------------------------------------
+void __fastcall UserDialog::ButtonClick(TObject *Sender)
+{
+  const Element &element = ElementMap[Sender];
+  if (element.GetMembers().count("value") > 0) {
+    ReturnValue = element.GetMember("value").Str();
+  }
+  Form->Close();
+}
+//---------------------------------------------------------------------------
+void __fastcall UserDialog::EditChange(TObject *Sender)
+{
+  ElementMap[Sender].GetMember("value").Sbst(
+      Element(NormalizeNewLine(static_cast<TCustomEdit *>(Sender)->Text)));
+}
+//---------------------------------------------------------------------------
 void TMacro::ExecFnc(String s)
 {
   int H = s[1];
@@ -1464,6 +1599,10 @@ void TMacro::ExecFnc(String s)
       String flags = (H > 1 ? STR1 : original.flags);
       Stack.push_back(
           Element("/" + original.pattern  + "/" + flags, etRegExp, nullptr));
+    }else if(s == "ShowDialog" && H == 1) {
+      UserDialog dialog(ope[0]);
+      dialog.ShowModal();
+      Stack.push_back(Element(dialog.ReturnValue));
     }else{
       throw MacroException(notFoundMessage);
     }

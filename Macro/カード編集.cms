@@ -1,0 +1,40 @@
+import { createElement } from "lib/Dialog.cms";
+
+while (true) {
+  dialog = createElement("div");
+  inputs = {};
+  for (x = 1; x <= Right; x++) {
+    div = createElement("div");
+    input = createElement("input");
+    input.value = [x,y];
+    div.append([x,1], " ", input);
+    dialog.append(div);
+    inputs[x] = input;
+  }
+  footer = createElement("div");
+  next = createElement("button");
+  next.value = "next";
+  next.append("次の行");
+  prev = createElement("button");
+  prev.value = "prev";
+  prev.append("前の行");
+  done = createElement("button");
+  done.value = "done";
+  done.append("終了");
+  footer.append(next, " ", prev, " ", done);
+  dialog.append(footer);
+
+  returnValue = ShowDialog(dialog);
+
+  for (x = 1; x <= Right; x++) {
+    [x,y] = inputs[x].value;
+  }
+
+  if (returnValue == "next") {
+    y++;
+  } else if (returnValue == "prev") {
+    y--;
+  } else {
+    break;
+  }
+}

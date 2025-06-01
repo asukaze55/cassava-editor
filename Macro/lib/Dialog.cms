@@ -1,0 +1,19 @@
+import { Array } from "lib/Array.cms";
+
+class Element {
+  constructor(tagName) {
+    this.childNodes = new Array();
+    this.tagName = tagName;
+    this.value = "";
+  }
+
+  append(...childNodes) {
+    for (childNode of childNodes) {
+      this.childNodes.push(childNode);
+    }
+  }
+}
+
+function createElement(tagName) {
+  return new Element(tagName);
+}
