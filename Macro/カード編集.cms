@@ -1,4 +1,4 @@
-import { createElement } from "lib/Dialog.cms";
+ï»¿import { createElement } from "lib/Dialog.cms";
 
 while (true) {
   dialog = createElement("div");
@@ -14,17 +14,17 @@ while (true) {
   footer = createElement("div");
   next = createElement("button");
   next.value = "next";
-  next.append("Ÿ‚Ìs");
+  next.append("æ¬¡ã®è¡Œ");
   prev = createElement("button");
   prev.value = "prev";
-  prev.append("‘O‚Ìs");
+  prev.append("å‰ã®è¡Œ");
   done = createElement("button");
   done.value = "done";
-  done.append("I—¹");
+  done.append("çµ‚äº†");
   footer.append(next, " ", prev, " ", done);
   dialog.append(footer);
 
-  returnValue = ShowDialog(dialog);
+  returnValue = ShowDialog(dialog, y + " è¡Œç›®");
 
   for (x = 1; x <= Right; x++) {
     [x,y] = inputs[x].value;

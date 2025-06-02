@@ -869,7 +869,7 @@ class UserDialog {
  public:
   String ReturnValue;
 
-  UserDialog(const Element& element);
+  UserDialog(const Element& element, String caption);
   ~UserDialog() {
     delete Form;
   }
@@ -878,11 +878,11 @@ class UserDialog {
   }
 };
 //---------------------------------------------------------------------------
-UserDialog::UserDialog(const Element& element)
+UserDialog::UserDialog(const Element& element, String caption)
 {
   Form = new TForm(fmMain);
   Form->BorderStyle = bsDialog;
-  Form->Caption = "Cassava Macro";
+  Form->Caption = caption;
   Form->Position = poScreenCenter;
   TControl *control = ConvertDialogControl(element.Value(), Form);
   control->Left = 8;
@@ -1599,8 +1599,8 @@ void TMacro::ExecFnc(String s)
       String flags = (H > 1 ? STR1 : original.flags);
       Stack.push_back(
           Element("/" + original.pattern  + "/" + flags, etRegExp, nullptr));
-    }else if(s == "ShowDialog" && H == 1) {
-      UserDialog dialog(ope[0]);
+    }else if(s == "ShowDialog" && (H == 1 || H == 2)) {
+      UserDialog dialog(ope[0], H > 1 ? STR1 : "Cassava Macro");
       dialog.ShowModal();
       Stack.push_back(Element(dialog.ReturnValue));
     }else{
