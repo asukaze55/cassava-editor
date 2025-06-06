@@ -282,6 +282,7 @@ public:
   void Sbst(const Element &e);
   Element GetMember(String name) const;
   std::map<String, Element> GetMembers() const;
+  bool HasMember(String name) const;
 };
 //---------------------------------------------------------------------------
 class TEnvironment {
@@ -551,6 +552,14 @@ std::map<String, Element> Element::GetMembers() const
     return {};
   }
   return env->GetObject(vl)->Vars;
+}
+//---------------------------------------------------------------------------
+bool Element::HasMember(String name) const
+{
+  if (Type != etObject) {
+    return false;
+  }
+  return env->GetObject(vl)->Vars.count(name) > 0;
 }
 //---------------------------------------------------------------------------
 String TMacro::ReadString(TStream *fs)
@@ -895,7 +904,7 @@ UserDialog::UserDialog(const Element& element, String caption)
 TControl *UserDialog::ConvertDialogControl(
     const Element& element, TWinControl *parent)
 {
-  if (element.GetMembers().count("tagName") == 0) {
+  if (!element.HasMember("tagName")) {
     TLabel *label = new TLabel(Form);
     label->Parent = parent;
     label->Caption = element.Str();
@@ -909,7 +918,7 @@ TControl *UserDialog::ConvertDialogControl(
   if (tagName == "BUTTON") {
     TButton *button = new TButton(Form);
     button->Parent = parent;
-    button->Caption =  (childNodes.GetMembers().count("0") > 0)
+    button->Caption =  childNodes.HasMember("0")
         ? childNodes.GetMember("0").Str(): (String)" ";
     button->ClientHeight = Form->Canvas->TextHeight(button->Caption) + 16;
     button->ClientWidth = Form->Canvas->TextWidth(button->Caption) + 32;
@@ -919,8 +928,9 @@ TControl *UserDialog::ConvertDialogControl(
   } else if (tagName == "INPUT") {
     TEdit *edit = new TEdit(Form);
     edit->Parent = parent;
-    edit->Width = 360;
-    if (element.GetMembers().count("value") > 0) {
+    int size = element.HasMember("size") ? element.GetMember("size").Val() : 20;
+    edit->Width = 16 * size;
+    if (element.HasMember("value")) {
       edit->Text = element.GetMember("value").Str();
     }
     edit->OnChange = EditChange;
@@ -929,13 +939,15 @@ TControl *UserDialog::ConvertDialogControl(
   } else if (tagName == "TEXTAREA") {
     TMemo *memo = new TMemo(Form);
     memo->Parent = parent;
-    memo->Width = 360;
-    memo->Height = 100;
+    int cols = element.HasMember("cols") ? element.GetMember("cols").Val() : 20;
+    memo->Width = 16 * cols;
+    int rows = element.HasMember("rows") ? element.GetMember("rows").Val() : 2;
+    memo->Height = 24 * rows;
     String text = "";
-    if (element.GetMembers().count("value") > 0) {
+    if (element.HasMember("value")) {
       text = element.GetMember("value").Str();
     }
-    if (text == "" && childNodes.GetMembers().count("0") > 0) {
+    if (text == "" && childNodes.HasMember("0")) {
       text = childNodes.GetMember("0").Str();
       element.GetMember("value").Sbst(Element(text));
     }
@@ -954,7 +966,7 @@ TControl *UserDialog::ConvertDialogControl(
     int width = 0;
     for (int i = 0; i < childNodes.GetMember("length").Val(); i++) {
       const Element &childNode = childNodes.GetMember((String)i).Value();
-      bool isBlock = childNode.GetMembers().count("tagName") > 0 &&
+      bool isBlock = childNode.HasMember("tagName") &&
           childNode.GetMember("tagName").Str().UpperCase() == "DIV";
       TControl *child = ConvertDialogControl(childNode, panel);
       child->Left = left;
@@ -981,7 +993,7 @@ TControl *UserDialog::ConvertDialogControl(
 void __fastcall UserDialog::ButtonClick(TObject *Sender)
 {
   const Element &element = ElementMap[Sender];
-  if (element.GetMembers().count("value") > 0) {
+  if (element.HasMember("value")) {
     ReturnValue = element.GetMember("value").Str();
   }
   Form->Close();
