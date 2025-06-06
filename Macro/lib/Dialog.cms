@@ -1,12 +1,18 @@
+﻿// ShowDialog() で使用するダイアログ要素を作成するためのライブラリです。
+// createButton() でボタンを、createInput() で単一行の入力ボックスを、
+// createTextarea() で複数行の入力ボックスを作成できます。
+// また、createDiv() で他の要素をグループ化することができます。
+
 import { Array } from "lib/Array.cms";
 
+/** ダイアログの要素です。 */
 class Element {
   constructor(tagName) {
     this.childNodes = new Array();
     this.tagName = tagName;
-    this.value = "";
   }
 
+  /** 要素に子要素を追加します。 */
   append(...childNodes) {
     for (childNode of childNodes) {
       this.childNodes.push(childNode);
@@ -14,6 +20,71 @@ class Element {
   }
 }
 
+/**
+ * ボタンを表す button 要素を生成します。ボタン内に label が表示されます。
+ * ボタンをクリックするとダイアログが閉じます。
+ * attributes 内に value を設定すると、このボタンがクリックされた時に
+ * ShowDialog() の戻り値として value の値が返されます。
+ */
+function createButton(attributes, label) {
+  element = new Element("button");
+  if ("value" in attributes){
+    element.value = attributes.value;
+  }
+  element.append(label);
+  return element;
+}
+
+/**
+ * 複数の要素をまとめる div 要素を生成します。
+ * div 要素の前後で要素の並びが改行されます。
+ */
+function createDiv(...childNodes) {
+  element = new Element("div");
+  for (childNode of childNodes) {
+    element.append(childNode);
+  }
+  return element;
+}
+
+/** 要素を生成します。button, div, input, textarea のみ動作します。 */
 function createElement(tagName) {
   return new Element(tagName);
+}
+
+/**
+ * 単一行の入力ボックスを表す input 要素を生成します。
+ * attributes 内の size で横幅を設定できます。
+ * attributes 内の value で初期値を設定できます。
+ * ShowDialog() 実行後、要素の value にユーザーの入力した値が反映されます。
+ */
+function createInput(attributes) {
+  element = new Element("input");
+  if ("size" in attributes){
+    element.size = attributes.size;
+  }
+  if ("value" in attributes){
+    element.value = attributes.value;
+  }
+  return element;
+}
+
+/**
+ * 複数行の入力ボックスを表す textarea 要素を生成します。
+ * attributes 内の cols で横幅を、rows で高さを設定できます。
+ * attributes 内の value で初期値を設定できます。
+ * ShowDialog() 実行後、要素の value にユーザーの入力した値が反映されます。
+ */
+function createTextarea(attributes) {
+  element = new Element("textarea");
+  if ("cols" in attributes){
+    element.cols = attributes.cols;
+  }
+  if ("rows" in attributes){
+    element.rows = attributes.rows;
+  }
+  if ("value" in attributes){
+    element.value = attributes.value;
+  }
+  return element;
 }

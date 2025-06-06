@@ -1,28 +1,19 @@
-﻿import { createElement } from "lib/Dialog.cms";
+﻿import { createButton, createDiv, createInput } from "lib/Dialog.cms";
 
 while (true) {
-  dialog = createElement("div");
+  dialog = createDiv();
   inputs = {};
   for (x = 1; x <= Right; x++) {
-    div = createElement("div");
-    input = createElement("input");
-    input.value = [x,y];
-    div.append([x,1], " ", input);
-    dialog.append(div);
+    input = createInput({value: [x,y]});
+    dialog.append(createDiv([x,1], " ", input));
     inputs[x] = input;
   }
-  footer = createElement("div");
-  next = createElement("button");
-  next.value = "next";
-  next.append("次の行");
-  prev = createElement("button");
-  prev.value = "prev";
-  prev.append("前の行");
-  done = createElement("button");
-  done.value = "done";
-  done.append("終了");
-  footer.append(next, " ", prev, " ", done);
-  dialog.append(footer);
+  dialog.append(createDiv(
+      createButton({value: "next"}, "次の行"),
+      " ",
+      createButton({value: "prev"}, "前の行"),
+      " ",
+      createButton({value: "done"}, "終了")));
 
   returnValue = ShowDialog(dialog, y + " 行目");
 
