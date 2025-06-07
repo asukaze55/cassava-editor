@@ -1,2 +1,15 @@
-﻿Right = int(InputBox("列数を入力してください。", Right));
-Bottom = int(InputBox("行数を入力してください。", Bottom));
+﻿import { createButton, createDiv, createInput } from "lib/Dialog.cms";
+
+colsInput = createInput({value: Right});
+rowsInput = createInput({value: Bottom});
+dialog = createDiv(
+    createDiv("列数 ", colsInput),
+    createDiv("行数 ", rowsInput),
+    createDiv(createButton({value: "ok"}, "OK"), createButton({}, "キャンセル")));
+
+r = ShowDialog(dialog, "列数・行数を変更");
+
+if (r == "ok") {
+  Right = colsInput.value;
+  Bottom = rowsInput.value;
+}

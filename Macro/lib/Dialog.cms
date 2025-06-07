@@ -35,7 +35,6 @@ function createButton(attributes, label) {
   return element;
 }
 
-
 /**
  * 複数の要素をまとめる div 要素を生成します。
  * div 要素の前後で要素の並びが改行されます。
