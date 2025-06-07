@@ -1,7 +1,10 @@
 ﻿// ShowDialog() で使用するダイアログ要素を作成するためのライブラリです。
+// マクロの先頭に
+// import { createButton, createDiv, createInput, createTextarea } from "lib/Dialog.cms";
+// のように記述して使用できます。
 // createButton() でボタンを、createInput() で単一行の入力ボックスを、
 // createTextarea() で複数行の入力ボックスを作成できます。
-// また、createDiv() で他の要素をグループ化することができます。
+// createDiv() で他の要素をグループ化することができます。
 
 import { Array } from "lib/Array.cms";
 

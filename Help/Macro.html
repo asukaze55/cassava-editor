@@ -292,6 +292,21 @@ InputBoxMultiLine 関数は複数行のテキストを入力可能なインプ�
     「キャンセル」が押されるとマクロを終了します。</dd>
 </dl>
 
+<p>
+ShowDialog 関数は引数で内容を指定したダイアログボックスを表示します。
+ダイアログボックスの内容は同梱の "<a href="https://github.com/asukaze55/cassava-editor/blob/develop/Macro/lib/Dialog.cms">lib/Dialog.cms</a>" ライブラリで生成できます。
+ボタンがクリックされるとダイアログが閉じ、そのボタンの value で指定した文字列が返されます。
+また、input 要素と textarea 要素に入力した文字列がその要素の value に反映されます。
+</p>
+<dl>
+<dt><code>ShowDialog(element);</code></dt>
+<dd>element で内容を指定したダイアログボックスを表示します。</dd>
+<dt><code>ShowDialog(element, title);</code></dt>
+<dd>element で内容を指定したダイアログボックスを表示します。
+    タイトルに title を表示します。</dd>
+</dl>
+
+
 <h3>メニューコマンド</h3>
 <p>
 キーカスタマイズのデータを保存して、そのcsvファイルを開いてみてください。

@@ -79,6 +79,8 @@ InputBox(str);,str を表示します。 「OK」が押されると入力され�
 InputBoxMultiLine(str);,str を表示します。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。,2.0.0
 "InputBoxMultiLine(str, def);",str を表示します。テキストボックスのデフォルト値は def です。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。,2.0.0
 "InputBoxMultiLine(str1, str2, def);",インプットボックス内に str1 を、タイトルに str2 を表示します。 テキストボックスのデフォルト値は def です。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。,2.0.0
+ShowDialog(element),element で内容を指定したダイアログボックスを表示します。使い方の詳細は同梱の「lib/Dialog.cms」、「列数・行数を変更.cms」、「カード編集.cms」を参照してください。,2.7.0
+"ShowDialog(element, title)",element で内容を指定したダイアログボックスを表示します。タイトルに title を表示します。使い方の詳細は同梱の「lib/Dialog.cms」、「列数・行数を変更.cms」、「カード編集.cms」を参照してください。,2.7.0
 InsertRow(y);,y 行目に新しい行を挿入します。,-
 "InsertRow(t, b);",t 行目から b 行目まで新しい行を挿入します。,2.0.0
 DeleteRow(y);,y 行目を削除します。,-
