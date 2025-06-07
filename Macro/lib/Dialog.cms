@@ -35,6 +35,7 @@ function createButton(attributes, label) {
   return element;
 }
 
+
 /**
  * 複数の要素をまとめる div 要素を生成します。
  * div 要素の前後で要素の並びが改行されます。
@@ -58,7 +59,7 @@ function createElement(tagName) {
  * attributes 内の value で初期値を設定できます。
  * ShowDialog() 実行後、要素の value にユーザーの入力した値が反映されます。
  */
-function createInput(attributes) {
+function createInput(attributes = {}) {
   element = new Element("input");
   if ("size" in attributes){
     element.size = attributes.size;
@@ -75,7 +76,7 @@ function createInput(attributes) {
  * attributes 内の value で初期値を設定できます。
  * ShowDialog() 実行後、要素の value にユーザーの入力した値が反映されます。
  */
-function createTextarea(attributes) {
+function createTextarea(attributes = {}) {
   element = new Element("textarea");
   if ("cols" in attributes){
     element.cols = attributes.cols;
