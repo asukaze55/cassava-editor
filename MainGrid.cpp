@@ -2823,7 +2823,11 @@ void TMainGrid::OpenURL(String FileName)
 void __fastcall TMainGrid::MouseWheelUp(System::TObject* Sender,
       Classes::TShiftState Shift, const Types::TPoint &MousePos, bool &Handled)
 {
-  if (Shift.Contains(ssShift)) {
+  if (Shift.Contains(ssCtrl)) {
+    Font->Size++;
+    Canvas->Font->Size = Font->Size;
+    UpdateDefaultRowHeight();
+  } else if (Shift.Contains(ssShift)) {
     ScrollCols(-WheelScrollStep);
   } else {
     ScrollRows(-WheelScrollStep);
@@ -2834,7 +2838,13 @@ void __fastcall TMainGrid::MouseWheelUp(System::TObject* Sender,
 void __fastcall TMainGrid::MouseWheelDown(System::TObject* Sender,
       Classes::TShiftState Shift, const Types::TPoint &MousePos, bool &Handled)
 {
-  if (Shift.Contains(ssShift)) {
+  if (Shift.Contains(ssCtrl)) {
+    if (Font->Size > 1) {
+      Font->Size--;
+      Canvas->Font->Size = Font->Size;
+      UpdateDefaultRowHeight();
+    }
+  } else if (Shift.Contains(ssShift)) {
     ScrollCols(WheelScrollStep);
   } else {
     ScrollRows(WheelScrollStep);
