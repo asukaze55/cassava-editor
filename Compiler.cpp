@@ -670,7 +670,7 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
         OutputInteger(parameters->Count);
         int placeholder = OutputPositionPlaceholder();
         Output(CMO_DefParam, tpOpe);
-        GetSentence(LAMBDA_EOS);
+        GetSentence(LAMBDA_EOS, /* allowBlock= */ false);
         FillPositionPlaceholder(placeholder);
         e = lex->Get();
       } else if (!varArg) {
