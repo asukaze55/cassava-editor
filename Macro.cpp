@@ -932,6 +932,8 @@ TControl *UserDialog::ConvertDialogControl(
     edit->Width = 16 * size;
     if (element.HasMember("value")) {
       edit->Text = element.GetMember("value").Str();
+    } else {
+      element.GetMember("value").Sbst(Element(""));
     }
     edit->OnChange = EditChange;
     ElementMap[edit] = element;
@@ -946,10 +948,11 @@ TControl *UserDialog::ConvertDialogControl(
     String text = "";
     if (element.HasMember("value")) {
       text = element.GetMember("value").Str();
-    }
-    if (text == "" && childNodes.HasMember("0")) {
+    } else if (childNodes.HasMember("0")) {
       text = childNodes.GetMember("0").Str();
       element.GetMember("value").Sbst(Element(text));
+    } else {
+      element.GetMember("value").Sbst(Element(""));
     }
     memo->Text =
         StringReplace(text, "\n", "\r\n", TReplaceFlags() << rfReplaceAll);
