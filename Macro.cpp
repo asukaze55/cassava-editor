@@ -872,7 +872,8 @@ class UserDialog {
   TForm *Form;
   std::map<TObject *, Element> ElementMap;
 
-  TControl *ConvertDialogControl(const Element& element, TWinControl *parent);
+  TControl *ConvertDialogControl(
+      const Element& element, TWinControl *parent, bool *hasDefault);
   void __fastcall ButtonClick(TObject *Sender);
   void __fastcall EditChange(TObject *Sender);
  public:
@@ -893,7 +894,8 @@ UserDialog::UserDialog(const Element& element, String caption)
   Form->BorderStyle = bsDialog;
   Form->Caption = caption;
   Form->Position = poScreenCenter;
-  TControl *control = ConvertDialogControl(element.Value(), Form);
+  bool hasDefault = false;
+  TControl *control = ConvertDialogControl(element.Value(), Form, &hasDefault);
   control->Left = 8;
   control->Top = 8;
   Form->ClientHeight = control->Height + 16;
@@ -902,7 +904,7 @@ UserDialog::UserDialog(const Element& element, String caption)
 }
 //---------------------------------------------------------------------------
 TControl *UserDialog::ConvertDialogControl(
-    const Element& element, TWinControl *parent)
+    const Element& element, TWinControl *parent, bool *hasDefault)
 {
   if (!element.HasMember("tagName")) {
     TLabel *label = new TLabel(Form);
@@ -922,6 +924,10 @@ TControl *UserDialog::ConvertDialogControl(
         ? childNodes.GetMember("0").Str(): (String)" ";
     button->ClientHeight = Form->Canvas->TextHeight(button->Caption) + 16;
     button->ClientWidth = Form->Canvas->TextWidth(button->Caption) + 32;
+    if (!*hasDefault) {
+      button->Default = true;
+      *hasDefault = true;
+    }
     button->OnClick = ButtonClick;
     ElementMap[button] = element;
     return button;
@@ -971,7 +977,7 @@ TControl *UserDialog::ConvertDialogControl(
       const Element &childNode = childNodes.GetMember((String)i).Value();
       bool isBlock = childNode.HasMember("tagName") &&
           childNode.GetMember("tagName").Str().UpperCase() == "DIV";
-      TControl *child = ConvertDialogControl(childNode, panel);
+      TControl *child = ConvertDialogControl(childNode, panel, hasDefault);
       child->Left = left;
       child->Top = top;
       if (top + child->Height > height) {
