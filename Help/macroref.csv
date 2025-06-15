@@ -126,6 +126,7 @@ FileExists(filename),filename という名前のファイルが存在するか�
 "Sort(l, t, r, b, x, dir, num, case, zenhan);",t 行 l 列から b 行 r 列までの範囲を x 列でソートします。第六引数以降は真偽値のフラグで、順に「降順ソート」「数字のセルは数値の大小でソートする」「大文字と小文字を同一視する」「全角と半角を同一視する」を表します。,1.9.0
 "Select(l, t, r, b);",t 行 l 列から b 行 r 列までの範囲を選択します。,2.3.0
 Paste(x);,オプションを指定して貼り付けます。x は 0 以上 5 以下の整数で、PasteOption0() ～ PasteOption5() に対応します。,2.3.0
+QuickFind(str);,簡易検索パネルを開き、検索文字列に str を設定します。実際に検索をするには FindNext(); を実行してください。,2.7.0
 "ReplaceAll(pattern, str);",固定セルを除く編集中のデータ内の pattern をすべて str に置換します。Ver.2.7 以降では、pattern には文字列もしくは正規表現オブジェクトを指定できます。,2.0.0
 "ReplaceAll(pattern, str, ignoreCase, wholeCell, regex);",固定セルを除く編集中のデータ内の pattern をすべて str に置換します。第三引数以降は真偽値のフラグで、順に「大文字と小文字を同一視」「セル内容が完全に同一であるものを検索」「正規表現検索」を表します。Ver.2.7 以降では、regex が true の場合 pattern には文字列もしくは正規表現オブジェクトを指定できます。,2.0.0
 "ReplaceAll(pattern, str, ignoreCase, wholeCell, regex, l, t, r, b);",t 行 l 列から b 行 r 列までの範囲内の pattern をすべて str に置換します。第三引数から第五引数までは真偽値のフラグで、順に「大文字と小文字を同一視」「セル内容が完全に同一であるものを検索」「正規表現検索」を表します。Ver.2.7 以降では、regex が true の場合 pattern には文字列もしくは正規表現オブジェクトを指定できます。,2.0.0
