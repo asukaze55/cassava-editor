@@ -6,6 +6,7 @@
 #include <process.h>
 #include <vector>
 #pragma hdrstop
+#include "Find.h"
 #include "Macro.h"
 #include "MacroOpeCode.h"
 #include "MainForm.h"
@@ -1613,6 +1614,9 @@ void TMacro::ExecFnc(String s)
       int count = env.Grid->ReplaceAll(
           find, replace, left, top, right, bottom, ignoreCase, isRegex, word);
       Stack.push_back(Element(count));
+    }else if(s == "QuickFind" && H == 1) {
+      fmFind->edFindText->Text = STR0;
+      fmMain->mnQuickFindClick(nullptr);
     }else if(s == "Select" && H == 4) {
       env.Grid->Select(VAL0, VAL1, VAL2, VAL3);
     }else if(s == "RegExp" && (H == 1 || H == 2)) {
