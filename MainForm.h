@@ -440,12 +440,6 @@ public:     // ƒ†[ƒU[éŒ¾
   bool SortIgnoreZenhan;
   int SortDirection;
 
-  // After fmFind loaded, Use fmFind->cbCase->Checked.
-  bool FindCase;
-  bool FindWordSearch;
-  bool FindRegex;
-  int FindRange;
-
   String PrintFontName;
   int PrintFontSize;
   int PrintMargin[4];

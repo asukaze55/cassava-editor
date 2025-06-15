@@ -75,6 +75,10 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
   MainGrid->TypeOption = defaultTypeList.DefItem();
   TypeList = defaultTypeList;
 
+  if (!fmFind) {
+    fmFind = new TfmFind(this);
+  }
+
   ReadIni();
   ReadToolBar();
 
@@ -443,10 +447,10 @@ void TfmMain::ReadIni()
     StopMacroCount = Ini->ReadInteger("Mode","StopMacro", 0);
     MainGrid->UndoList->MaxCount = Ini->ReadInteger("Mode", "UndoCount", 100);
 
-    FindCase = Ini->ReadBool("Search", "Case", true);
-    FindWordSearch = Ini->ReadBool("Search", "Word", false);
-    FindRegex = Ini->ReadBool("Search", "Regex", false);
-    FindRange = Ini->ReadInteger("Search", "Range", 3);
+    fmFind->cbCase->Checked = Ini->ReadBool("Search", "Case", true);
+    fmFind->cbWordSearch->Checked = Ini->ReadBool("Search", "Word", false);
+    fmFind->cbRegex->Checked = Ini->ReadBool("Search", "Regex", false);
+    fmFind->rgRange->ItemIndex = Ini->ReadInteger("Search", "Range", 3);
 
     String LaunchName[3];
     mnAppli0->Hint = Ini->ReadString("Application", "E0", "");
