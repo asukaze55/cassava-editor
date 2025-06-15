@@ -79,9 +79,9 @@
     <PropertyGroup Condition="'$(Base)'!=''">
         <VerInfo_MinorVer>7</VerInfo_MinorVer>
         <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
-        <VerInfo_Keys>CompanyName=;FileVersion=2.7.0.932;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=2.7.0.932;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileVersion=2.7.0.934;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=2.7.0.934;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
         <VerInfo_Locale>1041</VerInfo_Locale>
-        <VerInfo_Build>932</VerInfo_Build>
+        <VerInfo_Build>934</VerInfo_Build>
         <SanitizedProjectName>Cassava</SanitizedProjectName>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <IncludePath>$(BDSINCLUDE)\windows;$(BDS)\include\boost_1_70;$(IncludePath)</IncludePath>
@@ -118,8 +118,8 @@
         <OutputExt>exe</OutputExt>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
-        <VerInfo_Build>931</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=;FileVersion=2.7.0.931;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=2.7.0.931;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
+        <VerInfo_Build>933</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileVersion=2.7.0.933;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=2.7.0.933;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
         <ILINK_OSVersion>5.0</ILINK_OSVersion>
         <ILINK_SubSysVersion>5.0</ILINK_SubSysVersion>
