@@ -1,4 +1,4 @@
-﻿// 使用法：
+﻿// 配列を処理するためのライブラリです。
 // このファイルを Array.cms という名前で Cassava Editor の Macro/lib フォルダに置いてください。
 // マクロ中で次のように記述すると文字列を分割して処理できます。
 //
@@ -12,24 +12,27 @@
 //
 // Array オブジェクトに対しては concat, every, filter, findIndex, includes, indexOf, join,
 // lastIndexOf, map, pop, push, reverse, shift, slice, some, splice, unshift のメソッドを
-// 使用できます。各メソッドの仕様は実装から推測してください。
+// 使用できます。
 
 class Array {
+  /** 新しい配列を生成します。 */
   constructor() {
     this.length = 0;
   }
 
-  concat(array) {
+  /** array2 を後ろに連結した新しい配列を返します。 */
+  concat(array2) {
     result = new Array();
     for (i = 0; i < this.length; i++) {
       result.push(this[i]);
     }
-    for (i = 0; i < array.length; i++) {
-      result.push(array[i]);
+    for (i = 0; i < array2.length; i++) {
+      result.push(array2[i]);
     }
     return result;
   }
 
+  /** すべての要素が callback で実装されたテストに合格するかどうかをテストします。 */
   every(callback) {
     for (i = 0; i < this.length; i++) {
       if (!callback(this[i])) {
@@ -39,6 +42,7 @@ class Array {
     return true;
   }
 
+  /** callback で実装されたテストに合格した要素だけを抽出した新しい配列を返します。 */
   filter(callback) {
     result = new Array();
     for (i = 0; i < this.length; i++) {
@@ -49,6 +53,10 @@ class Array {
     return result;
   }
 
+  /**
+   * callback で実装されたテスト関数に合格する最初の要素のインデックスを返します。
+   * テスト関数に合格する要素がなかった場合は -1 を返します。
+   */
   findIndex(callback) {
     for (i = 0; i < this.length; i++) {
       if (callback(this[i])) {
@@ -58,10 +66,12 @@ class Array {
     return -1;
   }
 
+  /** 特定の要素が配列に含まれているかどうかを返します。 */
   includes(searchElement) {
     return this.indexOf(searchElement) >= 0;
   }
 
+  /** searchElement と同じ内容を持つ最初の要素の番号を返します。存在しない場合は -1 を返します。 */
   indexOf(searchElement, fromIndex = 0) {
     for (i = fromIndex; i < this.length; i++) {
       if (this[i] == searchElement) {
@@ -71,6 +81,7 @@ class Array {
     return -1;
   }
 
+  /** separator を区切り文字として全要素を順に連結した文字列を返します。 */
   join(separator) {
     result = "";
     for (i = 0; i < this.length; i++) {
@@ -82,6 +93,7 @@ class Array {
     return result;
   }
 
+  /** searchElement と同じ内容を持つ最後の要素の番号を返します。存在しない場合は -1 を返します。 */
   lastIndexOf(searchElement, fromIndex = this.length - 1) {
     for (i = fromIndex; i >= 0; i--) {
       if (this[i] == searchElement) {
@@ -91,6 +103,7 @@ class Array {
     return -1;
   }
 
+  /** callback をすべての要素に対して呼び出し、その結果からなる新しい配列を返します。 */
   map(callback) {
     result = new Array();
     for (i = 0; i < this.length; i++) {
@@ -99,6 +112,7 @@ class Array {
     return result;
   }
 
+  /** 配列から最後の要素を取り除き、その要素を返します。 */
   pop() {
     if (this.length == 0) {
       return "";
@@ -107,12 +121,14 @@ class Array {
     return this[this.length];
   }
 
+  /** 指定された要素を配列の末尾に追加し、配列の新しい長さを返します。 */
   push(element) {
     this[this.length] = element;
     this.length++;
     return this.length;
   }
 
+  /** 配列の要素を反転します。 */
   reverse() {
     i = 0;
     j = this.length - 1;
@@ -124,6 +140,7 @@ class Array {
     return this;
   }
 
+  /** 配列から最初の要素を取り除き、その要素を返します。 */
   shift() {
     if (this.length == 0) {
       return "";
@@ -136,6 +153,7 @@ class Array {
     return result;
   }
 
+  /** begin から end までの範囲をコピーした新しい配列を返します。 */
   slice(begin, end) {
     result = new Array();
     if (begin < 0) {
@@ -150,6 +168,7 @@ class Array {
     return result;
   }
 
+  /** callback で実装されたテストに、配列の中の少なくとも 1 つの要素が合格するかを判定します。 */
   some(callback) {
     for (i = 0; i < this.length; i++) {
       if (callback(this[i])) {
@@ -159,6 +178,7 @@ class Array {
     return false;
   }
 
+  /** 配列の start 番目から deleteCount 個の要素を取り除き、items を挿入します。 */
   splice(start, deleteCount, ...items) {
     if (start < 0) {
       start += this.length;
@@ -184,6 +204,7 @@ class Array {
     return deletedItems;
   }
 
+  /** 指定された要素を配列の先頭に追加し、配列の新しい長さを返します。 */
   unshift(element) {
     for (i = this.length; i > 0; i--) {
       this[i] = this[i - 1];
@@ -194,6 +215,7 @@ class Array {
   }
 }
 
+/** str を separator で区切った配列を返します。 */
 function split(str, separator) {
   array = new Array();
   while (str != "") {
@@ -209,10 +231,16 @@ function split(str, separator) {
   return array;
 }
 
+/** 入力ボックスを表示し、入力された文字列を改行文字で区切った配列を返します。 */
 function arrayInputBox(message) {
   return split(InputBoxMultiLine(message), "\n");
 }
 
+/**
+ * from の内容をコピーした新しい配列を返します。
+ * from はキーに「length」および 0 から length - 1 までが含まれるオブジェクトであれば、
+ * Array オブジェクトでなくてもかまいません。 
+ */
 function arrayFrom(from) {
   array = new Array();
   for (i = 0; i < from.length; i++) {
@@ -221,6 +249,7 @@ function arrayFrom(from) {
   return array;
 }
 
+/** args を配列の内容とする新しい配列を返します。 */
 function arrayOf(...args) {
   return arrayFrom(args);
 }
