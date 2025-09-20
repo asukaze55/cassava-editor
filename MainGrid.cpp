@@ -1435,8 +1435,11 @@ void TMainGrid::PasteFromClipboard(int Way, const TTypeOption *Format)
   delete ARow;
 
   if (Way < 0) {
-    if (PasteOption >= 0) {
+    if (PasteOption >= 0 && PasteOption != PASTE_OPTION_EDITOR) {
       Way = PasteOption;
+    } else if (PasteOption == PASTE_OPTION_EDITOR && SelectRowCount == 1 &&
+        SelectColCount == 1) {
+      Way = PASTE_OPTION_EDITOR;
     } else if (ClipRowCount == SelectRowCount &&
                ClipColCount == SelectColCount) {
       Way = EditorMode ? PASTE_OPTION_EDITOR : PASTE_OPTION_OVERWRITE;
