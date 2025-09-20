@@ -1357,6 +1357,128 @@
 </tr>
 </table>
 
+<h2>標準ライブラリ</h2>
+<h3>lib/Array.cms</h3>
+<p>配列を処理するためのライブラリです。</p>
+<table>
+<tr>
+  <td>import { Array } from "lib/Array.cms";<br>new Array()</td>
+  <td>新しい配列を生成します。 </td>
+</tr>
+<tr>
+  <td>import { arrayFrom } from "lib/Array.cms";<br>arrayFrom(from)</td>
+  <td>from の内容をコピーした新しい配列を返します。 from はキーに「length」および 0 から length - 1 までが含まれるオブジェクトであれば、 Array オブジェクトでなくてもかまいません。 </td>
+</tr>
+<tr>
+  <td>import { arrayInputBox } from "lib/Array.cms";<br>arrayInputBox(message)</td>
+  <td>入力ボックスを表示し、入力された文字列を改行文字で区切った配列を返します。 </td>
+</tr>
+<tr>
+  <td>import { arrayOf } from "lib/Array.cms";<br>arrayOf(...args)</td>
+  <td>args を配列の内容とする新しい配列を返します。 </td>
+</tr>
+<tr>
+  <td>import { split } from "lib/Array.cms";<br>split(str, separator)</td>
+  <td>str を separator で区切った配列を返します。 </td>
+</tr>
+<tr>
+  <td>array.concat(array2)</td>
+  <td>array2 を後ろに連結した新しい配列を返します。 </td>
+</tr>
+<tr>
+  <td>array.every(callback)</td>
+  <td>すべての要素が callback で実装されたテストに合格するかどうかをテストします。 </td>
+</tr>
+<tr>
+  <td>array.filter(callback)</td>
+  <td>callback で実装されたテストに合格した要素だけを抽出した新しい配列を返します。 </td>
+</tr>
+<tr>
+  <td>array.findIndex(callback)</td>
+  <td>callback で実装されたテスト関数に合格する最初の要素のインデックスを返します。 テスト関数に合格する要素がなかった場合は -1 を返します。</td>
+</tr>
+<tr>
+  <td>array.includes(searchElement)</td>
+  <td>特定の要素が配列に含まれているかどうかを返します。 </td>
+</tr>
+<tr>
+  <td>array.indexOf(searchElement)<br>array.indexOf(searchElement, fromIndex)</td>
+  <td>searchElement と同じ内容を持つ最初の要素の番号を返します。存在しない場合は -1 を返します。 </td>
+</tr>
+<tr>
+  <td>array.join(separator)</td>
+  <td>separator を区切り文字として全要素を順に連結した文字列を返します。 </td>
+</tr>
+<tr>
+  <td>array.lastIndexOf(searchElement)<br>array.lastIndexOf(searchElement, fromIndex)</td>
+  <td>searchElement と同じ内容を持つ最後の要素の番号を返します。存在しない場合は -1 を返します。 </td>
+</tr>
+<tr>
+  <td>array.map(callback)</td>
+  <td>callback をすべての要素に対して呼び出し、その結果からなる新しい配列を返します。 </td>
+</tr>
+<tr>
+  <td>array.pop()</td>
+  <td>配列から最後の要素を取り除き、その要素を返します。 </td>
+</tr>
+<tr>
+  <td>array.push(element)</td>
+  <td>指定された要素を配列の末尾に追加し、配列の新しい長さを返します。 </td>
+</tr>
+<tr>
+  <td>array.reverse()</td>
+  <td>配列の要素を反転します。 </td>
+</tr>
+<tr>
+  <td>array.shift()</td>
+  <td>配列から最初の要素を取り除き、その要素を返します。 </td>
+</tr>
+<tr>
+  <td>array.slice(begin, end)</td>
+  <td>begin から end までの範囲をコピーした新しい配列を返します。 </td>
+</tr>
+<tr>
+  <td>array.some(callback)</td>
+  <td>callback で実装されたテストに、配列の中の少なくとも 1 つの要素が合格するかを判定します。 </td>
+</tr>
+<tr>
+  <td>array.splice(start, deleteCount, ...items)</td>
+  <td>配列の start 番目から deleteCount 個の要素を取り除き、items を挿入します。 </td>
+</tr>
+<tr>
+  <td>array.unshift(element)</td>
+  <td>指定された要素を配列の先頭に追加し、配列の新しい長さを返します。 </td>
+</tr>
+</table>
+
+<h3>lib/Dialog.cms</h3>
+<p>ShowDialog() で使用するダイアログ要素を作成するためのライブラリです。</p>
+<table>
+<tr>
+  <td>import { createButton } from "lib/Dialog.cms";<br>createButton(attributes, label)</td>
+  <td>ボタンを表す button 要素を生成します。ボタン内に label が表示されます。 ボタンをクリックするとダイアログが閉じます。 attributes 内に value を設定すると、このボタンがクリックされた時に ShowDialog() の戻り値として value の値が返されます。</td>
+</tr>
+<tr>
+  <td>import { createDiv } from "lib/Dialog.cms";<br>createDiv(...childNodes)</td>
+  <td>複数の要素をまとめる div 要素を生成します。 div 要素の前後で要素の並びが改行されます。</td>
+</tr>
+<tr>
+  <td>import { createElement } from "lib/Dialog.cms";<br>createElement(tagName)</td>
+  <td>要素を生成します。button, div, input, textarea のみ動作します。 </td>
+</tr>
+<tr>
+  <td>import { createInput } from "lib/Dialog.cms";<br>createInput()<br>createInput(attributes)</td>
+  <td>単一行の入力ボックスを表す input 要素を生成します。 attributes 内の size で横幅を設定できます。 attributes 内の value で初期値を設定できます。 ShowDialog() 実行後、要素の value にユーザーの入力した値が反映されます。</td>
+</tr>
+<tr>
+  <td>import { createTextarea } from "lib/Dialog.cms";<br>createTextarea()<br>createTextarea(attributes)</td>
+  <td>複数行の入力ボックスを表す textarea 要素を生成します。 attributes 内の cols で横幅を、rows で高さを設定できます。 attributes 内の value で初期値を設定できます。 ShowDialog() 実行後、要素の value にユーザーの入力した値が反映されます。</td>
+</tr>
+<tr>
+  <td>element.append(...childNodes)</td>
+  <td>要素に子要素を追加します。 </td>
+</tr>
+</table>
 
 </div>
 
