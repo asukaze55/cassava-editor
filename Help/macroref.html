@@ -121,18 +121,1008 @@
   <td>-</td>
 </tr>
 <tr>
-  <td>write(str);</td>
-  <td>カーソル位置のセルの内容を str にし、カーソルを右に移動します。エクスポートマクロ中ではファイルに書き出します。</td>
+  <td>/pattern/flags<br>new RegExp(pattern, flags)</td>
+  <td>str1.replace(regexp, str2), str1.replaceAll(regexp, str2), str.search(regexp), ReplaceAll(pattern, str) で使用できる正規表現オブジェクトを生成します。flags には空文字列もしくは「g」「i」「gi」が指定できます。最初のマッチだけでなく一致するものをすべて置換する場合は「g」を、大文字小文字を区別せずに検索する場合は「i」を指定してください。</td>
+  <td>2.5.0</td>
+</tr>
+<tr>
+  <td>About();</td>
+  <td>Cassava Editor のバージョン情報を表示</td>
   <td>-</td>
 </tr>
 <tr>
-  <td>writeln();</td>
-  <td>カーソルを次の行に移動します。エクスポートマクロ中ではファイルに改行を書き出します。</td>
+  <td>AdjustColWidth(x);</td>
+  <td>x 列目の幅をセル内容に合わせて最適化します。</td>
+  <td>1.7.0</td>
+</tr>
+<tr>
+  <td>AdjustRowHeight(y);</td>
+  <td>y 行目の高さをセル内容に合わせて最適化します。</td>
+  <td>1.7.0</td>
+</tr>
+<tr>
+  <td>Appli0();</td>
+  <td>外部アプリケーション 0</td>
   <td>-</td>
 </tr>
 <tr>
-  <td>writeln(str);</td>
-  <td>カーソル位置のセルの内容を str にし、カーソルを次の行に移動します。エクスポートマクロ中ではファイルに書き出します。</td>
+  <td>Appli1();</td>
+  <td>外部アプリケーション 1</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Appli2();</td>
+  <td>外部アプリケーション 2</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Bom();</td>
+  <td>セーブ時の BOM の有無を切り替え</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>CalcExpression();</td>
+  <td>セル内計算式を処理の切り替え</td>
+  <td>1.5.0</td>
+</tr>
+<tr>
+  <td>CheckUpdate();</td>
+  <td>Cassava Editor の更新を確認</td>
+  <td>1.7.0</td>
+</tr>
+<tr>
+  <td>Clear();</td>
+  <td>変更を破棄して新規テーブルを作成します。</td>
+  <td>2.7.0</td>
+</tr>
+<tr>
+  <td>ConnectCell();</td>
+  <td>左のセルと結合</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Contents();</td>
+  <td>ヘルプを開く</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Copy();</td>
+  <td>コピー</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>CopyAvr();</td>
+  <td>平均をコピー</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>CopySum();</td>
+  <td>合計をコピー</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Cr();</td>
+  <td>セーブ時改行コードを「CR」に設定</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Cut();</td>
+  <td>切り取り</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>CutCol();</td>
+  <td>列削除</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>CutRow();</td>
+  <td>行削除</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>DeleteCellLeft();</td>
+  <td>左につめる</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>DeleteCellUp();</td>
+  <td>上につめる</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>DeleteCol(l, r);</td>
+  <td>l 列目から r 列目までを削除します。</td>
+  <td>2.0.0</td>
+</tr>
+<tr>
+  <td>DeleteCol(x);</td>
+  <td>x 列目を削除します。</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>DeleteRow(t, b);</td>
+  <td>t 行目から b 行目までを削除します。</td>
+  <td>2.0.0</td>
+</tr>
+<tr>
+  <td>DeleteRow(y);</td>
+  <td>y 行目を削除します。</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>End();</td>
+  <td>終了</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Enter();</td>
+  <td>行分割</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Euc();</td>
+  <td>セーブ時文字コードを「EUC」に設定</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Export();</td>
+  <td>エクスポート</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Export(filename, type);</td>
+  <td>現在開いているファイルを type で指定した形式で filename にエクスポートします。</td>
+  <td>1.8.0</td>
+</tr>
+<tr>
+  <td>FileExists(filename)</td>
+  <td>filename という名前のファイルが存在するかどうかを返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>Find();</td>
+  <td>検索・置換</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>FindBack();</td>
+  <td>前を検索</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>FindNext();</td>
+  <td>次を検索</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>FixFirstCol();</td>
+  <td>1 列目を固定の切り替え</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>FixFirstRow();</td>
+  <td>1 行目を固定の切り替え</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>FixUpLeft();</td>
+  <td>カーソル位置までを固定</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Font();</td>
+  <td>フォント</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>GetActiveDataType()</td>
+  <td>現在使用中のデータ形式名を返します。</td>
+  <td>2.5.0</td>
+</tr>
+<tr>
+  <td>GetCharCode()</td>
+  <td>保存時文字コードに設定されている文字コード名を返します。</td>
+  <td>2.5.0</td>
+</tr>
+<tr>
+  <td>GetColWidth(x)</td>
+  <td>x 列目の幅を返します。x を省略すると標準の列の幅が返されます。</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>GetDataTypes()</td>
+  <td>登録されているデータ形式名の一覧を改行区切りの文字列で返します。</td>
+  <td>2.5.0</td>
+</tr>
+<tr>
+  <td>GetDate()</td>
+  <td>実行時の日付の「日」を返します。1 ～ 31 の整数が返されます。</td>
+  <td>1.24</td>
+</tr>
+<tr>
+  <td>GetFileName()</td>
+  <td>編集中の CSV ファイルのファイル名を返します。新規作成したデータを編集中は空の文字列が返されます。</td>
+  <td>1.24</td>
+</tr>
+<tr>
+  <td>GetFilePath()</td>
+  <td>編集中の CSV ファイルの絶対パスを返します。新規作成したデータを編集中は空の文字列が返されます。それ以外の場合、必ず「\」で終わる文字列が返されます。</td>
+  <td>1.24</td>
+</tr>
+<tr>
+  <td>GetFontName()</td>
+  <td>現在設定されているフォント名を返します。</td>
+  <td>1.6.0</td>
+</tr>
+<tr>
+  <td>GetFontSize()</td>
+  <td>現在設定されているフォントサイズを返します。</td>
+  <td>1.6.0</td>
+</tr>
+<tr>
+  <td>GetHours()</td>
+  <td>実行時の日付の「時」を返します。0 ～ 23 の整数が返されます。</td>
+  <td>1.24</td>
+</tr>
+<tr>
+  <td>GetIniSetting(sec, key);</td>
+  <td>保存されている設定ファイルを読み込み、sec セクションの key キーの値を取得します。 この値は設定ファイルに保存された値であり、最新の Cassava Editor の状態とは異なる場合があります。</td>
+  <td>1.6.0</td>
+</tr>
+<tr>
+  <td>GetMinutes()</td>
+  <td>実行時の日付の「分」を返します。0 ～ 59 の整数が返されます。</td>
+  <td>1.24</td>
+</tr>
+<tr>
+  <td>GetMonth()</td>
+  <td>実行時の日付の「月」を返します。1 ～ 12 の整数が返されます。</td>
+  <td>1.24</td>
+</tr>
+<tr>
+  <td>GetRecordedMacro()</td>
+  <td>記録中のマクロを取得します。StartMacroRecording() の呼び出し前や StopMacroRecording() の呼び出し後は空文字列を返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>GetRowHeight(y)</td>
+  <td>y 行目の高さを返します。y を省略すると標準の行の高さが返されます。</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>GetSeconds()</td>
+  <td>実行時の日付の「秒」を返します。0 ～ 59 の整数が返されます。</td>
+  <td>1.24</td>
+</tr>
+<tr>
+  <td>GetSettingPath()</td>
+  <td>設定ファイルの保存先フォルダの絶対パスを返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>GetStatusBarCount()</td>
+  <td>ステータスバー内の表示領域の個数を取得します。</td>
+  <td>1.6.0</td>
+</tr>
+<tr>
+  <td>GetStatusBarText(x)</td>
+  <td>x 番目の領域に表示された文字列を取得します。</td>
+  <td>1.6.0</td>
+</tr>
+<tr>
+  <td>GetStatusBarWidth(x)</td>
+  <td>x 番目の領域の幅を取得します。</td>
+  <td>1.6.0</td>
+</tr>
+<tr>
+  <td>GetYear()</td>
+  <td>実行時の日付の「年」を返します。4 桁の整数が返されます。</td>
+  <td>1.24</td>
+</tr>
+<tr>
+  <td>HideMenuBar();</td>
+  <td>メニューバーを非表示にする</td>
+  <td>2.6.0</td>
+</tr>
+<tr>
+  <td>InputBox(str);</td>
+  <td>str を表示します。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>InputBox(str, def);</td>
+  <td>str を表示します。テキストボックスのデフォルト値は def です。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>InputBox(str1, str2, def);</td>
+  <td>インプットボックス内に str1 を、タイトルに str2 を表示します。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>InputBoxMultiLine(str);</td>
+  <td>str を表示します。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。</td>
+  <td>1.6.0</td>
+</tr>
+<tr>
+  <td>InputBoxMultiLine(str, def);</td>
+  <td>str を表示します。テキストボックスのデフォルト値は def です。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。</td>
+  <td>1.6.0</td>
+</tr>
+<tr>
+  <td>InputBoxMultiLine(str1, str2, def);</td>
+  <td>インプットボックス内に str1 を、タイトルに str2 を表示します。 テキストボックスのデフォルト値は def です。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。</td>
+  <td>1.6.0</td>
+</tr>
+<tr>
+  <td>InsCol();</td>
+  <td>列挿入</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>InsRow();</td>
+  <td>行挿入</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>InsertCellDown();</td>
+  <td>下にセルを挿入</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>InsertCellRight();</td>
+  <td>右にセルを挿入</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>InsertCol(l, r);</td>
+  <td>l 列目から r 列目まで新しい列を挿入します。</td>
+  <td>2.0.0</td>
+</tr>
+<tr>
+  <td>InsertCol(x);</td>
+  <td>x 列目に新しい列を挿入します。</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>InsertRow(t, b);</td>
+  <td>t 行目から b 行目まで新しい行を挿入します。</td>
+  <td>2.0.0</td>
+</tr>
+<tr>
+  <td>InsertRow(y);</td>
+  <td>y 行目に新しい行を挿入します。</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Jis();</td>
+  <td>セーブ時文字コードを「JIS」に設定</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Key();</td>
+  <td>キーカスタマイズ</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>LetterPrint();</td>
+  <td>はがき印刷</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Lf();</td>
+  <td>セーブ時改行コードを「LF」に設定</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>LfInCell();</td>
+  <td>セーブ時改行コードを「セル内改行のみ LF」に設定</td>
+  <td>2.4.0</td>
+</tr>
+<tr>
+  <td>Lfcr();</td>
+  <td>セーブ時改行コードを「CR+LF」に設定</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>LoadIniSetting();</td>
+  <td>前回保存した設定ファイルを読み込み、Cassava Editor の状態を元に戻します。</td>
+  <td>1.6.0</td>
+</tr>
+<tr>
+  <td>MacroExecute();</td>
+  <td>指定したマクロを実行</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>MacroOpenFolder();</td>
+  <td>アプリケーションマクロフォルダを開く</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>MacroOpenUserFolder();</td>
+  <td>ユーザーマクロフォルダを開く</td>
+  <td>1.6.0</td>
+</tr>
+<tr>
+  <td>MacroTerminate();</td>
+  <td>マクロの実行を中断</td>
+  <td>1.7.0</td>
+</tr>
+<tr>
+  <td>MessageBox(str);</td>
+  <td>str を表示します。OK ボタンのみ表示されます。</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>MessageBox(str, flag);</td>
+  <td>str を表示します。ボタンの種類を flag で指定します。</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>MessageBox(str1, str2, flag);</td>
+  <td>メッセージボックス内に str1 を、タイトルに str2 を表示します。ボタンの種類を flag で指定します。</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>MoveCol(x1, x2);</td>
+  <td>x1 列目を x2 列に移動します。</td>
+  <td>2.3.2</td>
+</tr>
+<tr>
+  <td>MoveRow(y1, y2);</td>
+  <td>y1 行目を y2 行に移動します。</td>
+  <td>2.3.2</td>
+</tr>
+<tr>
+  <td>New();</td>
+  <td>新規テーブルの作成</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>NewLine();</td>
+  <td>セル内改行</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Open();</td>
+  <td>開く</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Open(filename);</td>
+  <td>filename を開きます。</td>
+  <td>1.8.1</td>
+</tr>
+<tr>
+  <td>Open(filename, type);</td>
+  <td>filename を type で指定した形式で開きます。</td>
+  <td>2.7.0</td>
+</tr>
+<tr>
+  <td>OpenCellFile();</td>
+  <td>現在のセルのファイルを開く</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>OpenHistoryClear();</td>
+  <td>履歴をクリア</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>OpenHistory0();</td>
+  <td>履歴から開く 0</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>OpenHistory1();</td>
+  <td>履歴から開く 1</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>OpenHistory2();</td>
+  <td>履歴から開く 2</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>OpenHistory3();</td>
+  <td>履歴から開く 3</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>OpenHistory4();</td>
+  <td>履歴から開く 4</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>OpenHistory5();</td>
+  <td>履歴から開く 5</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>OpenHistory6();</td>
+  <td>履歴から開く 6</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>OpenHistory7();</td>
+  <td>履歴から開く 7</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>OpenHistory8();</td>
+  <td>履歴から開く 8</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>OpenHistory9();</td>
+  <td>履歴から開く 9</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>OptionDlg();</td>
+  <td>オプション</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Paste();</td>
+  <td>貼り付け</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Paste(x);</td>
+  <td>オプションを指定して貼り付けます。x は 0 以上 5 以下の整数で、PasteOption0() ～ PasteOption5() に対応します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>PasteNormal();</td>
+  <td>貼り付けオプションを「標準」に設定</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>PasteOption0();</td>
+  <td>貼り付けオプションを「選択領域と重なった部分のみに貼り付け」に設定</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>PasteOption1();</td>
+  <td>貼り付けオプションを「選択領域にくり返し処理をして貼り付け」に設定</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>PasteOption2();</td>
+  <td>貼り付けオプションを「データのサイズで上書き」に設定</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>PasteOption3();</td>
+  <td>貼り付けオプションを「内容を右に移動させてデータを挿入」に設定</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>PasteOption4();</td>
+  <td>貼り付けオプションを「内容を下に移動させてデータを挿入」に設定</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>PasteOption5();</td>
+  <td>貼り付けオプションを「テキストとして1セル内に貼り付け」に設定</td>
+  <td>1.26</td>
+</tr>
+<tr>
+  <td>Print();</td>
+  <td>印刷</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>QuickFind();</td>
+  <td>簡易検索</td>
+  <td>1.6.0</td>
+</tr>
+<tr>
+  <td>QuickFind(str);</td>
+  <td>簡易検索パネルを開き、検索文字列に str を設定します。実際に検索をするには FindNext(); を実行してください。</td>
+  <td>2.7.0</td>
+</tr>
+<tr>
+  <td>Redo();</td>
+  <td>やり直し</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Refresh();</td>
+  <td>列幅を調整して再描画</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Reload();</td>
+  <td>再読み込み</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>ReloadCodeEUC();</td>
+  <td>EUC として再読み込み</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>ReloadCodeJIS();</td>
+  <td>JIS として再読み込み</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>ReloadCodeShiftJIS();</td>
+  <td>Shift-JIS として再読み込み</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>ReloadCodeUTF16BE();</td>
+  <td>UTF-16BE として再読み込み</td>
+  <td>1.4.0</td>
+</tr>
+<tr>
+  <td>ReloadCodeUTF8();</td>
+  <td>UTF-8 として再読み込み</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>ReloadCodeUnicode();</td>
+  <td>UTF-16LE として再読み込み</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>ReplaceAll(pattern, str);</td>
+  <td>固定セルを除く編集中のデータ内の pattern をすべて str に置換します。Ver.2.7 以降では、pattern には文字列もしくは正規表現オブジェクトを指定できます。</td>
+  <td>2.0.0</td>
+</tr>
+<tr>
+  <td>ReplaceAll(pattern, str, ignoreCase, wholeCell, regex);</td>
+  <td>固定セルを除く編集中のデータ内の pattern をすべて str に置換します。第三引数以降は真偽値のフラグで、順に「大文字と小文字を同一視」「セル内容が完全に同一であるものを検索」「正規表現検索」を表します。Ver.2.7 以降では、regex が true の場合 pattern には文字列もしくは正規表現オブジェクトを指定できます。</td>
+  <td>2.0.0</td>
+</tr>
+<tr>
+  <td>ReplaceAll(pattern, str, ignoreCase, wholeCell, regex, l, t, r, b);</td>
+  <td>t 行 l 列から b 行 r 列までの範囲内の pattern をすべて str に置換します。第三引数から第五引数までは真偽値のフラグで、順に「大文字と小文字を同一視」「セル内容が完全に同一であるものを検索」「正規表現検索」を表します。Ver.2.7 以降では、regex が true の場合 pattern には文字列もしくは正規表現オブジェクトを指定できます。</td>
+  <td>2.0.0</td>
+</tr>
+<tr>
+  <td>Save();</td>
+  <td>上書き保存</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>SaveAs();</td>
+  <td>名前をつけて保存</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>SaveAs(filename);</td>
+  <td>現在開いているファイルを filename に保存します。</td>
+  <td>1.8.0</td>
+</tr>
+<tr>
+  <td>SaveAs(filename, type);</td>
+  <td>現在開いているファイルを type で指定した形式で filename に保存します。</td>
+  <td>1.8.0</td>
+</tr>
+<tr>
+  <td>SaveIniSetting();</td>
+  <td>現在の Cassava Editor の状態を設定ファイルに保存します。</td>
+  <td>1.6.0</td>
+</tr>
+<tr>
+  <td>Select(l, t, r, b);</td>
+  <td>t 行 l 列から b 行 r 列までの範囲を選択します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>SelectAll();</td>
+  <td>すべて選択</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>SelectCol();</td>
+  <td>列選択</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>SelectRow();</td>
+  <td>行選択</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>SequenceC();</td>
+  <td>1 行目をコピー</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>SequenceS();</td>
+  <td>連番作成</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>SetActiveDataType(str);</td>
+  <td>使用するデータ形式を str に変更します。</td>
+  <td>2.5.0</td>
+</tr>
+<tr>
+  <td>SetCharCode(str);</td>
+  <td>保存時文字コードを str に変更します。</td>
+  <td>2.5.0</td>
+</tr>
+<tr>
+  <td>SetColWidth(w);</td>
+  <td>すべての列の幅を w に設定します。</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>SetColWidth(x, w);</td>
+  <td>x 列目の幅を w に設定します。</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>SetFontName(str);</td>
+  <td>フォントを str に変更します。</td>
+  <td>2.0.4</td>
+</tr>
+<tr>
+  <td>SetFontSize(x);</td>
+  <td>フォントサイズを x に変更します。</td>
+  <td>2.0.4</td>
+</tr>
+<tr>
+  <td>SetIniSetting(sec, key, val);</td>
+  <td>保存されている設定ファイルを更新し、sec セクションの key キーの値を val にします。 この変更は LoadIniSetting() 実行まで反映されません。</td>
+  <td>1.6.0</td>
+</tr>
+<tr>
+  <td>SetRowHeight(h);</td>
+  <td>すべての行の高さを h に設定します。</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>SetRowHeight(y, h);</td>
+  <td>y 行目の高さを h に設定します。</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>SetStatusBarCount(x);</td>
+  <td>ステータスバー内の表示領域の個数を設定します。</td>
+  <td>1.6.0</td>
+</tr>
+<tr>
+  <td>SetStatusBarPopUp(x, str, lambda);</td>
+  <td>x 番目の領域を右クリックした時に表示されるポップアップメニューを設定します。第二引数には表示されるメニュー項目を改行区切りの文字列で指定します。第三引数にはメニュー項目がクリックされた時の処理をラムダ式で記述します。このラムダ式にはクリックされた項目が文字列で渡されます。ラムダ式の外で定義された変数は参照できません。</td>
+  <td>2.5.0</td>
+</tr>
+<tr>
+  <td>SetStatusBarText(x, str);</td>
+  <td>x 番目の領域に str を表示します。</td>
+  <td>1.6.0</td>
+</tr>
+<tr>
+  <td>SetStatusBarWidth(x, w);</td>
+  <td>x 番目の領域の幅を w に設定します。デフォルト値は 50 です。</td>
+  <td>1.6.0</td>
+</tr>
+<tr>
+  <td>ShellOpen(appname, filename);</td>
+  <td>filename をパラメータとして appname で指定したアプリケーションを実行します。</td>
+  <td>1.7.0</td>
+</tr>
+<tr>
+  <td>ShellOpen(filename);</td>
+  <td>指定されたファイルを関連付けられたアプリケーションで開きます。</td>
+  <td>1.7.0</td>
+</tr>
+<tr>
+  <td>ShowDialog(element)</td>
+  <td>element で内容を指定したダイアログボックスを表示します。使い方の詳細は同梱の「lib/Dialog.cms」、「列数・行数を変更.cms」、「カード編集.cms」を参照してください。</td>
+  <td>2.7.0</td>
+</tr>
+<tr>
+  <td>ShowDialog(element, title)</td>
+  <td>element で内容を指定したダイアログボックスを表示します。タイトルに title を表示します。使い方の詳細は同梱の「lib/Dialog.cms」、「列数・行数を変更.cms」、「カード編集.cms」を参照してください。</td>
+  <td>2.7.0</td>
+</tr>
+<tr>
+  <td>ShowStatusbar();</td>
+  <td>ステータスバーの表示の切り替え</td>
+  <td>1.6.0</td>
+</tr>
+<tr>
+  <td>ShowToolbar();</td>
+  <td>ツールバーの表示の切り替え</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Sjis();</td>
+  <td>セーブ時文字コードを「Shift-JIS」に設定</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Sort();</td>
+  <td>ソート</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Sort(l, t, r, b, x, dir, num, case, zenhan);</td>
+  <td>t 行 l 列から b 行 r 列までの範囲を x 列でソートします。第六引数以降は真偽値のフラグで、順に「降順ソート」「数字のセルは数値の大小でソートする」「大文字と小文字を同一視する」「全角と半角を同一視する」を表します。</td>
+  <td>1.9.0</td>
+</tr>
+<tr>
+  <td>StartMacroRecording();</td>
+  <td>マクロの記録を開始します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>StayOnTop();</td>
+  <td>常に最前面に表示の切り替え</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>StopMacroRecording();</td>
+  <td>マクロの記録を終了します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>TransChar0();</td>
+  <td>英数・記号を半角に変換</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>TransChar1();</td>
+  <td>英数・記号を全角に変換</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>TransChar2();</td>
+  <td>英字を大文字に変換</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>TransChar3();</td>
+  <td>英字を小文字に変換</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>TransChar4();</td>
+  <td>カナを半角に変換</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>TransChar5();</td>
+  <td>カナを全角に変換</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>UnFix();</td>
+  <td>固定を解除</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Undo();</td>
+  <td>元に戻す</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Unicode();</td>
+  <td>セーブ時文字コードを「UTF-16LE」に設定</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>Utf16be();</td>
+  <td>セーブ時文字コードを「UTF-16BE」に設定</td>
+  <td>1.4.0</td>
+</tr>
+<tr>
+  <td>Utf8();</td>
+  <td>セーブ時文字コードを「UTF-8」に設定</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>WriteToFile(str, filename);</td>
+  <td>文字列 str をファイル filename に文字コード UTF-8 で書き込みます。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>acos(x)</td>
+  <td>x のアークコサインを返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>asc(str)</td>
+  <td>Shift-JIS で str の 1 文字目のコードユニットの数値を返します。</td>
+  <td>1.7.0</td>
+</tr>
+<tr>
+  <td>ascW(str)</td>
+  <td>UTF-16 で str の 1 文字目のコードユニットの数値を返します。</td>
+  <td>1.7.0</td>
+</tr>
+<tr>
+  <td>asin(x)</td>
+  <td>x のアークサインを返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>atan(x)</td>
+  <td>x のアークタンジェントを返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>atan2(y, x)</td>
+  <td>点 (0, 0) から点 (x, y) までの半直線と、正の x 軸の間の角度を返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>avr(l, t, r, b)</td>
+  <td>t 行 l 列から b 行 r 列までの範囲の数値データの平均値を返します。</td>
+  <td>1.5.0</td>
+</tr>
+<tr>
+  <td>chr(x)</td>
+  <td>Shift-JIS のコードユニットが x である文字を返します。</td>
+  <td>1.7.0</td>
+</tr>
+<tr>
+  <td>chrW(x)</td>
+  <td>UTF-16 のコードユニットが x である文字を返します。</td>
+  <td>1.7.0</td>
+</tr>
+<tr>
+  <td>cos(x)</td>
+  <td>x のコサインを返します。</td>
+  <td>1.9.0</td>
+</tr>
+<tr>
+  <td>double(x)</td>
+  <td>xと同じ値の数値を返します。(x - 0)と同じ効果です。 doubleの返す値に対して「+」演算子を適用すると加算となります。</td>
+  <td>1.5.0</td>
+</tr>
+<tr>
+  <td>int(x)</td>
+  <td>xの値を0方向に丸めた数値を返します。 intの返す値に対して「+」演算子を適用すると加算となります。</td>
+  <td>1.5.0</td>
+</tr>
+<tr>
+  <td>left(str, x)</td>
+  <td>文字列 str の最初 x 文字を切り出して返します。全角文字を1文字と数えます。</td>
+  <td>1.4.0</td>
+</tr>
+<tr>
+  <td>len(str)</td>
+  <td>文字列 str の長さを返します。全角文字を1文字と数えます。</td>
+  <td>1.5.0</td>
+</tr>
+<tr>
+  <td>lenB(str)</td>
+  <td>文字列 str の長さを返します。全角文字を2文字と数えます。</td>
+  <td>1.5.0</td>
+</tr>
+<tr>
+  <td>max(a, b, ...)</td>
+  <td>引数に渡したもののうち最大の値を返します。</td>
+  <td>-</td>
+</tr>
+<tr>
+  <td>mid(str, x)</td>
+  <td>文字列 str の x 文字以降を切り出して返します。 最初の文字のインデックスは 1 です。 全角文字を1文字と数えます。</td>
+  <td>1.4.0</td>
+</tr>
+<tr>
+  <td>mid(str, x, y)</td>
+  <td>文字列 str の x 文字目から y 文字を切り出して返します。 最初の文字のインデックスは 1 です。 全角文字を1文字と数えます。</td>
+  <td>1.4.0</td>
+</tr>
+<tr>
+  <td>mid(str1, x, y) = str2;</td>
+  <td>文字列 str1 の x 文字目から y 文字を str2 に置き換えます。 最初の文字のインデックスは 1 です。 全角文字を1文字と数えます。</td>
+  <td>1.4.0</td>
+</tr>
+<tr>
+  <td>min(a, b, ...)</td>
+  <td>引数に渡したもののうち最小の値を返します。</td>
   <td>-</td>
 </tr>
 <tr>
@@ -146,71 +1136,6 @@
   <td>-</td>
 </tr>
 <tr>
-  <td>swap(a, b);</td>
-  <td>a と b の値を交換します。</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>int(x)</td>
-  <td>xの値を0方向に丸めた数値を返します。 intの返す値に対して「+」演算子を適用すると加算となります。</td>
-  <td>1.5.0</td>
-</tr>
-<tr>
-  <td>double(x)</td>
-  <td>xと同じ値の数値を返します。(x - 0)と同じ効果です。 doubleの返す値に対して「+」演算子を適用すると加算となります。</td>
-  <td>1.5.0</td>
-</tr>
-<tr>
-  <td>str(x)</td>
-  <td>xと同じ値の文字列を返します。(x + "")と同じ効果です。 strの返す値に対して「+」演算子を適用すると文字列連結となります。</td>
-  <td>1.5.0</td>
-</tr>
-<tr>
-  <td>max(a, b, ...)</td>
-  <td>引数に渡したもののうち最大の値を返します。</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>min(a, b, ...)</td>
-  <td>引数に渡したもののうち最小の値を返します。</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>len(str)</td>
-  <td>文字列 str の長さを返します。全角文字を1文字と数えます。</td>
-  <td>1.5.0</td>
-</tr>
-<tr>
-  <td>lenB(str)</td>
-  <td>文字列 str の長さを返します。全角文字を2文字と数えます。</td>
-  <td>1.5.0</td>
-</tr>
-<tr>
-  <td>left(str, x)</td>
-  <td>文字列 str の最初 x 文字を切り出して返します。全角文字を1文字と数えます。</td>
-  <td>1.4.0</td>
-</tr>
-<tr>
-  <td>right(str, x)</td>
-  <td>文字列 str の最後 x 文字を切り出して返します。全角文字を1文字と数えます。</td>
-  <td>1.4.0</td>
-</tr>
-<tr>
-  <td>mid(str, x, y)</td>
-  <td>文字列 str の x 文字目から y 文字を切り出して返します。 最初の文字のインデックスは 1 です。 全角文字を1文字と数えます。</td>
-  <td>1.4.0</td>
-</tr>
-<tr>
-  <td>mid(str, x)</td>
-  <td>文字列 str の x 文字以降を切り出して返します。 最初の文字のインデックスは 1 です。 全角文字を1文字と数えます。</td>
-  <td>1.4.0</td>
-</tr>
-<tr>
-  <td>mid(str1, x, y) = str2;</td>
-  <td>文字列 str1 の x 文字目から y 文字を str2 に置き換えます。 最初の文字のインデックスは 1 です。 全角文字を1文字と数えます。</td>
-  <td>1.4.0</td>
-</tr>
-<tr>
   <td>pos(str1, str2)</td>
   <td>str1 中の str2 の位置を返します。 最初の文字のインデックスは 1 です。 str2 が str1 に含まれなかった場合、 0 が返されます。 全角文字を1文字と数えます。</td>
   <td>1.5.0</td>
@@ -219,6 +1144,16 @@
   <td>posB(str1, str2)</td>
   <td>str1 中の str2 の位置を返します。 最初の文字のインデックスは 1 です。 str2 が str1 に含まれなかった場合、 0 が返されます。 全角文字を2文字と数えます。</td>
   <td>1.5.0</td>
+</tr>
+<tr>
+  <td>pow(x, y)</td>
+  <td>x を y 乗した値を返します。</td>
+  <td>1.9.0</td>
+</tr>
+<tr>
+  <td>random(x)</td>
+  <td>0 以上 x 未満のランダムな整数値を返します。</td>
+  <td>1.26</td>
 </tr>
 <tr>
   <td>replace(str1, str2, str3)</td>
@@ -231,24 +1166,24 @@
   <td>2.2.0</td>
 </tr>
 <tr>
-  <td>asc(str)</td>
-  <td>Shift-JIS で str の 1 文字目のコードユニットの数値を返します。</td>
-  <td>1.7.0</td>
+  <td>right(str, x)</td>
+  <td>文字列 str の最後 x 文字を切り出して返します。全角文字を1文字と数えます。</td>
+  <td>1.4.0</td>
 </tr>
 <tr>
-  <td>ascW(str)</td>
-  <td>UTF-16 で str の 1 文字目のコードユニットの数値を返します。</td>
-  <td>1.7.0</td>
+  <td>sin(x)</td>
+  <td>x のサインを返します。</td>
+  <td>1.9.0</td>
 </tr>
 <tr>
-  <td>chr(x)</td>
-  <td>Shift-JIS のコードユニットが x である文字を返します。</td>
-  <td>1.7.0</td>
+  <td>sqrt(x)</td>
+  <td>x の平方根を返します。</td>
+  <td>1.9.0</td>
 </tr>
 <tr>
-  <td>chrW(x)</td>
-  <td>UTF-16 のコードユニットが x である文字を返します。</td>
-  <td>1.7.0</td>
+  <td>str(x)</td>
+  <td>xと同じ値の文字列を返します。(x + "")と同じ効果です。 strの返す値に対して「+」演算子を適用すると文字列連結となります。</td>
+  <td>1.5.0</td>
 </tr>
 <tr>
   <td>str.length</td>
@@ -256,8 +1191,58 @@
   <td>2.3.0</td>
 </tr>
 <tr>
-  <td>str[x]</td>
-  <td>文字列 str の x 文字目のみを含む文字列を返します。最初の文字のインデックスは 0 です。全角文字を1文字と数えます。</td>
+  <td>str.padEnd(x)</td>
+  <td>文字列 str の長さが x になるように末尾に空白を追加した文字列を返します。全角文字を1文字と数えます。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str.padStart(x)</td>
+  <td>文字列 str の長さが x になるように先頭に空白を追加した文字列を返します。全角文字を1文字と数えます。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str.repeat(x)</td>
+  <td>文字列 str を x 回繰り返した文字列を返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str.search(pattern)</td>
+  <td>文字列 str の中で最初に pattern にマッチする位置を返します。pattern には文字列もしくは正規表現オブジェクトを指定できますが、pattern に文字列が渡された場合も正規表現として解釈されます。最初の文字のインデックスは 0 です。 マッチしなかった場合、 -1 が返されます。 全角文字を1文字と数えます。</td>
+  <td>2.5.0</td>
+</tr>
+<tr>
+  <td>str.substring(x)</td>
+  <td>文字列 str の x 文字以降を切り出して返します。 最初の文字のインデックスは 0 です。 全角文字を1文字と数えます。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str.substring(x, y)</td>
+  <td>文字列 str の x 文字目から y 文字目までを切り出して返します。 最初の文字のインデックスは 0 です。 全角文字を1文字と数えます。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str.toLowerCase()</td>
+  <td>文字列 str を小文字に変換した文字列を返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str.toUpperCase()</td>
+  <td>文字列 str を大文字に変換した文字列を返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str.trim()</td>
+  <td>文字列 str から前後の空白文字を除いた文字列を返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str.trimEnd()</td>
+  <td>文字列 str から末尾の空白文字を除いた文字列を返します。</td>
+  <td>2.3.0</td>
+</tr>
+<tr>
+  <td>str.trimStart()</td>
+  <td>文字列 str から先頭の空白文字を除いた文字列を返します。</td>
   <td>2.3.0</td>
 </tr>
 <tr>
@@ -301,28 +1286,13 @@
   <td>2.3.0</td>
 </tr>
 <tr>
-  <td>str.padEnd(x)</td>
-  <td>文字列 str の長さが x になるように末尾に空白を追加した文字列を返します。全角文字を1文字と数えます。</td>
-  <td>2.3.0</td>
-</tr>
-<tr>
   <td>str1.padEnd(x, str2)</td>
   <td>文字列 str1 の長さが x になるように末尾に str2 を追加した文字列を返します。全角文字を1文字と数えます。</td>
   <td>2.3.0</td>
 </tr>
 <tr>
-  <td>str.padStart(x)</td>
-  <td>文字列 str の長さが x になるように先頭に空白を追加した文字列を返します。全角文字を1文字と数えます。</td>
-  <td>2.3.0</td>
-</tr>
-<tr>
   <td>str1.padStart(x, str2)</td>
   <td>文字列 str1 の長さが x になるように先頭に str2 を追加した文字列を返します。全角文字を1文字と数えます。</td>
-  <td>2.3.0</td>
-</tr>
-<tr>
-  <td>str.repeat(x)</td>
-  <td>文字列 str を x 回繰り返した文字列を返します。</td>
   <td>2.3.0</td>
 </tr>
 <tr>
@@ -336,11 +1306,6 @@
   <td>2.5.0</td>
 </tr>
 <tr>
-  <td>str.search(pattern)</td>
-  <td>文字列 str の中で最初に pattern にマッチする位置を返します。pattern には文字列もしくは正規表現オブジェクトを指定できますが、pattern に文字列が渡された場合も正規表現として解釈されます。最初の文字のインデックスは 0 です。 マッチしなかった場合、 -1 が返されます。 全角文字を1文字と数えます。</td>
-  <td>2.5.0</td>
-</tr>
-<tr>
   <td>str1.startsWith(str2)</td>
   <td>文字列 str1 が str2 で始まるかを返します。</td>
   <td>2.3.0</td>
@@ -351,49 +1316,9 @@
   <td>2.3.0</td>
 </tr>
 <tr>
-  <td>str.substring(x)</td>
-  <td>文字列 str の x 文字以降を切り出して返します。 最初の文字のインデックスは 0 です。 全角文字を1文字と数えます。</td>
+  <td>str[x]</td>
+  <td>文字列 str の x 文字目のみを含む文字列を返します。最初の文字のインデックスは 0 です。全角文字を1文字と数えます。</td>
   <td>2.3.0</td>
-</tr>
-<tr>
-  <td>str.substring(x, y)</td>
-  <td>文字列 str の x 文字目から y 文字目までを切り出して返します。 最初の文字のインデックスは 0 です。 全角文字を1文字と数えます。</td>
-  <td>2.3.0</td>
-</tr>
-<tr>
-  <td>str.toLowerCase()</td>
-  <td>文字列 str を小文字に変換した文字列を返します。</td>
-  <td>2.3.0</td>
-</tr>
-<tr>
-  <td>str.toUpperCase()</td>
-  <td>文字列 str を大文字に変換した文字列を返します。</td>
-  <td>2.3.0</td>
-</tr>
-<tr>
-  <td>str.trim()</td>
-  <td>文字列 str から前後の空白文字を除いた文字列を返します。</td>
-  <td>2.3.0</td>
-</tr>
-<tr>
-  <td>str.trimEnd()</td>
-  <td>文字列 str から末尾の空白文字を除いた文字列を返します。</td>
-  <td>2.3.0</td>
-</tr>
-<tr>
-  <td>str.trimStart()</td>
-  <td>文字列 str から先頭の空白文字を除いた文字列を返します。</td>
-  <td>2.3.0</td>
-</tr>
-<tr>
-  <td>x.toString()</td>
-  <td>x の文字列表現を返します。</td>
-  <td>2.3.0</td>
-</tr>
-<tr>
-  <td>/pattern/flags<br>new RegExp(pattern, flags)</td>
-  <td>str1.replace(regexp, str2), str1.replaceAll(regexp, str2), str.search(regexp), ReplaceAll(pattern, str) で使用できる正規表現オブジェクトを生成します。flags には空文字列もしくは「g」「i」「gi」が指定できます。最初のマッチだけでなく一致するものをすべて置換する場合は「g」を、大文字小文字を区別せずに検索する場合は「i」を指定してください。</td>
-  <td>2.5.0</td>
 </tr>
 <tr>
   <td>sum(l, t, r, b)</td>
@@ -401,29 +1326,9 @@
   <td>1.5.0</td>
 </tr>
 <tr>
-  <td>avr(l, t, r, b)</td>
-  <td>t 行 l 列から b 行 r 列までの範囲の数値データの平均値を返します。</td>
-  <td>1.5.0</td>
-</tr>
-<tr>
-  <td>random(x)</td>
-  <td>0 以上 x 未満のランダムな整数値を返します。</td>
-  <td>1.26</td>
-</tr>
-<tr>
-  <td>sqrt(x)</td>
-  <td>x の平方根を返します。</td>
-  <td>1.9.0</td>
-</tr>
-<tr>
-  <td>sin(x)</td>
-  <td>x のサインを返します。</td>
-  <td>1.9.0</td>
-</tr>
-<tr>
-  <td>cos(x)</td>
-  <td>x のコサインを返します。</td>
-  <td>1.9.0</td>
+  <td>swap(a, b);</td>
+  <td>a と b の値を交換します。</td>
+  <td>-</td>
 </tr>
 <tr>
   <td>tan(x)</td>
@@ -431,873 +1336,23 @@
   <td>1.9.0</td>
 </tr>
 <tr>
-  <td>asin(x)</td>
-  <td>x のアークサインを返します。</td>
-  <td>2.3.0</td>
-</tr>
-<tr>
-  <td>acos(x)</td>
-  <td>x のアークコサインを返します。</td>
-  <td>2.3.0</td>
-</tr>
-<tr>
-  <td>atan(x)</td>
-  <td>x のアークタンジェントを返します。</td>
-  <td>2.3.0</td>
-</tr>
-<tr>
-  <td>atan2(y, x)</td>
-  <td>点 (0, 0) から点 (x, y) までの半直線と、正の x 軸の間の角度を返します。</td>
-  <td>2.3.0</td>
-</tr>
-<tr>
-  <td>pow(x, y)</td>
-  <td>x を y 乗した値を返します。</td>
-  <td>1.9.0</td>
-</tr>
-<tr>
-  <td>MessageBox(str);</td>
-  <td>str を表示します。OK ボタンのみ表示されます。</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>MessageBox(str, flag);</td>
-  <td>str を表示します。ボタンの種類を flag で指定します。</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>MessageBox(str1, str2, flag);</td>
-  <td>メッセージボックス内に str1 を、タイトルに str2 を表示します。ボタンの種類を flag で指定します。</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>InputBox(str);</td>
-  <td>str を表示します。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。</td>
-  <td>2.0.0</td>
-</tr>
-<tr>
-  <td>InputBox(str, def);</td>
-  <td>str を表示します。テキストボックスのデフォルト値は def です。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。</td>
-  <td>2.0.0</td>
-</tr>
-<tr>
-  <td>InputBox(str1, str2, def);</td>
-  <td>インプットボックス内に str1 を、タイトルに str2 を表示します。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。</td>
-  <td>2.0.0</td>
-</tr>
-<tr>
-  <td>InputBoxMultiLine(str);</td>
-  <td>str を表示します。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。</td>
-  <td>2.0.0</td>
-</tr>
-<tr>
-  <td>InputBoxMultiLine(str, def);</td>
-  <td>str を表示します。テキストボックスのデフォルト値は def です。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。</td>
-  <td>2.0.0</td>
-</tr>
-<tr>
-  <td>InputBoxMultiLine(str1, str2, def);</td>
-  <td>インプットボックス内に str1 を、タイトルに str2 を表示します。 テキストボックスのデフォルト値は def です。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。</td>
-  <td>2.0.0</td>
-</tr>
-<tr>
-  <td>ShowDialog(element)</td>
-  <td>element で内容を指定したダイアログボックスを表示します。使い方の詳細は同梱の「lib/Dialog.cms」、「列数・行数を変更.cms」、「カード編集.cms」を参照してください。</td>
-  <td>2.7.0</td>
-</tr>
-<tr>
-  <td>ShowDialog(element, title)</td>
-  <td>element で内容を指定したダイアログボックスを表示します。タイトルに title を表示します。使い方の詳細は同梱の「lib/Dialog.cms」、「列数・行数を変更.cms」、「カード編集.cms」を参照してください。</td>
-  <td>2.7.0</td>
-</tr>
-<tr>
-  <td>InsertRow(y);</td>
-  <td>y 行目に新しい行を挿入します。</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>InsertRow(t, b);</td>
-  <td>t 行目から b 行目まで新しい行を挿入します。</td>
-  <td>2.0.0</td>
-</tr>
-<tr>
-  <td>DeleteRow(y);</td>
-  <td>y 行目を削除します。</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>DeleteRow(t, b);</td>
-  <td>t 行目から b 行目までを削除します。</td>
-  <td>2.0.0</td>
-</tr>
-<tr>
-  <td>InsertCol(x);</td>
-  <td>x 列目に新しい列を挿入します。</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>InsertCol(l, r);</td>
-  <td>l 列目から r 列目まで新しい列を挿入します。</td>
-  <td>2.0.0</td>
-</tr>
-<tr>
-  <td>DeleteCol(x);</td>
-  <td>x 列目を削除します。</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>DeleteCol(l, r);</td>
-  <td>l 列目から r 列目までを削除します。</td>
-  <td>2.0.0</td>
-</tr>
-<tr>
-  <td>MoveRow(y1, y2);</td>
-  <td>y1 行目を y2 行に移動します。</td>
-  <td>2.3.2</td>
-</tr>
-<tr>
-  <td>MoveCol(x1, x2);</td>
-  <td>x1 列目を x2 列に移動します。</td>
-  <td>2.3.2</td>
-</tr>
-<tr>
-  <td>GetRowHeight(y)</td>
-  <td>y 行目の高さを返します。y を省略すると標準の行の高さが返されます。</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>SetRowHeight(y, h);</td>
-  <td>y 行目の高さを h に設定します。</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>SetRowHeight(h);</td>
-  <td>すべての行の高さを h に設定します。</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>AdjustRowHeight(y);</td>
-  <td>y 行目の高さをセル内容に合わせて最適化します。</td>
-  <td>1.7.0</td>
-</tr>
-<tr>
-  <td>GetColWidth(x)</td>
-  <td>x 列目の幅を返します。x を省略すると標準の列の幅が返されます。</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>SetColWidth(x, w);</td>
-  <td>x 列目の幅を w に設定します。</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>SetColWidth(w);</td>
-  <td>すべての列の幅を w に設定します。</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>AdjustColWidth(x);</td>
-  <td>x 列目の幅をセル内容に合わせて最適化します。</td>
-  <td>1.7.0</td>
-</tr>
-<tr>
-  <td>SaveIniSetting();</td>
-  <td>現在の Cassava の状態を設定ファイルに保存します。</td>
-  <td>1.6.0</td>
-</tr>
-<tr>
-  <td>LoadIniSetting();</td>
-  <td>前回保存した設定ファイルを読み込み、Cassava の状態を元に戻します。</td>
-  <td>1.6.0</td>
-</tr>
-<tr>
-  <td>GetIniSetting(sec, key);</td>
-  <td>保存されている設定ファイルを読み込み、sec セクションの key キーの値を取得します。 この値は設定ファイルに保存された値であり、最新の Cassava の状態とは異なる場合があります。</td>
-  <td>1.6.0</td>
-</tr>
-<tr>
-  <td>SetIniSetting(sec, key, val);</td>
-  <td>保存されている設定ファイルを更新し、sec セクションの key キーの値を val にします。 この変更は LoadIniSetting() 実行まで反映されません。</td>
-  <td>1.6.0</td>
-</tr>
-<tr>
-  <td>GetSettingPath()</td>
-  <td>設定ファイルの保存先フォルダの絶対パスを返します。</td>
-  <td>2.3.0</td>
-</tr>
-<tr>
-  <td>GetFontName()</td>
-  <td>現在設定されているフォント名を返します。</td>
-  <td>1.6.0</td>
-</tr>
-<tr>
-  <td>SetFontName(str);</td>
-  <td>フォントを str に変更します。</td>
-  <td>2.0.4</td>
-</tr>
-<tr>
-  <td>GetFontSize()</td>
-  <td>現在設定されているフォントサイズを返します。</td>
-  <td>1.6.0</td>
-</tr>
-<tr>
-  <td>SetFontSize(x);</td>
-  <td>フォントサイズを x に変更します。</td>
-  <td>2.0.4</td>
-</tr>
-<tr>
-  <td>GetCharCode()</td>
-  <td>保存時文字コードに設定されている文字コード名を返します。</td>
-  <td>2.5.0</td>
-</tr>
-<tr>
-  <td>SetCharCode(str);</td>
-  <td>保存時文字コードを str に変更します。</td>
-  <td>2.5.0</td>
-</tr>
-<tr>
-  <td>GetDataTypes()</td>
-  <td>登録されているデータ形式名の一覧を改行区切りの文字列で返します。</td>
-  <td>2.5.0</td>
-</tr>
-<tr>
-  <td>GetActiveDataType()</td>
-  <td>現在使用中のデータ形式名を返します。</td>
-  <td>2.5.0</td>
-</tr>
-<tr>
-  <td>SetActiveDataType(str);</td>
-  <td>使用するデータ形式を str に変更します。</td>
-  <td>2.5.0</td>
-</tr>
-<tr>
-  <td>Clear();</td>
-  <td>変更を破棄して新規テーブルを作成します。</td>
-  <td>2.7.0</td>
-</tr>
-<tr>
-  <td>ShellOpen(filename);</td>
-  <td>指定されたファイルを関連付けられたアプリケーションで開きます。</td>
-  <td>1.7.0</td>
-</tr>
-<tr>
-  <td>ShellOpen(appname, filename);</td>
-  <td>filename をパラメータとして appname で指定したアプリケーションを実行します。</td>
-  <td>1.7.0</td>
-</tr>
-<tr>
-  <td>Open(filename);</td>
-  <td>filename を開きます。</td>
-  <td>1.8.1</td>
-</tr>
-<tr>
-  <td>Open(filename, type);</td>
-  <td>filename を type で指定した形式で開きます。</td>
-  <td>2.7.0</td>
-</tr>
-<tr>
-  <td>SaveAs(filename);</td>
-  <td>現在開いているファイルを filename に保存します。</td>
-  <td>1.8.0</td>
-</tr>
-<tr>
-  <td>SaveAs(filename, type);</td>
-  <td>現在開いているファイルを type で指定した形式で filename に保存します。</td>
-  <td>1.8.0</td>
-</tr>
-<tr>
-  <td>Export(filename, type);</td>
-  <td>現在開いているファイルを type で指定した形式で filename にエクスポートします。</td>
-  <td>1.8.0</td>
-</tr>
-<tr>
-  <td>FileExists(filename)</td>
-  <td>filename という名前のファイルが存在するかどうかを返します。</td>
-  <td>2.3.0</td>
-</tr>
-<tr>
-  <td>WriteToFile(str, filename);</td>
-  <td>文字列 str をファイル filename に文字コード UTF-8 で書き込みます。</td>
-  <td>2.3.0</td>
-</tr>
-<tr>
-  <td>Sort(l, t, r, b, x, dir, num, case, zenhan);</td>
-  <td>t 行 l 列から b 行 r 列までの範囲を x 列でソートします。第六引数以降は真偽値のフラグで、順に「降順ソート」「数字のセルは数値の大小でソートする」「大文字と小文字を同一視する」「全角と半角を同一視する」を表します。</td>
-  <td>1.9.0</td>
-</tr>
-<tr>
-  <td>Select(l, t, r, b);</td>
-  <td>t 行 l 列から b 行 r 列までの範囲を選択します。</td>
-  <td>2.3.0</td>
-</tr>
-<tr>
-  <td>Paste(x);</td>
-  <td>オプションを指定して貼り付けます。x は 0 以上 5 以下の整数で、PasteOption0() ～ PasteOption5() に対応します。</td>
-  <td>2.3.0</td>
-</tr>
-<tr>
-  <td>QuickFind(str);</td>
-  <td>簡易検索パネルを開き、検索文字列に str を設定します。実際に検索をするには FindNext(); を実行してください。</td>
-  <td>2.7.0</td>
-</tr>
-<tr>
-  <td>ReplaceAll(pattern, str);</td>
-  <td>固定セルを除く編集中のデータ内の pattern をすべて str に置換します。Ver.2.7 以降では、pattern には文字列もしくは正規表現オブジェクトを指定できます。</td>
-  <td>2.0.0</td>
-</tr>
-<tr>
-  <td>ReplaceAll(pattern, str, ignoreCase, wholeCell, regex);</td>
-  <td>固定セルを除く編集中のデータ内の pattern をすべて str に置換します。第三引数以降は真偽値のフラグで、順に「大文字と小文字を同一視」「セル内容が完全に同一であるものを検索」「正規表現検索」を表します。Ver.2.7 以降では、regex が true の場合 pattern には文字列もしくは正規表現オブジェクトを指定できます。</td>
-  <td>2.0.0</td>
-</tr>
-<tr>
-  <td>ReplaceAll(pattern, str, ignoreCase, wholeCell, regex, l, t, r, b);</td>
-  <td>t 行 l 列から b 行 r 列までの範囲内の pattern をすべて str に置換します。第三引数から第五引数までは真偽値のフラグで、順に「大文字と小文字を同一視」「セル内容が完全に同一であるものを検索」「正規表現検索」を表します。Ver.2.7 以降では、regex が true の場合 pattern には文字列もしくは正規表現オブジェクトを指定できます。</td>
-  <td>2.0.0</td>
-</tr>
-<tr>
-  <td>GetFileName()</td>
-  <td>編集中の CSV ファイルのファイル名を返します。新規作成したデータを編集中は空の文字列が返されます。</td>
-  <td>1.24</td>
-</tr>
-<tr>
-  <td>GetFilePath()</td>
-  <td>編集中の CSV ファイルの絶対パスを返します。新規作成したデータを編集中は空の文字列が返されます。それ以外の場合、必ず「\」で終わる文字列が返されます。</td>
-  <td>1.24</td>
-</tr>
-<tr>
-  <td>GetYear()</td>
-  <td>実行時の日付の「年」を返します。4 桁の整数が返されます。</td>
-  <td>1.24</td>
-</tr>
-<tr>
-  <td>GetMonth()</td>
-  <td>実行時の日付の「月」を返します。1 ～ 12 の整数が返されます。</td>
-  <td>1.24</td>
-</tr>
-<tr>
-  <td>GetDate()</td>
-  <td>実行時の日付の「日」を返します。1 ～ 31 の整数が返されます。</td>
-  <td>1.24</td>
-</tr>
-<tr>
-  <td>GetHours()</td>
-  <td>実行時の日付の「時」を返します。0 ～ 23 の整数が返されます。</td>
-  <td>1.24</td>
-</tr>
-<tr>
-  <td>GetMinutes()</td>
-  <td>実行時の日付の「分」を返します。0 ～ 59 の整数が返されます。</td>
-  <td>1.24</td>
-</tr>
-<tr>
-  <td>GetSeconds()</td>
-  <td>実行時の日付の「秒」を返します。0 ～ 59 の整数が返されます。</td>
-  <td>1.24</td>
-</tr>
-<tr>
-  <td>New();</td>
-  <td>新規テーブルの作成</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>Open();</td>
-  <td>開く</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>Reload();</td>
-  <td>再読み込み</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>OpenHistoryn(); (最後の n は 0 ～ 9 の数字)</td>
-  <td>履歴から開く</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>OpenHistoryClear();</td>
-  <td>履歴をクリア</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>ReloadCodeShiftJIS();</td>
-  <td>Shift-JIS として再読み込み</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>ReloadCodeEUC();</td>
-  <td>EUC として再読み込み</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>ReloadCodeJIS();</td>
-  <td>JIS として再読み込み</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>ReloadCodeUTF8();</td>
-  <td>UTF-8 として再読み込み</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>ReloadCodeUnicode();</td>
-  <td>UTF-16LE として再読み込み</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>ReloadCodeUTF16BE();</td>
-  <td>UTF-16BE として再読み込み</td>
-  <td>1.4.0</td>
-</tr>
-<tr>
-  <td>Save();</td>
-  <td>上書き保存</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>SaveAs();</td>
-  <td>名前をつけて保存</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>Export();</td>
-  <td>エクスポート</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>Sjis();</td>
-  <td>セーブ時文字コードを「Shift-JIS」に設定</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>Euc();</td>
-  <td>セーブ時文字コードを「EUC」に設定</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>Jis();</td>
-  <td>セーブ時文字コードを「JIS」に設定</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>Utf8();</td>
-  <td>セーブ時文字コードを「UTF-8」に設定</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>Unicode();</td>
-  <td>セーブ時文字コードを「UTF-16LE」に設定</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>Utf16be();</td>
-  <td>セーブ時文字コードを「UTF-16BE」に設定</td>
-  <td>1.4.0</td>
-</tr>
-<tr>
-  <td>Lfcr();</td>
-  <td>セーブ時改行コードを「CR+LF」に設定</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>Lf();</td>
-  <td>セーブ時改行コードを「LF」に設定</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>Cr();</td>
-  <td>セーブ時改行コードを「CR」に設定</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>LfInCell();</td>
-  <td>セーブ時改行コードを「セル内改行のみ LF」に設定</td>
-  <td>2.4.0</td>
-</tr>
-<tr>
-  <td>Bom();</td>
-  <td>セーブ時の BOM の有無を切り替え</td>
-  <td>2.3.0</td>
-</tr>
-<tr>
-  <td>OpenCellFile();</td>
-  <td>現在のセルのファイルを開く</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>Print();</td>
-  <td>印刷</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>LetterPrint();</td>
-  <td>はがき印刷</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>End();</td>
-  <td>終了</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>Undo();</td>
-  <td>元に戻す</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>Redo();</td>
-  <td>やり直し</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>Cut();</td>
-  <td>切り取り</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>Copy();</td>
-  <td>コピー</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>Paste();</td>
-  <td>貼り付け</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>SelectAll();</td>
-  <td>すべて選択</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>PasteNormal();</td>
-  <td>貼り付けオプションを「標準」に設定</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>PasteOption0();</td>
-  <td>貼り付けオプションを「選択領域と重なった部分のみに貼り付け」に設定</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>PasteOption1();</td>
-  <td>貼り付けオプションを「選択領域にくり返し処理をして貼り付け」に設定</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>PasteOption2();</td>
-  <td>貼り付けオプションを「データのサイズで上書き」に設定</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>PasteOption3();</td>
-  <td>貼り付けオプションを「内容を右に移動させてデータを挿入」に設定</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>PasteOption4();</td>
-  <td>貼り付けオプションを「内容を下に移動させてデータを挿入」に設定</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>PasteOption5();</td>
-  <td>貼り付けオプションを「テキストとして1セル内に貼り付け」に設定</td>
-  <td>1.26</td>
-</tr>
-<tr>
-  <td>Sort();</td>
-  <td>ソート</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>SelectRow();</td>
-  <td>行選択</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>SelectCol();</td>
-  <td>列選択</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>CopySum();</td>
-  <td>合計をコピー</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>CopyAvr();</td>
-  <td>平均をコピー</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>TransChar0();</td>
-  <td>英数・記号を半角に変換</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>TransChar1();</td>
-  <td>英数・記号を全角に変換</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>TransChar2();</td>
-  <td>英字を大文字に変換</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>TransChar3();</td>
-  <td>英字を小文字に変換</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>TransChar4();</td>
-  <td>カナを半角に変換</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>TransChar5();</td>
-  <td>カナを全角に変換</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>SequenceS();</td>
-  <td>連番作成</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>SequenceC();</td>
-  <td>1 行目をコピー</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>InsRow();</td>
-  <td>行挿入</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>InsCol();</td>
-  <td>列挿入</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>CutRow();</td>
-  <td>行削除</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>CutCol();</td>
-  <td>列削除</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>Enter();</td>
-  <td>行分割</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>NewLine();</td>
-  <td>セル内改行</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>ConnectCell();</td>
-  <td>左のセルと結合</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>InsertCellRight();</td>
-  <td>右にセルを挿入</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>InsertCellDown();</td>
-  <td>下にセルを挿入</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>DeleteCellLeft();</td>
-  <td>左につめる</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>DeleteCellUp();</td>
-  <td>上につめる</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>QuickFind();</td>
-  <td>簡易検索</td>
-  <td>1.6.0</td>
-</tr>
-<tr>
-  <td>Find();</td>
-  <td>検索・置換</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>FindNext();</td>
-  <td>次を検索</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>FindBack();</td>
-  <td>前を検索</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>Refresh();</td>
-  <td>列幅を調整して再描画</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>Font();</td>
-  <td>フォント</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>StayOnTop();</td>
-  <td>常に最前面に表示の切り替え</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>CalcExpression();</td>
-  <td>セル内計算式を処理の切り替え</td>
-  <td>1.5.0</td>
-</tr>
-<tr>
-  <td>HideMenuBar();</td>
-  <td>メニューバーを非表示にする</td>
-  <td>2.6.0</td>
-</tr>
-<tr>
-  <td>ShowToolbar();</td>
-  <td>ツールバーの表示の切り替え</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>ShowStatusbar();</td>
-  <td>ステータスバーの表示の切り替え</td>
-  <td>1.6.0</td>
-</tr>
-<tr>
-  <td>FixFirstRow();</td>
-  <td>1 行目を固定の切り替え</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>FixFirstCol();</td>
-  <td>1 列目を固定の切り替え</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>FixUpLeft();</td>
-  <td>カーソル位置までを固定</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>UnFix();</td>
-  <td>固定を解除</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>MacroOpenUserFolder();</td>
-  <td>ユーザーマクロフォルダを開く</td>
-  <td>1.6.0</td>
-</tr>
-<tr>
-  <td>MacroOpenFolder();</td>
-  <td>アプリケーションマクロフォルダを開く</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>MacroExecute();</td>
-  <td>指定したマクロを実行</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>MacroTerminate();</td>
-  <td>マクロの実行を中断</td>
-  <td>1.7.0</td>
-</tr>
-<tr>
-  <td>OptionDlg();</td>
-  <td>オプション</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>Key();</td>
-  <td>キーカスタマイズ</td>
-  <td>-</td>
-</tr>
-<tr>
-  <td>Applin(); (最後の n は 0 ～ 2 の数字)</td>
-  <td>外部アプリケーション</td>
+  <td>write(str);</td>
+  <td>カーソル位置のセルの内容を str にし、カーソルを右に移動します。エクスポートマクロ中ではファイルに書き出します。</td>
   <td>-</td>
 </tr>
 <tr>
-  <td>Contents();</td>
-  <td>ヘルプを開く</td>
+  <td>writeln();</td>
+  <td>カーソルを次の行に移動します。エクスポートマクロ中ではファイルに改行を書き出します。</td>
   <td>-</td>
-</tr>
-<tr>
-  <td>CheckUpdate();</td>
-  <td>Cassava の更新を確認</td>
-  <td>1.7.0</td>
 </tr>
 <tr>
-  <td>About();</td>
-  <td>Cassava のバージョン情報を表示</td>
+  <td>writeln(str);</td>
+  <td>カーソル位置のセルの内容を str にし、カーソルを次の行に移動します。エクスポートマクロ中ではファイルに書き出します。</td>
   <td>-</td>
-</tr>
-<tr>
-  <td>SetStatusBarCount(x);</td>
-  <td>ステータスバー内の表示領域の個数を設定します。</td>
-  <td>1.6.0</td>
-</tr>
-<tr>
-  <td>SetStatusBarText(x, str);</td>
-  <td>x 番目の領域に str を表示します。</td>
-  <td>1.6.0</td>
-</tr>
-<tr>
-  <td>SetStatusBarWidth(x, w);</td>
-  <td>x 番目の領域の幅を w に設定します。デフォルト値は 50 です。</td>
-  <td>1.6.0</td>
-</tr>
-<tr>
-  <td>SetStatusBarPopUp(x, str, lambda);</td>
-  <td>x 番目の領域を右クリックした時に表示されるポップアップメニューを設定します。第二引数には表示されるメニュー項目を改行区切りの文字列で指定します。第三引数にはメニュー項目がクリックされた時の処理をラムダ式で記述します。このラムダ式にはクリックされた項目が文字列で渡されます。ラムダ式の外で定義された変数は参照できません。</td>
-  <td>2.5.0</td>
-</tr>
-<tr>
-  <td>GetStatusBarCount()</td>
-  <td>ステータスバー内の表示領域の個数を取得します。</td>
-  <td>1.6.0</td>
-</tr>
-<tr>
-  <td>GetStatusBarText(x)</td>
-  <td>x 番目の領域に表示された文字列を取得します。</td>
-  <td>1.6.0</td>
-</tr>
-<tr>
-  <td>GetStatusBarWidth(x)</td>
-  <td>x 番目の領域の幅を取得します。</td>
-  <td>1.6.0</td>
-</tr>
-<tr>
-  <td>StartMacroRecording();</td>
-  <td>マクロの記録を開始します。</td>
-  <td>2.3.0</td>
-</tr>
-<tr>
-  <td>StopMacroRecording();</td>
-  <td>マクロの記録を終了します。</td>
-  <td>2.3.0</td>
 </tr>
 <tr>
-  <td>GetRecordedMacro()</td>
-  <td>記録中のマクロを取得します。StartMacroRecording() の呼び出し前や StopMacroRecording() の呼び出し後は空文字列を返します。</td>
+  <td>x.toString()</td>
+  <td>x の文字列表現を返します。</td>
   <td>2.3.0</td>
 </tr>
 </table>

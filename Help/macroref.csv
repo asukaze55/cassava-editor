@@ -1,35 +1,233 @@
 関数,説明,Cassava Ver
 "[x,y]
 cell(x, y)","(x, y) のセルの内容です。読み書きともにできます。",-
-write(str);,カーソル位置のセルの内容を str にし、カーソルを右に移動します。エクスポートマクロ中ではファイルに書き出します。,-
-writeln();,カーソルを次の行に移動します。エクスポートマクロ中ではファイルに改行を書き出します。,-
-writeln(str);,カーソル位置のセルの内容を str にし、カーソルを次の行に移動します。エクスポートマクロ中ではファイルに書き出します。,-
-"move(vx, vy);","カーソル位置を (vx, vy) だけ移動します。",-
-"moveto(x, y);","カーソル位置を (x, y) に設定します。",-
-"swap(a, b);",a と b の値を交換します。,-
-int(x),xの値を0方向に丸めた数値を返します。 intの返す値に対して「+」演算子を適用すると加算となります。,1.5.0
+"/pattern/flags
+new RegExp(pattern, flags)","str1.replace(regexp, str2), str1.replaceAll(regexp, str2), str.search(regexp), ReplaceAll(pattern, str) で使用できる正規表現オブジェクトを生成します。flags には空文字列もしくは「g」「i」「gi」が指定できます。最初のマッチだけでなく一致するものをすべて置換する場合は「g」を、大文字小文字を区別せずに検索する場合は「i」を指定してください。",2.5.0
+About();,Cassava Editor のバージョン情報を表示,-
+AdjustColWidth(x);,x 列目の幅をセル内容に合わせて最適化します。,1.7.0
+AdjustRowHeight(y);,y 行目の高さをセル内容に合わせて最適化します。,1.7.0
+Appli0();,外部アプリケーション 0,-
+Appli1();,外部アプリケーション 1,-
+Appli2();,外部アプリケーション 2,-
+Bom();,セーブ時の BOM の有無を切り替え,2.3.0
+CalcExpression();,セル内計算式を処理の切り替え,1.5.0
+CheckUpdate();,Cassava Editor の更新を確認,1.7.0
+Clear();,変更を破棄して新規テーブルを作成します。,2.7.0
+ConnectCell();,左のセルと結合,-
+Contents();,ヘルプを開く,-
+Copy();,コピー,-
+CopyAvr();,平均をコピー,-
+CopySum();,合計をコピー,-
+Cr();,セーブ時改行コードを「CR」に設定,-
+Cut();,切り取り,-
+CutCol();,列削除,-
+CutRow();,行削除,-
+DeleteCellLeft();,左につめる,-
+DeleteCellUp();,上につめる,-
+"DeleteCol(l, r);",l 列目から r 列目までを削除します。,2.0.0
+DeleteCol(x);,x 列目を削除します。,-
+"DeleteRow(t, b);",t 行目から b 行目までを削除します。,2.0.0
+DeleteRow(y);,y 行目を削除します。,-
+End();,終了,-
+Enter();,行分割,-
+Euc();,セーブ時文字コードを「EUC」に設定,-
+Export();,エクスポート,-
+"Export(filename, type);",現在開いているファイルを type で指定した形式で filename にエクスポートします。,1.8.0
+FileExists(filename),filename という名前のファイルが存在するかどうかを返します。,2.3.0
+Find();,検索・置換,-
+FindBack();,前を検索,-
+FindNext();,次を検索,-
+FixFirstCol();,1 列目を固定の切り替え,-
+FixFirstRow();,1 行目を固定の切り替え,-
+FixUpLeft();,カーソル位置までを固定,-
+Font();,フォント,-
+GetActiveDataType(),現在使用中のデータ形式名を返します。,2.5.0
+GetCharCode(),保存時文字コードに設定されている文字コード名を返します。,2.5.0
+GetColWidth(x),x 列目の幅を返します。x を省略すると標準の列の幅が返されます。,-
+GetDataTypes(),登録されているデータ形式名の一覧を改行区切りの文字列で返します。,2.5.0
+GetDate(),実行時の日付の「日」を返します。1 ～ 31 の整数が返されます。,1.24
+GetFileName(),編集中の CSV ファイルのファイル名を返します。新規作成したデータを編集中は空の文字列が返されます。,1.24
+GetFilePath(),編集中の CSV ファイルの絶対パスを返します。新規作成したデータを編集中は空の文字列が返されます。それ以外の場合、必ず「\」で終わる文字列が返されます。,1.24
+GetFontName(),現在設定されているフォント名を返します。,1.6.0
+GetFontSize(),現在設定されているフォントサイズを返します。,1.6.0
+GetHours(),実行時の日付の「時」を返します。0 ～ 23 の整数が返されます。,1.24
+"GetIniSetting(sec, key);",保存されている設定ファイルを読み込み、sec セクションの key キーの値を取得します。 この値は設定ファイルに保存された値であり、最新の Cassava Editor の状態とは異なる場合があります。,1.6.0
+GetMinutes(),実行時の日付の「分」を返します。0 ～ 59 の整数が返されます。,1.24
+GetMonth(),実行時の日付の「月」を返します。1 ～ 12 の整数が返されます。,1.24
+GetRecordedMacro(),記録中のマクロを取得します。StartMacroRecording() の呼び出し前や StopMacroRecording() の呼び出し後は空文字列を返します。,2.3.0
+GetRowHeight(y),y 行目の高さを返します。y を省略すると標準の行の高さが返されます。,-
+GetSeconds(),実行時の日付の「秒」を返します。0 ～ 59 の整数が返されます。,1.24
+GetSettingPath(),設定ファイルの保存先フォルダの絶対パスを返します。,2.3.0
+GetStatusBarCount(),ステータスバー内の表示領域の個数を取得します。,1.6.0
+GetStatusBarText(x),x 番目の領域に表示された文字列を取得します。,1.6.0
+GetStatusBarWidth(x),x 番目の領域の幅を取得します。,1.6.0
+GetYear(),実行時の日付の「年」を返します。4 桁の整数が返されます。,1.24
+HideMenuBar();,メニューバーを非表示にする,2.6.0
+InputBox(str);,str を表示します。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。,-
+"InputBox(str, def);",str を表示します。テキストボックスのデフォルト値は def です。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。,-
+"InputBox(str1, str2, def);",インプットボックス内に str1 を、タイトルに str2 を表示します。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。,-
+InputBoxMultiLine(str);,str を表示します。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。,1.6.0
+"InputBoxMultiLine(str, def);",str を表示します。テキストボックスのデフォルト値は def です。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。,1.6.0
+"InputBoxMultiLine(str1, str2, def);",インプットボックス内に str1 を、タイトルに str2 を表示します。 テキストボックスのデフォルト値は def です。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。,1.6.0
+InsCol();,列挿入,-
+InsRow();,行挿入,-
+InsertCellDown();,下にセルを挿入,-
+InsertCellRight();,右にセルを挿入,-
+"InsertCol(l, r);",l 列目から r 列目まで新しい列を挿入します。,2.0.0
+InsertCol(x);,x 列目に新しい列を挿入します。,-
+"InsertRow(t, b);",t 行目から b 行目まで新しい行を挿入します。,2.0.0
+InsertRow(y);,y 行目に新しい行を挿入します。,-
+Jis();,セーブ時文字コードを「JIS」に設定,-
+Key();,キーカスタマイズ,-
+LetterPrint();,はがき印刷,-
+Lf();,セーブ時改行コードを「LF」に設定,-
+LfInCell();,セーブ時改行コードを「セル内改行のみ LF」に設定,2.4.0
+Lfcr();,セーブ時改行コードを「CR+LF」に設定,-
+LoadIniSetting();,前回保存した設定ファイルを読み込み、Cassava Editor の状態を元に戻します。,1.6.0
+MacroExecute();,指定したマクロを実行,-
+MacroOpenFolder();,アプリケーションマクロフォルダを開く,-
+MacroOpenUserFolder();,ユーザーマクロフォルダを開く,1.6.0
+MacroTerminate();,マクロの実行を中断,1.7.0
+MessageBox(str);,str を表示します。OK ボタンのみ表示されます。,-
+"MessageBox(str, flag);",str を表示します。ボタンの種類を flag で指定します。,-
+"MessageBox(str1, str2, flag);",メッセージボックス内に str1 を、タイトルに str2 を表示します。ボタンの種類を flag で指定します。,-
+"MoveCol(x1, x2);",x1 列目を x2 列に移動します。,2.3.2
+"MoveRow(y1, y2);",y1 行目を y2 行に移動します。,2.3.2
+New();,新規テーブルの作成,-
+NewLine();,セル内改行,-
+Open();,開く,-
+Open(filename);,filename を開きます。,1.8.1
+"Open(filename, type);",filename を type で指定した形式で開きます。,2.7.0
+OpenCellFile();,現在のセルのファイルを開く,-
+OpenHistoryClear();,履歴をクリア,-
+OpenHistory0();,履歴から開く 0,-
+OpenHistory1();,履歴から開く 1,-
+OpenHistory2();,履歴から開く 2,-
+OpenHistory3();,履歴から開く 3,-
+OpenHistory4();,履歴から開く 4,-
+OpenHistory5();,履歴から開く 5,-
+OpenHistory6();,履歴から開く 6,-
+OpenHistory7();,履歴から開く 7,-
+OpenHistory8();,履歴から開く 8,-
+OpenHistory9();,履歴から開く 9,-
+OptionDlg();,オプション,-
+Paste();,貼り付け,-
+Paste(x);,オプションを指定して貼り付けます。x は 0 以上 5 以下の整数で、PasteOption0() ～ PasteOption5() に対応します。,2.3.0
+PasteNormal();,貼り付けオプションを「標準」に設定,-
+PasteOption0();,貼り付けオプションを「選択領域と重なった部分のみに貼り付け」に設定,-
+PasteOption1();,貼り付けオプションを「選択領域にくり返し処理をして貼り付け」に設定,-
+PasteOption2();,貼り付けオプションを「データのサイズで上書き」に設定,-
+PasteOption3();,貼り付けオプションを「内容を右に移動させてデータを挿入」に設定,-
+PasteOption4();,貼り付けオプションを「内容を下に移動させてデータを挿入」に設定,-
+PasteOption5();,貼り付けオプションを「テキストとして1セル内に貼り付け」に設定,1.26
+Print();,印刷,-
+QuickFind();,簡易検索,1.6.0
+QuickFind(str);,簡易検索パネルを開き、検索文字列に str を設定します。実際に検索をするには FindNext(); を実行してください。,2.7.0
+Redo();,やり直し,-
+Refresh();,列幅を調整して再描画,-
+Reload();,再読み込み,-
+ReloadCodeEUC();,EUC として再読み込み,-
+ReloadCodeJIS();,JIS として再読み込み,-
+ReloadCodeShiftJIS();,Shift-JIS として再読み込み,-
+ReloadCodeUTF16BE();,UTF-16BE として再読み込み,1.4.0
+ReloadCodeUTF8();,UTF-8 として再読み込み,-
+ReloadCodeUnicode();,UTF-16LE として再読み込み,-
+"ReplaceAll(pattern, str);",固定セルを除く編集中のデータ内の pattern をすべて str に置換します。Ver.2.7 以降では、pattern には文字列もしくは正規表現オブジェクトを指定できます。,2.0.0
+"ReplaceAll(pattern, str, ignoreCase, wholeCell, regex);",固定セルを除く編集中のデータ内の pattern をすべて str に置換します。第三引数以降は真偽値のフラグで、順に「大文字と小文字を同一視」「セル内容が完全に同一であるものを検索」「正規表現検索」を表します。Ver.2.7 以降では、regex が true の場合 pattern には文字列もしくは正規表現オブジェクトを指定できます。,2.0.0
+"ReplaceAll(pattern, str, ignoreCase, wholeCell, regex, l, t, r, b);",t 行 l 列から b 行 r 列までの範囲内の pattern をすべて str に置換します。第三引数から第五引数までは真偽値のフラグで、順に「大文字と小文字を同一視」「セル内容が完全に同一であるものを検索」「正規表現検索」を表します。Ver.2.7 以降では、regex が true の場合 pattern には文字列もしくは正規表現オブジェクトを指定できます。,2.0.0
+Save();,上書き保存,-
+SaveAs();,名前をつけて保存,-
+SaveAs(filename);,現在開いているファイルを filename に保存します。,1.8.0
+"SaveAs(filename, type);",現在開いているファイルを type で指定した形式で filename に保存します。,1.8.0
+SaveIniSetting();,現在の Cassava Editor の状態を設定ファイルに保存します。,1.6.0
+"Select(l, t, r, b);",t 行 l 列から b 行 r 列までの範囲を選択します。,2.3.0
+SelectAll();,すべて選択,-
+SelectCol();,列選択,-
+SelectRow();,行選択,-
+SequenceC();,1 行目をコピー,-
+SequenceS();,連番作成,-
+SetActiveDataType(str);,使用するデータ形式を str に変更します。,2.5.0
+SetCharCode(str);,保存時文字コードを str に変更します。,2.5.0
+SetColWidth(w);,すべての列の幅を w に設定します。,-
+"SetColWidth(x, w);",x 列目の幅を w に設定します。,-
+SetFontName(str);,フォントを str に変更します。,2.0.4
+SetFontSize(x);,フォントサイズを x に変更します。,2.0.4
+"SetIniSetting(sec, key, val);",保存されている設定ファイルを更新し、sec セクションの key キーの値を val にします。 この変更は LoadIniSetting() 実行まで反映されません。,1.6.0
+SetRowHeight(h);,すべての行の高さを h に設定します。,-
+"SetRowHeight(y, h);",y 行目の高さを h に設定します。,-
+SetStatusBarCount(x);,ステータスバー内の表示領域の個数を設定します。,1.6.0
+"SetStatusBarPopUp(x, str, lambda);",x 番目の領域を右クリックした時に表示されるポップアップメニューを設定します。第二引数には表示されるメニュー項目を改行区切りの文字列で指定します。第三引数にはメニュー項目がクリックされた時の処理をラムダ式で記述します。このラムダ式にはクリックされた項目が文字列で渡されます。ラムダ式の外で定義された変数は参照できません。,2.5.0
+"SetStatusBarText(x, str);",x 番目の領域に str を表示します。,1.6.0
+"SetStatusBarWidth(x, w);",x 番目の領域の幅を w に設定します。デフォルト値は 50 です。,1.6.0
+"ShellOpen(appname, filename);",filename をパラメータとして appname で指定したアプリケーションを実行します。,1.7.0
+ShellOpen(filename);,指定されたファイルを関連付けられたアプリケーションで開きます。,1.7.0
+ShowDialog(element),element で内容を指定したダイアログボックスを表示します。使い方の詳細は同梱の「lib/Dialog.cms」、「列数・行数を変更.cms」、「カード編集.cms」を参照してください。,2.7.0
+"ShowDialog(element, title)",element で内容を指定したダイアログボックスを表示します。タイトルに title を表示します。使い方の詳細は同梱の「lib/Dialog.cms」、「列数・行数を変更.cms」、「カード編集.cms」を参照してください。,2.7.0
+ShowStatusbar();,ステータスバーの表示の切り替え,1.6.0
+ShowToolbar();,ツールバーの表示の切り替え,-
+Sjis();,セーブ時文字コードを「Shift-JIS」に設定,-
+Sort();,ソート,-
+"Sort(l, t, r, b, x, dir, num, case, zenhan);",t 行 l 列から b 行 r 列までの範囲を x 列でソートします。第六引数以降は真偽値のフラグで、順に「降順ソート」「数字のセルは数値の大小でソートする」「大文字と小文字を同一視する」「全角と半角を同一視する」を表します。,1.9.0
+StartMacroRecording();,マクロの記録を開始します。,2.3.0
+StayOnTop();,常に最前面に表示の切り替え,-
+StopMacroRecording();,マクロの記録を終了します。,2.3.0
+TransChar0();,英数・記号を半角に変換,-
+TransChar1();,英数・記号を全角に変換,-
+TransChar2();,英字を大文字に変換,-
+TransChar3();,英字を小文字に変換,-
+TransChar4();,カナを半角に変換,-
+TransChar5();,カナを全角に変換,-
+UnFix();,固定を解除,-
+Undo();,元に戻す,-
+Unicode();,セーブ時文字コードを「UTF-16LE」に設定,-
+Utf16be();,セーブ時文字コードを「UTF-16BE」に設定,1.4.0
+Utf8();,セーブ時文字コードを「UTF-8」に設定,-
+"WriteToFile(str, filename);",文字列 str をファイル filename に文字コード UTF-8 で書き込みます。,2.3.0
+acos(x),x のアークコサインを返します。,2.3.0
+asc(str),Shift-JIS で str の 1 文字目のコードユニットの数値を返します。,1.7.0
+ascW(str),UTF-16 で str の 1 文字目のコードユニットの数値を返します。,1.7.0
+asin(x),x のアークサインを返します。,2.3.0
+atan(x),x のアークタンジェントを返します。,2.3.0
+"atan2(y, x)","点 (0, 0) から点 (x, y) までの半直線と、正の x 軸の間の角度を返します。",2.3.0
+"avr(l, t, r, b)",t 行 l 列から b 行 r 列までの範囲の数値データの平均値を返します。,1.5.0
+chr(x),Shift-JIS のコードユニットが x である文字を返します。,1.7.0
+chrW(x),UTF-16 のコードユニットが x である文字を返します。,1.7.0
+cos(x),x のコサインを返します。,1.9.0
 double(x),xと同じ値の数値を返します。(x - 0)と同じ効果です。 doubleの返す値に対して「+」演算子を適用すると加算となります。,1.5.0
-str(x),"xと同じ値の文字列を返します。(x + """")と同じ効果です。 strの返す値に対して「+」演算子を適用すると文字列連結となります。",1.5.0
-"max(a, b, ...)",引数に渡したもののうち最大の値を返します。,-
-"min(a, b, ...)",引数に渡したもののうち最小の値を返します。,-
+int(x),xの値を0方向に丸めた数値を返します。 intの返す値に対して「+」演算子を適用すると加算となります。,1.5.0
+"left(str, x)",文字列 str の最初 x 文字を切り出して返します。全角文字を1文字と数えます。,1.4.0
 len(str),文字列 str の長さを返します。全角文字を1文字と数えます。,1.5.0
 lenB(str),文字列 str の長さを返します。全角文字を2文字と数えます。,1.5.0
-"left(str, x)",文字列 str の最初 x 文字を切り出して返します。全角文字を1文字と数えます。,1.4.0
-"right(str, x)",文字列 str の最後 x 文字を切り出して返します。全角文字を1文字と数えます。,1.4.0
-"mid(str, x, y)",文字列 str の x 文字目から y 文字を切り出して返します。 最初の文字のインデックスは 1 です。 全角文字を1文字と数えます。,1.4.0
+"max(a, b, ...)",引数に渡したもののうち最大の値を返します。,-
 "mid(str, x)",文字列 str の x 文字以降を切り出して返します。 最初の文字のインデックスは 1 です。 全角文字を1文字と数えます。,1.4.0
+"mid(str, x, y)",文字列 str の x 文字目から y 文字を切り出して返します。 最初の文字のインデックスは 1 です。 全角文字を1文字と数えます。,1.4.0
 "mid(str1, x, y) = str2;",文字列 str1 の x 文字目から y 文字を str2 に置き換えます。 最初の文字のインデックスは 1 です。 全角文字を1文字と数えます。,1.4.0
+"min(a, b, ...)",引数に渡したもののうち最小の値を返します。,-
+"move(vx, vy);","カーソル位置を (vx, vy) だけ移動します。",-
+"moveto(x, y);","カーソル位置を (x, y) に設定します。",-
 "pos(str1, str2)",str1 中の str2 の位置を返します。 最初の文字のインデックスは 1 です。 str2 が str1 に含まれなかった場合、 0 が返されます。 全角文字を1文字と数えます。,1.5.0
 "posB(str1, str2)",str1 中の str2 の位置を返します。 最初の文字のインデックスは 1 です。 str2 が str1 に含まれなかった場合、 0 が返されます。 全角文字を2文字と数えます。,1.5.0
+"pow(x, y)",x を y 乗した値を返します。,1.9.0
+random(x),0 以上 x 未満のランダムな整数値を返します。,1.26
 "replace(str1, str2, str3)",str1 中の str2 をすべて str3 に置換した文字列を返します。元の str1 は変化しません。,1.24d
 "replace(str1, str2, str3, ignoreCase, regex)","この関数は非推奨です。Ver.2.5.0 以降では str1.replace(pattern, str2) を使用してください。
 str1 中の str2 をすべて str3 に置換した文字列を返します。元の str1 は変化しません。ignoreCase と regex は真偽値のフラグで、順に「大文字と小文字を同一視」「正規表現検索」を表します。",2.2.0
-asc(str),Shift-JIS で str の 1 文字目のコードユニットの数値を返します。,1.7.0
-ascW(str),UTF-16 で str の 1 文字目のコードユニットの数値を返します。,1.7.0
-chr(x),Shift-JIS のコードユニットが x である文字を返します。,1.7.0
-chrW(x),UTF-16 のコードユニットが x である文字を返します。,1.7.0
+"right(str, x)",文字列 str の最後 x 文字を切り出して返します。全角文字を1文字と数えます。,1.4.0
+sin(x),x のサインを返します。,1.9.0
+sqrt(x),x の平方根を返します。,1.9.0
+str(x),"xと同じ値の文字列を返します。(x + """")と同じ効果です。 strの返す値に対して「+」演算子を適用すると文字列連結となります。",1.5.0
 str.length,文字列 str の長さを返します。全角文字を1文字と数えます。,2.3.0
-str[x],文字列 str の x 文字目のみを含む文字列を返します。最初の文字のインデックスは 0 です。全角文字を1文字と数えます。,2.3.0
+str.padEnd(x),文字列 str の長さが x になるように末尾に空白を追加した文字列を返します。全角文字を1文字と数えます。,2.3.0
+str.padStart(x),文字列 str の長さが x になるように先頭に空白を追加した文字列を返します。全角文字を1文字と数えます。,2.3.0
+str.repeat(x),文字列 str を x 回繰り返した文字列を返します。,2.3.0
+str.search(pattern),文字列 str の中で最初に pattern にマッチする位置を返します。pattern には文字列もしくは正規表現オブジェクトを指定できますが、pattern に文字列が渡された場合も正規表現として解釈されます。最初の文字のインデックスは 0 です。 マッチしなかった場合、 -1 が返されます。 全角文字を1文字と数えます。,2.5.0
+str.substring(x),文字列 str の x 文字以降を切り出して返します。 最初の文字のインデックスは 0 です。 全角文字を1文字と数えます。,2.3.0
+"str.substring(x, y)",文字列 str の x 文字目から y 文字目までを切り出して返します。 最初の文字のインデックスは 0 です。 全角文字を1文字と数えます。,2.3.0
+str.toLowerCase(),文字列 str を小文字に変換した文字列を返します。,2.3.0
+str.toUpperCase(),文字列 str を大文字に変換した文字列を返します。,2.3.0
+str.trim(),文字列 str から前後の空白文字を除いた文字列を返します。,2.3.0
+str.trimEnd(),文字列 str から末尾の空白文字を除いた文字列を返します。,2.3.0
+str.trimStart(),文字列 str から先頭の空白文字を除いた文字列を返します。,2.3.0
 str1.endsWith(str2),文字列 str1 が str2 で終わるかを返します。,2.3.0
 "str1.endsWith(str2, x)",文字列 str1 の最初の x 文字が str2 で終わるかを返します。全角文字を1文字と数えます。,2.3.0
 str1.includes(str2),文字列 str1 内に str2 が含まれるかを返します。,2.3.0
@@ -38,204 +236,17 @@ str1.indexOf(str2),文字列 str1 中で str2 が最初に現れる位置を返�
 "str1.indexOf(str2, x)",文字列 str1 の x 文字目以降で str2 が最初に現れる位置を返します。 最初の文字のインデックスは 0 です。 str2 が現れなかった場合、 -1 が返されます。 全角文字を1文字と数えます。,2.3.0
 str1.lastIndexOf(str2),文字列 str1 中で str2 が最後に現れる位置を返します。 最初の文字のインデックスは 0 です。 str2 が現れなかった場合、 -1 が返されます。 全角文字を1文字と数えます。,2.3.0
 "str1.lastIndexOf(str2, x)",文字列 str1 の x 文字目までで str2 が最後に現れる位置を返します。 最初の文字のインデックスは 0 です。 str2 が現れなかった場合、 -1 が返されます。 全角文字を1文字と数えます。,2.3.0
-str.padEnd(x),文字列 str の長さが x になるように末尾に空白を追加した文字列を返します。全角文字を1文字と数えます。,2.3.0
 "str1.padEnd(x, str2)",文字列 str1 の長さが x になるように末尾に str2 を追加した文字列を返します。全角文字を1文字と数えます。,2.3.0
-str.padStart(x),文字列 str の長さが x になるように先頭に空白を追加した文字列を返します。全角文字を1文字と数えます。,2.3.0
 "str1.padStart(x, str2)",文字列 str1 の長さが x になるように先頭に str2 を追加した文字列を返します。全角文字を1文字と数えます。,2.3.0
-str.repeat(x),文字列 str を x 回繰り返した文字列を返します。,2.3.0
 "str1.replace(pattern, str2)",文字列 str1 中で pattern に最初にマッチする箇所を str2 に置換した文字列を返します。元の str1 は変化しません。pattern には文字列もしくは正規表現オブジェクトを指定できます。,2.5.0
 "str1.replaceAll(pattern, str2)",文字列 str1 中の pattern にマッチする箇所をすべて str2 に置換した文字列を返します。元の str1 は変化しません。pattern には文字列もしくは正規表現オブジェクトを指定できます。,2.5.0
-str.search(pattern),文字列 str の中で最初に pattern にマッチする位置を返します。pattern には文字列もしくは正規表現オブジェクトを指定できますが、pattern に文字列が渡された場合も正規表現として解釈されます。最初の文字のインデックスは 0 です。 マッチしなかった場合、 -1 が返されます。 全角文字を1文字と数えます。,2.5.0
 str1.startsWith(str2),文字列 str1 が str2 で始まるかを返します。,2.3.0
 "str1.startsWith(str2, x)",文字列 str1 の x 文字目以降が str2 で始まるかを返します。最初の文字のインデックスは 0 です。全角文字を1文字と数えます。,2.3.0
-str.substring(x),文字列 str の x 文字以降を切り出して返します。 最初の文字のインデックスは 0 です。 全角文字を1文字と数えます。,2.3.0
-"str.substring(x, y)",文字列 str の x 文字目から y 文字目までを切り出して返します。 最初の文字のインデックスは 0 です。 全角文字を1文字と数えます。,2.3.0
-str.toLowerCase(),文字列 str を小文字に変換した文字列を返します。,2.3.0
-str.toUpperCase(),文字列 str を大文字に変換した文字列を返します。,2.3.0
-str.trim(),文字列 str から前後の空白文字を除いた文字列を返します。,2.3.0
-str.trimEnd(),文字列 str から末尾の空白文字を除いた文字列を返します。,2.3.0
-str.trimStart(),文字列 str から先頭の空白文字を除いた文字列を返します。,2.3.0
-x.toString(),x の文字列表現を返します。,2.3.0
-"/pattern/flags
-new RegExp(pattern, flags)","str1.replace(regexp, str2), str1.replaceAll(regexp, str2), str.search(regexp), ReplaceAll(pattern, str) で使用できる正規表現オブジェクトを生成します。flags には空文字列もしくは「g」「i」「gi」が指定できます。最初のマッチだけでなく一致するものをすべて置換する場合は「g」を、大文字小文字を区別せずに検索する場合は「i」を指定してください。",2.5.0
+str[x],文字列 str の x 文字目のみを含む文字列を返します。最初の文字のインデックスは 0 です。全角文字を1文字と数えます。,2.3.0
 "sum(l, t, r, b)",t 行 l 列から b 行 r 列までの範囲の数値データの合計値を返します。,1.5.0
-"avr(l, t, r, b)",t 行 l 列から b 行 r 列までの範囲の数値データの平均値を返します。,1.5.0
-random(x),0 以上 x 未満のランダムな整数値を返します。,1.26
-sqrt(x),x の平方根を返します。,1.9.0
-sin(x),x のサインを返します。,1.9.0
-cos(x),x のコサインを返します。,1.9.0
+"swap(a, b);",a と b の値を交換します。,-
 tan(x),x のタンジェントを返します。,1.9.0
-asin(x),x のアークサインを返します。,2.3.0
-acos(x),x のアークコサインを返します。,2.3.0
-atan(x),x のアークタンジェントを返します。,2.3.0
-"atan2(y, x)","点 (0, 0) から点 (x, y) までの半直線と、正の x 軸の間の角度を返します。",2.3.0
-"pow(x, y)",x を y 乗した値を返します。,1.9.0
-MessageBox(str);,str を表示します。OK ボタンのみ表示されます。,-
-"MessageBox(str, flag);",str を表示します。ボタンの種類を flag で指定します。,-
-"MessageBox(str1, str2, flag);",メッセージボックス内に str1 を、タイトルに str2 を表示します。ボタンの種類を flag で指定します。,-
-InputBox(str);,str を表示します。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。,2.0.0
-"InputBox(str, def);",str を表示します。テキストボックスのデフォルト値は def です。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。,2.0.0
-"InputBox(str1, str2, def);",インプットボックス内に str1 を、タイトルに str2 を表示します。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。,2.0.0
-InputBoxMultiLine(str);,str を表示します。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。,2.0.0
-"InputBoxMultiLine(str, def);",str を表示します。テキストボックスのデフォルト値は def です。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。,2.0.0
-"InputBoxMultiLine(str1, str2, def);",インプットボックス内に str1 を、タイトルに str2 を表示します。 テキストボックスのデフォルト値は def です。 「OK」が押されると入力された文字列を返します。 「キャンセル」が押されるとマクロを終了します。,2.0.0
-ShowDialog(element),element で内容を指定したダイアログボックスを表示します。使い方の詳細は同梱の「lib/Dialog.cms」、「列数・行数を変更.cms」、「カード編集.cms」を参照してください。,2.7.0
-"ShowDialog(element, title)",element で内容を指定したダイアログボックスを表示します。タイトルに title を表示します。使い方の詳細は同梱の「lib/Dialog.cms」、「列数・行数を変更.cms」、「カード編集.cms」を参照してください。,2.7.0
-InsertRow(y);,y 行目に新しい行を挿入します。,-
-"InsertRow(t, b);",t 行目から b 行目まで新しい行を挿入します。,2.0.0
-DeleteRow(y);,y 行目を削除します。,-
-"DeleteRow(t, b);",t 行目から b 行目までを削除します。,2.0.0
-InsertCol(x);,x 列目に新しい列を挿入します。,-
-"InsertCol(l, r);",l 列目から r 列目まで新しい列を挿入します。,2.0.0
-DeleteCol(x);,x 列目を削除します。,-
-"DeleteCol(l, r);",l 列目から r 列目までを削除します。,2.0.0
-"MoveRow(y1, y2);",y1 行目を y2 行に移動します。,2.3.2
-"MoveCol(x1, x2);",x1 列目を x2 列に移動します。,2.3.2
-GetRowHeight(y),y 行目の高さを返します。y を省略すると標準の行の高さが返されます。,-
-"SetRowHeight(y, h);",y 行目の高さを h に設定します。,-
-SetRowHeight(h);,すべての行の高さを h に設定します。,-
-AdjustRowHeight(y);,y 行目の高さをセル内容に合わせて最適化します。,1.7.0
-GetColWidth(x),x 列目の幅を返します。x を省略すると標準の列の幅が返されます。,-
-"SetColWidth(x, w);",x 列目の幅を w に設定します。,-
-SetColWidth(w);,すべての列の幅を w に設定します。,-
-AdjustColWidth(x);,x 列目の幅をセル内容に合わせて最適化します。,1.7.0
-SaveIniSetting();,現在の Cassava の状態を設定ファイルに保存します。,1.6.0
-LoadIniSetting();,前回保存した設定ファイルを読み込み、Cassava の状態を元に戻します。,1.6.0
-"GetIniSetting(sec, key);",保存されている設定ファイルを読み込み、sec セクションの key キーの値を取得します。 この値は設定ファイルに保存された値であり、最新の Cassava の状態とは異なる場合があります。,1.6.0
-"SetIniSetting(sec, key, val);",保存されている設定ファイルを更新し、sec セクションの key キーの値を val にします。 この変更は LoadIniSetting() 実行まで反映されません。,1.6.0
-GetSettingPath(),設定ファイルの保存先フォルダの絶対パスを返します。,2.3.0
-GetFontName(),現在設定されているフォント名を返します。,1.6.0
-SetFontName(str);,フォントを str に変更します。,2.0.4
-GetFontSize(),現在設定されているフォントサイズを返します。,1.6.0
-SetFontSize(x);,フォントサイズを x に変更します。,2.0.4
-GetCharCode(),保存時文字コードに設定されている文字コード名を返します。,2.5.0
-SetCharCode(str);,保存時文字コードを str に変更します。,2.5.0
-GetDataTypes(),登録されているデータ形式名の一覧を改行区切りの文字列で返します。,2.5.0
-GetActiveDataType(),現在使用中のデータ形式名を返します。,2.5.0
-SetActiveDataType(str);,使用するデータ形式を str に変更します。,2.5.0
-Clear();,変更を破棄して新規テーブルを作成します。,2.7.0
-ShellOpen(filename);,指定されたファイルを関連付けられたアプリケーションで開きます。,1.7.0
-"ShellOpen(appname, filename);",filename をパラメータとして appname で指定したアプリケーションを実行します。,1.7.0
-Open(filename);,filename を開きます。,1.8.1
-"Open(filename, type);",filename を type で指定した形式で開きます。,2.7.0
-SaveAs(filename);,現在開いているファイルを filename に保存します。,1.8.0
-"SaveAs(filename, type);",現在開いているファイルを type で指定した形式で filename に保存します。,1.8.0
-"Export(filename, type);",現在開いているファイルを type で指定した形式で filename にエクスポートします。,1.8.0
-FileExists(filename),filename という名前のファイルが存在するかどうかを返します。,2.3.0
-"WriteToFile(str, filename);",文字列 str をファイル filename に文字コード UTF-8 で書き込みます。,2.3.0
-"Sort(l, t, r, b, x, dir, num, case, zenhan);",t 行 l 列から b 行 r 列までの範囲を x 列でソートします。第六引数以降は真偽値のフラグで、順に「降順ソート」「数字のセルは数値の大小でソートする」「大文字と小文字を同一視する」「全角と半角を同一視する」を表します。,1.9.0
-"Select(l, t, r, b);",t 行 l 列から b 行 r 列までの範囲を選択します。,2.3.0
-Paste(x);,オプションを指定して貼り付けます。x は 0 以上 5 以下の整数で、PasteOption0() ～ PasteOption5() に対応します。,2.3.0
-QuickFind(str);,簡易検索パネルを開き、検索文字列に str を設定します。実際に検索をするには FindNext(); を実行してください。,2.7.0
-"ReplaceAll(pattern, str);",固定セルを除く編集中のデータ内の pattern をすべて str に置換します。Ver.2.7 以降では、pattern には文字列もしくは正規表現オブジェクトを指定できます。,2.0.0
-"ReplaceAll(pattern, str, ignoreCase, wholeCell, regex);",固定セルを除く編集中のデータ内の pattern をすべて str に置換します。第三引数以降は真偽値のフラグで、順に「大文字と小文字を同一視」「セル内容が完全に同一であるものを検索」「正規表現検索」を表します。Ver.2.7 以降では、regex が true の場合 pattern には文字列もしくは正規表現オブジェクトを指定できます。,2.0.0
-"ReplaceAll(pattern, str, ignoreCase, wholeCell, regex, l, t, r, b);",t 行 l 列から b 行 r 列までの範囲内の pattern をすべて str に置換します。第三引数から第五引数までは真偽値のフラグで、順に「大文字と小文字を同一視」「セル内容が完全に同一であるものを検索」「正規表現検索」を表します。Ver.2.7 以降では、regex が true の場合 pattern には文字列もしくは正規表現オブジェクトを指定できます。,2.0.0
-GetFileName(),編集中の CSV ファイルのファイル名を返します。新規作成したデータを編集中は空の文字列が返されます。,1.24
-GetFilePath(),編集中の CSV ファイルの絶対パスを返します。新規作成したデータを編集中は空の文字列が返されます。それ以外の場合、必ず「\」で終わる文字列が返されます。,1.24
-GetYear(),実行時の日付の「年」を返します。4 桁の整数が返されます。,1.24
-GetMonth(),実行時の日付の「月」を返します。1 ～ 12 の整数が返されます。,1.24
-GetDate(),実行時の日付の「日」を返します。1 ～ 31 の整数が返されます。,1.24
-GetHours(),実行時の日付の「時」を返します。0 ～ 23 の整数が返されます。,1.24
-GetMinutes(),実行時の日付の「分」を返します。0 ～ 59 の整数が返されます。,1.24
-GetSeconds(),実行時の日付の「秒」を返します。0 ～ 59 の整数が返されます。,1.24
-New();,新規テーブルの作成,-
-Open();,開く,-
-Reload();,再読み込み,-
-OpenHistoryn(); (最後の n は 0 ～ 9 の数字),履歴から開く,-
-OpenHistoryClear();,履歴をクリア,-
-ReloadCodeShiftJIS();,Shift-JIS として再読み込み,-
-ReloadCodeEUC();,EUC として再読み込み,-
-ReloadCodeJIS();,JIS として再読み込み,-
-ReloadCodeUTF8();,UTF-8 として再読み込み,-
-ReloadCodeUnicode();,UTF-16LE として再読み込み,-
-ReloadCodeUTF16BE();,UTF-16BE として再読み込み,1.4.0
-Save();,上書き保存,-
-SaveAs();,名前をつけて保存,-
-Export();,エクスポート,-
-Sjis();,セーブ時文字コードを「Shift-JIS」に設定,-
-Euc();,セーブ時文字コードを「EUC」に設定,-
-Jis();,セーブ時文字コードを「JIS」に設定,-
-Utf8();,セーブ時文字コードを「UTF-8」に設定,-
-Unicode();,セーブ時文字コードを「UTF-16LE」に設定,-
-Utf16be();,セーブ時文字コードを「UTF-16BE」に設定,1.4.0
-Lfcr();,セーブ時改行コードを「CR+LF」に設定,-
-Lf();,セーブ時改行コードを「LF」に設定,-
-Cr();,セーブ時改行コードを「CR」に設定,-
-LfInCell();,セーブ時改行コードを「セル内改行のみ LF」に設定,2.4.0
-Bom();,セーブ時の BOM の有無を切り替え,2.3.0
-OpenCellFile();,現在のセルのファイルを開く,-
-Print();,印刷,-
-LetterPrint();,はがき印刷,-
-End();,終了,-
-Undo();,元に戻す,-
-Redo();,やり直し,-
-Cut();,切り取り,-
-Copy();,コピー,-
-Paste();,貼り付け,-
-SelectAll();,すべて選択,-
-PasteNormal();,貼り付けオプションを「標準」に設定,-
-PasteOption0();,貼り付けオプションを「選択領域と重なった部分のみに貼り付け」に設定,-
-PasteOption1();,貼り付けオプションを「選択領域にくり返し処理をして貼り付け」に設定,-
-PasteOption2();,貼り付けオプションを「データのサイズで上書き」に設定,-
-PasteOption3();,貼り付けオプションを「内容を右に移動させてデータを挿入」に設定,-
-PasteOption4();,貼り付けオプションを「内容を下に移動させてデータを挿入」に設定,-
-PasteOption5();,貼り付けオプションを「テキストとして1セル内に貼り付け」に設定,1.26
-Sort();,ソート,-
-SelectRow();,行選択,-
-SelectCol();,列選択,-
-CopySum();,合計をコピー,-
-CopyAvr();,平均をコピー,-
-TransChar0();,英数・記号を半角に変換,-
-TransChar1();,英数・記号を全角に変換,-
-TransChar2();,英字を大文字に変換,-
-TransChar3();,英字を小文字に変換,-
-TransChar4();,カナを半角に変換,-
-TransChar5();,カナを全角に変換,-
-SequenceS();,連番作成,-
-SequenceC();,1 行目をコピー,-
-InsRow();,行挿入,-
-InsCol();,列挿入,-
-CutRow();,行削除,-
-CutCol();,列削除,-
-Enter();,行分割,-
-NewLine();,セル内改行,-
-ConnectCell();,左のセルと結合,-
-InsertCellRight();,右にセルを挿入,-
-InsertCellDown();,下にセルを挿入,-
-DeleteCellLeft();,左につめる,-
-DeleteCellUp();,上につめる,-
-QuickFind();,簡易検索,1.6.0
-Find();,検索・置換,-
-FindNext();,次を検索,-
-FindBack();,前を検索,-
-Refresh();,列幅を調整して再描画,-
-Font();,フォント,-
-StayOnTop();,常に最前面に表示の切り替え,-
-CalcExpression();,セル内計算式を処理の切り替え,1.5.0
-HideMenuBar();,メニューバーを非表示にする,2.6.0
-ShowToolbar();,ツールバーの表示の切り替え,-
-ShowStatusbar();,ステータスバーの表示の切り替え,1.6.0
-FixFirstRow();,1 行目を固定の切り替え,-
-FixFirstCol();,1 列目を固定の切り替え,-
-FixUpLeft();,カーソル位置までを固定,-
-UnFix();,固定を解除,-
-MacroOpenUserFolder();,ユーザーマクロフォルダを開く,1.6.0
-MacroOpenFolder();,アプリケーションマクロフォルダを開く,-
-MacroExecute();,指定したマクロを実行,-
-MacroTerminate();,マクロの実行を中断,1.7.0
-OptionDlg();,オプション,-
-Key();,キーカスタマイズ,-
-Applin(); (最後の n は 0 ～ 2 の数字),外部アプリケーション,-
-Contents();,ヘルプを開く,-
-CheckUpdate();,Cassava の更新を確認,1.7.0
-About();,Cassava のバージョン情報を表示,-
-SetStatusBarCount(x);,ステータスバー内の表示領域の個数を設定します。,1.6.0
-"SetStatusBarText(x, str);",x 番目の領域に str を表示します。,1.6.0
-"SetStatusBarWidth(x, w);",x 番目の領域の幅を w に設定します。デフォルト値は 50 です。,1.6.0
-"SetStatusBarPopUp(x, str, lambda);",x 番目の領域を右クリックした時に表示されるポップアップメニューを設定します。第二引数には表示されるメニュー項目を改行区切りの文字列で指定します。第三引数にはメニュー項目がクリックされた時の処理をラムダ式で記述します。このラムダ式にはクリックされた項目が文字列で渡されます。ラムダ式の外で定義された変数は参照できません。,2.5.0
-GetStatusBarCount(),ステータスバー内の表示領域の個数を取得します。,1.6.0
-GetStatusBarText(x),x 番目の領域に表示された文字列を取得します。,1.6.0
-GetStatusBarWidth(x),x 番目の領域の幅を取得します。,1.6.0
-StartMacroRecording();,マクロの記録を開始します。,2.3.0
-StopMacroRecording();,マクロの記録を終了します。,2.3.0
-GetRecordedMacro(),記録中のマクロを取得します。StartMacroRecording() の呼び出し前や StopMacroRecording() の呼び出し後は空文字列を返します。,2.3.0
+write(str);,カーソル位置のセルの内容を str にし、カーソルを右に移動します。エクスポートマクロ中ではファイルに書き出します。,-
+writeln();,カーソルを次の行に移動します。エクスポートマクロ中ではファイルに改行を書き出します。,-
+writeln(str);,カーソル位置のセルの内容を str にし、カーソルを次の行に移動します。エクスポートマクロ中ではファイルに書き出します。,-
+x.toString(),x の文字列表現を返します。,2.3.0
