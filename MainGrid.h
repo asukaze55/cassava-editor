@@ -77,9 +77,6 @@ private:
       return (ARow>=Selection.Top  && ARow<=Selection.Bottom &&
           ACol>=Selection.Left && ACol<=Selection.Right);
     }
-    int GetSelLeft() { return Selection.Left; }
-    int GetSelTop() { return Selection.Top; }
-
     int GetDataLeft(){ return (ShowRowCounter ? 1 : 0); }
     int GetDataTop() { return (ShowColCounter ? 1 : 0); }
     int FDataRight, FDataBottom;
@@ -172,8 +169,6 @@ public:
     void __fastcall ShowEditor();
     __property bool Selected[int ACol][int ARow] = {read=GetSelected};
     void SetSelection(long Left, long Right, long Top, long Bottom);
-    __property int SelLeft = {read=GetSelLeft};
-    __property int SelTop  = {read=GetSelTop};
 
     __property int DataLeft   = {read=GetDataLeft};
     __property int DataTop    = {read=GetDataTop};

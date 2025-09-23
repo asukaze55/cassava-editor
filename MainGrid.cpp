@@ -1360,8 +1360,8 @@ void TMainGrid::CopyToClipboard(const TTypeOption *Format, bool Cut)
 
   UndoList->Push();
 
-  int SLeft = SelLeft;
-  int STop = SelTop;
+  int SLeft = Selection.Left;
+  int STop = Selection.Top;
   int SRight = Selection.Right;
   int SBottom = Selection.Bottom;
 
@@ -1416,8 +1416,8 @@ void TMainGrid::PasteFromClipboard(int Way, const TTypeOption *Format)
     return;
   }
 
-  int STop = SelTop;
-  int SLeft = SelLeft;
+  int STop = Selection.Top;
+  int SLeft = Selection.Left;
   int SBottom = Selection.Bottom;
   int SRight = Selection.Right;
   int SelectRowCount = SBottom - STop + 1;
@@ -1631,8 +1631,8 @@ double TMainGrid::SelectSum(int *Count)
 {
   double Sum = 0;
   int NumCount = 0;
-  for(int i=SelLeft; i <= Selection.Right; i++){
-    for(int j=SelTop; j <= Selection.Bottom; j++){
+  for (int i = Selection.Left; i <= Selection.Right; i++) {
+    for (int j = Selection.Top; j <= Selection.Bottom; j++) {
       String Str = GetACells(RXtoAX(i),RYtoAY(j));
       if(Str != ""){
         try{
@@ -1767,14 +1767,14 @@ int Zenkaku2Hankaku(wchar_t wc, wchar_t *ans)
 void TMainGrid::TransChar(int Type)
 {
   UndoList->Push();
-  for(int i=SelLeft; i <= Selection.Right; i++){
-    for(int j=SelTop; j <= Selection.Bottom; j++){
+  for (int i = Selection.Left; i <= Selection.Right; i++) {
+    for (int j = Selection.Top; j <= Selection.Bottom; j++) {
       SetCell(i, j, TransChar(Cells[i][j], Type));
     }
   }
-  UndoList->Pop((String)"Select(" + RXtoAX(SelLeft) + ", " + RYtoAY(SelTop)
-      + ", " + RXtoAX(Selection.Right) + ", " + RYtoAY(Selection.Bottom)
-      + ");\nTransChar" + Type + "();");
+  UndoList->Pop((String)"Select(" + RXtoAX(Selection.Left) + ", " +
+      RYtoAY(Selection.Top) + ", " + RXtoAX(Selection.Right) + ", " +
+      RYtoAY(Selection.Bottom) + ");\nTransChar" + Type + "();");
   Modified = true;
 }
 //---------------------------------------------------------------------------
@@ -1817,14 +1817,14 @@ String TMainGrid::TransChar(String Str, int Type)
 void TMainGrid::TransKana(int Type)
 {
   UndoList->Push();
-  for(int i=SelLeft; i <= Selection.Right; i++){
-    for(int j=SelTop; j <= Selection.Bottom; j++){
+  for (int i = Selection.Left; i <= Selection.Right; i++) {
+    for (int j = Selection.Top; j <= Selection.Bottom; j++) {
       SetCell(i, j, TransKana(Cells[i][j], Type));
     }
   }
-  UndoList->Pop((String)"Select(" + RXtoAX(SelLeft) + ", " + RYtoAY(SelTop)
-      + ", " + RXtoAX(Selection.Right) + ", " + RYtoAY(Selection.Bottom)
-      + ");\nTransChar" + Type + "();");
+  UndoList->Pop((String)"Select(" + RXtoAX(Selection.Left) + ", " +
+      RYtoAY(Selection.Top) + ", " + RXtoAX(Selection.Right) + ", " +
+      RYtoAY(Selection.Bottom) + ");\nTransChar" + Type + "();");
   Modified = true;
 }
 //---------------------------------------------------------------------------
@@ -2146,8 +2146,10 @@ void __fastcall TMainGrid::DeleteColumn(int ACol)
 //---------------------------------------------------------------------------
 void TMainGrid::InsertEnter()
 {
-  long X = SelLeft, Y = Selection.Top, L = DataLeft;
-  int SelLen = Selection.Right - SelLeft;
+  int X = Selection.Left;
+  int Y = Selection.Top;
+  int L = DataLeft;
+  int SelLen = Selection.Right - X;
 
   bool OneCell = EditorMode && InplaceEditor->SelStart > 0;
   if (X == 1 && !OneCell) {
@@ -2264,13 +2266,15 @@ void TMainGrid::ConnectCell()
 //---------------------------------------------------------------------------
 void TMainGrid::InsertCell_Right()
 {
-  InsertCells_Right(SelLeft, Selection.Right, SelTop, Selection.Bottom);
+  InsertCells_Right(
+      Selection.Left, Selection.Right, Selection.Top, Selection.Bottom);
   Modified = true;
 }
 //---------------------------------------------------------------------------
 void TMainGrid::InsertCell_Down()
 {
-  InsertCells_Down(SelLeft, Selection.Right, SelTop, Selection.Bottom);
+  InsertCells_Down(
+      Selection.Left, Selection.Right, Selection.Top, Selection.Bottom);
   Modified = true;
 }
 //---------------------------------------------------------------------------
@@ -2280,7 +2284,8 @@ void TMainGrid::DeleteCell_Left()
     return;
   }
   if(RangeSelect){
-    DeleteCells_Left(SelLeft, Selection.Right, SelTop, Selection.Bottom);
+    DeleteCells_Left(
+        Selection.Left, Selection.Right, Selection.Top, Selection.Bottom);
   }else{
     int i;
     for (i = Col; i < ColCount; i++) {
@@ -2313,7 +2318,8 @@ void TMainGrid::DeleteCell_Left()
 //---------------------------------------------------------------------------
 void TMainGrid::DeleteCell_Up()
 {
-  DeleteCells_Up(SelLeft, Selection.Right, SelTop,Selection.Bottom);
+  DeleteCells_Up(
+      Selection.Left, Selection.Right, Selection.Top, Selection.Bottom);
   Modified = true;
   UpdateDataRightBottom(0,0);
 }
@@ -3317,8 +3323,8 @@ void __fastcall TMainGrid::KeyDown(Word &Key, Classes::TShiftState Shift)
   if(Key == VK_DELETE && EditorMode == false)
   {
     UndoList->Push();
-    for (int i = SelTop; i <= Selection.Bottom; i++) {
-      for (int j = SelLeft; j <= Selection.Right; j++) {
+    for (int i = Selection.Top; i <= Selection.Bottom; i++) {
+      for (int j = Selection.Left; j <= Selection.Right; j++) {
         SetCell(j, i, "");
       }
     }

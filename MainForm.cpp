@@ -2813,13 +2813,13 @@ void __fastcall TfmMain::mnSortClick(TObject *Sender)
   if(MainGrid->RangeSelect){
     if(SortAll && MainGrid->Selection.Left == MainGrid->Selection.Right){
       R.Left   = 1;
-      R.Top    = MainGrid->SelTop;
+      R.Top    = MainGrid->Selection.Top;
       R.Right  = MainGrid->DataRight;
       R.Bottom = MainGrid->DataBottom;
-      sortcol = MainGrid->SelLeft;
+      sortcol = MainGrid->Selection.Left;
     }else{
       R = MainGrid->Selection;
-      sortcol = MainGrid->SelLeft;
+      sortcol = MainGrid->Selection.Left;
     }
   }else{
     R.Left   = 1;

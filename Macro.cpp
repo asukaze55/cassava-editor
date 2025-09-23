@@ -156,12 +156,12 @@ public:
 
   int GetSelLeft() {
     ApplyPendingChanges();
-    return RXtoAX(grid->SelLeft);
+    return RXtoAX(grid->Selection.Left);
   }
 
   int GetSelTop() {
     ApplyPendingChanges();
-    return RYtoAY(grid->SelTop);
+    return RYtoAY(grid->Selection.Top);
   }
 
   int GetSelRight() {
