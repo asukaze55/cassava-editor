@@ -58,24 +58,30 @@ void __fastcall TfmFind::btnSearchFromTopClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmFind::btnNextClick(TObject *Sender)
 {
-  if(PageControl->TabIndex == 0){
-    fmMain->MainGrid->Find(edFindText->Text, GetRange(), cbCase->Checked,
-        cbRegex->Checked, cbWordSearch->Checked, (rgDirection->ItemIndex == 0));
-  }else{
-    double Min,Max;
+  bool found;
+  bool backward = (rgDirection->ItemIndex == 0);
+  if (PageControl->TabIndex == 0) {
+    found = fmMain->MainGrid->Find(edFindText->Text, GetRange(),
+        cbCase->Checked, cbRegex->Checked, cbWordSearch->Checked, backward);
+  } else {
+    double min, max;
     double *pMin = nullptr;
     double *pMax = nullptr;
-    if(edMin->Text != ""){
-      Min = (edMin->Text).ToDouble();
-      pMin=&Min;
+    if (edMin->Text != "") {
+      min = edMin->Text.ToDouble();
+      pMin = &min;
     }
-    if(edMax->Text != ""){
-      Max = (edMax->Text).ToDouble();
-      pMax=&Max;
+    if (edMax->Text != "") {
+      max = edMax->Text.ToDouble();
+      pMax = &max;
     }
-    fmMain->MainGrid->NumFind(pMin, pMax, GetRange(),
-                              (rgDirection->ItemIndex == 0));
+    found = fmMain->MainGrid->NumFind(pMin, pMax, GetRange(), backward);
   }
+  fmMain->StatusBar->Panels->Items[0]->Text = found
+      ? ""
+      : (PageControl->TabIndex == 0)
+          ? edFindText->Text + " ‚ÍŒ©‚Â‚©‚è‚Ü‚¹‚ñ"
+          : "ŒŸõ‘ÎÛ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ";
   fmMain->MainGrid->Invalidate();
   fmMain->MainGrid->SetFocus();
 }
