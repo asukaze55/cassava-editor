@@ -356,10 +356,14 @@ void TfmMain::ReadIni()
         String exts = Ini->ReadString(Section, "Exts", "csv");
         option.SetExts(exts);
         option.ForceExt = Ini->ReadBool(Section, "ForceExt", false);
-        option.SepChars = Ascii2Ctrl(Ini->ReadString(Section, "SepChars", ",\\t"));
-        option.WeakSepChars = Ascii2Ctrl(Ini->ReadString(Section, "WeakSepChars", "\\_"));
-        option.QuoteChars = Ascii2Ctrl(Ini->ReadString(Section, "QuoteChars", "\""));
-        option.QuoteOption = Ini->ReadInteger(Section, "Quote", 1);
+        option.SepChars =
+            Ascii2Ctrl(Ini->ReadString(Section, "SepChars", ",\\t"));
+        option.WeakSepChars =
+            Ascii2Ctrl(Ini->ReadString(Section, "WeakSepChars", "\\_"));
+        option.QuoteChars =
+            Ascii2Ctrl(Ini->ReadString(Section, "QuoteChars", "\""));
+        option.QuoteOption =
+            (TQuoteOption) Ini->ReadInteger(Section, "Quote", QUOTE_NORMAL);
         option.OmitComma = Ini->ReadBool(Section, "OmitComma", true);
         option.DummyEof = Ini->ReadBool(Section, "DummyEof", false);
         option.DummyEol = Ini->ReadBool(Section, "DummyEol", false);

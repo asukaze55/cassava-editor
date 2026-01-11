@@ -5,6 +5,14 @@
 #include <vcl.h>
 #include <vector>
 //---------------------------------------------------------------------------
+enum TQuoteOption : int
+{
+  QUOTE_NONE = 0,
+  QUOTE_NORMAL = 1,
+  QUOTE_STRING = 2,
+  QUOTE_ALL = 3
+};
+//---------------------------------------------------------------------------
 class TTypeOption
 {
 public:
@@ -14,7 +22,7 @@ public:
   String SepChars;
   String WeakSepChars;
   String QuoteChars;
-  int QuoteOption;
+  TQuoteOption QuoteOption;
   bool OmitComma;
   bool DummyEof;
   bool DummyEol;

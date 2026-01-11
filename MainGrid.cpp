@@ -20,10 +20,6 @@
 
 #define DataLeft (ShowRowCounter ? 1 : 0)
 #define DataTop  (ShowColCounter ? 1 : 0)
-#define soNone 0
-#define soNormal 1
-#define soString 2
-#define soAll 3
 
 #define RXtoAX(x) ((x) - DataLeft + 1)
 #define RYtoAY(y) ((y) - DataTop  + 1)
@@ -1275,7 +1271,7 @@ String TMainGrid::StringsToCSV(TStrings* Data, const TTypeOption *Format)
   for (int i = 0; i < Data->Count; i++) {
     String Str = Data->Strings[i];
 
-    if (Format->QuoteOption != soNone) {
+    if (Format->QuoteOption != QUOTE_NONE) {
       for (int j = Str.Length(); j > 0; j--) {
         if (Str[j] == L'\"') {
           Str.Insert(L"\"", j);
@@ -1287,10 +1283,10 @@ String TMainGrid::StringsToCSV(TStrings* Data, const TTypeOption *Format)
       }
     }
 
-    if (Format->QuoteOption == soNone ||
-        (Format->QuoteOption == soString && IsNumber(Str))) {
+    if (Format->QuoteOption == QUOTE_NONE ||
+        (Format->QuoteOption == QUOTE_STRING && IsNumber(Str))) {
       Text += Str;
-    } else if (Format->QuoteOption == soNormal) {
+    } else if (Format->QuoteOption == QUOTE_NORMAL) {
       if (Str.LastDelimiter(Delim) > 0) {
         Text += (String) L"\"" + Str + L"\"";
       } else {
@@ -1308,7 +1304,9 @@ void TMainGrid::QuotedDataToStrings(TStrings *Lines, String Text,
     const TTypeOption *Format)
 {
   Lines->Text = Text;
-  if(Format->QuoteOption==soNone){ return; }
+  if (Format->QuoteOption == QUOTE_NONE) {
+    return;
+  }
   int i=0;
   while(i<Lines->Count){
     int qc = 0;
