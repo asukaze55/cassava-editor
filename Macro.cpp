@@ -339,15 +339,15 @@ private:
   String FileName;
   bool canWriteFile;
   EncodedWriter *fs_io;
-  TStringList *modules;
+  MacroContext *Context;
   TEnvironment env;
 public:
   int MaxLoop;
   Element Do(String FileName, const std::vector<Element> &AStack,
              int x = -1, int y = -1, Element *thisPtr = nullptr);
 
-  TMacro(EncodedWriter *io, int ml, TStringList *md, TEnvironment e) :
-      fs_io(io), canWriteFile(io), MaxLoop(ml), modules(md), env(e) {}
+  TMacro(EncodedWriter *io, int ml, MacroContext *context, TEnvironment e) :
+      fs_io(io), canWriteFile(io), MaxLoop(ml), Context(context), env(e) {}
 };
 //---------------------------------------------------------------------------
 static int RunningCount = 0;
@@ -647,7 +647,7 @@ void TMacro::ExecMethod(String name, int H, const std::vector<Element>& ope,
     argStack.push_back(Element(ope[i].Value()));
   }
   int ml = (MaxLoop > 0) ? MaxLoop-LoopCount : 0;
-  TMacro mcr(fs_io, ml, modules, env.CreateSubEnvironment());
+  TMacro mcr(fs_io, ml, Context, env.CreateSubEnvironment());
   const Element &r = mcr.Do(funcName, argStack, -1, -1, &obj);
   if (r.Type != etErr) {
     Stack.push_back(r);
@@ -1049,14 +1049,14 @@ void TMacro::ExecFnc(String s)
   if(s[1] == '$') {
     s.Delete(1,1);
     int ml = ((MaxLoop > 0) ? MaxLoop-LoopCount : 0);
-    TMacro mcr(fs_io, ml, modules, env.CreateSubEnvironment());
+    TMacro mcr(fs_io, ml, Context, env.CreateSubEnvironment());
     String funcName;
-    if (modules->IndexOf(s + "/" + H) >= 0) {
+    if (Context->HasModule(s + "/" + H)) {
       funcName = s + "/" + H;
     } else {
       int minArgs;
       for (minArgs = H; minArgs >= 0; minArgs--) {
-        if (modules->IndexOf(s + "/+" + minArgs) >= 0) {
+        if (Context->HasModule(s + "/+" + minArgs)) {
           funcName = s + "/+" + minArgs;
           break;
         }
@@ -1085,7 +1085,7 @@ void TMacro::ExecFnc(String s)
       Element funcPtr = obj.GetMember("constructor");
       Stack.pop_back();
       int ml = ((MaxLoop > 0) ? MaxLoop-LoopCount : 0);
-      TMacro mcr(fs_io, ml, modules, env.CreateSubEnvironment());
+      TMacro mcr(fs_io, ml, Context, env.CreateSubEnvironment());
       mcr.Do(funcPtr.Str(), Stack, -1, -1, &obj);
       Stack.push_back(obj);
     }else if(s == "func="){
@@ -1777,18 +1777,11 @@ void TMacro::ExecOpe(char c){
 }
 //---------------------------------------------------------------------------
 TStream *TMacro::GetStreamFor(String funcName){
-  TStream *result;
   try {
-    int index = modules->IndexOf(funcName);
-    if (index < 0) {
-      throw MacroException(L"ユーザー関数が見つかりません。");
-    }
-    TObject *obj = modules->Objects[index];
-    result = static_cast<TStream *>(obj);
+    return Context->Modules.at(funcName);
   } catch (...) {
     throw MacroException(funcName + L"\nユーザー関数が見つかりません。");
   }
-  return result;
 }
 //---------------------------------------------------------------------------
 Element TMacro::Do(String FileName, const std::vector<Element> &AStack,
@@ -1863,15 +1856,15 @@ Element TMacro::Do(String FileName, const std::vector<Element> &AStack,
   return ReturnValue;
 }
 //---------------------------------------------------------------------------
-TMacroValue ExecMacro(String FileName, int MaxLoop, TStringList *Modules,
-                      int x, int y, EncodedWriter *IO, bool IsCellMacro,
-                      TStringList *StringArguments)
+TMacroValue RunMacro(String FileName, int MaxLoop, MacroContext *Context,
+    int x, int y, EncodedWriter *IO, bool IsCellMacro,
+    TStringList *StringArguments)
 {
   if(!RunningOk){ return TMacroValue(); }
   if(!IsCellMacro){ RunningCount++; }
   randomize();
   GridProxy grid(fmMain->MainGrid, IsCellMacro);
-  TMacro mcr(IO, MaxLoop, Modules, TEnvironment(IsCellMacro, &grid, nullptr));
+  TMacro mcr(IO, MaxLoop, Context, TEnvironment(IsCellMacro, &grid, nullptr));
   Element r;
   try {
     std::vector<Element> stack;

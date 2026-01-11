@@ -4,6 +4,7 @@
 //---------------------------------------------------------------------------
 #include <map>
 #include <vcl.h>
+#include "Compiler.h"
 #include "EncodedWriter.h"
 //---------------------------------------------------------------------------
 struct TMacroValue {
@@ -14,7 +15,7 @@ struct TMacroValue {
   TMacroValue(String s, std::map<String, String> o) : string(s), object(o) {}
 };
 
-TMacroValue ExecMacro(String FileName, int MaxLoop, TStringList *Modules,
+TMacroValue RunMacro(String FileName, int MaxLoop, MacroContext *Context,
     int x, int y, EncodedWriter *IO = nullptr, bool IsCellMacro = false,
     TStringList *StringArguments = nullptr);
 

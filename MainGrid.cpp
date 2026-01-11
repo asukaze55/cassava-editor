@@ -3670,17 +3670,11 @@ void __fastcall TMainGrid::SetEditText(int ACol, int ARow, String Value)
 static void MacroScriptExec(String script)
 {
   String cmsname = "$undo";
-  TStringList *modules = new TStringList;
-  TStringList *inPaths = new TStringList;
-  bool ok = MacroCompile(&script, cmsname, inPaths, modules, true);
+  MacroContext macroContext;
+  bool ok = CompileMacro(&script, cmsname, &macroContext, true);
   if (ok) {
-    ExecMacro(cmsname, 0, modules, -1, -1);
+    RunMacro(cmsname, 0, &macroContext, -1, -1);
   }
-  for (int i = modules->Count-1; i >= 0; i--) {
-    if (modules->Objects[i]) { delete modules->Objects[i]; }
-  }
-  delete modules;
-  delete inPaths;
 }
 //---------------------------------------------------------------------------
 void TMainGrid::Undo()

@@ -24,7 +24,7 @@
 TfmMain *fmMain;
 //---------------------------------------------------------------------------
 static String MaybeCompileMacro(String fileName, Preference *pref,
-                                TStringList *modules)
+                                MacroContext *context)
 {
   String cmsFile = pref->UserPath + "Macro\\" + fileName;
   if (!FileExists(cmsFile)) {
@@ -33,11 +33,7 @@ static String MaybeCompileMacro(String fileName, Preference *pref,
   if (!FileExists(cmsFile)) {
     return "";
   }
-  TStringList *macroDirs = new TStringList;
-  macroDirs->Add(pref->UserPath + "Macro\\");
-  macroDirs->Add(pref->SharedPath + "Macro\\");
-  bool compiled = MacroCompile(cmsFile, macroDirs, modules, true);
-  delete macroDirs;
+  bool compiled = CompileMacro(cmsFile, context, true);
   return compiled ? cmsFile : (String)"";
 }
 //---------------------------------------------------------------------------
@@ -149,21 +145,22 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
     StartupMacroDone = true;
     ExecStartupMacro();
   }
-  SystemMacroCache = new TStringList;
-  FormatCmsFile = MaybeCompileMacro("!format.cms", Pref, SystemMacroCache);
+  SystemMacroContext.AddDirectory(Pref->UserPath + "Macro\\");
+  SystemMacroContext.AddDirectory(Pref->SharedPath + "Macro\\");
+  FormatCmsFile = MaybeCompileMacro("!format.cms", Pref, &SystemMacroContext);
   if (FormatCmsFile != "") {
     MainGrid->OnGetFormattedCell = GetFormattedCell;
   }
 
   String statusbarCmsFile =
-      MaybeCompileMacro("!statusbar.cms", Pref, SystemMacroCache);
+      MaybeCompileMacro("!statusbar.cms", Pref, &SystemMacroContext);
   if (statusbarCmsFile != "") {
     String statusbarInit =
         GetMacroModuleName(statusbarCmsFile, "init", "0", false);
-    if (SystemMacroCache->IndexOf(statusbarInit) >= 0) {
+    if (SystemMacroContext.HasModule(statusbarInit)) {
       try {
-        ExecMacro(statusbarInit, StopMacroCount, SystemMacroCache, -1, -1,
-                  nullptr, true);
+        RunMacro(statusbarInit, StopMacroCount, &SystemMacroContext, -1, -1,
+            nullptr, true);
       } catch (...) {}
     }
     StatusbarCmsFile = statusbarCmsFile;
@@ -222,7 +219,6 @@ __fastcall TfmMain::~TfmMain()
   delete History;
   delete Pref;
   if (LockingFile) { delete LockingFile; }
-  if (SystemMacroCache) { delete SystemMacroCache; }
 }
 //---------------------------------------------------------------------------
 void TfmMain::ReadIni()
@@ -2300,8 +2296,8 @@ void __fastcall TfmMain::StatusBarPopUpClick(TObject *Sender)
   String label = arguments->Strings[tag & 0xffff];
   arguments->Clear();
   arguments->Add(label);
-  ExecMacro(StatusBarPopUp[panelIndex].Handler, StopMacroCount,
-            SystemMacroCache, -1, -1, nullptr, false, arguments);
+  RunMacro(StatusBarPopUp[panelIndex].Handler, StopMacroCount,
+      &SystemMacroContext, -1, -1, nullptr, false, arguments);
   delete arguments;
   UpdateStatusbar();
 }
@@ -2590,29 +2586,23 @@ void TfmMain::MacroExec(String CmsFile, EncodedWriter *io)
   Application->Hint = MainGrid->Hint;
   ApplicationHint(nullptr);
 
-  TStringList *Modules = new TStringList;
-  TStringList *InPaths = new TStringList;
+  MacroContext macroContext;
   String inPath = ExtractFilePath(CmsFile);
   if (inPath != "" && *(inPath.LastChar()) != '\\') {
     inPath += "\\";
   }
-  InPaths->Add(inPath);
-  InPaths->Add(Pref->UserPath + "Macro\\");
-  InPaths->Add(Pref->SharedPath + "Macro\\");
-  bool C = MacroCompile(CmsFile, InPaths, Modules, true);
-  if(C){
+  macroContext.AddDirectory(inPath);
+  macroContext.AddDirectory(Pref->UserPath + "Macro\\");
+  macroContext.AddDirectory(Pref->SharedPath + "Macro\\");
+  bool ok = CompileMacro(CmsFile, &macroContext, true);
+  if (ok) {
     MainGrid->UndoList->Push();
     MainGrid->Invalidate();
     acMacroTerminate->Enabled = true;
-    ExecMacro(CmsFile, StopMacroCount, Modules, -1, -1, io);
+    RunMacro(CmsFile, StopMacroCount, &macroContext, -1, -1, io);
     MainGrid->Invalidate();
     MainGrid->UndoList->Pop();
   }
-  for(int i=Modules->Count-1; i>=0; i--){
-    if(Modules->Objects[i]) delete Modules->Objects[i];
-  }
-  delete Modules;
-  delete InPaths;
 
   MainGrid->Cursor = crDefault;
   MainGrid->Hint = "";
@@ -2625,28 +2615,22 @@ void TfmMain::UpdateStatusbar()
   if (mnShowStatusbar->Checked && StatusbarCmsFile != "") {
     StatusBarPopUp.clear();
     try {
-      ExecMacro(StatusbarCmsFile, StopMacroCount, SystemMacroCache, -1, -1,
-                nullptr, true);
+      RunMacro(StatusbarCmsFile, StopMacroCount, &SystemMacroContext, -1, -1,
+          nullptr, true);
     } catch(...) {}
   }
 }
 //---------------------------------------------------------------------------
 void TfmMain::MacroScriptExec(String cmsname, String script)
 {
-  TStringList *modules = new TStringList;
-  TStringList *inPaths = new TStringList;
-  inPaths->Add(Pref->UserPath + "Macro\\");
-  inPaths->Add(Pref->SharedPath + "Macro\\");
-  bool ok = MacroCompile(&script, cmsname, inPaths, modules, true);
+  MacroContext macroContext;
+  macroContext.AddDirectory(Pref->UserPath + "Macro\\");
+  macroContext.AddDirectory(Pref->SharedPath + "Macro\\");
+  bool ok = CompileMacro(&script, cmsname, &macroContext, true);
   if (ok) {
     acMacroTerminate->Enabled = true;
-    ExecMacro(cmsname, StopMacroCount, modules, -1, -1);
+    RunMacro(cmsname, StopMacroCount, &macroContext, -1, -1);
   }
-  for(int i=modules->Count-1; i>=0; i--){
-    if(modules->Objects[i]) delete modules->Objects[i];
-  }
-  delete modules;
-  delete inPaths;
 }
 //---------------------------------------------------------------------------
 TCalculatedCell TfmMain::GetCalculatedCell(String Str, int ACol, int ARow)
@@ -2656,27 +2640,21 @@ TCalculatedCell TfmMain::GetCalculatedCell(String Str, int ACol, int ARow)
   }
   TCalculatedCell result = TCalculatedCell(Str, ctError);
   Str.Delete(1,1);
-  TStringList *modules = new TStringList;
-  TStringList *inPaths = new TStringList;
-  inPaths->Add(Pref->UserPath + "Macro\\");
-  inPaths->Add(Pref->SharedPath + "Macro\\");
+  MacroContext macroContext;
+  macroContext.AddDirectory(Pref->UserPath + "Macro\\");
+  macroContext.AddDirectory(Pref->SharedPath + "Macro\\");
   String cmsName = (String)"$@cell_" + ACol + "_" + ARow;
   try {
     String formula = "return " + Str + ";";
-    bool ok = MacroCompile(&formula, cmsName, inPaths, modules, false);
+    bool ok = CompileMacro(&formula, cmsName, &macroContext, false);
     if (ok){
-      TMacroValue macroResult = ExecMacro(
-          cmsName, StopMacroCount, modules, ACol, ARow, nullptr, true);
+      TMacroValue macroResult = RunMacro(
+          cmsName, StopMacroCount, &macroContext, ACol, ARow, nullptr, true);
       result = TCalculatedCell(macroResult.string, ctOk);
     }
   }catch(...){
     // ƒGƒ‰[—p‚ÌResultCell•¶Žš—ñ‚ÍÝ’èÏ‚Ý
   }
-  for(int i=modules->Count-1; i>=0; i--){
-    if(modules->Objects[i]) delete modules->Objects[i];
-  }
-  delete modules;
-  delete inPaths;
   return result;
 }
 //---------------------------------------------------------------------------
@@ -2712,9 +2690,8 @@ TFormattedCell TfmMain::GetFormattedCell(TCalculatedCell Cell, int AX, int AY)
 {
   if (FormatCmsFile != "") {
     try {
-      TMacroValue result =
-          ExecMacro(FormatCmsFile, StopMacroCount, SystemMacroCache, AX, AY,
-                    nullptr, true);
+      TMacroValue result = RunMacro(FormatCmsFile, StopMacroCount,
+          &SystemMacroContext, AX, AY, nullptr, true);
       if (result.object.size() > 0) {
         if (result.object["text"] != "") {
           Cell.text = result.object["text"];

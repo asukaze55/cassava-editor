@@ -21,6 +21,7 @@
 #include <Vcl.StdCtrls.hpp>
 #include <Vcl.VirtualImageList.hpp>
 #include <map>
+#include "Compiler.h"
 #include "EncodingDetector.h"
 #include "MainGrid.h"
 #include "Preference.h"
@@ -450,7 +451,7 @@ public:     // ÉÜÅ[ÉUÅ[êÈåæ
 
   int ScreenDpi;
 
-  TStringList *SystemMacroCache;
+  MacroContext SystemMacroContext;
   String FormatCmsFile;
   String StatusbarCmsFile;
   String ParamCmsFile;
