@@ -10,7 +10,8 @@ enum TQuoteOption : int
   QUOTE_NONE = 0,
   QUOTE_NORMAL = 1,
   QUOTE_STRING = 2,
-  QUOTE_ALL = 3
+  QUOTE_ALL = 3,
+  QUOTE_EXPRESSION = 4
 };
 //---------------------------------------------------------------------------
 class TTypeOption
@@ -23,6 +24,7 @@ public:
   String WeakSepChars;
   String QuoteChars;
   TQuoteOption QuoteOption;
+  String QuoteExpression;
   bool OmitComma;
   bool DummyEof;
   bool DummyEol;

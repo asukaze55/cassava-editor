@@ -65,6 +65,8 @@ void TfrOptionDataFormat::RestoreDataPage(int id)
   edSepChars->Text     = Ctrl2Ascii(sepChars.SubString(2, sepChars.Length()));
   edWeakSepChars->Text = Ctrl2Ascii(p->WeakSepChars);
   rgSaveQuote->ItemIndex = p->QuoteOption;
+  edQuoteExpression->Text = p->QuoteExpression;
+  edQuoteExpression->Enabled = (p->QuoteOption == QUOTE_EXPRESSION);
   cbCommaRect->Checked = !(p->OmitComma);
   cbDummyEOF->Checked = p->DummyEof || p->DummyEol;
 
@@ -84,6 +86,7 @@ void TfrOptionDataFormat::StoreDataPage()
   p->SepChars = Ascii2Ctrl(edDefSepChar->Text) + Ascii2Ctrl(edSepChars->Text);
   p->WeakSepChars = Ascii2Ctrl(edWeakSepChars->Text);
   p->QuoteOption = (TQuoteOption) rgSaveQuote->ItemIndex;
+  p->QuoteExpression = edQuoteExpression->Text;
   p->OmitComma = !(cbCommaRect->Checked);
   p->DummyEof = cbCommaRect->Checked && cbDummyEOF->Checked;
   p->DummyEol = !cbCommaRect->Checked && cbDummyEOF->Checked;
@@ -159,6 +162,11 @@ void __fastcall TfrOptionDataFormat::edNameChange(TObject *Sender)
 void __fastcall TfrOptionDataFormat::btnDeleteTypeClick(TObject *Sender)
 {
   Delete(TypeIndex);
+}
+//---------------------------------------------------------------------------
+void __fastcall TfrOptionDataFormat::rgSaveQuoteClick(TObject *Sender)
+{
+  edQuoteExpression->Enabled = (rgSaveQuote->ItemIndex == QUOTE_EXPRESSION);
 }
 //---------------------------------------------------------------------------
 

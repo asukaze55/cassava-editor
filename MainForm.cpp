@@ -364,6 +364,8 @@ void TfmMain::ReadIni()
             Ascii2Ctrl(Ini->ReadString(Section, "QuoteChars", "\""));
         option.QuoteOption =
             (TQuoteOption) Ini->ReadInteger(Section, "Quote", QUOTE_NORMAL);
+        option.QuoteExpression =
+            Ini->ReadString(Section, "QuoteExpression", "");
         option.OmitComma = Ini->ReadBool(Section, "OmitComma", true);
         option.DummyEof = Ini->ReadBool(Section, "DummyEof", false);
         option.DummyEol = Ini->ReadBool(Section, "DummyEol", false);
@@ -562,6 +564,7 @@ void TfmMain::WriteIni(bool PosSlide)
       Ini->WriteString(Section, "WeakSepChars", Ctrl2Ascii(TO->WeakSepChars));
       Ini->WriteString(Section, "QuoteChars", Ctrl2Ascii(TO->QuoteChars));
       Ini->WriteInteger(Section, "Quote", TO->QuoteOption);
+      Ini->WriteString(Section, "QuoteExpression", TO->QuoteExpression);
       Ini->WriteBool(Section, "OmitComma", TO->OmitComma);
       Ini->WriteBool(Section, "DummyEof", TO->DummyEof);
       Ini->WriteBool(Section, "DummyEol", TO->DummyEol);

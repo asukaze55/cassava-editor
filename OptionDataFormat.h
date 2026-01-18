@@ -33,10 +33,12 @@ __published:    // IDE 管理のコンポーネント
     TEdit *edSepChars;
     TEdit *edWeakSepChars;
     TRadioGroup *rgSaveQuote;
+    TEdit *edQuoteExpression;
     TCheckBox *cbCommaRect;
     TCheckBox *cbDummyEOF;
     void __fastcall edNameChange(TObject *Sender);
     void __fastcall btnDeleteTypeClick(TObject *Sender);
+    void __fastcall rgSaveQuoteClick(TObject *Sender);
 private:    // ユーザー宣言
 public:     // ユーザー宣言
     __fastcall TfrOptionDataFormat(TComponent* Owner);

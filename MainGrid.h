@@ -6,6 +6,7 @@
 #include <Vcl.Forms.hpp>
 #include <Vcl.Grids.hpp>
 #include <map>
+#include "Compiler.h"
 #include "CsvReader.h"
 #include "EncodedWriter.h"
 #include "Undo.h"
@@ -122,7 +123,8 @@ private:
 protected:
     void PasteCSV(TStrings *List, int Left, int Top, int Way, int ClipCols,
         int ClipRows, const TTypeOption *Format);
-    String StringsToCSV(TStrings* Data, const TTypeOption *Format);
+    String StringsToCSV(TStrings* Data, const TTypeOption *Format,
+        const TMacroContext &MacroContext, int X, int Y);
     void WriteGrid(EncodedWriter *Writer, const TTypeOption *Format);
 
     virtual bool __fastcall SelectCell(int ACol, int ARow);

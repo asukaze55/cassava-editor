@@ -1235,16 +1235,31 @@ void TMainGrid::SaveToFile(String FileName, const TTypeOption *Format,
   }
 }
 //---------------------------------------------------------------------------
+constexpr wchar_t QUOTE_MACRO_NAME[] = L"$quote";
+//---------------------------------------------------------------------------
+static inline void MaybeCompileQuoteScript(const TTypeOption *Format,
+    TMacroContext *MacroContext)
+{
+  if (Format->QuoteOption == QUOTE_EXPRESSION) {
+    String script = (String)"return " + Format->QuoteExpression +";";
+    CompileMacro(&script, QUOTE_MACRO_NAME, MacroContext,
+        /* showMessage= */ false);
+  }
+}
+//---------------------------------------------------------------------------
 void TMainGrid::WriteGrid(EncodedWriter *Writer, const TTypeOption *Format)
 {
   if (Format == nullptr) { Format = TypeOption; }
 
+  TMacroContext macroContext;
+  MaybeCompileQuoteScript(Format, &macroContext);
+
   TStringList* Data = new TStringList;
-  for (int i = DataTop; i <= DataBottom; i++) {
-    Data->Assign(Rows[i]);
+  for (int y = DataTop; y <= DataBottom; y++) {
+    Data->Assign(Rows[y]);
 
     if (Format->DummyEol || !Format->OmitComma) {
-      int right = GetRowDataRight(i);
+      int right = GetRowDataRight(y);
       for (int i = Data->Count - 1; i > right; i--) {
         Data->Delete(i);
       }
@@ -1256,12 +1271,14 @@ void TMainGrid::WriteGrid(EncodedWriter *Writer, const TTypeOption *Format)
     if (ShowRowCounter) {
       Data->Delete(0);   // カウンタセルの削除
     }
-    Writer->Write(StringsToCSV(Data, Format) + ReturnCodeString(ReturnCode));
+    Writer->Write(StringsToCSV(Data, Format, macroContext, 1, RYtoAY(y)) +
+        ReturnCodeString(ReturnCode));
   }
   delete Data;
 }
 //---------------------------------------------------------------------------
-String TMainGrid::StringsToCSV(TStrings* Data, const TTypeOption *Format)
+String TMainGrid::StringsToCSV(TStrings* Data, const TTypeOption *Format,
+    const TMacroContext &MacroContext, int X, int Y)
 {
   char Sep = Format->DefSepChar();
   String Text = "";
@@ -1271,7 +1288,22 @@ String TMainGrid::StringsToCSV(TStrings* Data, const TTypeOption *Format)
   for (int i = 0; i < Data->Count; i++) {
     String Str = Data->Strings[i];
 
-    if (Format->QuoteOption != QUOTE_NONE) {
+    int quoteOption = Format->QuoteOption;
+    if (quoteOption == QUOTE_EXPRESSION) {
+      if (MacroContext.HasModule(QUOTE_MACRO_NAME)) {
+        TMacroValue value =
+            RunMacro(QUOTE_MACRO_NAME, 0, MacroContext, X + i, Y);
+        if (value.string != "" && value.string != "0") {
+          quoteOption = QUOTE_ALL;
+        } else {
+          quoteOption = QUOTE_NORMAL;
+        }
+      } else {
+        quoteOption = QUOTE_NORMAL;
+      }
+    }
+
+    if (quoteOption != QUOTE_NONE) {
       for (int j = Str.Length(); j > 0; j--) {
         if (Str[j] == L'\"') {
           Str.Insert(L"\"", j);
@@ -1283,15 +1315,10 @@ String TMainGrid::StringsToCSV(TStrings* Data, const TTypeOption *Format)
       }
     }
 
-    if (Format->QuoteOption == QUOTE_NONE ||
-        (Format->QuoteOption == QUOTE_STRING && IsNumber(Str))) {
+    if (quoteOption == QUOTE_NONE ||
+        (quoteOption == QUOTE_STRING && IsNumber(Str)) ||
+        (quoteOption == QUOTE_NORMAL && Str.LastDelimiter(Delim) == 0)) {
       Text += Str;
-    } else if (Format->QuoteOption == QUOTE_NORMAL) {
-      if (Str.LastDelimiter(Delim) > 0) {
-        Text += (String) L"\"" + Str + L"\"";
-      } else {
-        Text += Str;
-      }
     } else {
       Text += (String) L"\"" + Str + L"\"";
     }
@@ -1363,17 +1390,22 @@ void TMainGrid::CopyToClipboard(const TTypeOption *Format, bool Cut)
   int SRight = Selection.Right;
   int SBottom = Selection.Bottom;
 
+  const TTypeOption *format = (Format != nullptr ? Format : TypeOption);
+  TMacroContext macroContext;
+  MaybeCompileQuoteScript(format, &macroContext);
+
   TStringList *Data = new TStringList;
   TStringList *OneLine = new TStringList;
-  for (int i = STop; i <= SBottom; i++) {
+  for (int y = STop; y <= SBottom; y++) {
     OneLine->Clear();
-    for (int j = SLeft; j <= SRight; j++) {
-      OneLine->Add(GetACells(RXtoAX(j), RYtoAY(i)));
+    for (int x = SLeft; x <= SRight; x++) {
+      OneLine->Add(GetACells(RXtoAX(x), RYtoAY(y)));
       if (Cut) {
-        SetCell(j, i, "");
+        SetCell(x, y, "");
       }
     }
-    Data->Add(StringsToCSV(OneLine, Format != nullptr ? Format : TypeOption));
+    Data->Add(
+        StringsToCSV(OneLine, format, macroContext, RXtoAX(SLeft), RYtoAY(y)));
   }
   delete OneLine;
   String Txt = Data->Text;
