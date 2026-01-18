@@ -1288,7 +1288,7 @@ String TMainGrid::StringsToCSV(TStrings* Data, const TTypeOption *Format,
   for (int i = 0; i < Data->Count; i++) {
     String Str = Data->Strings[i];
 
-    int quoteOption = Format->QuoteOption;
+    TQuoteOption quoteOption = Format->QuoteOption;
     if (quoteOption == QUOTE_EXPRESSION) {
       if (MacroContext.HasModule(QUOTE_MACRO_NAME)) {
         TMacroValue value =
