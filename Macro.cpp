@@ -339,14 +339,15 @@ private:
   String FileName;
   bool canWriteFile;
   EncodedWriter *fs_io;
-  MacroContext *Context;
+  const TMacroContext &Context;
   TEnvironment env;
 public:
   int MaxLoop;
   Element Do(String FileName, const std::vector<Element> &AStack,
              int x = -1, int y = -1, Element *thisPtr = nullptr);
 
-  TMacro(EncodedWriter *io, int ml, MacroContext *context, TEnvironment e) :
+  TMacro(EncodedWriter *io, int ml, const TMacroContext &context,
+          TEnvironment e) :
       fs_io(io), canWriteFile(io), MaxLoop(ml), Context(context), env(e) {}
 };
 //---------------------------------------------------------------------------
@@ -1051,12 +1052,12 @@ void TMacro::ExecFnc(String s)
     int ml = ((MaxLoop > 0) ? MaxLoop-LoopCount : 0);
     TMacro mcr(fs_io, ml, Context, env.CreateSubEnvironment());
     String funcName;
-    if (Context->HasModule(s + "/" + H)) {
+    if (Context.HasModule(s + "/" + H)) {
       funcName = s + "/" + H;
     } else {
       int minArgs;
       for (minArgs = H; minArgs >= 0; minArgs--) {
-        if (Context->HasModule(s + "/+" + minArgs)) {
+        if (Context.HasModule(s + "/+" + minArgs)) {
           funcName = s + "/+" + minArgs;
           break;
         }
@@ -1778,7 +1779,7 @@ void TMacro::ExecOpe(char c){
 //---------------------------------------------------------------------------
 TStream *TMacro::GetStreamFor(String funcName){
   try {
-    return Context->Modules.at(funcName);
+    return Context.Modules.at(funcName);
   } catch (...) {
     throw MacroException(funcName + L"\nユーザー関数が見つかりません。");
   }
@@ -1856,7 +1857,7 @@ Element TMacro::Do(String FileName, const std::vector<Element> &AStack,
   return ReturnValue;
 }
 //---------------------------------------------------------------------------
-TMacroValue RunMacro(String FileName, int MaxLoop, MacroContext *Context,
+TMacroValue RunMacro(String FileName, int MaxLoop, const TMacroContext &Context,
     int x, int y, EncodedWriter *IO, bool IsCellMacro,
     TStringList *StringArguments)
 {

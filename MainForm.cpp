@@ -24,7 +24,7 @@
 TfmMain *fmMain;
 //---------------------------------------------------------------------------
 static String MaybeCompileMacro(String fileName, Preference *pref,
-                                MacroContext *context)
+                                TMacroContext *context)
 {
   String cmsFile = pref->UserPath + "Macro\\" + fileName;
   if (!FileExists(cmsFile)) {
@@ -159,7 +159,7 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
         GetMacroModuleName(statusbarCmsFile, "init", "0", false);
     if (SystemMacroContext.HasModule(statusbarInit)) {
       try {
-        RunMacro(statusbarInit, StopMacroCount, &SystemMacroContext, -1, -1,
+        RunMacro(statusbarInit, StopMacroCount, SystemMacroContext, -1, -1,
             nullptr, true);
       } catch (...) {}
     }
@@ -2301,7 +2301,7 @@ void __fastcall TfmMain::StatusBarPopUpClick(TObject *Sender)
   arguments->Clear();
   arguments->Add(label);
   RunMacro(StatusBarPopUp[panelIndex].Handler, StopMacroCount,
-      &SystemMacroContext, -1, -1, nullptr, false, arguments);
+      SystemMacroContext, -1, -1, nullptr, false, arguments);
   delete arguments;
   UpdateStatusbar();
 }
@@ -2590,7 +2590,7 @@ void TfmMain::MacroExec(String CmsFile, EncodedWriter *io)
   Application->Hint = MainGrid->Hint;
   ApplicationHint(nullptr);
 
-  MacroContext macroContext;
+  TMacroContext macroContext;
   String inPath = ExtractFilePath(CmsFile);
   if (inPath != "" && *(inPath.LastChar()) != '\\') {
     inPath += "\\";
@@ -2603,7 +2603,7 @@ void TfmMain::MacroExec(String CmsFile, EncodedWriter *io)
     MainGrid->UndoList->Push();
     MainGrid->Invalidate();
     acMacroTerminate->Enabled = true;
-    RunMacro(CmsFile, StopMacroCount, &macroContext, -1, -1, io);
+    RunMacro(CmsFile, StopMacroCount, macroContext, -1, -1, io);
     MainGrid->Invalidate();
     MainGrid->UndoList->Pop();
   }
@@ -2619,7 +2619,7 @@ void TfmMain::UpdateStatusbar()
   if (mnShowStatusbar->Checked && StatusbarCmsFile != "") {
     StatusBarPopUp.clear();
     try {
-      RunMacro(StatusbarCmsFile, StopMacroCount, &SystemMacroContext, -1, -1,
+      RunMacro(StatusbarCmsFile, StopMacroCount, SystemMacroContext, -1, -1,
           nullptr, true);
     } catch(...) {}
   }
@@ -2627,13 +2627,13 @@ void TfmMain::UpdateStatusbar()
 //---------------------------------------------------------------------------
 void TfmMain::MacroScriptExec(String cmsname, String script)
 {
-  MacroContext macroContext;
+  TMacroContext macroContext;
   macroContext.AddDirectory(Pref->UserPath + "Macro\\");
   macroContext.AddDirectory(Pref->SharedPath + "Macro\\");
   bool ok = CompileMacro(&script, cmsname, &macroContext, true);
   if (ok) {
     acMacroTerminate->Enabled = true;
-    RunMacro(cmsname, StopMacroCount, &macroContext, -1, -1);
+    RunMacro(cmsname, StopMacroCount, macroContext, -1, -1);
   }
 }
 //---------------------------------------------------------------------------
@@ -2644,7 +2644,7 @@ TCalculatedCell TfmMain::GetCalculatedCell(String Str, int ACol, int ARow)
   }
   TCalculatedCell result = TCalculatedCell(Str, ctError);
   Str.Delete(1,1);
-  MacroContext macroContext;
+  TMacroContext macroContext;
   macroContext.AddDirectory(Pref->UserPath + "Macro\\");
   macroContext.AddDirectory(Pref->SharedPath + "Macro\\");
   String cmsName = (String)"$@cell_" + ACol + "_" + ARow;
@@ -2653,7 +2653,7 @@ TCalculatedCell TfmMain::GetCalculatedCell(String Str, int ACol, int ARow)
     bool ok = CompileMacro(&formula, cmsName, &macroContext, false);
     if (ok){
       TMacroValue macroResult = RunMacro(
-          cmsName, StopMacroCount, &macroContext, ACol, ARow, nullptr, true);
+          cmsName, StopMacroCount, macroContext, ACol, ARow, nullptr, true);
       result = TCalculatedCell(macroResult.string, ctOk);
     }
   }catch(...){
@@ -2695,7 +2695,7 @@ TFormattedCell TfmMain::GetFormattedCell(TCalculatedCell Cell, int AX, int AY)
   if (FormatCmsFile != "") {
     try {
       TMacroValue result = RunMacro(FormatCmsFile, StopMacroCount,
-          &SystemMacroContext, AX, AY, nullptr, true);
+          SystemMacroContext, AX, AY, nullptr, true);
       if (result.object.size() > 0) {
         if (result.object["text"] != "") {
           Cell.text = result.object["text"];

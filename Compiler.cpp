@@ -393,7 +393,7 @@ private:
   TStream *fout;
   String InName;
   std::map<String, String> ImportedFunctions;
-  MacroContext *Context;
+  TMacroContext *Context;
   TStringList *Variables;
   TStringList *Constants;
   TStringList *CapturableVariables;
@@ -439,7 +439,7 @@ public:
 
   bool Compile(String source, String filePath, String libName,
                bool showMessage);
-  TCompiler(MacroContext *context) : Context(context), Breaks(nullptr),
+  TCompiler(TMacroContext *context) : Context(context), Breaks(nullptr),
       Continues(nullptr), DummyIdentifier(0), import(newTStringList()) {}
   ~TCompiler() { delete import; }
 };
@@ -1429,7 +1429,7 @@ bool TCompiler::Compile(String string, String filePath, String libName,
   return !Fail;
 }
 //---------------------------------------------------------------------------
-bool CompileMacro(String *source, String name, MacroContext *context,
+bool CompileMacro(String *source, String name, TMacroContext *context,
     bool showMessage)
 {
   TCompiler compiler(context);
@@ -1500,7 +1500,7 @@ bool CompileMacro(String *source, String name, MacroContext *context,
   return true;
 }
 //---------------------------------------------------------------------------
-bool CompileMacro(String fileName, MacroContext *context, bool showMessage)
+bool CompileMacro(String fileName, TMacroContext *context, bool showMessage)
 {
   return CompileMacro(nullptr, fileName, context, showMessage);
 }

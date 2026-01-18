@@ -15,7 +15,7 @@ struct TMacroValue {
   TMacroValue(String s, std::map<String, String> o) : string(s), object(o) {}
 };
 
-TMacroValue RunMacro(String FileName, int MaxLoop, MacroContext *Context,
+TMacroValue RunMacro(String FileName, int MaxLoop, const TMacroContext &Context,
     int x, int y, EncodedWriter *IO = nullptr, bool IsCellMacro = false,
     TStringList *StringArguments = nullptr);
 

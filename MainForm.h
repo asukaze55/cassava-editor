@@ -451,7 +451,7 @@ public:     // ƒ†[ƒU[éŒ¾
 
   int ScreenDpi;
 
-  MacroContext SystemMacroContext;
+  TMacroContext SystemMacroContext;
   String FormatCmsFile;
   String StatusbarCmsFile;
   String ParamCmsFile;

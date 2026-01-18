@@ -3668,10 +3668,10 @@ void __fastcall TMainGrid::SetEditText(int ACol, int ARow, String Value)
 static void MacroScriptExec(String script)
 {
   String cmsname = "$undo";
-  MacroContext macroContext;
+  TMacroContext macroContext;
   bool ok = CompileMacro(&script, cmsname, &macroContext, true);
   if (ok) {
-    RunMacro(cmsname, 0, &macroContext, -1, -1);
+    RunMacro(cmsname, 0, macroContext, -1, -1);
   }
 }
 //---------------------------------------------------------------------------

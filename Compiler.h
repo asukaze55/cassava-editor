@@ -5,7 +5,7 @@
 #include <vcl.h>
 #include <vector>
 //---------------------------------------------------------------------------
-class MacroContext {
+class TMacroContext {
 public:
   std::vector<String> Dirs;
   std::map<String, TStream*> Modules;
@@ -14,21 +14,21 @@ public:
     Dirs.push_back(Directory);
   }
 
-  bool HasModule(String Name) {
+  bool HasModule(String Name) const {
     return Modules.count(Name) > 0;
   }
 
-  ~MacroContext() {
+  ~TMacroContext() {
     for (auto module : Modules) {
       delete module.second;
     }
   }
 };
 
-bool CompileMacro(String *source, String fileName, MacroContext *context,
+bool CompileMacro(String *source, String fileName, TMacroContext *context,
                   bool showMessage);
 
-bool CompileMacro(String fileName, MacroContext *context, bool showMessage);
+bool CompileMacro(String fileName, TMacroContext *context, bool showMessage);
 
 String GetMacroModuleName(String fileName, String funcName, String argCount,
                           bool varArg);
