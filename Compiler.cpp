@@ -1385,7 +1385,6 @@ bool TCompiler::Compile(String string, String filePath, String libName,
   Fail = false;
   lex = new TTokenizer(string);
   fout = new TMemoryStream();
-  Context->Modules[libName] = fout;
   Variables = newTStringList();
   Constants = newTStringList();
   CapturableVariables = newTStringList();
@@ -1415,7 +1414,13 @@ bool TCompiler::Compile(String string, String filePath, String libName,
     }
     Fail = true;
   }
-  // Do not delete fout. It is stored in Modules.
+
+  if (!Fail) {
+    Context->Modules[libName] = fout;
+  } else {
+    delete fout;
+  }
+
   delete lex;
   delete Variables;
   delete Constants;
