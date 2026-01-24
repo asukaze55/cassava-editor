@@ -1290,16 +1290,15 @@ String TMainGrid::StringsToCSV(TStrings* Data, const TTypeOption *Format,
 
     TQuoteOption quoteOption = Format->QuoteOption;
     if (quoteOption == QUOTE_EXPRESSION) {
+      quoteOption = QUOTE_NORMAL;
       if (MacroContext.HasModule(QUOTE_MACRO_NAME)) {
-        TMacroValue value =
-            RunMacro(QUOTE_MACRO_NAME, 0, MacroContext, X + i, Y);
-        if (value.string != "" && value.string != "0") {
-          quoteOption = QUOTE_ALL;
-        } else {
-          quoteOption = QUOTE_NORMAL;
-        }
-      } else {
-        quoteOption = QUOTE_NORMAL;
+        try {
+          TMacroValue value = RunMacro(QUOTE_MACRO_NAME, 0, MacroContext, X + i,
+              Y, /* ReadOnly= */ true);
+          if (value.string != "" && value.string != "0") {
+            quoteOption = QUOTE_ALL;
+          }
+        } catch (...) {}
       }
     }
 
