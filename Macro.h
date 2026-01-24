@@ -16,7 +16,7 @@ struct TMacroValue {
 };
 
 TMacroValue RunMacro(String FileName, int MaxLoop, const TMacroContext &Context,
-    int x, int y, EncodedWriter *IO = nullptr, bool IsCellMacro = false,
+    int x, int y, bool ReadOnly = false, EncodedWriter *IO = nullptr,
     TStringList *StringArguments = nullptr);
 
 void StopAllMacros();

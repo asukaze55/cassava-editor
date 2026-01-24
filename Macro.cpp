@@ -47,7 +47,7 @@ private:
   int deletingTop;
   int deletingRows;
   TMainGrid *grid;
-  bool isCellMacro;
+  bool readOnly;
 
   int RXtoAX(int x) const { return x - grid->DataLeft + 1; }
   int RYtoAY(int y) const { return y - grid->DataTop + 1; }
@@ -59,8 +59,8 @@ private:
   int ry(int y) const { return AYtoRY(ay(y)); }
 
 public:
-  GridProxy(TMainGrid *Grid, bool cm)
-      : deletingTop(0), deletingRows(0), grid(Grid), isCellMacro(cm) {}
+  GridProxy(TMainGrid *Grid, bool ReadOnly)
+      : deletingTop(0), deletingRows(0), grid(Grid), readOnly(ReadOnly) {}
 
   ~GridProxy() {
     ApplyPendingChanges();
@@ -85,8 +85,8 @@ public:
   }
 
   void SetCell(int x, int y, String value) {
-    if (isCellMacro) {
-      throw MacroException("Cell Macro Can't Update Cells.", ME_SECURITY);
+    if (readOnly) {
+      throw MacroException("Can't Update Cells.", ME_SECURITY);
     }
     if (x < 1 || y < 1) {
       return;
@@ -292,11 +292,11 @@ private:
   std::vector<TEnvironment*> *objects;
 public:
   std::map<String, Element> Vars;
-  bool IsCellMacro;
+  bool ReadOnly;
   GridProxy *Grid;
 
-  TEnvironment(bool cm, GridProxy *grid,  TEnvironment *gl) :
-      Vars(), IsCellMacro(cm), Grid(grid), global(gl), objects(nullptr) {}
+  TEnvironment(bool readOnly, GridProxy *grid,  TEnvironment *gl) :
+      Vars(), ReadOnly(readOnly), Grid(grid), global(gl), objects(nullptr) {}
   ~TEnvironment() {
     if (objects) {
       for (size_t i = 0; i < objects->size(); i++) {
@@ -307,10 +307,10 @@ public:
   }
   TEnvironment *GetGlobal() { return global ? global : this; }
   TEnvironment CreateSubEnvironment() {
-    return TEnvironment(IsCellMacro, Grid, GetGlobal());
+    return TEnvironment(ReadOnly, Grid, GetGlobal());
   }
   TEnvironment *NewObject() {
-    return new TEnvironment(IsCellMacro, Grid, GetGlobal());
+    return new TEnvironment(ReadOnly, Grid, GetGlobal());
   }
   std::vector<TEnvironment*> *GetObjects() {
     TEnvironment *gl = GetGlobal();
@@ -1100,8 +1100,8 @@ void TMacro::ExecFnc(String s)
       ope[0].Sbst(t1);
       ope[1].Sbst(t0);
     }else if(s == "MessageBox"){
-      if (env.IsCellMacro) {
-        throw MacroException("Cell Macro can't show dialogs.", ME_SECURITY);
+      if (env.ReadOnly) {
+        throw MacroException("Can't show dialogs.", ME_SECURITY);
       }
       env.Grid->ApplyPendingChanges();
       String text = (H >= 1 ? STR0 : L"ブレークポイントです");
@@ -1109,9 +1109,9 @@ void TMacro::ExecFnc(String s)
       String caption = (H >= 3 ? STR1 : L"Cassava Macro");
       Stack.push_back(Element(
           Application->MessageBox(text.c_str(), caption.c_str(), flag)));
-    }else if(s == "InputBox"){
-      if (env.IsCellMacro) {
-        throw MacroException("Cell Macro can't show dialogs.", ME_SECURITY);
+    }else if(s == "ReadOnly"){
+      if (env.ReadOnly) {
+        throw MacroException("Can't show dialogs.", ME_SECURITY);
       }
       env.Grid->ApplyPendingChanges();
       String Text = (H >= 1) ? STR0 : (String)"";
@@ -1124,8 +1124,8 @@ void TMacro::ExecFnc(String s)
         throw MacroException(L"キャンセルされました。", ME_CANCELED);
       }
     }else if(s == "InputBoxMultiLine"){
-      if (env.IsCellMacro) {
-        throw MacroException("Cell Macro can't show dialogs.", ME_SECURITY);
+      if (env.ReadOnly) {
+        throw MacroException("Can't show dialogs.", ME_SECURITY);
       }
       env.Grid->ApplyPendingChanges();
       String Text = (H >= 1) ? STR0 : (String)"";
@@ -1339,7 +1339,7 @@ void TMacro::ExecFnc(String s)
     }else if(H == 0){
       env.Grid->ApplyPendingChanges();
       TMenuItem *menu = nullptr;
-      if (!env.IsCellMacro) {
+      if (!env.ReadOnly) {
         menu = fmMain->FindMenuItem(s);
       }
       if (menu && menu->OnClick) {
@@ -1535,8 +1535,8 @@ void TMacro::ExecFnc(String s)
         }
       }
     }else if(s == "Open" && (H == 1 || H == 2)){
-      if (env.IsCellMacro) {
-        throw MacroException("Cell Macro can't open files.", ME_SECURITY);
+      if (env.ReadOnly) {
+        throw MacroException("Can't open files.", ME_SECURITY);
       }
       env.Grid->ApplyPendingChanges();
       const TTypeOption *typeOption = nullptr;
@@ -1553,8 +1553,8 @@ void TMacro::ExecFnc(String s)
         Application->ProcessMessages();
       }
     }else if(s == "SaveAs" && (H == 1 || H == 2)){
-      if (env.IsCellMacro) {
-        throw MacroException("Cell Macro can't write to files.", ME_SECURITY);
+      if (env.ReadOnly) {
+        throw MacroException("Can't write to files.", ME_SECURITY);
       }
       env.Grid->ApplyPendingChanges();
       const TTypeOption *typeOption = nullptr;
@@ -1569,16 +1569,16 @@ void TMacro::ExecFnc(String s)
       }
       fmMain->SaveAs(STR0, typeOption);
     }else if(s == "Export" && H == 2){
-      if (env.IsCellMacro) {
-        throw MacroException("Cell Macro can't write to files.", ME_SECURITY);
+      if (env.ReadOnly) {
+        throw MacroException("Can't write to files.", ME_SECURITY);
       }
       env.Grid->ApplyPendingChanges();
       fmMain->Export(STR0, STR1);
     }else if(s == "FileExists" && H == 1) {
       Stack.push_back(Element(FileExists(STR0) ? 1 : 0));
     }else if(s == "WriteToFile" && H == 2) {
-      if (env.IsCellMacro) {
-        throw MacroException("Cell Macro can't write to files.", ME_SECURITY);
+      if (env.ReadOnly) {
+        throw MacroException("Can't write to files.", ME_SECURITY);
       }
       String fileName = STR1;
       String dirName = ExtractFilePath(fileName);
@@ -1858,14 +1858,14 @@ Element TMacro::Do(String FileName, const std::vector<Element> &AStack,
 }
 //---------------------------------------------------------------------------
 TMacroValue RunMacro(String FileName, int MaxLoop, const TMacroContext &Context,
-    int x, int y, EncodedWriter *IO, bool IsCellMacro,
+    int x, int y, bool ReadOnly, EncodedWriter *IO,
     TStringList *StringArguments)
 {
   if(!RunningOk){ return TMacroValue(); }
-  if(!IsCellMacro){ RunningCount++; }
+  if(!ReadOnly){ RunningCount++; }
   randomize();
-  GridProxy grid(fmMain->MainGrid, IsCellMacro);
-  TMacro mcr(IO, MaxLoop, Context, TEnvironment(IsCellMacro, &grid, nullptr));
+  GridProxy grid(fmMain->MainGrid, ReadOnly);
+  TMacro mcr(IO, MaxLoop, Context, TEnvironment(ReadOnly, &grid, nullptr));
   Element r;
   try {
     std::vector<Element> stack;
@@ -1876,7 +1876,7 @@ TMacroValue RunMacro(String FileName, int MaxLoop, const TMacroContext &Context,
     }
     r = mcr.Do(FileName, stack, x, y);
   } catch (MacroException e) {
-    if (IsCellMacro) {
+    if (ReadOnly) {
       RunningCount--;
       throw e;
     } else if (e.Type != ME_CANCELED) {
@@ -1887,7 +1887,7 @@ TMacroValue RunMacro(String FileName, int MaxLoop, const TMacroContext &Context,
                               L"Cassava Macro Interpreter", 0);
     }
   } catch (Exception *e) {
-    if (IsCellMacro) {
+    if (ReadOnly) {
       RunningCount--;
       throw e;
     } else {
@@ -1895,7 +1895,7 @@ TMacroValue RunMacro(String FileName, int MaxLoop, const TMacroContext &Context,
                               L"Cassava Macro Interpreter", 0);
     }
   }
-  if(!IsCellMacro){
+  if(!ReadOnly){
     RunningCount--;
     if(RunningCount == 0){
       RunningOk = true;

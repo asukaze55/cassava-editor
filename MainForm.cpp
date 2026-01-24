@@ -160,7 +160,7 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
     if (SystemMacroContext.HasModule(statusbarInit)) {
       try {
         RunMacro(statusbarInit, StopMacroCount, SystemMacroContext, -1, -1,
-            nullptr, true);
+            /* ReadOnly= */ true);
       } catch (...) {}
     }
     StatusbarCmsFile = statusbarCmsFile;
@@ -2304,7 +2304,8 @@ void __fastcall TfmMain::StatusBarPopUpClick(TObject *Sender)
   arguments->Clear();
   arguments->Add(label);
   RunMacro(StatusBarPopUp[panelIndex].Handler, StopMacroCount,
-      SystemMacroContext, -1, -1, nullptr, false, arguments);
+      SystemMacroContext, -1, -1, /* ReadOnly= */ false, /* IO= */ nullptr,
+      arguments);
   delete arguments;
   UpdateStatusbar();
 }
@@ -2623,7 +2624,7 @@ void TfmMain::UpdateStatusbar()
     StatusBarPopUp.clear();
     try {
       RunMacro(StatusbarCmsFile, StopMacroCount, SystemMacroContext, -1, -1,
-          nullptr, true);
+          /* ReadOnly= */ true);
     } catch(...) {}
   }
 }
@@ -2655,8 +2656,8 @@ TCalculatedCell TfmMain::GetCalculatedCell(String Str, int ACol, int ARow)
     String formula = "return " + Str + ";";
     bool ok = CompileMacro(&formula, cmsName, &macroContext, false);
     if (ok){
-      TMacroValue macroResult = RunMacro(
-          cmsName, StopMacroCount, macroContext, ACol, ARow, nullptr, true);
+      TMacroValue macroResult = RunMacro(cmsName, StopMacroCount, macroContext,
+          ACol, ARow, /* ReadOnly= */ true);
       result = TCalculatedCell(macroResult.string, ctOk);
     }
   }catch(...){
@@ -2698,7 +2699,7 @@ TFormattedCell TfmMain::GetFormattedCell(TCalculatedCell Cell, int AX, int AY)
   if (FormatCmsFile != "") {
     try {
       TMacroValue result = RunMacro(FormatCmsFile, StopMacroCount,
-          SystemMacroContext, AX, AY, nullptr, true);
+          SystemMacroContext, AX, AY, /* ReadOnly= */ true);
       if (result.object.size() > 0) {
         if (result.object["text"] != "") {
           Cell.text = result.object["text"];
