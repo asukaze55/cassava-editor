@@ -9,7 +9,7 @@ object fmLetter: TfmLetter
   ClientWidth = 767
   Color = clBtnFace
   ParentFont = True
-  Position = poScreenCenter
+  Position = poMainFormCenter
   OnClose = FormClose
   OnShow = FormShow
   DesignSize = (

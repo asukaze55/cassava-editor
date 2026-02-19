@@ -6,6 +6,7 @@ object fmKey: TfmKey
   ClientWidth = 472
   Color = clBtnFace
   ParentFont = True
+  Position = poMainFormCenter
   OnShow = FormShow
   TextHeight = 15
   object tvMenu: TTreeView

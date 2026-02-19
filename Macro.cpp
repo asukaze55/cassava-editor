@@ -895,7 +895,7 @@ UserDialog::UserDialog(const Element& element, String caption)
   Form = new TForm(fmMain);
   Form->BorderStyle = bsDialog;
   Form->Caption = caption;
-  Form->Position = poScreenCenter;
+  Form->Position = poMainFormCenter;
   bool hasDefault = false;
   TControl *control = ConvertDialogControl(element.Value(), Form, &hasDefault);
   control->Left = 8;

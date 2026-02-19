@@ -12,7 +12,7 @@ object fmPasteDialog: TfmPasteDialog
   Font.Height = -16
   Font.Name = 'Yu Gothic UI'
   Font.Style = []
-  Position = poScreenCenter
+  Position = poMainFormCenter
   TextHeight = 21
   object Label1: TLabel
     Left = 0

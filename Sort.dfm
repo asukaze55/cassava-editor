@@ -7,6 +7,7 @@ object fmSort: TfmSort
   ClientWidth = 352
   Color = clBtnFace
   ParentFont = True
+  Position = poMainFormCenter
   OnClose = FormClose
   TextHeight = 15
   object Label4: TLabel
