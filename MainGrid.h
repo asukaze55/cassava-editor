@@ -256,7 +256,7 @@ public:
     bool IsNumber(String Str);
     bool IsNumberAtACell(int X, int Y){ return IsNumber(GetACells(X,Y)); };
     void Sort(int SLeft, int STop, int SRight, int SBottom, int SCol,
-              bool Shoujun, bool NumSort, bool IgnoreCase, bool IgnoreZenhan);
+              bool Ascending, bool NumSort, bool IgnoreCase, bool IgnoreZenhan);
     double GetSum(int l, int t, int r, int b, int *Count = nullptr);
     double GetAvr(int l, int t, int r, int b);
     void CopySum();

@@ -1532,7 +1532,14 @@ bool TMainGrid::IsNumber(String Str)
   return false;
 }
 //---------------------------------------------------------------------------
-typedef struct { double Num; TStringList *Data; int Row; } DoubleData;
+struct DoubleData {
+  double Num;
+  TStringList *Data;
+  int Row;
+
+  DoubleData(double num, TStringList *data, int row)
+      : Num(num), Data(data), Row(row) {}
+};
 //---------------------------------------------------------------------------
 int __fastcall CompareDoubleData(void *a, void *b) {
   DoubleData *dda = static_cast<DoubleData*>(a);
@@ -1543,7 +1550,14 @@ int __fastcall CompareDoubleData(void *a, void *b) {
   }else return ((dda->Num < ddb->Num) ? -1 : 1);
 }
 //---------------------------------------------------------------------------
-typedef struct { String Str; TStringList *Data; int Row; } StringData;
+struct StringData {
+  String Str;
+  TStringList *Data;
+  int Row;
+
+  StringData(String str, TStringList *data, int row)
+      : Str(str), Data(data), Row(row) {}
+};
 //---------------------------------------------------------------------------
 int __fastcall CompareOrderedString(void *a, void *b) {
   StringData *osa = static_cast<StringData*>(a);
@@ -1555,70 +1569,62 @@ int __fastcall CompareOrderedString(void *a, void *b) {
 }
 //---------------------------------------------------------------------------
 void TMainGrid::Sort(int SLeft, int STop, int SRight, int SBottom, int SCol,
-  bool Shoujun, bool NumSort, bool IgnoreCase, bool IgnoreZenhan)
+  bool Ascending, bool NumSort, bool IgnoreCase, bool IgnoreZenhan)
 {
   UndoList->Push();
-  TList *StrList = new TList;
-  TList *NumList = new TList;
+  TList *stringList = new TList;
+  TList *numberList = new TList;
 
-  if(SLeft   < 0) SLeft   = 0;
-  if(SRight  < 0) SRight  = 0;
-  if(STop    < 0) STop    = 0;
-  if(SBottom < 0) SBottom = 0;
+  if (SLeft < 0) { SLeft = 0; }
+  if (SRight < 0) { SRight = 0; }
+  if (STop < 0) { STop = 0; }
+  if (SBottom < 0) { SBottom = 0; }
 
-  for(int y=STop; y<=SBottom; y++){
-    TStringList *L = new TStringList;
-    for(int x=SLeft; x<=SRight; x++){
-      L->Add(Cells[x][y]);
+  for (int y = STop; y <= SBottom; y++) {
+    TStringList *data = new TStringList;
+    for (int x = SLeft; x <= SRight; x++) {
+      data->Add(Cells[x][y]);
     }
-    if(NumSort && IsNumber(Cells[SCol][y])){
-      DoubleData *DD = new DoubleData;
-      DD->Num = Cells[SCol][y].ToDouble();
-      DD->Data = L;
-      DD->Row = y;
-      NumList->Add(DD);
-    }else{
-      StringData *SD = new StringData;
-      String str = Cells[SCol][y];
-      if(IgnoreCase){
+    String str = Cells[SCol][y];
+    if (NumSort && IsNumber(str)) {
+      numberList->Add(new DoubleData(str.ToDouble(), data, y));
+    } else {
+      if (IgnoreCase) {
         str = str.UpperCase();
       }
-      if(IgnoreZenhan){
+      if (IgnoreZenhan) {
         str = TransChar(TransKana(str, 5), 1);
       }
-      SD->Str = str;
-      SD->Data = L;
-      SD->Row = y;
-      StrList->Add(SD);
+      stringList->Add(new StringData(str, data, y));
     }
   }
-  StrList->Sort(CompareOrderedString);
-  NumList->Sort(CompareDoubleData);
+  stringList->Sort(CompareOrderedString);
+  numberList->Sort(CompareDoubleData);
 
-  for (int y = STop; y <= SBottom; y++){
-    int index = Shoujun ? y - STop : SBottom - y;
-    TStringList *list;
-    if (index < NumList->Count) {
-      DoubleData *dd = static_cast<DoubleData*>(NumList->Items[index]);
-      list = dd->Data;
+  for (int y = STop; y <= SBottom; y++) {
+    int index = Ascending ? y - STop : SBottom - y;
+    TStringList *data;
+    if (index < numberList->Count) {
+      DoubleData *dd = static_cast<DoubleData*>(numberList->Items[index]);
+      data = dd->Data;
       delete dd;
     } else {
-      StringData *sd =
-          static_cast<StringData*>(StrList->Items[index - NumList->Count]);
-      list = sd->Data;
+      StringData *sd = static_cast<StringData*>(
+          stringList->Items[index - numberList->Count]);
+      data = sd->Data;
       delete sd;
     }
-    for (int x = SLeft; x <= SRight; x++){
-      SetCell(x, y, list->Strings[x - SLeft]);
+    for (int x = SLeft; x <= SRight; x++) {
+      SetCell(x, y, data->Strings[x - SLeft]);
     }
-    delete list;
+    delete data;
   }
 
-  delete StrList;
-  delete NumList;
+  delete stringList;
+  delete numberList;
   UndoList->Pop((String)"Sort(" + RXtoAX(SLeft) + ", " + RYtoAY(STop) + ", "
       + RXtoAX(SRight) + ", " + RYtoAY(SBottom) + ", " + RXtoAX(SCol) + ", "
-      + boolToStr(!Shoujun) + ", " + boolToStr(NumSort) + ", "
+      + boolToStr(!Ascending) + ", " + boolToStr(NumSort) + ", "
       + boolToStr(IgnoreCase) + ", " + boolToStr(IgnoreZenhan) + ");");
   Modified = true;
 }
