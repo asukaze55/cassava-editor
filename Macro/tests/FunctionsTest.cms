@@ -89,32 +89,33 @@ class FunctionsTest {
     [1,1] = 3;
     [1,2] = 10;
     [1,3] = 4;
-    [1,4] = "AAA3";
-    [1,5] = "aaa2";
-    [1,6] = "ＡＡＡ１";
-    for (y = 1; y <= 6; y++) {
+    [1,4] = "";
+    [1,5] = "AAA3";
+    [1,6] = "aaa2";
+    [1,7] = "ＡＡＡ１";
+    for (y = 1; y <= 7; y++) {
       [2,y] = y;
     }
 
-    Sort(1, 1, 2, 6, 1, false, false, false, false);
-    assert.that(this.getValues(1, 1, 1, 6)).isEqualTo("1034AAA3aaa2ＡＡＡ１");
-    assert.that(this.getValues(2, 1, 2, 6)).isEqualTo("213456");
+    Sort(1, 1, 2, 7, 1, false, false, false, false);
+    assert.that(this.getValues(1, 1, 1, 7)).isEqualTo("1034AAA3aaa2ＡＡＡ１");
+    assert.that(this.getValues(2, 1, 2, 7)).isEqualTo("4213567");
 
-    Sort(1, 1, 2, 6, 1, true, false, false, false);
-    assert.that(this.getValues(1, 1, 1, 6)).isEqualTo("ＡＡＡ１aaa2AAA34310");
-    assert.that(this.getValues(2, 1, 2, 6)).isEqualTo("654312");
+    Sort(1, 1, 2, 7, 1, true, false, false, false);
+    assert.that(this.getValues(1, 1, 1, 7)).isEqualTo("ＡＡＡ１aaa2AAA34310");
+    assert.that(this.getValues(2, 1, 2, 7)).isEqualTo("7653124");
 
-    Sort(1, 1, 2, 6, 1, false, true, false, false);
-    assert.that(this.getValues(1, 1, 1, 6)).isEqualTo("3410AAA3aaa2ＡＡＡ１");
-    assert.that(this.getValues(2, 1, 2, 6)).isEqualTo("132456");
+    Sort(1, 1, 2, 7, 1, false, true, false, false);
+    assert.that(this.getValues(1, 1, 1, 7)).isEqualTo("3410AAA3aaa2ＡＡＡ１");
+    assert.that(this.getValues(2, 1, 2, 7)).isEqualTo("1324567");
 
-    Sort(1, 1, 2, 6, 1, false, false, true, false);
-    assert.that(this.getValues(1, 1, 1, 6)).isEqualTo("1034aaa2AAA3ＡＡＡ１");
-    assert.that(this.getValues(2, 1, 2, 6)).isEqualTo("213546");
+    Sort(1, 1, 2, 7, 1, false, false, true, false);
+    assert.that(this.getValues(1, 1, 1, 7)).isEqualTo("1034aaa2AAA3ＡＡＡ１");
+    assert.that(this.getValues(2, 1, 2, 7)).isEqualTo("4213657");
 
-    Sort(1, 1, 2, 6, 1, false, false, false, true);
-    assert.that(this.getValues(1, 1, 1, 6)).isEqualTo("1034ＡＡＡ１AAA3aaa2");
-    assert.that(this.getValues(2, 1, 2, 6)).isEqualTo("213645");
+    Sort(1, 1, 2, 7, 1, false, false, false, true);
+    assert.that(this.getValues(1, 1, 1, 7)).isEqualTo("1034ＡＡＡ１AAA3aaa2");
+    assert.that(this.getValues(2, 1, 2, 7)).isEqualTo("4213756");
 
     for (y = 1; y <= 3; y++) {
       for (x = 1; x <= 3; x++) {
