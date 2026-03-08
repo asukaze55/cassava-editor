@@ -99,7 +99,7 @@ class FunctionsTest {
 
     Sort(1, 1, 2, 7, 1, false, false, false, false);
     assert.that(this.getValues(1, 1, 1, 7)).isEqualTo("1034AAA3aaa2ＡＡＡ１");
-    assert.that(this.getValues(2, 1, 2, 7)).isEqualTo("4213567");
+    assert.that(this.getValues(2, 1, 2, 7)).isEqualTo("2135674");
 
     Sort(1, 1, 2, 7, 1, true, false, false, false);
     assert.that(this.getValues(1, 1, 1, 7)).isEqualTo("ＡＡＡ１aaa2AAA34310");
@@ -107,15 +107,15 @@ class FunctionsTest {
 
     Sort(1, 1, 2, 7, 1, false, true, false, false);
     assert.that(this.getValues(1, 1, 1, 7)).isEqualTo("3410AAA3aaa2ＡＡＡ１");
-    assert.that(this.getValues(2, 1, 2, 7)).isEqualTo("1324567");
+    assert.that(this.getValues(2, 1, 2, 7)).isEqualTo("1325674");
 
     Sort(1, 1, 2, 7, 1, false, false, true, false);
     assert.that(this.getValues(1, 1, 1, 7)).isEqualTo("1034aaa2AAA3ＡＡＡ１");
-    assert.that(this.getValues(2, 1, 2, 7)).isEqualTo("4213657");
+    assert.that(this.getValues(2, 1, 2, 7)).isEqualTo("2136574");
 
     Sort(1, 1, 2, 7, 1, false, false, false, true);
     assert.that(this.getValues(1, 1, 1, 7)).isEqualTo("1034ＡＡＡ１AAA3aaa2");
-    assert.that(this.getValues(2, 1, 2, 7)).isEqualTo("4213756");
+    assert.that(this.getValues(2, 1, 2, 7)).isEqualTo("2137564");
 
     for (y = 1; y <= 3; y++) {
       for (x = 1; x <= 3; x++) {

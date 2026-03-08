@@ -1574,6 +1574,7 @@ void TMainGrid::Sort(int SLeft, int STop, int SRight, int SBottom, int SCol,
   UndoList->Push();
   TList *stringList = new TList;
   TList *numberList = new TList;
+  TList *emptyList = new TList;
 
   if (SLeft < 0) { SLeft = 0; }
   if (SRight < 0) { SRight = 0; }
@@ -1586,7 +1587,9 @@ void TMainGrid::Sort(int SLeft, int STop, int SRight, int SBottom, int SCol,
       data->Add(Cells[x][y]);
     }
     String str = Cells[SCol][y];
-    if (NumSort && IsNumber(str)) {
+    if (str == "") {
+      emptyList->Add(data);
+    } else if (NumSort && IsNumber(str)) {
       numberList->Add(new DoubleData(str.ToDouble(), data, y));
     } else {
       if (IgnoreCase) {
@@ -1601,18 +1604,24 @@ void TMainGrid::Sort(int SLeft, int STop, int SRight, int SBottom, int SCol,
   stringList->Sort(CompareOrderedString);
   numberList->Sort(CompareDoubleData);
 
+  int nonEmptyBottom = STop + stringList->Count + numberList->Count - 1;
   for (int y = STop; y <= SBottom; y++) {
-    int index = Ascending ? y - STop : SBottom - y;
     TStringList *data;
-    if (index < numberList->Count) {
-      DoubleData *dd = static_cast<DoubleData*>(numberList->Items[index]);
-      data = dd->Data;
-      delete dd;
+    if (y > nonEmptyBottom) {
+      data =
+          static_cast<TStringList*>(emptyList->Items[y - nonEmptyBottom - 1]);
     } else {
-      StringData *sd = static_cast<StringData*>(
-          stringList->Items[index - numberList->Count]);
-      data = sd->Data;
-      delete sd;
+      int index = Ascending ? y - STop : nonEmptyBottom - y;
+      if (index < numberList->Count) {
+        DoubleData *dd = static_cast<DoubleData*>(numberList->Items[index]);
+        data = dd->Data;
+        delete dd;
+      } else {
+        StringData *sd = static_cast<StringData*>(
+            stringList->Items[index - numberList->Count]);
+        data = sd->Data;
+        delete sd;
+      }
     }
     for (int x = SLeft; x <= SRight; x++) {
       SetCell(x, y, data->Strings[x - SLeft]);
@@ -1622,6 +1631,7 @@ void TMainGrid::Sort(int SLeft, int STop, int SRight, int SBottom, int SCol,
 
   delete stringList;
   delete numberList;
+  delete emptyList;
   UndoList->Pop((String)"Sort(" + RXtoAX(SLeft) + ", " + RYtoAY(STop) + ", "
       + RXtoAX(SRight) + ", " + RYtoAY(SBottom) + ", " + RXtoAX(SCol) + ", "
       + boolToStr(!Ascending) + ", " + boolToStr(NumSort) + ", "
