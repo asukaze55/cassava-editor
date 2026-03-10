@@ -1109,7 +1109,7 @@ void TMacro::ExecFnc(String s)
       String caption = (H >= 3 ? STR1 : L"Cassava Macro");
       Stack.push_back(Element(
           Application->MessageBox(text.c_str(), caption.c_str(), flag)));
-    }else if(s == "ReadOnly"){
+    }else if(s == "InputBox"){
       if (env.ReadOnly) {
         throw MacroException("Can't show dialogs.", ME_SECURITY);
       }
