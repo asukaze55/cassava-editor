@@ -54,6 +54,14 @@ public:		// ƒ†[ƒU[éŒ¾
   void StoreToMainForm();
 };
 //---------------------------------------------------------------------------
+static constexpr wchar_t LIGHT_MODE_STYLE_NAME[] = L"Windows";
+static constexpr wchar_t DARK_MODE_STYLE_NAME[] = L"Windows11 Modern Dark";
+//---------------------------------------------------------------------------
+static inline bool IsDarkMode(String Style)
+{
+  return Style.Pos("Dark") > 0;
+}
+//---------------------------------------------------------------------------
 extern PACKAGE TfrOptionColor *frOptionColor;
 //---------------------------------------------------------------------------
 #endif

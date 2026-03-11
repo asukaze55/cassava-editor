@@ -11,6 +11,7 @@
 #include "AutoOpen.h"
 #include "KeyCustomize.h"
 #include "Option.h"
+#include "OptionColor.h"
 #include "Print.h"
 #include "FormattedFileName.h"
 #include "Macro.h"
@@ -227,7 +228,8 @@ void TfmMain::ReadIni()
 
   IniFile *Ini = Pref->GetInifile();
 
-  FStyle = Ini->ReadString("Mode", "Style", "Windows");
+  FStyle = IsDarkMode(Ini->ReadString("Mode", "Style", ""))
+      ? DARK_MODE_STYLE_NAME : LIGHT_MODE_STYLE_NAME;
   TStyleManager::TrySetStyle(FStyle);
 
   int iniScreenDpi = Ini->ReadInteger("Position", "Dpi", ScreenDpi);
@@ -502,7 +504,9 @@ void TfmMain::WriteIni(bool PosSlide)
 {
   try {
     IniFile *Ini = Pref->GetInifile();
-    Ini->WriteString("Mode", "Style", Style);
+    // Use the historical style names to be compatible with older versions.
+    Ini->WriteString(
+        "Mode", "Style", IsDarkMode(Style) ? "Windows10 Dark": "Windows");
     Ini->WriteInteger("Position", "Mode", WindowState == wsMaximized ? 2 : 0);
     if(WindowState == wsNormal){
       int Slide = PosSlide ? 32 : 0;
@@ -743,7 +747,7 @@ TToolBar *TfmMain::AddToolBar(String Label, String ImageList, int Top, int Left)
   TVirtualImageList *disabledImages = nullptr;
   String imageListFileName = Pref->Path + ImageList;
   if (Label == "#1" || ImageList == "#1") {
-    if (Style == "Windows10 Dark") {
+    if (IsDarkMode(Style)) {
       images = imlNormalDark;
       disabledImages = imlNormalDarkDisabled;
     } else {
@@ -751,7 +755,7 @@ TToolBar *TfmMain::AddToolBar(String Label, String ImageList, int Top, int Left)
       disabledImages = imlNormalDisabled;
     }
   } else if (Label == "#2" || ImageList == "#2") {
-    if (Style == "Windows10 Dark") {
+    if (IsDarkMode(Style)) {
       images = imlAdditionalDark;
     } else {
       images = imlAdditional;

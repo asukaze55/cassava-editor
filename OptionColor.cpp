@@ -10,8 +10,6 @@
 #pragma resource "*.dfm"
 TfrOptionColor *frOptionColor;
 //---------------------------------------------------------------------------
-constexpr wchar_t LightModeName[] = L"Windows";
-constexpr wchar_t DarkModeName[] = L"Windows10 Dark";
 constexpr int LightModeIndex = 0;
 constexpr int DarkModeIndex = 1;
 //---------------------------------------------------------------------------
@@ -23,7 +21,7 @@ __fastcall TfrOptionColor::TfrOptionColor(TComponent* Owner)
 void TfrOptionColor::RestoreFromMainForm()
 {
   cbStyle->ItemIndex =
-      fmMain->Style == DarkModeName ? DarkModeIndex : LightModeIndex;
+      IsDarkMode(fmMain->Style) ? DarkModeIndex : LightModeIndex;
 
   TMainGrid *grid = fmMain->MainGrid;
   cbBgColor->Selected = grid->Color;
@@ -44,8 +42,8 @@ void TfrOptionColor::RestoreFromMainForm()
 //---------------------------------------------------------------------------
 void TfrOptionColor::StoreToMainForm()
 {
-  fmMain->Style =
-      cbStyle->ItemIndex == DarkModeIndex ? DarkModeName : LightModeName;
+  fmMain->Style = (cbStyle->ItemIndex == DarkModeIndex)
+      ? DARK_MODE_STYLE_NAME : LIGHT_MODE_STYLE_NAME;
 
   TMainGrid *grid = fmMain->MainGrid;
   grid->Color = cbBgColor->Selected;
