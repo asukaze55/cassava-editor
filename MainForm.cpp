@@ -250,11 +250,15 @@ void TfmMain::ReadIni()
       Ini->ReadInteger("Position", "Height", Height) * dpiRatio + 0.5;
   Height = iniHeight <= screenHeight ? iniHeight : screenHeight;
   int iniLeft = Ini->ReadInteger("Position", "Left", -1);
-  Left = (iniLeft >= virtualScreenLeft && iniLeft <= virtualScreenRight - Width)
-      ? iniLeft : (screenWidth / 2 - Width / 2);
+  int left =
+      (iniLeft >= virtualScreenLeft && iniLeft <= virtualScreenRight - Width)
+          ? iniLeft : (screenWidth / 2 - Width / 2);
+  Left =  left;
   int iniTop = Ini->ReadInteger("Position", "Top", -1);
-  Top = (iniTop >= virtualScreenTop && iniTop <= virtualScreenBottom - Height)
-      ? iniTop : (screenHeight / 2 - Height / 2);
+  int top =
+      (iniTop >= virtualScreenTop && iniTop <= virtualScreenBottom - Height)
+          ? iniTop : (screenHeight / 2 - Height / 2);
+  Top = top;
 
   for (int i = 1; i <= ParamCount(); i++) {
     if (ParamStr(i) == "-i") {
@@ -311,6 +315,10 @@ void TfmMain::ReadIni()
   Show();
   SearchMacro(mnMacro);
   dpiRatio = (double)ScreenDpi / iniScreenDpi;
+
+  // Show() may reset the Left and Top in dark mode.
+  Left = left;
+  Top = top;
 
   WindowState =
       Ini->ReadInteger("Position", "Mode", 0) == 2 ? wsMaximized : wsNormal;
