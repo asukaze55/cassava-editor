@@ -54,41 +54,51 @@ protected:
   void __fastcall Execute();
 public:
   __fastcall UpdateCheckThread() : TThread(true) {}
+private:
+  String newVer;
+  String newDate;
+  String newUrl;
+  void __fastcall MessageBox();
 };
 //---------------------------------------------------------------------------
 void __fastcall UpdateCheckThread::Execute()
 {
-  wchar_t title[] = L"更新の確認";
   TStringList *list = new TStringList();
   list->Text = HttpsGet("www.asukaze.net", 443,
                         "/soft/cassava/update.cgi?ver=" + Version::Current());
-  if(list->Count < 6){
-    Application->MessageBox(L"情報の取得に失敗しました。", title,0);
-    delete list;
-    return;
-  }
-  String newVer;
-  String newDate;
-  String newUrl;
-  if(!Version::CurrentIsBeta()){
+  if (list->Count < 6) {
+    newVer = "";
+    newDate = "";
+    newUrl = "";
+  } else if (!Version::CurrentIsBeta()) {
     newVer = list->Strings[0];
     newDate = list->Strings[1];
     newUrl = list->Strings[2];
-  }else{
+  } else {
     newVer = list->Strings[3];
     newDate = list->Strings[4];
     newUrl = list->Strings[5];
   }
   delete list;
-  String message;
-  if(Version::Compare(newDate, Version::CurrentDate()) > 0){
-    message = (String)L"バージョン " + newVer + L" が見つかりました。\n"
-      + newUrl + L"を開きますか？";
+  Synchronize(&MessageBox);
+}
+//---------------------------------------------------------------------------
+void __fastcall UpdateCheckThread::MessageBox()
+{
+  constexpr wchar_t title[] = L"更新の確認";
+  if (newUrl == "") {
+    Application->MessageBox(L"情報の取得に失敗しました。", title, 0);
+    return;
+  }
+
+  if (Version::Compare(newDate, Version::CurrentDate()) > 0) {
+    String message = L"バージョン " + newVer + L" が見つかりました。\n" +
+        newUrl + L"を開きますか？";
     int mr = Application->MessageBox(message.c_str(), title, MB_OKCANCEL);
-    if(mr == IDOK){
+    if (mr == IDOK) {
       AutoOpen(newUrl, "");
     }
-  }else{
+  } else {
     Application->MessageBox(L"更新は見つかりませんでした。", title, 0);
   }
 }
