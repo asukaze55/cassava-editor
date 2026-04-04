@@ -1914,7 +1914,7 @@ void __fastcall TfmMain::acRedoUpdate(TObject *Sender)
 void __fastcall TfmMain::acCutExecute(TObject *Sender)
 {
   if (edFindText->Focused()) {
-    edFindText->CutToClipboard();
+    SendMessage(edFindText->Handle, WM_CUT, 0, 0);
   } else if (fmFind->edFindText->Focused()) {
     fmFind->edFindText->CutToClipboard();
   } else if (fmFind->edReplaceText->Focused()) {
@@ -1942,7 +1942,7 @@ void __fastcall TfmMain::acCutUpdate(TObject *Sender)
 void __fastcall TfmMain::acCopyExecute(TObject *Sender)
 {
   if (edFindText->Focused()) {
-    edFindText->CopyToClipboard();
+    SendMessage(edFindText->Handle, WM_COPY, 0, 0);
   } else if (fmFind->edFindText->Focused()) {
     fmFind->edFindText->CopyToClipboard();
   } else if (fmFind->edReplaceText->Focused()) {
@@ -1970,7 +1970,7 @@ void __fastcall TfmMain::acCopyUpdate(TObject *Sender)
 void __fastcall TfmMain::acPasteExecute(TObject *Sender)
 {
   if (edFindText->Focused()) {
-    edFindText->PasteFromClipboard();
+    SendMessage(edFindText->Handle, WM_PASTE, 0, 0);
   } else if(fmFind->edFindText->Focused()) {
     fmFind->edFindText->PasteFromClipboard();
   } else if(fmFind->edReplaceText->Focused()) {
@@ -2738,9 +2738,22 @@ TFormattedCell TfmMain::GetFormattedCell(TCalculatedCell Cell, int AX, int AY)
   return MainGrid->GetStyledCell(Cell, AX, AY);
 }
 //---------------------------------------------------------------------------
+void TfmMain::UpdateQuickFindPanel()
+{
+  String text = fmFind->edFindText->Text;
+  if (text != "") {
+    int i = edFindText->Items->IndexOf(text);
+    if (i >= 0) {
+      edFindText->Items->Delete(i);
+    }
+    edFindText->Items->Insert(0, text);
+  }
+  edFindText->Text = text;
+}
+//---------------------------------------------------------------------------
 void __fastcall TfmMain::mnQuickFindClick(TObject *Sender)
 {
-  edFindText->Text = fmFind->edFindText->Text;
+  UpdateQuickFindPanel();
   pnlSearch->Visible = true;
   edFindText->SetFocus();
 }

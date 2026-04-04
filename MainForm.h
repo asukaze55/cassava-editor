@@ -197,12 +197,12 @@ __published:	// IDE 管理のコンポーネント
   TPopupMenu *PopMenuStatusBar;
   TPanel *MainPanel;
   TPanel *pnlSearch;
+  TLabel *lblSearch;
+  TComboBox *edFindText;
   TSpeedButton *btnNext;
   TSpeedButton *btnPrevious;
-  TLabel *Label1;
   TSpeedButton *btnSearchOption;
   TSpeedButton *btnSearchCancel;
-  TEdit *edFindText;
   TControlBar *CoolBar;
   TMenuItem *mnCheckUpdate;
   TMenuItem *mnMacroTerminate;
@@ -400,6 +400,7 @@ public:     // ユーザー宣言
   void SetCopyMenu(TMenuItem *Item);
   void SetPasteMenu(TMenuItem *Item);
   void SetGridFont(TFont *AFont);
+  void UpdateQuickFindPanel();
 
   void MacroExec(String CmsFile, EncodedWriter *io);
   void MacroScriptExec(String cmsname, String script);

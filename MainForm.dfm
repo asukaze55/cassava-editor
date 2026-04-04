@@ -85,9 +85,9 @@ object fmMain: TfmMain
           2222222222000022222222222220022222222222222222222222}
         OnClick = btnPreviousClick
       end
-      object Label1: TLabel
+      object lblSearch: TLabel
         Left = 37
-        Top = 10
+        Top = 9
         Width = 39
         Height = 15
         Caption = #26908#32034#65306
@@ -115,7 +115,7 @@ object fmMain: TfmMain
         ShowHint = True
         OnClick = btnSearchCancelClick
       end
-      object edFindText: TEdit
+      object edFindText: TComboBox
         Left = 83
         Top = 5
         Width = 185

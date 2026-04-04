@@ -61,6 +61,7 @@ void __fastcall TfmFind::btnNextClick(TObject *Sender)
   bool found;
   bool backward = (rgDirection->ItemIndex == 0);
   if (PageControl->TabIndex == 0) {
+    fmMain->UpdateQuickFindPanel();
     found = fmMain->MainGrid->Find(edFindText->Text, GetRange(),
         cbCase->Checked, cbRegex->Checked, cbWordSearch->Checked, backward);
   } else {
