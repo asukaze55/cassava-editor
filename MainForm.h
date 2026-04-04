@@ -199,6 +199,9 @@ __published:	// IDE 管理のコンポーネント
   TPanel *pnlSearch;
   TLabel *lblSearch;
   TComboBox *edFindText;
+  TSpeedButton *btnCase;
+  TSpeedButton *btnWordSearch;
+  TSpeedButton *btnRegex;
   TSpeedButton *btnNext;
   TSpeedButton *btnPrevious;
   TSpeedButton *btnSearchOption;
@@ -307,6 +310,9 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall btnSearchCancelClick(TObject *Sender);
   void __fastcall edFindTextKeyDown(TObject *Sender, WORD &Key,
           TShiftState Shift);
+  void __fastcall btnCaseClick(TObject *Sender);
+  void __fastcall btnWordSearchClick(TObject *Sender);
+  void __fastcall btnRegexClick(TObject *Sender);
   void __fastcall btnNextClick(TObject *Sender);
   void __fastcall btnPreviousClick(TObject *Sender);
   void __fastcall btnSearchOptionClick(TObject *Sender);

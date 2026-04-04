@@ -42,6 +42,9 @@ __published:	// IDE 管理のコンポーネント
         void __fastcall PageControlChange(TObject *Sender);
         void __fastcall FormShow(TObject *Sender);
         void __fastcall edFindTextKeyDown(TObject *Sender, WORD &Key, TShiftState Shift);
+        void __fastcall cbCaseClick(TObject *Sender);
+        void __fastcall cbWordSearchClick(TObject *Sender);
+        void __fastcall cbRegexClick(TObject *Sender);
 
 private:	// ユーザー宣言
         TGridRect range;

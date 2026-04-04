@@ -2749,6 +2749,9 @@ void TfmMain::UpdateQuickFindPanel()
     edFindText->Items->Insert(0, text);
   }
   edFindText->Text = text;
+  btnCase->Down = fmFind->cbCase->Checked;
+  btnWordSearch->Down = fmFind->cbWordSearch->Checked;
+  btnRegex->Down = fmFind->cbRegex->Checked;
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnQuickFindClick(TObject *Sender)
@@ -2793,6 +2796,24 @@ void __fastcall TfmMain::edFindTextKeyDown(TObject *Sender, WORD &Key,
   }else if(Key == VK_ESCAPE){
     btnSearchCancelClick(Sender);
   }
+  MainGrid->Invalidate();
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmMain::btnCaseClick(TObject *Sender)
+{
+  fmFind->cbCase->Checked = btnCase->Down;
+  MainGrid->Invalidate();
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmMain::btnWordSearchClick(TObject *Sender)
+{
+  fmFind->cbWordSearch->Checked = btnWordSearch->Down;
+  MainGrid->Invalidate();
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmMain::btnRegexClick(TObject *Sender)
+{
+  fmFind->cbRegex->Checked = btnRegex->Down;
   MainGrid->Invalidate();
 }
 //---------------------------------------------------------------------------

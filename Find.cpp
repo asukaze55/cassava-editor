@@ -130,6 +130,21 @@ void __fastcall TfmFind::edFindTextKeyDown(TObject *Sender, WORD &Key,
   fmMain->MainGrid->Invalidate();
 }
 //---------------------------------------------------------------------------
+void __fastcall TfmFind::cbCaseClick(TObject *Sender)
+{
+  fmMain->btnCase->Down = cbCase->Checked;
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmFind::cbWordSearchClick(TObject *Sender)
+{
+  fmMain->btnWordSearch->Down = cbWordSearch->Checked;
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmFind::cbRegexClick(TObject *Sender)
+{
+  fmMain->btnRegex->Down = cbRegex->Checked;
+}
+//---------------------------------------------------------------------------
 TGridRect TfmFind::GetRange()
 {
   TMainGrid *grid = fmMain->MainGrid;
