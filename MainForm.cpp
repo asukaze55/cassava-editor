@@ -459,7 +459,7 @@ void TfmMain::ReadIni()
     StopMacroCount = Ini->ReadInteger("Mode","StopMacro", 0);
     MainGrid->UndoList->MaxCount = Ini->ReadInteger("Mode", "UndoCount", 100);
 
-    fmFind->cbCase->Checked = Ini->ReadBool("Search", "Case", true);
+    fmFind->cbCase->Checked = Ini->ReadBool("Search", "Case", false);
     fmFind->cbWordSearch->Checked = Ini->ReadBool("Search", "Word", false);
     fmFind->cbRegex->Checked = Ini->ReadBool("Search", "Regex", false);
     fmFind->rgRange->ItemIndex = Ini->ReadInteger("Search", "Range", 3);
