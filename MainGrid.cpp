@@ -2906,6 +2906,11 @@ void __fastcall TMainGrid::MouseWheelDown(System::TObject* Sender,
   Handled = true;
 }
 //---------------------------------------------------------------------------
+void __fastcall TMainGrid::MouseHWheel(TWMMouseWheel inMsg)
+{
+  ScrollCols(inMsg.WheelDelta);
+}
+//---------------------------------------------------------------------------
 void TMainGrid::ScrollRows(int Delta)
 {
   if (WheelMoveCursol == 1) {

@@ -150,8 +150,10 @@ protected:
     DYNAMIC void __fastcall ColumnMoved(int FromIndex, int ToIndex);
 
     void __fastcall DropCsvFiles(TWMDropFiles inMsg);
+    void __fastcall MouseHWheel(TWMMouseWheel inMsg);
     BEGIN_MESSAGE_MAP
         MESSAGE_HANDLER(WM_DROPFILES, TWMDropFiles, DropCsvFiles)
+        MESSAGE_HANDLER(WM_MOUSEHWHEEL, TWMMouseWheel, MouseHWheel)
     END_MESSAGE_MAP(TStringGrid)
 
 __published:
