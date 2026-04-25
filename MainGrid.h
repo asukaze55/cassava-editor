@@ -50,10 +50,11 @@ struct TFormattedCell {
   TColor fgColor;
   TColor bgColor;
   TAlignment alignment;
+  TFontStyles styles;
 
   TFormattedCell() {}
-  TFormattedCell(String t, TColor f, TColor b, TAlignment a)
-      : text(t), fgColor(f), bgColor(b), alignment(a) {}
+  TFormattedCell(String t, TColor f, TColor b, TAlignment a, TFontStyles s)
+      : text(t), fgColor(f), bgColor(b), alignment(a), styles(s) {}
 };
 //---------------------------------------------------------------------------
 class TMainGrid : public TStringGrid

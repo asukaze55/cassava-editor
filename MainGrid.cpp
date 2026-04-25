@@ -194,7 +194,6 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
 {
   bool isSelected = GetSelected(ACol, ARow);
   TFormattedCell cell = GetCellToDraw(ACol, ARow);
-  TFontStyles styles;
 
   if (isSelected) {
     cell.bgColor = clHighlight;
@@ -209,9 +208,6 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
              ACol == GetRowDataRight(ARow) + 1) {
     cell.fgColor = clGray;
     cell.text = L"\u21b5";
-  } else if (ShowURLBlue && isUrl(Cells[ACol][ARow])) {
-    styles << fsUnderline;
-    cell.fgColor = UrlColor;
   } else if (isSelected) {
     cell.fgColor = clHighlightText;
   }
@@ -238,7 +234,7 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
   }
 
   Canvas->Font->Color = cell.fgColor;
-  Canvas->Font->Style = styles;
+  Canvas->Font->Style = cell.styles;
   DrawTextRect(Canvas, textRect, cell.text, WordWrap);
 
   TColor PenColor = Canvas->Pen->Color;
@@ -367,6 +363,7 @@ TFormattedCell TMainGrid::GetStyledCell(TCalculatedCell Cell, int AX, int AY)
                                                   : taLeftJustify;
   TColor fgColor;
   TColor bgColor;
+  TFontStyles styles = Font->Style;
   if (Cell.calcType == ctOk) {
     fgColor = CalcFgColor;
     bgColor = CalcBgColor;
@@ -377,7 +374,13 @@ TFormattedCell TMainGrid::GetStyledCell(TCalculatedCell Cell, int AX, int AY)
     fgColor = FixFgColor;
     bgColor = FixedColor;
   } else {
-    fgColor = Font->Color;
+    if (ShowURLBlue && isUrl(str)) {
+      fgColor = UrlColor;
+      styles << fsUnderline;
+    } else {
+      fgColor = Font->Color;
+    }
+
     if (ry == Row && CurrentRowBgColor != Color) {
       bgColor = CurrentRowBgColor;
     } else if (rx == Col && CurrentColBgColor != Color) {
@@ -392,7 +395,7 @@ TFormattedCell TMainGrid::GetStyledCell(TCalculatedCell Cell, int AX, int AY)
     }
   }
 
-  return TFormattedCell(str, fgColor, bgColor, alignment);
+  return TFormattedCell(str, fgColor, bgColor, alignment, styles);
 }
 //---------------------------------------------------------------------------
 TFormattedCell TMainGrid::GetCellToDraw(int RX, int RY)
