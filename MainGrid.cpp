@@ -2919,7 +2919,8 @@ static void UpdateMatch(const boost::wcmatch& From, TStrings *To, bool AddsCr)
 }
 //---------------------------------------------------------------------------
 static int FindHit(String CellText, String FindText, bool Case, bool Regex,
-    bool Word, bool Back, int *Length, TStrings *LastMatch)
+    bool Word, bool Back, boost::match_flag_type Flags, int *Length,
+    TStrings *LastMatch)
 {
   if (!Regex) {
     *Length = FindText.Length();
@@ -2946,7 +2947,7 @@ static int FindHit(String CellText, String FindText, bool Case, bool Regex,
       : boost::wregex(FindText.c_str(), boost::regex::icase);
   if (Word) {
     boost::wcmatch match;
-    if (boost::regex_match(withoutCr.c_str(), match, regex)) {
+    if (boost::regex_match(withoutCr.c_str(), match, regex, Flags)) {
       UpdateMatch(match, LastMatch, hasCr);
       *Length = CellText.Length();
       return 1;
@@ -2957,16 +2958,17 @@ static int FindHit(String CellText, String FindText, bool Case, bool Regex,
   if(Back) {
     while(true){
       boost::wcmatch match;
-      if (boost::regex_search(next, match, regex, boost::match_not_null)) {
+      if (boost::regex_search(next, match, regex, Flags)) {
         UpdateMatch(match, LastMatch, hasCr);
         next = match[0].first + 1;
+        Flags |= boost::match_not_bob | boost::match_not_bol;
       } else {
         break;
       }
     }
   } else {
     boost::wcmatch match;
-    if (boost::regex_search(next, match, regex, boost::match_not_null)) {
+    if (boost::regex_search(next, match, regex, Flags)) {
       UpdateMatch(match, LastMatch, hasCr);
       next = match[0].first + 1;
     }
@@ -3008,7 +3010,8 @@ static bool FindHit(String CellText, int x, int y)
   TStrings *lastMatch = new TStringList();
   try {
     found = FindHit(CellText, findText, fmFind->Case(), fmFind->Regex(),
-        fmFind->Word(), false, &length, lastMatch) > 0;
+        fmFind->Word(), /* Back= */ false, boost::match_not_null, &length,
+        lastMatch) > 0;
   } catch (...) {
     found = false;
   }
@@ -3067,31 +3070,29 @@ bool TMainGrid::Find(String FindText, TGridRect Range, bool Case, bool Regex,
   }
 
   String InCellText = "";
-  if (Word) {
-    if ((!Back && ipEd->SelStart == 0 && ipEd->SelLength == 0) ||
-        (Back && ipEd->SelStart == ipEd->Text.Length())) {
+  boost::match_flag_type flags = boost::match_not_null;
+  if (Back) {
+    if (ipEd->SelStart == ipEd->Text.Length()) {
       InCellText = ipEd->Text;
+    } else if (!Word) {
+      InCellText = ipEd->Text.SubString(1, ipEd->SelStart);
+      flags |= boost::match_not_eob | boost::match_not_eol;
     }
   } else {
-    if (Back) {
-      InCellText = ipEd->Text.SubString(1, ipEd->SelStart);
-    } else {
+    if (ipEd->SelStart == 0 && ipEd->SelLength == 0) {
+      InCellText = ipEd->Text;
+    } else if (!Word) {
       InCellText = ipEd->Text.SubString(ipEd->SelStart + ipEd->SelLength + 1,
                                         ipEd->Text.Length());
-    }
-    if (Regex && InCellText != ipEd->Text) {
-      if ((!Back && FindText[1] == '^') ||
-          (Back && *(FindText.LastChar()) == '$')) {
-        InCellText = "";
-      }
+      flags |= boost::match_not_bob | boost::match_not_bol;
     }
   }
 
   int Hit, Len;
   if (InCellText != "") {
     try {
-      Hit = FindHit(
-          InCellText, FindText, Case, Regex, Word, Back, &Len, LastMatch);
+      Hit = FindHit(InCellText, FindText, Case, Regex, Word, Back, flags, &Len,
+          LastMatch);
     } catch (const boost::regex_error& e) {
       ShowRegexErrorMessage(e);
       return false;
@@ -3116,8 +3117,8 @@ bool TMainGrid::Find(String FindText, TGridRect Range, bool Case, bool Regex,
     int XEnd = (Back ? Range.Left : Range.Right);
     for (int x = XStart; x * step <= XEnd * step; x += step) {
       try {
-        Hit = FindHit(
-            Cells[x][y], FindText, Case, Regex, Word, Back, &Len, LastMatch);
+        Hit = FindHit(Cells[x][y], FindText, Case, Regex, Word, Back,
+            boost::match_not_null, &Len, LastMatch);
       } catch (const boost::regex_error& e) {
         ShowRegexErrorMessage(e);
         return false;
@@ -3252,8 +3253,8 @@ String TMainGrid::ReplaceAll(String OriginalText, String FindText,
   String replacedText = "";
   while (true) {
     int len;
-    int hit = FindHit(OriginalText, FindText, Case, Regex, Word, false, &len,
-                      LastMatch);
+    int hit = FindHit(OriginalText, FindText, Case, Regex, Word,
+        /* Back= */ false, boost::match_not_null, &len, LastMatch);
     if (!hit) {
       return replacedText + OriginalText;
     }
