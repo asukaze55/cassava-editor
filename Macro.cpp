@@ -1618,6 +1618,12 @@ void TMacro::ExecFnc(String s)
     }else if(s == "QuickFind" && H == 1) {
       fmFind->edFindText->Text = STR0;
       fmMain->mnQuickFindClick(nullptr);
+    }else if(s == "QuickFind" && H == 4) {
+      fmFind->edFindText->Text = STR0;
+      fmFind->cbCase->Checked = !VAL1;
+      fmFind->cbWordSearch->Checked = VAL2;
+      fmFind->cbRegex->Checked = VAL3;
+      fmMain->mnQuickFindClick(nullptr);
     }else if(s == "Select" && H == 4) {
       env.Grid->Select(VAL0, VAL1, VAL2, VAL3);
     }else if(s == "RegExp" && (H == 1 || H == 2)) {

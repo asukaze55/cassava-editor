@@ -190,6 +190,23 @@ class MenuTest {
     assert.that([1,2]).isEqualTo("D");
 
     Clear();
+    [1,2] = "AAA";
+    [2,2] = "BBB";
+    [3,2] = "CCC";
+    moveto(1, 1);
+    QuickFind("^.", true, false, true);
+    FindNext();
+    assert.that(Col).isEqualTo(1);
+    FindNext();
+    assert.that(Col).isEqualTo(2);
+    FindNext();
+    assert.that(Col).isEqualTo(3);
+    FindBack();
+    assert.that(Col).isEqualTo(2);
+    FindBack();
+    assert.that(Col).isEqualTo(1);
+
+    Clear();
   }
 }
 
