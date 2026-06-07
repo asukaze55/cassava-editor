@@ -2619,7 +2619,8 @@ void TfmMain::MacroExec(String CmsFile, EncodedWriter *io)
     MainGrid->UndoList->Push();
     MainGrid->Invalidate();
     acMacroTerminate->Enabled = true;
-    RunMacro(CmsFile, StopMacroCount, macroContext, -1, -1, io);
+    RunMacro(CmsFile, StopMacroCount, macroContext, -1, -1,
+        /* ReadOnly= */ false, io);
     MainGrid->Invalidate();
     MainGrid->UndoList->Pop();
   }
