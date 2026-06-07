@@ -1223,6 +1223,7 @@ void TfmMain::Clear()
   dlgSave->FilterIndex = 0;
   mnReload->Enabled = false;
   mnReloadCode->Enabled = false;
+  pnlSearch->Visible = false;
   UpdateStatusbar();
 
   if (LockingFile) {
