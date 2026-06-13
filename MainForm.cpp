@@ -11,6 +11,7 @@
 #include "AutoOpen.h"
 #include "KeyCustomize.h"
 #include "Option.h"
+#include "OptionColor.h"
 #include "Print.h"
 #include "FormattedFileName.h"
 #include "Macro.h"
@@ -24,7 +25,7 @@
 TfmMain *fmMain;
 //---------------------------------------------------------------------------
 static String MaybeCompileMacro(String fileName, Preference *pref,
-                                TStringList *modules)
+                                TMacroContext *context)
 {
   String cmsFile = pref->UserPath + "Macro\\" + fileName;
   if (!FileExists(cmsFile)) {
@@ -33,11 +34,7 @@ static String MaybeCompileMacro(String fileName, Preference *pref,
   if (!FileExists(cmsFile)) {
     return "";
   }
-  TStringList *macroDirs = new TStringList;
-  macroDirs->Add(pref->UserPath + "Macro\\");
-  macroDirs->Add(pref->SharedPath + "Macro\\");
-  bool compiled = MacroCompile(cmsFile, macroDirs, modules, true);
-  delete macroDirs;
+  bool compiled = CompileMacro(cmsFile, context, true);
   return compiled ? cmsFile : (String)"";
 }
 //---------------------------------------------------------------------------
@@ -149,21 +146,22 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
     StartupMacroDone = true;
     ExecStartupMacro();
   }
-  SystemMacroCache = new TStringList;
-  FormatCmsFile = MaybeCompileMacro("!format.cms", Pref, SystemMacroCache);
+  SystemMacroContext.AddDirectory(Pref->UserPath + "Macro\\");
+  SystemMacroContext.AddDirectory(Pref->SharedPath + "Macro\\");
+  FormatCmsFile = MaybeCompileMacro("!format.cms", Pref, &SystemMacroContext);
   if (FormatCmsFile != "") {
     MainGrid->OnGetFormattedCell = GetFormattedCell;
   }
 
   String statusbarCmsFile =
-      MaybeCompileMacro("!statusbar.cms", Pref, SystemMacroCache);
+      MaybeCompileMacro("!statusbar.cms", Pref, &SystemMacroContext);
   if (statusbarCmsFile != "") {
     String statusbarInit =
         GetMacroModuleName(statusbarCmsFile, "init", "0", false);
-    if (SystemMacroCache->IndexOf(statusbarInit) >= 0) {
+    if (SystemMacroContext.HasModule(statusbarInit)) {
       try {
-        ExecMacro(statusbarInit, StopMacroCount, SystemMacroCache, -1, -1,
-                  nullptr, true);
+        RunMacro(statusbarInit, StopMacroCount, SystemMacroContext, -1, -1,
+            /* ReadOnly= */ true);
       } catch (...) {}
     }
     StatusbarCmsFile = statusbarCmsFile;
@@ -222,7 +220,6 @@ __fastcall TfmMain::~TfmMain()
   delete History;
   delete Pref;
   if (LockingFile) { delete LockingFile; }
-  if (SystemMacroCache) { delete SystemMacroCache; }
 }
 //---------------------------------------------------------------------------
 void TfmMain::ReadIni()
@@ -231,7 +228,8 @@ void TfmMain::ReadIni()
 
   IniFile *Ini = Pref->GetInifile();
 
-  FStyle = Ini->ReadString("Mode", "Style", "Windows");
+  FStyle = IsDarkMode(Ini->ReadString("Mode", "Style", ""))
+      ? DARK_MODE_STYLE_NAME : LIGHT_MODE_STYLE_NAME;
   TStyleManager::TrySetStyle(FStyle);
 
   int iniScreenDpi = Ini->ReadInteger("Position", "Dpi", ScreenDpi);
@@ -252,11 +250,15 @@ void TfmMain::ReadIni()
       Ini->ReadInteger("Position", "Height", Height) * dpiRatio + 0.5;
   Height = iniHeight <= screenHeight ? iniHeight : screenHeight;
   int iniLeft = Ini->ReadInteger("Position", "Left", -1);
-  Left = (iniLeft >= virtualScreenLeft && iniLeft <= virtualScreenRight - Width)
-      ? iniLeft : (screenWidth / 2 - Width / 2);
+  int left =
+      (iniLeft >= virtualScreenLeft && iniLeft <= virtualScreenRight - Width)
+          ? iniLeft : (screenWidth / 2 - Width / 2);
+  Left =  left;
   int iniTop = Ini->ReadInteger("Position", "Top", -1);
-  Top = (iniTop >= virtualScreenTop && iniTop <= virtualScreenBottom - Height)
-      ? iniTop : (screenHeight / 2 - Height / 2);
+  int top =
+      (iniTop >= virtualScreenTop && iniTop <= virtualScreenBottom - Height)
+          ? iniTop : (screenHeight / 2 - Height / 2);
+  Top = top;
 
   for (int i = 1; i <= ParamCount(); i++) {
     if (ParamStr(i) == "-i") {
@@ -314,6 +316,10 @@ void TfmMain::ReadIni()
   SearchMacro(mnMacro);
   dpiRatio = (double)ScreenDpi / iniScreenDpi;
 
+  // Show() may reset the Left and Top in dark mode.
+  Left = left;
+  Top = top;
+
   WindowState =
       Ini->ReadInteger("Position", "Mode", 0) == 2 ? wsMaximized : wsNormal;
   MainGrid->Font->Name = Ini->ReadString("Font", "Name",
@@ -360,10 +366,16 @@ void TfmMain::ReadIni()
         String exts = Ini->ReadString(Section, "Exts", "csv");
         option.SetExts(exts);
         option.ForceExt = Ini->ReadBool(Section, "ForceExt", false);
-        option.SepChars = Ascii2Ctrl(Ini->ReadString(Section, "SepChars", ",\\t"));
-        option.WeakSepChars = Ascii2Ctrl(Ini->ReadString(Section, "WeakSepChars", "\\_"));
-        option.QuoteChars = Ascii2Ctrl(Ini->ReadString(Section, "QuoteChars", "\""));
-        option.QuoteOption = Ini->ReadInteger(Section, "Quote", 1);
+        option.SepChars =
+            Ascii2Ctrl(Ini->ReadString(Section, "SepChars", ",\\t"));
+        option.WeakSepChars =
+            Ascii2Ctrl(Ini->ReadString(Section, "WeakSepChars", "\\_"));
+        option.QuoteChars =
+            Ascii2Ctrl(Ini->ReadString(Section, "QuoteChars", "\""));
+        option.QuoteOption =
+            (TQuoteOption) Ini->ReadInteger(Section, "Quote", QUOTE_NORMAL);
+        option.QuoteExpression =
+            Ini->ReadString(Section, "QuoteExpression", "");
         option.OmitComma = Ini->ReadBool(Section, "OmitComma", true);
         option.DummyEof = Ini->ReadBool(Section, "DummyEof", false);
         option.DummyEol = Ini->ReadBool(Section, "DummyEol", false);
@@ -447,7 +459,7 @@ void TfmMain::ReadIni()
     StopMacroCount = Ini->ReadInteger("Mode","StopMacro", 0);
     MainGrid->UndoList->MaxCount = Ini->ReadInteger("Mode", "UndoCount", 100);
 
-    fmFind->cbCase->Checked = Ini->ReadBool("Search", "Case", true);
+    fmFind->cbCase->Checked = Ini->ReadBool("Search", "Case", false);
     fmFind->cbWordSearch->Checked = Ini->ReadBool("Search", "Word", false);
     fmFind->cbRegex->Checked = Ini->ReadBool("Search", "Regex", false);
     fmFind->rgRange->ItemIndex = Ini->ReadInteger("Search", "Range", 3);
@@ -500,7 +512,9 @@ void TfmMain::WriteIni(bool PosSlide)
 {
   try {
     IniFile *Ini = Pref->GetInifile();
-    Ini->WriteString("Mode", "Style", Style);
+    // Use the historical style names to be compatible with older versions.
+    Ini->WriteString(
+        "Mode", "Style", IsDarkMode(Style) ? "Windows10 Dark": "Windows");
     Ini->WriteInteger("Position", "Mode", WindowState == wsMaximized ? 2 : 0);
     if(WindowState == wsNormal){
       int Slide = PosSlide ? 32 : 0;
@@ -562,6 +576,7 @@ void TfmMain::WriteIni(bool PosSlide)
       Ini->WriteString(Section, "WeakSepChars", Ctrl2Ascii(TO->WeakSepChars));
       Ini->WriteString(Section, "QuoteChars", Ctrl2Ascii(TO->QuoteChars));
       Ini->WriteInteger(Section, "Quote", TO->QuoteOption);
+      Ini->WriteString(Section, "QuoteExpression", TO->QuoteExpression);
       Ini->WriteBool(Section, "OmitComma", TO->OmitComma);
       Ini->WriteBool(Section, "DummyEof", TO->DummyEof);
       Ini->WriteBool(Section, "DummyEol", TO->DummyEol);
@@ -740,7 +755,7 @@ TToolBar *TfmMain::AddToolBar(String Label, String ImageList, int Top, int Left)
   TVirtualImageList *disabledImages = nullptr;
   String imageListFileName = Pref->Path + ImageList;
   if (Label == "#1" || ImageList == "#1") {
-    if (Style == "Windows10 Dark") {
+    if (IsDarkMode(Style)) {
       images = imlNormalDark;
       disabledImages = imlNormalDarkDisabled;
     } else {
@@ -748,7 +763,7 @@ TToolBar *TfmMain::AddToolBar(String Label, String ImageList, int Top, int Left)
       disabledImages = imlNormalDisabled;
     }
   } else if (Label == "#2" || ImageList == "#2") {
-    if (Style == "Windows10 Dark") {
+    if (IsDarkMode(Style)) {
       images = imlAdditionalDark;
     } else {
       images = imlAdditional;
@@ -1208,6 +1223,7 @@ void TfmMain::Clear()
   dlgSave->FilterIndex = 0;
   mnReload->Enabled = false;
   mnReloadCode->Enabled = false;
+  pnlSearch->Visible = false;
   UpdateStatusbar();
 
   if (LockingFile) {
@@ -1899,7 +1915,7 @@ void __fastcall TfmMain::acRedoUpdate(TObject *Sender)
 void __fastcall TfmMain::acCutExecute(TObject *Sender)
 {
   if (edFindText->Focused()) {
-    edFindText->CutToClipboard();
+    SendMessage(edFindText->Handle, WM_CUT, 0, 0);
   } else if (fmFind->edFindText->Focused()) {
     fmFind->edFindText->CutToClipboard();
   } else if (fmFind->edReplaceText->Focused()) {
@@ -1927,7 +1943,7 @@ void __fastcall TfmMain::acCutUpdate(TObject *Sender)
 void __fastcall TfmMain::acCopyExecute(TObject *Sender)
 {
   if (edFindText->Focused()) {
-    edFindText->CopyToClipboard();
+    SendMessage(edFindText->Handle, WM_COPY, 0, 0);
   } else if (fmFind->edFindText->Focused()) {
     fmFind->edFindText->CopyToClipboard();
   } else if (fmFind->edReplaceText->Focused()) {
@@ -1955,7 +1971,7 @@ void __fastcall TfmMain::acCopyUpdate(TObject *Sender)
 void __fastcall TfmMain::acPasteExecute(TObject *Sender)
 {
   if (edFindText->Focused()) {
-    edFindText->PasteFromClipboard();
+    SendMessage(edFindText->Handle, WM_PASTE, 0, 0);
   } else if(fmFind->edFindText->Focused()) {
     fmFind->edFindText->PasteFromClipboard();
   } else if(fmFind->edReplaceText->Focused()) {
@@ -2300,8 +2316,9 @@ void __fastcall TfmMain::StatusBarPopUpClick(TObject *Sender)
   String label = arguments->Strings[tag & 0xffff];
   arguments->Clear();
   arguments->Add(label);
-  ExecMacro(StatusBarPopUp[panelIndex].Handler, StopMacroCount,
-            SystemMacroCache, -1, -1, nullptr, false, arguments);
+  RunMacro(StatusBarPopUp[panelIndex].Handler, StopMacroCount,
+      SystemMacroContext, -1, -1, /* ReadOnly= */ false, /* IO= */ nullptr,
+      arguments);
   delete arguments;
   UpdateStatusbar();
 }
@@ -2590,29 +2607,24 @@ void TfmMain::MacroExec(String CmsFile, EncodedWriter *io)
   Application->Hint = MainGrid->Hint;
   ApplicationHint(nullptr);
 
-  TStringList *Modules = new TStringList;
-  TStringList *InPaths = new TStringList;
+  TMacroContext macroContext;
   String inPath = ExtractFilePath(CmsFile);
   if (inPath != "" && *(inPath.LastChar()) != '\\') {
     inPath += "\\";
   }
-  InPaths->Add(inPath);
-  InPaths->Add(Pref->UserPath + "Macro\\");
-  InPaths->Add(Pref->SharedPath + "Macro\\");
-  bool C = MacroCompile(CmsFile, InPaths, Modules, true);
-  if(C){
+  macroContext.AddDirectory(inPath);
+  macroContext.AddDirectory(Pref->UserPath + "Macro\\");
+  macroContext.AddDirectory(Pref->SharedPath + "Macro\\");
+  bool ok = CompileMacro(CmsFile, &macroContext, true);
+  if (ok) {
     MainGrid->UndoList->Push();
     MainGrid->Invalidate();
     acMacroTerminate->Enabled = true;
-    ExecMacro(CmsFile, StopMacroCount, Modules, -1, -1, io);
+    RunMacro(CmsFile, StopMacroCount, macroContext, -1, -1,
+        /* ReadOnly= */ false, io);
     MainGrid->Invalidate();
     MainGrid->UndoList->Pop();
   }
-  for(int i=Modules->Count-1; i>=0; i--){
-    if(Modules->Objects[i]) delete Modules->Objects[i];
-  }
-  delete Modules;
-  delete InPaths;
 
   MainGrid->Cursor = crDefault;
   MainGrid->Hint = "";
@@ -2625,28 +2637,22 @@ void TfmMain::UpdateStatusbar()
   if (mnShowStatusbar->Checked && StatusbarCmsFile != "") {
     StatusBarPopUp.clear();
     try {
-      ExecMacro(StatusbarCmsFile, StopMacroCount, SystemMacroCache, -1, -1,
-                nullptr, true);
+      RunMacro(StatusbarCmsFile, StopMacroCount, SystemMacroContext, -1, -1,
+          /* ReadOnly= */ true);
     } catch(...) {}
   }
 }
 //---------------------------------------------------------------------------
 void TfmMain::MacroScriptExec(String cmsname, String script)
 {
-  TStringList *modules = new TStringList;
-  TStringList *inPaths = new TStringList;
-  inPaths->Add(Pref->UserPath + "Macro\\");
-  inPaths->Add(Pref->SharedPath + "Macro\\");
-  bool ok = MacroCompile(&script, cmsname, inPaths, modules, true);
+  TMacroContext macroContext;
+  macroContext.AddDirectory(Pref->UserPath + "Macro\\");
+  macroContext.AddDirectory(Pref->SharedPath + "Macro\\");
+  bool ok = CompileMacro(&script, cmsname, &macroContext, true);
   if (ok) {
     acMacroTerminate->Enabled = true;
-    ExecMacro(cmsname, StopMacroCount, modules, -1, -1);
+    RunMacro(cmsname, StopMacroCount, macroContext, -1, -1);
   }
-  for(int i=modules->Count-1; i>=0; i--){
-    if(modules->Objects[i]) delete modules->Objects[i];
-  }
-  delete modules;
-  delete inPaths;
 }
 //---------------------------------------------------------------------------
 TCalculatedCell TfmMain::GetCalculatedCell(String Str, int ACol, int ARow)
@@ -2656,27 +2662,21 @@ TCalculatedCell TfmMain::GetCalculatedCell(String Str, int ACol, int ARow)
   }
   TCalculatedCell result = TCalculatedCell(Str, ctError);
   Str.Delete(1,1);
-  TStringList *modules = new TStringList;
-  TStringList *inPaths = new TStringList;
-  inPaths->Add(Pref->UserPath + "Macro\\");
-  inPaths->Add(Pref->SharedPath + "Macro\\");
+  TMacroContext macroContext;
+  macroContext.AddDirectory(Pref->UserPath + "Macro\\");
+  macroContext.AddDirectory(Pref->SharedPath + "Macro\\");
   String cmsName = (String)"$@cell_" + ACol + "_" + ARow;
   try {
     String formula = "return " + Str + ";";
-    bool ok = MacroCompile(&formula, cmsName, inPaths, modules, false);
+    bool ok = CompileMacro(&formula, cmsName, &macroContext, false);
     if (ok){
-      TMacroValue macroResult = ExecMacro(
-          cmsName, StopMacroCount, modules, ACol, ARow, nullptr, true);
+      TMacroValue macroResult = RunMacro(cmsName, StopMacroCount, macroContext,
+          ACol, ARow, /* ReadOnly= */ true);
       result = TCalculatedCell(macroResult.string, ctOk);
     }
   }catch(...){
     // ƒGƒ‰[—p‚ÌResultCell•¶Žš—ñ‚ÍÝ’èÏ‚Ý
   }
-  for(int i=modules->Count-1; i>=0; i--){
-    if(modules->Objects[i]) delete modules->Objects[i];
-  }
-  delete modules;
-  delete inPaths;
   return result;
 }
 //---------------------------------------------------------------------------
@@ -2712,9 +2712,8 @@ TFormattedCell TfmMain::GetFormattedCell(TCalculatedCell Cell, int AX, int AY)
 {
   if (FormatCmsFile != "") {
     try {
-      TMacroValue result =
-          ExecMacro(FormatCmsFile, StopMacroCount, SystemMacroCache, AX, AY,
-                    nullptr, true);
+      TMacroValue result = RunMacro(FormatCmsFile, StopMacroCount,
+          SystemMacroContext, AX, AY, /* ReadOnly= */ true);
       if (result.object.size() > 0) {
         if (result.object["text"] != "") {
           Cell.text = result.object["text"];
@@ -2741,9 +2740,25 @@ TFormattedCell TfmMain::GetFormattedCell(TCalculatedCell Cell, int AX, int AY)
   return MainGrid->GetStyledCell(Cell, AX, AY);
 }
 //---------------------------------------------------------------------------
+void TfmMain::UpdateQuickFindPanel()
+{
+  String text = fmFind->edFindText->Text;
+  if (text != "") {
+    int i = edFindText->Items->IndexOf(text);
+    if (i >= 0) {
+      edFindText->Items->Delete(i);
+    }
+    edFindText->Items->Insert(0, text);
+  }
+  edFindText->Text = text;
+  btnCase->Down = fmFind->cbCase->Checked;
+  btnWordSearch->Down = fmFind->cbWordSearch->Checked;
+  btnRegex->Down = fmFind->cbRegex->Checked;
+}
+//---------------------------------------------------------------------------
 void __fastcall TfmMain::mnQuickFindClick(TObject *Sender)
 {
-  edFindText->Text = fmFind->edFindText->Text;
+  UpdateQuickFindPanel();
   pnlSearch->Visible = true;
   edFindText->SetFocus();
 }
@@ -2786,6 +2801,24 @@ void __fastcall TfmMain::edFindTextKeyDown(TObject *Sender, WORD &Key,
   MainGrid->Invalidate();
 }
 //---------------------------------------------------------------------------
+void __fastcall TfmMain::btnCaseClick(TObject *Sender)
+{
+  fmFind->cbCase->Checked = btnCase->Down;
+  MainGrid->Invalidate();
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmMain::btnWordSearchClick(TObject *Sender)
+{
+  fmFind->cbWordSearch->Checked = btnWordSearch->Down;
+  MainGrid->Invalidate();
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmMain::btnRegexClick(TObject *Sender)
+{
+  fmFind->cbRegex->Checked = btnRegex->Down;
+  MainGrid->Invalidate();
+}
+//---------------------------------------------------------------------------
 void __fastcall TfmMain::btnNextClick(TObject *Sender)
 {
   fmFind->rgDirection->ItemIndex = 1;
@@ -2813,13 +2846,13 @@ void __fastcall TfmMain::mnSortClick(TObject *Sender)
   if(MainGrid->RangeSelect){
     if(SortAll && MainGrid->Selection.Left == MainGrid->Selection.Right){
       R.Left   = 1;
-      R.Top    = MainGrid->SelTop;
+      R.Top    = MainGrid->Selection.Top;
       R.Right  = MainGrid->DataRight;
       R.Bottom = MainGrid->DataBottom;
-      sortcol = MainGrid->SelLeft;
+      sortcol = MainGrid->Selection.Left;
     }else{
       R = MainGrid->Selection;
-      sortcol = MainGrid->SelLeft;
+      sortcol = MainGrid->Selection.Left;
     }
   }else{
     R.Left   = 1;

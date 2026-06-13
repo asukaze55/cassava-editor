@@ -21,6 +21,7 @@
 #include <Vcl.StdCtrls.hpp>
 #include <Vcl.VirtualImageList.hpp>
 #include <map>
+#include "Compiler.h"
 #include "EncodingDetector.h"
 #include "MainGrid.h"
 #include "Preference.h"
@@ -196,12 +197,15 @@ __published:	// IDE 管理のコンポーネント
   TPopupMenu *PopMenuStatusBar;
   TPanel *MainPanel;
   TPanel *pnlSearch;
+  TLabel *lblSearch;
+  TComboBox *edFindText;
+  TSpeedButton *btnCase;
+  TSpeedButton *btnWordSearch;
+  TSpeedButton *btnRegex;
   TSpeedButton *btnNext;
   TSpeedButton *btnPrevious;
-  TLabel *Label1;
   TSpeedButton *btnSearchOption;
   TSpeedButton *btnSearchCancel;
-  TEdit *edFindText;
   TControlBar *CoolBar;
   TMenuItem *mnCheckUpdate;
   TMenuItem *mnMacroTerminate;
@@ -306,6 +310,9 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall btnSearchCancelClick(TObject *Sender);
   void __fastcall edFindTextKeyDown(TObject *Sender, WORD &Key,
           TShiftState Shift);
+  void __fastcall btnCaseClick(TObject *Sender);
+  void __fastcall btnWordSearchClick(TObject *Sender);
+  void __fastcall btnRegexClick(TObject *Sender);
   void __fastcall btnNextClick(TObject *Sender);
   void __fastcall btnPreviousClick(TObject *Sender);
   void __fastcall btnSearchOptionClick(TObject *Sender);
@@ -399,6 +406,7 @@ public:     // ユーザー宣言
   void SetCopyMenu(TMenuItem *Item);
   void SetPasteMenu(TMenuItem *Item);
   void SetGridFont(TFont *AFont);
+  void UpdateQuickFindPanel();
 
   void MacroExec(String CmsFile, EncodedWriter *io);
   void MacroScriptExec(String cmsname, String script);
@@ -450,7 +458,7 @@ public:     // ユーザー宣言
 
   int ScreenDpi;
 
-  TStringList *SystemMacroCache;
+  TMacroContext SystemMacroContext;
   String FormatCmsFile;
   String StatusbarCmsFile;
   String ParamCmsFile;

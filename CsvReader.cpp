@@ -28,7 +28,7 @@ TTypeOption::TTypeOption(String str)
   } else if (str == L"TSV") {
     SepChars = L"\t";
     WeakSepChars = L"";
-    QuoteOption  = 0;
+    QuoteOption = QUOTE_NONE;
   }
 }
 //---------------------------------------------------------------------------
@@ -38,7 +38,7 @@ void TTypeOption::init()
   SepChars = L",\t";
   WeakSepChars = L" ";
   QuoteChars = L"\"";
-  QuoteOption = 1;
+  QuoteOption = QUOTE_NORMAL;
   OmitComma = false;
   DummyEof = true;
   DummyEol = false;

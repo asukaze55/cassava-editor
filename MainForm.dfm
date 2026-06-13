@@ -49,9 +49,64 @@ object fmMain: TfmMain
       DesignSize = (
         585
         32)
-      object btnNext: TSpeedButton
+      object btnSearchCancel: TSpeedButton
+        Left = 8
+        Top = 4
+        Width = 23
+        Height = 22
+        Hint = #26908#32034#12497#12493#12523#12434#38281#12376#12427
+        Caption = #215
+        Flat = True
+        ParentShowHint = False
+        ShowHint = True
+        OnClick = btnSearchCancelClick
+      end
+      object lblSearch: TLabel
+        Left = 37
+        Top = 8
+        Width = 39
+        Height = 15
+        Caption = #26908#32034#65306
+      end
+      object btnCase: TSpeedButton
         Left = 274
-        Top = 5
+        Top = 4
+        Width = 23
+        Height = 22
+        Hint = #22823#25991#23383#12392#23567#25991#23383#12434#21306#21029
+        AllowAllUp = True
+        GroupIndex = 1
+        Caption = 'Aa'
+        Flat = True
+        OnClick = btnCaseClick
+      end
+      object btnWordSearch: TSpeedButton
+        Left = 295
+        Top = 4
+        Width = 23
+        Height = 22
+        Hint = #12475#12523#20869#23481#12364#23436#20840#12395#21516#19968#12391#12354#12427#12418#12398#12434#26908#32034
+        AllowAllUp = True
+        GroupIndex = 2
+        Caption = '|a|'
+        Flat = True
+        OnClick = btnWordSearchClick
+      end
+      object btnRegex: TSpeedButton
+        Left = 316
+        Top = 4
+        Width = 23
+        Height = 22
+        Hint = #27491#35215#34920#29694#26908#32034
+        AllowAllUp = True
+        GroupIndex = 3
+        Caption = '.*'
+        Flat = True
+        OnClick = btnRegexClick
+      end
+      object btnNext: TSpeedButton
+        Left = 345
+        Top = 4
         Width = 77
         Height = 22
         Caption = #27425'(&N)'
@@ -68,7 +123,7 @@ object fmMain: TfmMain
         OnClick = btnNextClick
       end
       object btnPrevious: TSpeedButton
-        Left = 357
+        Left = 428
         Top = 4
         Width = 77
         Height = 22
@@ -85,39 +140,20 @@ object fmMain: TfmMain
           2222222222000022222222222220022222222222222222222222}
         OnClick = btnPreviousClick
       end
-      object Label1: TLabel
-        Left = 37
-        Top = 10
-        Width = 39
-        Height = 15
-        Caption = #26908#32034#65306
-      end
       object btnSearchOption: TSpeedButton
         Left = 490
-        Top = 5
+        Top = 4
         Width = 93
         Height = 22
         Anchors = [akTop, akRight]
         Caption = #12458#12503#12471#12519#12531'(&O)'
         Flat = True
+        Transparent = False
         OnClick = btnSearchOptionClick
-        ExplicitLeft = 488
       end
-      object btnSearchCancel: TSpeedButton
-        Left = 8
-        Top = 5
-        Width = 23
-        Height = 22
-        Hint = #26908#32034#12497#12493#12523#12434#38281#12376#12427
-        Caption = #215
-        Flat = True
-        ParentShowHint = False
-        ShowHint = True
-        OnClick = btnSearchCancelClick
-      end
-      object edFindText: TEdit
+      object edFindText: TComboBox
         Left = 83
-        Top = 5
+        Top = 4
         Width = 185
         Height = 23
         TabOrder = 0

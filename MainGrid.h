@@ -6,6 +6,7 @@
 #include <Vcl.Forms.hpp>
 #include <Vcl.Grids.hpp>
 #include <map>
+#include "Compiler.h"
 #include "CsvReader.h"
 #include "EncodedWriter.h"
 #include "Undo.h"
@@ -49,10 +50,11 @@ struct TFormattedCell {
   TColor fgColor;
   TColor bgColor;
   TAlignment alignment;
+  TFontStyles styles;
 
   TFormattedCell() {}
-  TFormattedCell(String t, TColor f, TColor b, TAlignment a)
-      : text(t), fgColor(f), bgColor(b), alignment(a) {}
+  TFormattedCell(String t, TColor f, TColor b, TAlignment a, TFontStyles s)
+      : text(t), fgColor(f), bgColor(b), alignment(a), styles(s) {}
 };
 //---------------------------------------------------------------------------
 class TMainGrid : public TStringGrid
@@ -77,9 +79,6 @@ private:
       return (ARow>=Selection.Top  && ARow<=Selection.Bottom &&
           ACol>=Selection.Left && ACol<=Selection.Right);
     }
-    int GetSelLeft() { return Selection.Left; }
-    int GetSelTop() { return Selection.Top; }
-
     int GetDataLeft(){ return (ShowRowCounter ? 1 : 0); }
     int GetDataTop() { return (ShowColCounter ? 1 : 0); }
     int FDataRight, FDataBottom;
@@ -125,7 +124,8 @@ private:
 protected:
     void PasteCSV(TStrings *List, int Left, int Top, int Way, int ClipCols,
         int ClipRows, const TTypeOption *Format);
-    String StringsToCSV(TStrings* Data, const TTypeOption *Format);
+    String StringsToCSV(TStrings* Data, const TTypeOption *Format,
+        const TMacroContext &MacroContext, int X, int Y);
     void WriteGrid(EncodedWriter *Writer, const TTypeOption *Format);
 
     virtual bool __fastcall SelectCell(int ACol, int ARow);
@@ -151,8 +151,10 @@ protected:
     DYNAMIC void __fastcall ColumnMoved(int FromIndex, int ToIndex);
 
     void __fastcall DropCsvFiles(TWMDropFiles inMsg);
+    void __fastcall MouseHWheel(TWMMouseWheel inMsg);
     BEGIN_MESSAGE_MAP
         MESSAGE_HANDLER(WM_DROPFILES, TWMDropFiles, DropCsvFiles)
+        MESSAGE_HANDLER(WM_MOUSEHWHEEL, TWMMouseWheel, MouseHWheel)
     END_MESSAGE_MAP(TStringGrid)
 
 __published:
@@ -172,8 +174,6 @@ public:
     void __fastcall ShowEditor();
     __property bool Selected[int ACol][int ARow] = {read=GetSelected};
     void SetSelection(long Left, long Right, long Top, long Bottom);
-    __property int SelLeft = {read=GetSelLeft};
-    __property int SelTop  = {read=GetSelTop};
 
     __property int DataLeft   = {read=GetDataLeft};
     __property int DataTop    = {read=GetDataTop};
@@ -259,7 +259,7 @@ public:
     bool IsNumber(String Str);
     bool IsNumberAtACell(int X, int Y){ return IsNumber(GetACells(X,Y)); };
     void Sort(int SLeft, int STop, int SRight, int SBottom, int SCol,
-              bool Shoujun, bool NumSort, bool IgnoreCase, bool IgnoreZenhan);
+              bool Ascending, bool NumSort, bool IgnoreCase, bool IgnoreZenhan);
     double GetSum(int l, int t, int r, int b, int *Count = nullptr);
     double GetAvr(int l, int t, int r, int b);
     void CopySum();

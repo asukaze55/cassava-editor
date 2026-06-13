@@ -61,6 +61,7 @@ void __fastcall TfmFind::btnNextClick(TObject *Sender)
   bool found;
   bool backward = (rgDirection->ItemIndex == 0);
   if (PageControl->TabIndex == 0) {
+    fmMain->UpdateQuickFindPanel();
     found = fmMain->MainGrid->Find(edFindText->Text, GetRange(),
         cbCase->Checked, cbRegex->Checked, cbWordSearch->Checked, backward);
   } else {
@@ -127,6 +128,21 @@ void __fastcall TfmFind::edFindTextKeyDown(TObject *Sender, WORD &Key,
     TShiftState Shift)
 {
   fmMain->MainGrid->Invalidate();
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmFind::cbCaseClick(TObject *Sender)
+{
+  fmMain->btnCase->Down = cbCase->Checked;
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmFind::cbWordSearchClick(TObject *Sender)
+{
+  fmMain->btnWordSearch->Down = cbWordSearch->Checked;
+}
+//---------------------------------------------------------------------------
+void __fastcall TfmFind::cbRegexClick(TObject *Sender)
+{
+  fmMain->btnRegex->Down = cbRegex->Checked;
 }
 //---------------------------------------------------------------------------
 TGridRect TfmFind::GetRange()

@@ -20,10 +20,6 @@
 
 #define DataLeft (ShowRowCounter ? 1 : 0)
 #define DataTop  (ShowColCounter ? 1 : 0)
-#define soNone 0
-#define soNormal 1
-#define soString 2
-#define soAll 3
 
 #define RXtoAX(x) ((x) - DataLeft + 1)
 #define RYtoAY(y) ((y) - DataTop  + 1)
@@ -198,7 +194,6 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
 {
   bool isSelected = GetSelected(ACol, ARow);
   TFormattedCell cell = GetCellToDraw(ACol, ARow);
-  TFontStyles styles;
 
   if (isSelected) {
     cell.bgColor = clHighlight;
@@ -213,9 +208,6 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
              ACol == GetRowDataRight(ARow) + 1) {
     cell.fgColor = clGray;
     cell.text = L"\u21b5";
-  } else if (ShowURLBlue && isUrl(Cells[ACol][ARow])) {
-    styles << fsUnderline;
-    cell.fgColor = UrlColor;
   } else if (isSelected) {
     cell.fgColor = clHighlightText;
   }
@@ -242,7 +234,7 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
   }
 
   Canvas->Font->Color = cell.fgColor;
-  Canvas->Font->Style = styles;
+  Canvas->Font->Style = cell.styles;
   DrawTextRect(Canvas, textRect, cell.text, WordWrap);
 
   TColor PenColor = Canvas->Pen->Color;
@@ -371,6 +363,7 @@ TFormattedCell TMainGrid::GetStyledCell(TCalculatedCell Cell, int AX, int AY)
                                                   : taLeftJustify;
   TColor fgColor;
   TColor bgColor;
+  TFontStyles styles = Font->Style;
   if (Cell.calcType == ctOk) {
     fgColor = CalcFgColor;
     bgColor = CalcBgColor;
@@ -381,7 +374,13 @@ TFormattedCell TMainGrid::GetStyledCell(TCalculatedCell Cell, int AX, int AY)
     fgColor = FixFgColor;
     bgColor = FixedColor;
   } else {
-    fgColor = Font->Color;
+    if (ShowURLBlue && isUrl(str)) {
+      fgColor = UrlColor;
+      styles << fsUnderline;
+    } else {
+      fgColor = Font->Color;
+    }
+
     if (ry == Row && CurrentRowBgColor != Color) {
       bgColor = CurrentRowBgColor;
     } else if (rx == Col && CurrentColBgColor != Color) {
@@ -396,7 +395,7 @@ TFormattedCell TMainGrid::GetStyledCell(TCalculatedCell Cell, int AX, int AY)
     }
   }
 
-  return TFormattedCell(str, fgColor, bgColor, alignment);
+  return TFormattedCell(str, fgColor, bgColor, alignment, styles);
 }
 //---------------------------------------------------------------------------
 TFormattedCell TMainGrid::GetCellToDraw(int RX, int RY)
@@ -1239,16 +1238,31 @@ void TMainGrid::SaveToFile(String FileName, const TTypeOption *Format,
   }
 }
 //---------------------------------------------------------------------------
+constexpr wchar_t QUOTE_MACRO_NAME[] = L"$quote";
+//---------------------------------------------------------------------------
+static inline void MaybeCompileQuoteScript(const TTypeOption *Format,
+    TMacroContext *MacroContext)
+{
+  if (Format->QuoteOption == QUOTE_EXPRESSION) {
+    String script = (String)"return " + Format->QuoteExpression +";";
+    CompileMacro(&script, QUOTE_MACRO_NAME, MacroContext,
+        /* showMessage= */ false);
+  }
+}
+//---------------------------------------------------------------------------
 void TMainGrid::WriteGrid(EncodedWriter *Writer, const TTypeOption *Format)
 {
   if (Format == nullptr) { Format = TypeOption; }
 
+  TMacroContext macroContext;
+  MaybeCompileQuoteScript(Format, &macroContext);
+
   TStringList* Data = new TStringList;
-  for (int i = DataTop; i <= DataBottom; i++) {
-    Data->Assign(Rows[i]);
+  for (int y = DataTop; y <= DataBottom; y++) {
+    Data->Assign(Rows[y]);
 
     if (Format->DummyEol || !Format->OmitComma) {
-      int right = GetRowDataRight(i);
+      int right = GetRowDataRight(y);
       for (int i = Data->Count - 1; i > right; i--) {
         Data->Delete(i);
       }
@@ -1260,12 +1274,14 @@ void TMainGrid::WriteGrid(EncodedWriter *Writer, const TTypeOption *Format)
     if (ShowRowCounter) {
       Data->Delete(0);   // カウンタセルの削除
     }
-    Writer->Write(StringsToCSV(Data, Format) + ReturnCodeString(ReturnCode));
+    Writer->Write(StringsToCSV(Data, Format, macroContext, 1, RYtoAY(y)) +
+        ReturnCodeString(ReturnCode));
   }
   delete Data;
 }
 //---------------------------------------------------------------------------
-String TMainGrid::StringsToCSV(TStrings* Data, const TTypeOption *Format)
+String TMainGrid::StringsToCSV(TStrings* Data, const TTypeOption *Format,
+    const TMacroContext &MacroContext, int X, int Y)
 {
   char Sep = Format->DefSepChar();
   String Text = "";
@@ -1275,7 +1291,21 @@ String TMainGrid::StringsToCSV(TStrings* Data, const TTypeOption *Format)
   for (int i = 0; i < Data->Count; i++) {
     String Str = Data->Strings[i];
 
-    if (Format->QuoteOption != soNone) {
+    TQuoteOption quoteOption = Format->QuoteOption;
+    if (quoteOption == QUOTE_EXPRESSION) {
+      quoteOption = QUOTE_NORMAL;
+      if (MacroContext.HasModule(QUOTE_MACRO_NAME)) {
+        try {
+          TMacroValue value = RunMacro(QUOTE_MACRO_NAME, 0, MacroContext, X + i,
+              Y, /* ReadOnly= */ true);
+          if (value.string != "" && value.string != "0") {
+            quoteOption = QUOTE_ALL;
+          }
+        } catch (...) {}
+      }
+    }
+
+    if (quoteOption != QUOTE_NONE) {
       for (int j = Str.Length(); j > 0; j--) {
         if (Str[j] == L'\"') {
           Str.Insert(L"\"", j);
@@ -1287,15 +1317,10 @@ String TMainGrid::StringsToCSV(TStrings* Data, const TTypeOption *Format)
       }
     }
 
-    if (Format->QuoteOption == soNone ||
-        (Format->QuoteOption == soString && IsNumber(Str))) {
+    if (quoteOption == QUOTE_NONE ||
+        (quoteOption == QUOTE_STRING && IsNumber(Str)) ||
+        (quoteOption == QUOTE_NORMAL && Str.LastDelimiter(Delim) == 0)) {
       Text += Str;
-    } else if (Format->QuoteOption == soNormal) {
-      if (Str.LastDelimiter(Delim) > 0) {
-        Text += (String) L"\"" + Str + L"\"";
-      } else {
-        Text += Str;
-      }
     } else {
       Text += (String) L"\"" + Str + L"\"";
     }
@@ -1308,7 +1333,9 @@ void TMainGrid::QuotedDataToStrings(TStrings *Lines, String Text,
     const TTypeOption *Format)
 {
   Lines->Text = Text;
-  if(Format->QuoteOption==soNone){ return; }
+  if (Format->QuoteOption == QUOTE_NONE) {
+    return;
+  }
   int i=0;
   while(i<Lines->Count){
     int qc = 0;
@@ -1360,22 +1387,27 @@ void TMainGrid::CopyToClipboard(const TTypeOption *Format, bool Cut)
 
   UndoList->Push();
 
-  int SLeft = SelLeft;
-  int STop = SelTop;
+  int SLeft = Selection.Left;
+  int STop = Selection.Top;
   int SRight = Selection.Right;
   int SBottom = Selection.Bottom;
 
+  const TTypeOption *format = (Format != nullptr ? Format : TypeOption);
+  TMacroContext macroContext;
+  MaybeCompileQuoteScript(format, &macroContext);
+
   TStringList *Data = new TStringList;
   TStringList *OneLine = new TStringList;
-  for (int i = STop; i <= SBottom; i++) {
+  for (int y = STop; y <= SBottom; y++) {
     OneLine->Clear();
-    for (int j = SLeft; j <= SRight; j++) {
-      OneLine->Add(GetACells(RXtoAX(j), RYtoAY(i)));
+    for (int x = SLeft; x <= SRight; x++) {
+      OneLine->Add(GetACells(RXtoAX(x), RYtoAY(y)));
       if (Cut) {
-        SetCell(j, i, "");
+        SetCell(x, y, "");
       }
     }
-    Data->Add(StringsToCSV(OneLine, Format != nullptr ? Format : TypeOption));
+    Data->Add(
+        StringsToCSV(OneLine, format, macroContext, RXtoAX(SLeft), RYtoAY(y)));
   }
   delete OneLine;
   String Txt = Data->Text;
@@ -1416,8 +1448,8 @@ void TMainGrid::PasteFromClipboard(int Way, const TTypeOption *Format)
     return;
   }
 
-  int STop = SelTop;
-  int SLeft = SelLeft;
+  int STop = Selection.Top;
+  int SLeft = Selection.Left;
   int SBottom = Selection.Bottom;
   int SRight = Selection.Right;
   int SelectRowCount = SBottom - STop + 1;
@@ -1503,7 +1535,14 @@ bool TMainGrid::IsNumber(String Str)
   return false;
 }
 //---------------------------------------------------------------------------
-typedef struct { double Num; TStringList *Data; int Row; } DoubleData;
+struct DoubleData {
+  double Num;
+  TStringList *Data;
+  int Row;
+
+  DoubleData(double num, TStringList *data, int row)
+      : Num(num), Data(data), Row(row) {}
+};
 //---------------------------------------------------------------------------
 int __fastcall CompareDoubleData(void *a, void *b) {
   DoubleData *dda = static_cast<DoubleData*>(a);
@@ -1514,7 +1553,14 @@ int __fastcall CompareDoubleData(void *a, void *b) {
   }else return ((dda->Num < ddb->Num) ? -1 : 1);
 }
 //---------------------------------------------------------------------------
-typedef struct { String Str; TStringList *Data; int Row; } StringData;
+struct StringData {
+  String Str;
+  TStringList *Data;
+  int Row;
+
+  StringData(String str, TStringList *data, int row)
+      : Str(str), Data(data), Row(row) {}
+};
 //---------------------------------------------------------------------------
 int __fastcall CompareOrderedString(void *a, void *b) {
   StringData *osa = static_cast<StringData*>(a);
@@ -1526,70 +1572,72 @@ int __fastcall CompareOrderedString(void *a, void *b) {
 }
 //---------------------------------------------------------------------------
 void TMainGrid::Sort(int SLeft, int STop, int SRight, int SBottom, int SCol,
-  bool Shoujun, bool NumSort, bool IgnoreCase, bool IgnoreZenhan)
+  bool Ascending, bool NumSort, bool IgnoreCase, bool IgnoreZenhan)
 {
   UndoList->Push();
-  TList *StrList = new TList;
-  TList *NumList = new TList;
+  TList *stringList = new TList;
+  TList *numberList = new TList;
+  TList *emptyList = new TList;
 
-  if(SLeft   < 0) SLeft   = 0;
-  if(SRight  < 0) SRight  = 0;
-  if(STop    < 0) STop    = 0;
-  if(SBottom < 0) SBottom = 0;
+  if (SLeft < 0) { SLeft = 0; }
+  if (SRight < 0) { SRight = 0; }
+  if (STop < 0) { STop = 0; }
+  if (SBottom < 0) { SBottom = 0; }
 
-  for(int y=STop; y<=SBottom; y++){
-    TStringList *L = new TStringList;
-    for(int x=SLeft; x<=SRight; x++){
-      L->Add(Cells[x][y]);
+  for (int y = STop; y <= SBottom; y++) {
+    TStringList *data = new TStringList;
+    for (int x = SLeft; x <= SRight; x++) {
+      data->Add(Cells[x][y]);
     }
-    if(NumSort && IsNumber(Cells[SCol][y])){
-      DoubleData *DD = new DoubleData;
-      DD->Num = Cells[SCol][y].ToDouble();
-      DD->Data = L;
-      DD->Row = y;
-      NumList->Add(DD);
-    }else{
-      StringData *SD = new StringData;
-      String str = Cells[SCol][y];
-      if(IgnoreCase){
+    String str = Cells[SCol][y];
+    if (str == "") {
+      emptyList->Add(data);
+    } else if (NumSort && IsNumber(str)) {
+      numberList->Add(new DoubleData(str.ToDouble(), data, y));
+    } else {
+      if (IgnoreCase) {
         str = str.UpperCase();
       }
-      if(IgnoreZenhan){
+      if (IgnoreZenhan) {
         str = TransChar(TransKana(str, 5), 1);
       }
-      SD->Str = str;
-      SD->Data = L;
-      SD->Row = y;
-      StrList->Add(SD);
+      stringList->Add(new StringData(str, data, y));
     }
   }
-  StrList->Sort(CompareOrderedString);
-  NumList->Sort(CompareDoubleData);
+  stringList->Sort(CompareOrderedString);
+  numberList->Sort(CompareDoubleData);
 
-  for (int y = STop; y <= SBottom; y++){
-    int index = Shoujun ? y - STop : SBottom - y;
-    TStringList *list;
-    if (index < NumList->Count) {
-      DoubleData *dd = static_cast<DoubleData*>(NumList->Items[index]);
-      list = dd->Data;
-      delete dd;
+  int nonEmptyBottom = STop + stringList->Count + numberList->Count - 1;
+  for (int y = STop; y <= SBottom; y++) {
+    TStringList *data;
+    if (y > nonEmptyBottom) {
+      data =
+          static_cast<TStringList*>(emptyList->Items[y - nonEmptyBottom - 1]);
     } else {
-      StringData *sd =
-          static_cast<StringData*>(StrList->Items[index - NumList->Count]);
-      list = sd->Data;
-      delete sd;
+      int index = Ascending ? y - STop : nonEmptyBottom - y;
+      if (index < numberList->Count) {
+        DoubleData *dd = static_cast<DoubleData*>(numberList->Items[index]);
+        data = dd->Data;
+        delete dd;
+      } else {
+        StringData *sd = static_cast<StringData*>(
+            stringList->Items[index - numberList->Count]);
+        data = sd->Data;
+        delete sd;
+      }
     }
-    for (int x = SLeft; x <= SRight; x++){
-      SetCell(x, y, list->Strings[x - SLeft]);
+    for (int x = SLeft; x <= SRight; x++) {
+      SetCell(x, y, data->Strings[x - SLeft]);
     }
-    delete list;
+    delete data;
   }
 
-  delete StrList;
-  delete NumList;
+  delete stringList;
+  delete numberList;
+  delete emptyList;
   UndoList->Pop((String)"Sort(" + RXtoAX(SLeft) + ", " + RYtoAY(STop) + ", "
       + RXtoAX(SRight) + ", " + RYtoAY(SBottom) + ", " + RXtoAX(SCol) + ", "
-      + boolToStr(!Shoujun) + ", " + boolToStr(NumSort) + ", "
+      + boolToStr(!Ascending) + ", " + boolToStr(NumSort) + ", "
       + boolToStr(IgnoreCase) + ", " + boolToStr(IgnoreZenhan) + ");");
   Modified = true;
 }
@@ -1631,8 +1679,8 @@ double TMainGrid::SelectSum(int *Count)
 {
   double Sum = 0;
   int NumCount = 0;
-  for(int i=SelLeft; i <= Selection.Right; i++){
-    for(int j=SelTop; j <= Selection.Bottom; j++){
+  for (int i = Selection.Left; i <= Selection.Right; i++) {
+    for (int j = Selection.Top; j <= Selection.Bottom; j++) {
       String Str = GetACells(RXtoAX(i),RYtoAY(j));
       if(Str != ""){
         try{
@@ -1767,14 +1815,14 @@ int Zenkaku2Hankaku(wchar_t wc, wchar_t *ans)
 void TMainGrid::TransChar(int Type)
 {
   UndoList->Push();
-  for(int i=SelLeft; i <= Selection.Right; i++){
-    for(int j=SelTop; j <= Selection.Bottom; j++){
+  for (int i = Selection.Left; i <= Selection.Right; i++) {
+    for (int j = Selection.Top; j <= Selection.Bottom; j++) {
       SetCell(i, j, TransChar(Cells[i][j], Type));
     }
   }
-  UndoList->Pop((String)"Select(" + RXtoAX(SelLeft) + ", " + RYtoAY(SelTop)
-      + ", " + RXtoAX(Selection.Right) + ", " + RYtoAY(Selection.Bottom)
-      + ");\nTransChar" + Type + "();");
+  UndoList->Pop((String)"Select(" + RXtoAX(Selection.Left) + ", " +
+      RYtoAY(Selection.Top) + ", " + RXtoAX(Selection.Right) + ", " +
+      RYtoAY(Selection.Bottom) + ");\nTransChar" + Type + "();");
   Modified = true;
 }
 //---------------------------------------------------------------------------
@@ -1817,14 +1865,14 @@ String TMainGrid::TransChar(String Str, int Type)
 void TMainGrid::TransKana(int Type)
 {
   UndoList->Push();
-  for(int i=SelLeft; i <= Selection.Right; i++){
-    for(int j=SelTop; j <= Selection.Bottom; j++){
+  for (int i = Selection.Left; i <= Selection.Right; i++) {
+    for (int j = Selection.Top; j <= Selection.Bottom; j++) {
       SetCell(i, j, TransKana(Cells[i][j], Type));
     }
   }
-  UndoList->Pop((String)"Select(" + RXtoAX(SelLeft) + ", " + RYtoAY(SelTop)
-      + ", " + RXtoAX(Selection.Right) + ", " + RYtoAY(Selection.Bottom)
-      + ");\nTransChar" + Type + "();");
+  UndoList->Pop((String)"Select(" + RXtoAX(Selection.Left) + ", " +
+      RYtoAY(Selection.Top) + ", " + RXtoAX(Selection.Right) + ", " +
+      RYtoAY(Selection.Bottom) + ");\nTransChar" + Type + "();");
   Modified = true;
 }
 //---------------------------------------------------------------------------
@@ -2146,8 +2194,10 @@ void __fastcall TMainGrid::DeleteColumn(int ACol)
 //---------------------------------------------------------------------------
 void TMainGrid::InsertEnter()
 {
-  long X = SelLeft, Y = Selection.Top, L = DataLeft;
-  int SelLen = Selection.Right - SelLeft;
+  int X = Selection.Left;
+  int Y = Selection.Top;
+  int L = DataLeft;
+  int SelLen = Selection.Right - X;
 
   bool OneCell = EditorMode && InplaceEditor->SelStart > 0;
   if (X == 1 && !OneCell) {
@@ -2264,13 +2314,15 @@ void TMainGrid::ConnectCell()
 //---------------------------------------------------------------------------
 void TMainGrid::InsertCell_Right()
 {
-  InsertCells_Right(SelLeft, Selection.Right, SelTop, Selection.Bottom);
+  InsertCells_Right(
+      Selection.Left, Selection.Right, Selection.Top, Selection.Bottom);
   Modified = true;
 }
 //---------------------------------------------------------------------------
 void TMainGrid::InsertCell_Down()
 {
-  InsertCells_Down(SelLeft, Selection.Right, SelTop, Selection.Bottom);
+  InsertCells_Down(
+      Selection.Left, Selection.Right, Selection.Top, Selection.Bottom);
   Modified = true;
 }
 //---------------------------------------------------------------------------
@@ -2280,7 +2332,8 @@ void TMainGrid::DeleteCell_Left()
     return;
   }
   if(RangeSelect){
-    DeleteCells_Left(SelLeft, Selection.Right, SelTop, Selection.Bottom);
+    DeleteCells_Left(
+        Selection.Left, Selection.Right, Selection.Top, Selection.Bottom);
   }else{
     int i;
     for (i = Col; i < ColCount; i++) {
@@ -2313,7 +2366,8 @@ void TMainGrid::DeleteCell_Left()
 //---------------------------------------------------------------------------
 void TMainGrid::DeleteCell_Up()
 {
-  DeleteCells_Up(SelLeft, Selection.Right, SelTop,Selection.Bottom);
+  DeleteCells_Up(
+      Selection.Left, Selection.Right, Selection.Top, Selection.Bottom);
   Modified = true;
   UpdateDataRightBottom(0,0);
 }
@@ -2855,6 +2909,11 @@ void __fastcall TMainGrid::MouseWheelDown(System::TObject* Sender,
   Handled = true;
 }
 //---------------------------------------------------------------------------
+void __fastcall TMainGrid::MouseHWheel(TWMMouseWheel inMsg)
+{
+  ScrollCols(inMsg.WheelDelta);
+}
+//---------------------------------------------------------------------------
 void TMainGrid::ScrollRows(int Delta)
 {
   if (WheelMoveCursol == 1) {
@@ -3318,8 +3377,8 @@ void __fastcall TMainGrid::KeyDown(Word &Key, Classes::TShiftState Shift)
   if(Key == VK_DELETE && EditorMode == false)
   {
     UndoList->Push();
-    for (int i = SelTop; i <= Selection.Bottom; i++) {
-      for (int j = SelLeft; j <= Selection.Right; j++) {
+    for (int i = Selection.Top; i <= Selection.Bottom; i++) {
+      for (int j = Selection.Left; j <= Selection.Right; j++) {
         SetCell(j, i, "");
       }
     }
@@ -3665,17 +3724,11 @@ void __fastcall TMainGrid::SetEditText(int ACol, int ARow, String Value)
 static void MacroScriptExec(String script)
 {
   String cmsname = "$undo";
-  TStringList *modules = new TStringList;
-  TStringList *inPaths = new TStringList;
-  bool ok = MacroCompile(&script, cmsname, inPaths, modules, true);
+  TMacroContext macroContext;
+  bool ok = CompileMacro(&script, cmsname, &macroContext, true);
   if (ok) {
-    ExecMacro(cmsname, 0, modules, -1, -1);
+    RunMacro(cmsname, 0, macroContext, -1, -1);
   }
-  for (int i = modules->Count-1; i >= 0; i--) {
-    if (modules->Objects[i]) { delete modules->Objects[i]; }
-  }
-  delete modules;
-  delete inPaths;
 }
 //---------------------------------------------------------------------------
 void TMainGrid::Undo()

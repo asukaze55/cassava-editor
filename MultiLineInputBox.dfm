@@ -7,15 +7,13 @@ object fmMultiLineInputBox: TfmMultiLineInputBox
   ClientWidth = 384
   Color = clBtnFace
   ParentFont = True
-  OldCreateOrder = True
-  Position = poScreenCenter
-  PixelsPerInch = 96
-  TextHeight = 13
+  Position = poMainFormCenter
+  TextHeight = 15
   object Label1: TLabel
     Left = 8
     Top = 8
-    Width = 31
-    Height = 13
+    Width = 34
+    Height = 15
     Caption = 'Label1'
   end
   object OKBtn: TButton

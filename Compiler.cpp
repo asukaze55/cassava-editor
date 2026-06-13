@@ -393,8 +393,7 @@ private:
   TStream *fout;
   String InName;
   std::map<String, String> ImportedFunctions;
-  TStringList *Modules;
-  TStringList *MacroDirs;
+  TMacroContext *Context;
   TStringList *Variables;
   TStringList *Constants;
   TStringList *CapturableVariables;
@@ -440,11 +439,8 @@ public:
 
   bool Compile(String source, String filePath, String libName,
                bool showMessage);
-  TCompiler(TStringList *modules, TStringList *macroDirs)
-      : Modules(modules), MacroDirs(macroDirs), Breaks(nullptr),
-        Continues(nullptr), DummyIdentifier(0) {
-    import = newTStringList();
-  }
+  TCompiler(TMacroContext *context) : Context(context), Breaks(nullptr),
+      Continues(nullptr), DummyIdentifier(0), import(newTStringList()) {}
   ~TCompiler() { delete import; }
 };
 //---------------------------------------------------------------------------
@@ -716,7 +712,7 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
     funcEqual = true;
   }
 
-  Modules->AddObject(outName, fout);
+  Context->Modules[outName] = fout;
   wchar_t H = parameters->Count * 2;
   Output((String)H + "func=", tpFunc);
 
@@ -988,7 +984,7 @@ void TCompiler::GetClass()
   }
 
   Output(CMO_Return, tpOpe);
-  Modules->AddObject(outName, fout);
+  Context->Modules[outName] = fout;
   fout = orgFOut;
 }
 //---------------------------------------------------------------------------
@@ -1369,13 +1365,13 @@ void TCompiler::GetBlock()
 //---------------------------------------------------------------------------
 String TCompiler::MaybeAddLibToLibName(String libName)
 {
-  for (int i = 0; i < MacroDirs->Count; i++) {
-    if (FileExists(MacroDirs->Strings[i] + libName)) {
+  for (String dir : Context->Dirs) {
+    if (FileExists(dir + libName)) {
       return libName;
     }
   }
-  for (int i = 0; i < MacroDirs->Count; i++) {
-    if (FileExists(MacroDirs->Strings[i] + "lib/" + libName)) {
+  for (String dir : Context->Dirs) {
+    if (FileExists(dir + "lib/" + libName)) {
       return "lib/" + libName;
     }
   }
@@ -1389,7 +1385,6 @@ bool TCompiler::Compile(String string, String filePath, String libName,
   Fail = false;
   lex = new TTokenizer(string);
   fout = new TMemoryStream();
-  Modules->AddObject(libName, fout);
   Variables = newTStringList();
   Constants = newTStringList();
   CapturableVariables = newTStringList();
@@ -1419,7 +1414,13 @@ bool TCompiler::Compile(String string, String filePath, String libName,
     }
     Fail = true;
   }
-  // Do not delete fout. It is stored in Modules.
+
+  if (!Fail) {
+    Context->Modules[libName] = fout;
+  } else {
+    delete fout;
+  }
+
   delete lex;
   delete Variables;
   delete Constants;
@@ -1428,12 +1429,10 @@ bool TCompiler::Compile(String string, String filePath, String libName,
   return !Fail;
 }
 //---------------------------------------------------------------------------
-bool MacroCompile(String *source, String name, TStringList *macroDirs,
-                  TStringList *modules, bool showMessage)
+bool CompileMacro(String *source, String name, TMacroContext *context,
+    bool showMessage)
 {
-  if (macroDirs == nullptr || modules == nullptr) { return false; }
-
-  TCompiler compiler(modules, macroDirs);
+  TCompiler compiler(context);
   compiler.import->Add(name);
   int processed = 0;
 
@@ -1454,13 +1453,12 @@ bool MacroCompile(String *source, String name, TStringList *macroDirs,
   for (int i = processed; i < compiler.import->Count; i++) {
     String libName = compiler.import->Strings[i];
     String libFileName = "";
-    TStreamReader *libReader = nullptr;
     try{
       if (libName.Pos(":") > 0 || libName.SubString(1, 1) == "\\") {
         libFileName = libName;
       } else {
-        for (int j = 0; j < macroDirs->Count; j++) {
-          String pathName = macroDirs->Strings[j] + libName;
+        for (String dir : context->Dirs) {
+          String pathName = dir + libName;
           if (FileExists(pathName)) {
             libFileName = pathName;
             break;
@@ -1492,7 +1490,6 @@ bool MacroCompile(String *source, String name, TStringList *macroDirs,
       bool ok = compiler.Compile(string, libFileName, libName, showMessage);
       if (!ok) { return false; }
     } catch (Exception *e) {
-      if (libReader != nullptr) { delete libReader; }
       if(showMessage) {
         Application->MessageBox((libFileName + "\n" + e->Message).c_str(),
                                 L"Cassava Macro Compiler", 0);
@@ -1503,10 +1500,9 @@ bool MacroCompile(String *source, String name, TStringList *macroDirs,
   return true;
 }
 //---------------------------------------------------------------------------
-bool MacroCompile(String fileName, TStringList *macroDirs, TStringList *modules,
-                  bool showMessage)
+bool CompileMacro(String fileName, TMacroContext *context, bool showMessage)
 {
-  return MacroCompile(nullptr, fileName, macroDirs, modules, showMessage);
+  return CompileMacro(nullptr, fileName, context, showMessage);
 }
 //---------------------------------------------------------------------------
 String GetMacroModuleName(String fileName, String funcName, String argCount,

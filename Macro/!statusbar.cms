@@ -16,6 +16,8 @@ if (SelRight > SelLeft || SelBottom > SelTop) {
   SetStatusBarText(4, (SelRight - SelLeft + 1) + "×" + (SelBottom - SelTop + 1));
   if ((SelRight - SelLeft + 1) * (SelBottom - SelTop + 1) <= 1000) {
     SetStatusBarText(5, "SUM=" + sum(SelLeft, SelTop, SelRight, SelBottom));
+  } else {
+    SetStatusBarText(5, "");
   }
 } else {
   SetStatusBarText(4, "");

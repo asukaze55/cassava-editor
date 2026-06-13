@@ -9,11 +9,9 @@ object fmFind: TfmFind
   ParentFont = True
   FormStyle = fsStayOnTop
   KeyPreview = True
-  OldCreateOrder = False
   Position = poDefaultSizeOnly
   OnShow = FormShow
-  PixelsPerInch = 96
-  TextHeight = 13
+  TextHeight = 15
   object btnSearchFromTop: TButton
     Left = 360
     Top = 8
@@ -74,16 +72,16 @@ object fmFind: TfmFind
       object Label1: TLabel
         Left = 8
         Top = 20
-        Width = 99
-        Height = 13
+        Width = 113
+        Height = 15
         Caption = #26908#32034#12377#12427#25991#23383#21015'(&S)'#65306
         FocusControl = edFindText
       end
       object Label2: TLabel
         Left = 8
         Top = 42
-        Width = 103
-        Height = 13
+        Width = 117
+        Height = 15
         Caption = #32622#25563#24460#12398#25991#23383#21015'(&R)'#65306
         FocusControl = edReplaceText
       end
@@ -91,7 +89,7 @@ object fmFind: TfmFind
         Left = 120
         Top = 16
         Width = 217
-        Height = 21
+        Height = 23
         TabOrder = 0
         OnKeyDown = edFindTextKeyDown
       end
@@ -99,7 +97,7 @@ object fmFind: TfmFind
         Left = 120
         Top = 38
         Width = 217
-        Height = 21
+        Height = 23
         TabOrder = 1
       end
       object cbWordSearch: TCheckBox
@@ -109,6 +107,7 @@ object fmFind: TfmFind
         Height = 17
         Caption = #12475#12523#20869#23481#12364#23436#20840#12395#21516#19968#12391#12354#12427#12418#12398#12434#26908#32034'(&W)'
         TabOrder = 3
+        OnClick = cbWordSearchClick
       end
       object cbRegex: TCheckBox
         Left = 3
@@ -117,6 +116,7 @@ object fmFind: TfmFind
         Height = 17
         Caption = #27491#35215#34920#29694#26908#32034'(&E)'
         TabOrder = 4
+        OnClick = cbRegexClick
       end
       object cbCase: TCheckBox
         Left = 3
@@ -127,6 +127,7 @@ object fmFind: TfmFind
         Checked = True
         State = cbChecked
         TabOrder = 2
+        OnClick = cbCaseClick
       end
     end
     object tsNumSearch: TTabSheet
@@ -135,15 +136,15 @@ object fmFind: TfmFind
       object Label3: TLabel
         Left = 152
         Top = 52
-        Width = 22
-        Height = 13
+        Width = 21
+        Height = 15
         Caption = #8806'x'#8806
       end
       object Label4: TLabel
         Left = 8
         Top = 24
-        Width = 79
-        Height = 13
+        Width = 91
+        Height = 15
         Caption = #25968#20516#12398#31684#22258'(&R)'#65306
         FocusControl = edMin
       end

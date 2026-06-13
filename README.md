@@ -11,11 +11,13 @@
 個人またはスタートアップ企業の場合 https://www.embarcadero.com/jp/products/cbuilder/starter から C++Builder Community Edition がダウンロードできます。
 その他の企業で Cassava Editor をビルドする場合、有償エディションの購入が必要となります。
 
-### Boost Library のインストール
+### 依存ライブラリのインストール
 
-正規表現の処理に Boost Library を使用しています。
-C++Builder の \[ツール\]-\[GetIt パッケージマネージャ...\] メニューでパッケージマネージャを開き、
-「C++ Libraries」内の「Boost 1.70 for the Win64 Toolchain」および「Boost 1.70 for the Win32 Clang-enhanced Toolchain」をインストールしてください。
+C++Builder の \[ツール\]-\[GetIt パッケージマネージャ...\] メニューでパッケージマネージャを開き、以下のライブラリをインストールしてください。
+
+- Boost 1.70 for the Win64 Toolchain
+- Boost 1.70 for the Win32 Clang-enhanced Toolchain
+- VCL Windows Style - Windows11 Dark 1.0
 
 ### プロジェクトのビルドと実行
 
