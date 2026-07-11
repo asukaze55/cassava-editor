@@ -14,7 +14,6 @@
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TfmOption *fmOption;
 static int activeNodeIndex = 0;
 //---------------------------------------------------------------------------
 __fastcall TfmOption::TfmOption(TComponent* Owner)
@@ -101,8 +100,8 @@ void __fastcall TfmOption::tvCategoryMouseUp(
   mnDelete->Enabled = selected->getPrevSibling() != nullptr; // Not "Default"
   popupMenu->PopupComponent = tvCategory;
   popupMenu->Tag = selected->Index;
-  TPoint point = fmOption->ClientToScreen(
-      TPoint(X + tvCategory->Left, Y + tvCategory->Top));
+  TPoint point =
+      ClientToScreen(TPoint(X + tvCategory->Left, Y + tvCategory->Top));
   popupMenu->Popup(point.x, point.y);
 }
 //---------------------------------------------------------------------------

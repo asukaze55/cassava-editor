@@ -11,6 +11,14 @@
 #include <ExtCtrls.hpp>
 #include <Buttons.hpp>
 #include <Vcl.Menus.hpp>
+
+#include "OptionBackUp.h"
+#include "OptionBehavior.h"
+#include "OptionColor.h"
+#include "OptionDataFormat.h"
+#include "OptionFile.h"
+#include "OptionLaunch.h"
+#include "OptionView.h"
 //---------------------------------------------------------------------------
 class TfmOption : public TForm
 {
@@ -37,6 +45,13 @@ __published:  // IDE 管理のコンポーネント
 private:  // ユーザー宣言
 public:   // ユーザー宣言
   __fastcall TfmOption(TComponent* Owner);
+  TfrOptionDataFormat *frOptionDataFormat;
+  TfrOptionFile *frOptionFile;
+  TfrOptionBackUp *frOptionBackUp;
+  TfrOptionLaunch *frOptionLaunch;
+  TfrOptionBehavior *frOptionBehavior;
+  TfrOptionView *frOptionView;
+  TfrOptionColor *frOptionColor;
   TTreeNode *tnDataFormat;
   TTreeNode *tnFile;
   TTreeNode *tnBackUp;
@@ -45,7 +60,5 @@ public:   // ユーザー宣言
   TTreeNode *tnView;
   TTreeNode *tnColor;
 };
-//---------------------------------------------------------------------------
-extern PACKAGE TfmOption *fmOption;
 //---------------------------------------------------------------------------
 #endif

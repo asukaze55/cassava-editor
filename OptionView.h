@@ -8,6 +8,8 @@
 #include <Forms.hpp>
 #include <ComCtrls.hpp>
 //---------------------------------------------------------------------------
+class TfmOption;
+//---------------------------------------------------------------------------
 class TfrOptionView : public TFrame
 {
 __published:	// IDE 管理のコンポーネント
@@ -55,12 +57,11 @@ __published:	// IDE 管理のコンポーネント
   TLabel *lblToolBarSizePx;
   void __fastcall btnFontClick(TObject *Sender);
 private:	// ユーザー宣言
+  TfmOption *fmOption;
 public:		// ユーザー宣言
-  __fastcall TfrOptionView(TComponent* Owner);
+  __fastcall TfrOptionView(TfmOption* Owner);
   void RestoreFromMainForm();
   void StoreToMainForm();
 };
-//---------------------------------------------------------------------------
-extern PACKAGE TfrOptionView *frOptionView;
 //---------------------------------------------------------------------------
 #endif

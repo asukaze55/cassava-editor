@@ -7,7 +7,6 @@
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TfrOptionBackUp *frOptionBackUp;
 //---------------------------------------------------------------------------
 __fastcall TfrOptionBackUp::TfrOptionBackUp(TComponent* Owner)
 	: TFrame(Owner)

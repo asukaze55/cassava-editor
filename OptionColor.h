@@ -10,6 +10,8 @@
 #include <ExtCtrls.hpp>
 #include <ComCtrls.hpp>
 //---------------------------------------------------------------------------
+class TfmOption;
+//---------------------------------------------------------------------------
 class TfrOptionColor : public TFrame
 {
 __published:	// IDE 管理のコンポーネント
@@ -48,8 +50,9 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall cbBgColorChange(TObject *Sender);
   void __fastcall cbStyleChange(TObject *Sender);
 private:	// ユーザー宣言
+  TfmOption *fmOption;
 public:		// ユーザー宣言
-  __fastcall TfrOptionColor(TComponent* Owner);
+  __fastcall TfrOptionColor(TfmOption* Owner);
   void RestoreFromMainForm();
   void StoreToMainForm();
 };
@@ -61,7 +64,5 @@ static inline bool IsDarkMode(String Style)
 {
   return Style.Pos("Dark") > 0;
 }
-//---------------------------------------------------------------------------
-extern PACKAGE TfrOptionColor *frOptionColor;
 //---------------------------------------------------------------------------
 #endif

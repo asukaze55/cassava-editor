@@ -7,7 +7,6 @@
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TfrOptionLaunch *frOptionLaunch;
 //---------------------------------------------------------------------------
 __fastcall TfrOptionLaunch::TfrOptionLaunch(TComponent* Owner)
 	: TFrame(Owner)

@@ -3,15 +3,15 @@
 #include "MainForm.h"
 #pragma hdrstop
 
+#include "Option.h"
 #include "OptionView.h"
 #include "OptionColor.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TfrOptionView *frOptionView;
 //---------------------------------------------------------------------------
-__fastcall TfrOptionView::TfrOptionView(TComponent* Owner)
-    : TFrame(Owner)
+__fastcall TfrOptionView::TfrOptionView(TfmOption* Owner)
+    : TFrame(Owner), fmOption(Owner)
 {
 }
 //---------------------------------------------------------------------------
@@ -76,7 +76,7 @@ void __fastcall TfrOptionView::btnFontClick(TObject *Sender)
   if(dlgFont->Execute()){
     stFont->Font = dlgFont->Font;
     stFont->Caption = stFont->Font->Name + " (" + stFont->Font->Size + ")";
-    frOptionColor->cbFgColor->Selected = stFont->Font->Color;
+    fmOption->frOptionColor->cbFgColor->Selected = stFont->Font->Color;
   }
 }
 //---------------------------------------------------------------------------

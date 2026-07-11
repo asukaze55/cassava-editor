@@ -2428,10 +2428,9 @@ void __fastcall TfmMain::mnUnFixClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnOptionDlgClick(TObject *Sender)
 {
-  fmOption = new TfmOption(Application);
+  std::unique_ptr<TfmOption> fmOption = std::make_unique<TfmOption>(nullptr);
   fmOption->ShowModal();
   UpdateTitle();
-  delete fmOption;
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnAppliClick(TObject *Sender)

@@ -10,7 +10,6 @@
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TfrOptionFile *frOptionFile;
 //---------------------------------------------------------------------------
 __fastcall TfrOptionFile::TfrOptionFile(TComponent* Owner)
     : TFrame(Owner)

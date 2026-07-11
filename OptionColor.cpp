@@ -3,18 +3,18 @@
 #include "MainForm.h"
 #pragma hdrstop
 
+#include "Option.h"
 #include "OptionColor.h"
 #include "OptionView.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TfrOptionColor *frOptionColor;
 //---------------------------------------------------------------------------
 constexpr int LightModeIndex = 0;
 constexpr int DarkModeIndex = 1;
 //---------------------------------------------------------------------------
-__fastcall TfrOptionColor::TfrOptionColor(TComponent* Owner)
-	: TFrame(Owner)
+__fastcall TfrOptionColor::TfrOptionColor(TfmOption* Owner)
+    : TFrame(Owner), fmOption(Owner)
 {
 }
 //---------------------------------------------------------------------------
@@ -65,12 +65,12 @@ void TfrOptionColor::StoreToMainForm()
 //---------------------------------------------------------------------------
 void __fastcall TfrOptionColor::cbFgColorChange(TObject *Sender)
 {
-  frOptionView->stFont->Font->Color = cbFgColor->Selected;
+  fmOption->frOptionView->stFont->Font->Color = cbFgColor->Selected;
 }
 //---------------------------------------------------------------------------
 void __fastcall TfrOptionColor::cbBgColorChange(TObject *Sender)
 {
-  frOptionView->stFont->Color = cbBgColor->Selected;
+  fmOption->frOptionView->stFont->Color = cbBgColor->Selected;
 }
 //---------------------------------------------------------------------------
 static void MaybeUpdateSelected(TColorBox *ColorBox, TColor Light, TColor Dark,

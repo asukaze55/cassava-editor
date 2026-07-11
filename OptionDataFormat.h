@@ -13,6 +13,8 @@
 //---------------------------------------------------------------------------
 #include "MainForm.h"
 //---------------------------------------------------------------------------
+class TfmOption;
+//---------------------------------------------------------------------------
 class TfrOptionDataFormat : public TFrame
 {
 __published:    // IDE 管理のコンポーネント
@@ -40,8 +42,9 @@ __published:    // IDE 管理のコンポーネント
     void __fastcall btnDeleteTypeClick(TObject *Sender);
     void __fastcall rgSaveQuoteClick(TObject *Sender);
 private:    // ユーザー宣言
+    TfmOption *fmOption;
 public:     // ユーザー宣言
-    __fastcall TfrOptionDataFormat(TComponent* Owner);
+    __fastcall TfrOptionDataFormat(TfmOption* Owner);
     void RestoreFromMainForm();
     void StoreToMainForm();
     void RestoreDataPage(int id);
@@ -54,7 +57,5 @@ public:     // ユーザー宣言
     int TypeIndex;       // 現在表示中
     int ActiveTypeIndex; // MainFormのアクティブ
 };
-//---------------------------------------------------------------------------
-extern PACKAGE TfrOptionDataFormat *frOptionDataFormat;
 //---------------------------------------------------------------------------
 #endif

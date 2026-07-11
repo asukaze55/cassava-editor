@@ -8,10 +8,9 @@
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TfrOptionDataFormat *frOptionDataFormat;
 //---------------------------------------------------------------------------
-__fastcall TfrOptionDataFormat::TfrOptionDataFormat(TComponent* Owner)
-	: TFrame(Owner)
+__fastcall TfrOptionDataFormat::TfrOptionDataFormat(TfmOption* Owner)
+    : TFrame(Owner), fmOption(Owner)
 {
 }
 //---------------------------------------------------------------------------
