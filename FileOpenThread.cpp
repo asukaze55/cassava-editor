@@ -35,7 +35,7 @@ private:
   String FFileName;
   TEncoding *FEncoding;
   bool FIsDetectedEncoding;
-  TList *allCells;
+  std::vector<std::unique_ptr<TStringList>> allCells;
   int updatedRows;
   int maxCol;
   void __fastcall UpdateGrid();
@@ -87,26 +87,25 @@ void __fastcall FileOpenThread::UpdateGrid()
     Grid->ChangeColCount(maxCol + 1);
   }
   int dt = updatedRows + Grid->DataTop;
-  int maxRow = allCells->Count + dt - 1;
+  int maxRow = allCells.size() + dt - 1;
   if (maxRow >= Grid->RowCount) {
     Grid->RowCount = maxRow + 1;
   }
   Grid->SetDataRightBottom(maxCol, maxRow, true);
-  for (int i = 0; i < allCells->Count; i++) {
-    TStringList *row = static_cast<TStringList*>(allCells->Items[i]);
+  for (int i = 0; i < allCells.size(); i++) {
+    TStringList *row = allCells[i].get();
     int count = row->Count;
     for (int x = count; x <= Grid->ColCount; x++) {
       row->Add("");
     }
     Grid->Rows[i + dt] = row;
     Grid->SetRowDataRight(i + dt, count - 1);
-    delete row;
   }
   Grid->SetWidth();
   Grid->SetHeight();
 
-  updatedRows += allCells->Count;
-  allCells->Clear();
+  updatedRows += allCells.size();
+  allCells.clear();
 }
 //---------------------------------------------------------------------------
 void __fastcall FileOpenThread::ShowError()
@@ -121,10 +120,10 @@ bool __fastcall FileOpenThread::ExecuteOnce()
   int dl = Grid->DataLeft;
   CsvReader reader(Grid->TypeOption, FFileName, FEncoding);
   try {
-    allCells = new TList();
+    allCells.clear();
     maxCol = 1;
     updatedRows = 0;
-    TStringList *nextRow = new TStringList();
+    std::unique_ptr<TStringList> nextRow = std::make_unique<TStringList>();
     if (dl) { nextRow->Add(""); }
     int x = dl;
     while (true) {
@@ -133,7 +132,7 @@ bool __fastcall FileOpenThread::ExecuteOnce()
         if (nextRow->Count > dl + 1 ||
             (nextRow->Count == dl + 1 && nextRow->Strings[dl] != "")) {
           if (x - 1 > maxCol) { maxCol = x - 1; }
-          allCells->Add(nextRow);
+          allCells.push_back(std::move(nextRow));
         }
         break;
       } else if (type == NEXT_TYPE_HAS_MORE_ROW) {
@@ -141,12 +140,12 @@ bool __fastcall FileOpenThread::ExecuteOnce()
           break;
         }
         if (x - 1 > maxCol) { maxCol = x - 1; }
-        allCells->Add(nextRow);
-        nextRow = new TStringList();
+        allCells.push_back(std::move(nextRow));
+        nextRow = std::make_unique<TStringList>();
         if (dl) { nextRow->Add(""); }
         x = dl;
-        if ((updatedRows == 0 && allCells->Count == 100)
-            || allCells->Count % 1000000 == 0) {
+        if ((updatedRows == 0 && allCells.size() == 100)
+            || allCells.size() % 1000000 == 0) {
           Synchronize(&UpdateGrid);
         }
       }
@@ -154,11 +153,9 @@ bool __fastcall FileOpenThread::ExecuteOnce()
       x++;
     }
   } catch (...) {
-    delete allCells;
     return false;
   }
   Synchronize(&UpdateGrid);
-  delete allCells;
   return true;
 }
 //---------------------------------------------------------------------------

@@ -28,15 +28,15 @@ public:
   TUndoCommand(TUndoCommandType _type, String _undoData, String _redoData,
       String _recordedData, int _x = 0, int _y = 0, int _right = 0,
       int _bottom = 0);
-  String GetUndoMacro();
-  String GetRedoMacro();
-  String GetRecordedMacro();
+  String GetUndoMacro() const;
+  String GetRedoMacro() const;
+  String GetRecordedMacro() const;
 };
 //---------------------------------------------------------------------------
 class TUndoList
 {
 private:
-  TList* list;
+  std::vector<TUndoCommand> list;
   int current;
   int lock;
   int recording;
@@ -50,7 +50,6 @@ public:
   int MaxCount;
 
   TUndoList();
-  ~TUndoList();
   void AddMacro(String undoMacro, String redoMacro, String recordedMacro = "");
   void ChangeCell(int x, int y, String from, String to, int right, int bottom);
   bool CanUndo();

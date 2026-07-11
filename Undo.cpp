@@ -6,17 +6,9 @@
 //---------------------------------------------------------------------------
 namespace {
 //---------------------------------------------------------------------------
-inline TUndoCommand* GetCommand(TList* list, int index)
+inline void SetCount(std::vector<TUndoCommand>& list, int count)
 {
-  return static_cast<TUndoCommand*>(list->Items[index]);
-}
-//---------------------------------------------------------------------------
-void SetCount(TList* list, int count)
-{
-  for (int i = list->Count - 1; i >= count; i--) {
-    delete GetCommand(list, i);
-    list->Delete(i);
-  }
+  list.erase(list.begin() + count, list.end());
 }
 //---------------------------------------------------------------------------
 wchar_t toHex(int value)
@@ -57,7 +49,7 @@ TUndoCommand::TUndoCommand(TUndoCommandType _type, String _undoData,
       recordedData(_recordedData), x(_x), y(_y), right(_right), bottom(_bottom)
 {}
 //---------------------------------------------------------------------------
-String TUndoCommand::GetUndoMacro()
+String TUndoCommand::GetUndoMacro() const
 {
   if (type == UNDO_MACRO) {
     return undoData;
@@ -69,7 +61,7 @@ String TUndoCommand::GetUndoMacro()
       + "\";";
 }
 //---------------------------------------------------------------------------
-String TUndoCommand::GetRedoMacro()
+String TUndoCommand::GetRedoMacro() const
 {
   if (type == UNDO_MACRO) {
     return redoData;
@@ -78,19 +70,13 @@ String TUndoCommand::GetRedoMacro()
       + "\";";
 }
 //---------------------------------------------------------------------------
-String TUndoCommand::GetRecordedMacro()
+String TUndoCommand::GetRecordedMacro() const
 {
   return recordedData != "" ? recordedData : GetRedoMacro();
 }
 //---------------------------------------------------------------------------
 TUndoList::TUndoList()
-    : list(new TList), current(0), lock(0), recording(INT_MAX), MaxCount(100) {}
-//---------------------------------------------------------------------------
-TUndoList::~TUndoList()
-{
-  SetCount(list, 0);
-  delete list;
-}
+    : current(0), lock(0), recording(INT_MAX), MaxCount(100) {}
 //---------------------------------------------------------------------------
 void TUndoList::AddMacro(String undoMacro, String redoMacro,
                          String recordedMacro)
@@ -99,10 +85,10 @@ void TUndoList::AddMacro(String undoMacro, String redoMacro,
     return;
   }
   SetCount(list, current);
-  list->Add(new TUndoCommand(UNDO_MACRO, undoMacro, redoMacro,
-      (recording < INT_MAX) ? recordedMacro : (String)""));
+  list.emplace_back(UNDO_MACRO, undoMacro, redoMacro,
+      (recording < INT_MAX) ? recordedMacro : (String)"");
   if (group.empty() && current >= MaxCount && recording > 0) {
-    list->Delete(0);
+    list.erase(list.begin());
     if (recording < INT_MAX) {
       recording--;
     }
@@ -120,16 +106,16 @@ void TUndoList::ChangeCell(int x, int y, String from, String to, int right,
   SetCount(list, current);
   if (current > 0 && recording != current
       && (group.empty() || group.back() != current)) {
-    TUndoCommand* command = GetCommand(list, current - 1);
+    TUndoCommand* command = &list[current - 1];
     if (command->type == UNDO_SET_CELL && command->x == x && command->y == y) {
       command->redoData = to;
       return;
     }
   }
-  list->Add(new TUndoCommand(UNDO_SET_CELL, from, to, "", x, y, right, bottom));
+  list.emplace_back(UNDO_SET_CELL, from, to, "", x, y, right, bottom);
 
   if (group.empty() && current >= MaxCount && recording > 0) {
-    list->Delete(0);
+    list.erase(list.begin());
     if (recording < INT_MAX) {
       recording--;
     }
@@ -146,7 +132,7 @@ bool TUndoList::CanUndo()
 TUndoCommand* TUndoList::Undo()
 {
   while (current > 0) {
-    TUndoCommand* command = GetCommand(list, --current);
+    TUndoCommand* command = &list[--current];
     if (command->type == UNDO_SET_CELL || command->undoData != "") {
       return command;
     }
@@ -156,13 +142,13 @@ TUndoCommand* TUndoList::Undo()
 //---------------------------------------------------------------------------
 bool TUndoList::CanRedo()
 {
-  return current < list->Count;
+  return current < list.size();
 }
 //---------------------------------------------------------------------------
 TUndoCommand* TUndoList::Redo()
 {
-  while (current < list->Count) {
-    TUndoCommand* command = GetCommand(list, current++);
+  while (current < list.size()) {
+    TUndoCommand* command = &list[current++];
     if (command->type == UNDO_SET_CELL || command->redoData != "") {
       return command;
     }
@@ -172,7 +158,7 @@ TUndoCommand* TUndoList::Redo()
 //---------------------------------------------------------------------------
 void TUndoList::Clear()
 {
-  SetCount(list, 0);
+  list.clear();
   current = 0;
 }
 //---------------------------------------------------------------------------
@@ -181,9 +167,9 @@ String TUndoList::GetUndoMacro(int from) const
   if (from >= current) {
     return "";
   }
-  String macro = GetCommand(list, current - 1)->GetUndoMacro();
+  String macro = list[current - 1].GetUndoMacro();
   for (int i = current - 2; i >= from; i--) {
-    macro += "\n" + GetCommand(list, i)->GetUndoMacro();
+    macro += "\n" + list[i].GetUndoMacro();
   }
   return macro;
 }
@@ -193,9 +179,9 @@ String TUndoList::GetRedoMacro(int from) const
   if (from >= current) {
     return "";
   }
-  String macro = GetCommand(list, from)->GetRedoMacro();
+  String macro = list[from].GetRedoMacro();
   for (int i = from + 1; i < current; i++) {
-    macro += GetCommand(list, i)->GetRedoMacro();
+    macro += list[i].GetRedoMacro();
   }
   return macro;
 }
@@ -205,9 +191,9 @@ String TUndoList::GetRecordedMacro(int from) const
   if (from >= current) {
     return "";
   }
-  String macro = GetCommand(list, from)->GetRecordedMacro();
+  String macro = list[from].GetRecordedMacro();
   for (int i = from + 1; i < current; i++) {
-    macro += "\n" + GetCommand(list, i)->GetRecordedMacro();
+    macro += "\n" + list[i].GetRecordedMacro();
   }
   return macro;
 }
