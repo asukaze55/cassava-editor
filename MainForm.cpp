@@ -1,12 +1,13 @@
 //---------------------------------------------------------------------------
 #include <vcl.h>
+#include "MainForm.h"
+#pragma hdrstop
+
 #include <Vcl.clipbrd.hpp>
 #include <process.h>
 #include <stdio.h>
 #include <map>
-#pragma hdrstop
 
-#include "MainForm.h"
 #include "Letter.h"
 #include "AutoOpen.h"
 #include "KeyCustomize.h"

@@ -1,11 +1,12 @@
 //---------------------------------------------------------------------------
 #include <vcl.h>
-#include <Vcl.printers.hpp>
-#include <tchar.h>
+#include "MainForm.h"
 #pragma hdrstop
 
+#include <Vcl.printers.hpp>
+#include <tchar.h>
+
 #include "Letter.h"
-#include "MainForm.h"
 #include "AutoOpen.h"
 //---------------------------------------------------------------------------
 #pragma resource "*.dfm"

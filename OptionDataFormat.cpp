@@ -1,9 +1,9 @@
 //---------------------------------------------------------------------------
 #include <vcl.h>
+#include "MainForm.h"
 #pragma hdrstop
 
 #include "OptionDataFormat.h"
-#include "MainForm.h"
 #include "Option.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)

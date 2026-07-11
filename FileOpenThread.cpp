@@ -1,5 +1,6 @@
 //---------------------------------------------------------------------------
 #include <vcl.h>
+#include "MainForm.h"
 #pragma hdrstop
 
 #include "FileOpenThread.h"

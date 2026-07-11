@@ -1,15 +1,18 @@
 //---------------------------------------------------------------------------
+#include <vcl.h>
+#include "MainForm.h"
+#pragma hdrstop
+
 #include <boost\regex.hpp>
 #include <cmath>
 #include <dialogs.hpp>
 #include <map>
 #include <process.h>
 #include <vector>
-#pragma hdrstop
+
 #include "Find.h"
 #include "Macro.h"
 #include "MacroOpeCode.h"
-#include "MainForm.h"
 #include "MultiLineInputBox.h"
 #include "AutoOpen.h"
 //---------------------------------------------------------------------------

@@ -3,7 +3,7 @@
 #include <tchar.h>
 #include <Vcl.Styles.hpp>
 #include <Vcl.Themes.hpp>
-#pragma hdrstop
+
 USEFORM("OptionDataFormat.cpp", frOptionDataFormat); /* TFrame: File Type */
 USEFORM("OptionColor.cpp", frOptionColor); /* TFrame: File Type */
 USEFORM("OptionLaunch.cpp", frOptionLaunch); /* TFrame: File Type */

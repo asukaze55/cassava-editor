@@ -1,9 +1,12 @@
 //---------------------------------------------------------------------------
+#include <vcl.h>
+#include "MainForm.h"
+#pragma hdrstop
+
 #include <deque>
 #include <map>
-#include <vcl.h>
 #include <vector>
-#pragma hdrstop
+
 #include "Compiler.h"
 #include "MacroOpeCode.h"
 //---------------------------------------------------------------------------

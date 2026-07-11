@@ -1,6 +1,8 @@
 //---------------------------------------------------------------------------
 #include <vcl.h>
+#include "MainForm.h"
 #pragma hdrstop
+
 #include "FormattedFileName.h"
 //---------------------------------------------------------------------------
 String FormattedFileName(String Format, String BaseFileName)

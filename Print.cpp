@@ -1,10 +1,11 @@
 //---------------------------------------------------------------------------
 #include <vcl.h>
-#include <Vcl.printers.hpp>
+#include "MainForm.h"
 #pragma hdrstop
 
+#include <Vcl.printers.hpp>
+
 #include "Print.h"
-#include "MainForm.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"

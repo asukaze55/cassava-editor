@@ -1,11 +1,13 @@
 //---------------------------------------------------------------------------
 #include <vcl.h>
+#include "MainForm.h"
+#pragma hdrstop
+
 #include <Vcl.clipbrd.hpp>
 #include <shellapi.h>
 #include <string.h>
 #include <process.h>
 #include <boost\regex.hpp>
-#pragma hdrstop
 
 #include "AutoOpen.h"
 #include "Compiler.h"
@@ -14,7 +16,6 @@
 #include "FileOpenThread.h"
 #include "Find.h"
 #include "Macro.h"
-#include "MainForm.h"
 #include "MainGrid.h"
 #include "PasteDlg.h"
 

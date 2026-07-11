@@ -1,9 +1,9 @@
 //---------------------------------------------------------------------
 #include <vcl.h>
+#include "MainForm.h"
 #pragma hdrstop
 
 #include "MultiLineInputBox.h"
-#include "MainForm.h"
 //---------------------------------------------------------------------
 #pragma resource "*.dfm"
 TfmMultiLineInputBox *fmMultiLineInputBox;

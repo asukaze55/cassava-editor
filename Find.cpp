@@ -1,8 +1,9 @@
 //---------------------------------------------------------------------------
 #include <vcl.h>
-#pragma hdrstop
-#include "Find.h"
 #include "MainForm.h"
+#pragma hdrstop
+
+#include "Find.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"

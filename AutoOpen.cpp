@@ -1,9 +1,11 @@
 //---------------------------------------------------------------------------
 #include <vcl.h>
-#include <dir.h>
-#include <registry.hpp>
-#include <process.h>
+#include "MainForm.h"
 #pragma hdrstop
+
+#include <dir.h>
+#include <process.h>
+#include <registry.hpp>
 
 #include "AutoOpen.h"
 //---------------------------------------------------------------------------
