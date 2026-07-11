@@ -377,7 +377,6 @@ private:    // ユーザー宣言
 public:     // ユーザー宣言
   TMainGrid *MainGrid;
   __fastcall TfmMain(TComponent* Owner);
-  __fastcall virtual ~TfmMain();
   bool IfModifiedThenSave();
   void Clear();
   void ReadIni();
@@ -400,7 +399,7 @@ public:     // ユーザー宣言
 
   String FileName;
   String FullPath;
-  Preference *Pref;
+  std::unique_ptr<Preference> Pref;
   TDateTime TimeStamp;
   std::vector<String> History;
   void SetHistory(String S);
@@ -443,7 +442,7 @@ public:     // ユーザー宣言
 #define cssv_lfNone 0
 #define cssv_lfEdit 1
 #define cssv_lfOpen 2
-  TFileStream *LockingFile;
+  std::unique_ptr<TFileStream> LockingFile;
   bool CheckTimeStamp;
   int StopMacroCount;
   bool SortAll;

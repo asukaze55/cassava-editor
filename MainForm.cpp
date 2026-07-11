@@ -25,12 +25,12 @@
 #pragma resource "*.dfm"
 TfmMain *fmMain;
 //---------------------------------------------------------------------------
-static String MaybeCompileMacro(String fileName, Preference *pref,
+static String MaybeCompileMacro(String fileName, const Preference &pref,
                                 TMacroContext *context)
 {
-  String cmsFile = pref->UserPath + "Macro\\" + fileName;
+  String cmsFile = pref.UserPath + "Macro\\" + fileName;
   if (!FileExists(cmsFile)) {
-    cmsFile = pref->SharedPath + "Macro\\" + fileName;
+    cmsFile = pref.SharedPath + "Macro\\" + fileName;
   }
   if (!FileExists(cmsFile)) {
     return "";
@@ -44,7 +44,7 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
 {
   FullPath = ExtractFilePath(ParamStr(0));
   if(*(FullPath.LastChar()) != '\\') FullPath += "\\";
-  Pref = new Preference(FullPath);
+  Pref = std::make_unique<Preference>(FullPath);
 
   MainGrid = new TMainGrid(this);
   MainGrid->Parent = MainPanel;
@@ -148,13 +148,13 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
   }
   SystemMacroContext.AddDirectory(Pref->UserPath + "Macro\\");
   SystemMacroContext.AddDirectory(Pref->SharedPath + "Macro\\");
-  FormatCmsFile = MaybeCompileMacro("!format.cms", Pref, &SystemMacroContext);
+  FormatCmsFile = MaybeCompileMacro("!format.cms", *Pref, &SystemMacroContext);
   if (FormatCmsFile != "") {
     MainGrid->OnGetFormattedCell = GetFormattedCell;
   }
 
   String statusbarCmsFile =
-      MaybeCompileMacro("!statusbar.cms", Pref, &SystemMacroContext);
+      MaybeCompileMacro("!statusbar.cms", *Pref, &SystemMacroContext);
   if (statusbarCmsFile != "") {
     String statusbarInit =
         GetMacroModuleName(statusbarCmsFile, "init", "0", false);
@@ -212,12 +212,6 @@ void __fastcall TfmMain::ExecOpenMacro(System::TObject* Sender)
   }
 
   UpdateStatusbar();
-}
-//---------------------------------------------------------------------------
-__fastcall TfmMain::~TfmMain()
-{
-  delete Pref;
-  if (LockingFile) { delete LockingFile; }
 }
 //---------------------------------------------------------------------------
 void TfmMain::ReadIni()
@@ -702,7 +696,7 @@ TToolButton *TfmMain::AddToolButton(String Label, String Name, String Action,
 //---------------------------------------------------------------------------
 void AddToImageCollection(TBitmap *Bitmap, TImageCollection *ImageCollection)
 {
-  TBitmap *maskBitmap = new TBitmap();
+  std::unique_ptr<TBitmap> maskBitmap = std::make_unique<TBitmap>();
   maskBitmap->Assign(Bitmap);
   maskBitmap->Mask(clSilver);
 
@@ -713,18 +707,14 @@ void AddToImageCollection(TBitmap *Bitmap, TImageCollection *ImageCollection)
   iconInfo.hbmMask = maskBitmap->Handle;
   iconInfo.hbmColor = Bitmap->Handle;
 
-  TIcon *icon = new TIcon();
+  std::unique_ptr<TIcon> icon = std::make_unique<TIcon>();
   icon->Handle = CreateIconIndirect(&iconInfo);
 
-  TMemoryStream *stream = new TMemoryStream();
-  icon->SaveToStream(stream);
+  std::unique_ptr<TMemoryStream> stream = std::make_unique<TMemoryStream>();
+  icon->SaveToStream(stream.get());
 
   ImageCollection->Images->Add()->SourceImages->Add()->Image
-      ->LoadFromStream(stream);
-
-  delete stream;
-  delete icon;
-  delete maskBitmap;
+      ->LoadFromStream(stream.get());
 }
 //---------------------------------------------------------------------------
 static inline int GetToolBarButtonSize(int ToolBarSize, int ScreenDpi)
@@ -761,17 +751,15 @@ TToolBar *TfmMain::AddToolBar(String Label, String ImageList, int Top, int Left)
       images = imlAdditional;
     }
   } else if (ImageList != "" && FileExists(imageListFileName)) {
-    TBitmap *imageListBitmap = new TBitmap();
+    std::unique_ptr<TBitmap> imageListBitmap = std::make_unique<TBitmap>();
     imageListBitmap->LoadFromFile(imageListFileName);
 
     TImageCollection *imageCollection = new TImageCollection(this);
     for (int x = 0; x < imageListBitmap->Width; x += 16) {
-      TBitmap *bitmap = new TBitmap(16, 16);
-      bitmap->Canvas->Draw(-x, 0, imageListBitmap);
-      AddToImageCollection(bitmap, imageCollection);
-      delete bitmap;
+      std::unique_ptr<TBitmap> bitmap = std::make_unique<TBitmap>(16, 16);
+      bitmap->Canvas->Draw(-x, 0, imageListBitmap.get());
+      AddToImageCollection(bitmap.get(), imageCollection);
     }
-    delete imageListBitmap;
 
     images = new TVirtualImageList(this);
     images->AutoFill = true;
@@ -981,30 +969,31 @@ void TfmMain::SetFilter()
   String OFilter = "";
   String SFilter = "";
   String FilterExt;
-  TStringList *AllExts = new TStringList;
+  std::vector<String> allExts;
   for (int i = 0; i < TypeList.Count; i++) {
     TTypeOption *p = TypeList.Items(i);
     FilterExt = "";
-    for(int j=0; j<p->Exts.size(); j++){
-      if(j > 0) FilterExt += ";";
+    for (int j = 0; j < p->Exts.size(); j++){
+      if (j > 0) FilterExt += ";";
       String str = p->Exts[j];
       FilterExt += "*." + str;
-      if(AllExts->IndexOf(str) < 0){ AllExts->Add(str); }
+      if (std::find(allExts.begin(), allExts.end(), str) == allExts.end()) {
+        allExts.push_back(str);
+      }
     }
-    if(i > 0){
+    if (i > 0) {
       OFilter += p->Name + " (" + FilterExt + ")|" + FilterExt + "|";
     }
     SFilter += p->Name + " (*." + p->DefExt() + ")|*." + p->DefExt() + "|";
   }
   FilterExt = "";
-  for(int i=0; i<AllExts->Count; i++){
-    if(i > 0) FilterExt += ";";
-    FilterExt += "*." + AllExts->Strings[i];
+  for (int i = 0; i < allExts.size(); i++){
+    if (i > 0) FilterExt += ";";
+    FilterExt += "*." + allExts[i];
   }
   String CFilter = (String)"Cassava (" + FilterExt + ")|" + FilterExt + "|";
   dlgOpen->Filter = CFilter + OFilter + L"すべてのファイル (*.*)|*.*";
   dlgSave->Filter = SFilter;
-  delete AllExts;
 }
 //---------------------------------------------------------------------------
 inline TCHAR hex(int digit)
@@ -1099,7 +1088,8 @@ void __fastcall TfmMain::MainGridChangeModified(TObject *Sender)
   acSave->Enabled = modified;
   if (modified && LockFile == cssv_lfEdit && LockingFile == nullptr &&
       FileName != "") {
-    LockingFile = new TFileStream(FileName, fmOpenWrite|fmShareDenyWrite);
+    LockingFile =
+        std::make_unique<TFileStream>(FileName, fmOpenWrite|fmShareDenyWrite);
   }
   UpdateTitle();
 }
@@ -1215,8 +1205,7 @@ void TfmMain::Clear()
   UpdateStatusbar();
 
   if (LockingFile) {
-    delete LockingFile;
-    LockingFile = nullptr;
+    LockingFile.reset();
   }
 }
 //---------------------------------------------------------------------------
@@ -1230,8 +1219,7 @@ void TfmMain::OpenFile(String OpenFileName, int CharCode,
     return;
   }
   if(LockingFile){
-    delete LockingFile;
-    LockingFile = nullptr;
+    LockingFile.reset();
   }
   if (Format == nullptr) {
     Format = TypeList.FindForFileName(OpenFileName);
@@ -1254,7 +1242,8 @@ void TfmMain::OpenFile(String OpenFileName, int CharCode,
 
   try{
     if(LockFile == cssv_lfOpen){
-      LockingFile = new TFileStream(FileName, fmOpenWrite|fmShareDenyWrite);
+      LockingFile =
+          std::make_unique<TFileStream>(FileName, fmOpenWrite|fmShareDenyWrite);
     }
   }catch(...){}
   try{
@@ -1417,21 +1406,16 @@ void TfmMain::SaveFile(const TTypeOption *Format)
   else {
     // ロックを解除
     if(LockingFile){
-      delete LockingFile;
-      LockingFile = nullptr;
+      LockingFile.reset();
     }
 
     // バックアップ前に、アクセス権限を確認
-    if(FileExists(FileName)){
-      TFileStream *AccessTest = nullptr;
+    if (FileExists(FileName)) {
+      std::unique_ptr<TFileStream> accessTest;
       try {
-        AccessTest = new TFileStream(FileName, fmOpenReadWrite|fmShareDenyWrite);
-        delete AccessTest;
-        AccessTest = nullptr;
-      }catch(Exception &ex){
-        if(AccessTest){
-          delete AccessTest;
-        }
+        accessTest = std::make_unique<TFileStream>(
+            FileName, fmOpenReadWrite|fmShareDenyWrite);
+      } catch(Exception &ex) {
         Application->ShowException(&ex);
         return;
       }
@@ -1463,7 +1447,8 @@ void TfmMain::SaveFile(const TTypeOption *Format)
 
     // 必要ならば再度ロック
     if(LockFile == cssv_lfOpen){
-      LockingFile = new TFileStream(FileName, fmOpenWrite|fmShareDenyWrite);
+      LockingFile =
+          std::make_unique<TFileStream>(FileName, fmOpenWrite|fmShareDenyWrite);
     }
   }
 }
@@ -1596,7 +1581,7 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
 
   String strFilter = "";
   String strOrgFilter = dlgSave->Filter;
-  TStringList *types = new TStringList;
+  std::vector<String> types;
   TSearchRec sr;
   if(FindFirst(Pref->UserPath+"Export\\*.cms", faAnyFile, sr) == 0){
     do{
@@ -1604,7 +1589,7 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
       String ext = ExtractFileExt(type);
       if(ext == ""){ ext = (String)"." + type; }
       strFilter += type.UpperCase() + L" 形式 (*" + ext + ")|*" + ext + "|";
-      types->Add(type);
+      types.push_back(type);
     }while (FindNext(sr) == 0);
     FindClose(sr);
   }
@@ -1614,14 +1599,13 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
       String ext = ExtractFileExt(type);
       if(ext == ""){ ext = (String)"." + type; }
       strFilter += type.UpperCase() + L" 形式 (*" + ext + ")|*" + ext + "|";
-      types->Add(type);
+      types.push_back(type);
     }while (FindNext(sr) == 0);
     FindClose(sr);
   }
   if(strFilter == ""){
     Application->MessageBox(
         L"エクスポート可能な形式はありません。", L"Cassava Export", 0);
-    delete types;
     return;
   }
   dlgSave->Filter = strFilter;
@@ -1629,7 +1613,7 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
   dlgSave->FileName = ChangeFileExt(ExtractFileName(dlgSave->FileName), "");
   if(dlgSave->Execute()){
     dlgSave->Filter = strOrgFilter;
-    String type = types->Strings[dlgSave->FilterIndex - 1];
+    String type = types[dlgSave->FilterIndex - 1];
     if(ExtractFileExt(dlgSave->FileName) == ""){
       String ext = ExtractFileExt(type);
       if(ext == ""){ ext = (String)"." + type; }
@@ -1638,7 +1622,6 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
     Export(dlgSave->FileName, type);
   }
   dlgSave->Filter = strOrgFilter;
-  delete types;
 }
 //---------------------------------------------------------------------------
 void TfmMain::Export(String filename, String type)
@@ -1654,30 +1637,27 @@ void TfmMain::Export(String filename, String type)
       return;
     }
 
-    TStream *out = nullptr;
-    EncodedWriter *ew = nullptr;
-    try{
-      out = new TFileStream(filename, fmCreate | fmShareDenyWrite);
+    try {
+      std::unique_ptr<TStream> out =
+          std::make_unique<TFileStream>(filename, fmCreate | fmShareDenyWrite);
       TEncoding *encoding = MainGrid->Encoding;
       TReturnCode returnCode = MainGrid->ReturnCode;
       TReturnCode inCellReturnCode = MainGrid->InCellReturnCode;
       bool addBom = MainGrid->AddBom;
-      ew = new EncodedWriter(out, encoding, addBom);
+      EncodedWriter encodedWriter(out.get(), encoding, addBom);
       std::set<String> checkedMenus = GetCheckedMenus();
 
-      MacroExec(CmsFile, ew);
+      MacroExec(CmsFile, &encodedWriter);
 
       RestoreCheckedMenus(checkedMenus);
       MainGrid->Encoding = encoding;
       MainGrid->ReturnCode = returnCode;
       MainGrid->InCellReturnCode = inCellReturnCode;
       MainGrid->AddBom = addBom;
-    }catch(Exception *e){
+    } catch(Exception *e) {
       Application->MessageBox(e->Message.c_str(),
                               L"Cassava Macro Interpreter", 0);
     }
-    if(ew) { delete ew; }
-    if(out) { delete out; }
 }
 //---------------------------------------------------------------------------
 void TfmMain::SetHistory(String S)
@@ -2274,7 +2254,7 @@ void __fastcall TfmMain::StatusBarContextPopup(TObject *Sender,
   }
 
   PopMenuStatusBar->Items->Clear();
-  TStringList *items = new TStringList;
+  std::unique_ptr<TStringList> items = std::make_unique<TStringList>();
   items->Text = StatusBarPopUp[panelIndex].Label;
   for (int i = 0; i < items->Count; i++) {
     TMenuItem *newItem = new TMenuItem(PopMenuStatusBar);
@@ -2283,7 +2263,6 @@ void __fastcall TfmMain::StatusBarContextPopup(TObject *Sender,
     newItem->OnClick = StatusBarPopUpClick;
     PopMenuStatusBar->Items->Add(newItem);
   }
-  delete items;
   PopMenuStatusBar->AutoPopup = true;
 }
 //---------------------------------------------------------------------------
@@ -2294,15 +2273,14 @@ void __fastcall TfmMain::StatusBarPopUpClick(TObject *Sender)
   if (StatusBarPopUp.count(panelIndex) == 0) {
     return;
   }
-  TStringList *arguments = new TStringList;
+  std::unique_ptr<TStringList> arguments = std::make_unique<TStringList>();
   arguments->Text = StatusBarPopUp[panelIndex].Label;
   String label = arguments->Strings[tag & 0xffff];
   arguments->Clear();
   arguments->Add(label);
   RunMacro(StatusBarPopUp[panelIndex].Handler, StopMacroCount,
       SystemMacroContext, -1, -1, /* ReadOnly= */ false, /* IO= */ nullptr,
-      arguments);
-  delete arguments;
+      arguments.get());
   UpdateStatusbar();
 }
 //---------------------------------------------------------------------------
