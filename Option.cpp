@@ -72,34 +72,18 @@ void __fastcall TfmOption::tvCategoryChange(TObject *Sender, TTreeNode *Node)
 {
   activeNodeIndex = Node->AbsoluteIndex;
 
-  TFrame *Show = nullptr;
   if(Node->Parent == tnDataFormat){
     frOptionDataFormat->Select(Node->Index);
     Node = tnDataFormat;
   }
 
-  if(Node == tnDataFormat){
-    Show = frOptionDataFormat;
-  }else if(Node == tnBackUp){
-    Show = frOptionBackUp;
-  }else if(Node == tnLaunch){
-    Show = frOptionLaunch;
-  }else if(Node == tnBehavior){
-    Show = frOptionBehavior;
-  }else if(Node == tnView){
-    Show = frOptionView;
-  }else if(Node == tnColor){
-    Show = frOptionColor;
-  }else if(Node == tnFile){
-    Show = frOptionFile;
-  }
-  frOptionDataFormat->Visible = (Show == frOptionDataFormat);
-  frOptionBackUp->Visible = (Show == frOptionBackUp);
-  frOptionLaunch->Visible = (Show == frOptionLaunch);
-  frOptionBehavior->Visible = (Show == frOptionBehavior);
-  frOptionView->Visible = (Show == frOptionView);
-  frOptionColor->Visible = (Show == frOptionColor);
-  frOptionFile->Visible = (Show == frOptionFile);
+  frOptionDataFormat->Visible = (Node == tnDataFormat);
+  frOptionBackUp->Visible = (Node == tnBackUp);
+  frOptionLaunch->Visible = (Node == tnLaunch);
+  frOptionBehavior->Visible = (Node == tnBehavior);
+  frOptionView->Visible = (Node == tnView);
+  frOptionColor->Visible = (Node == tnColor);
+  frOptionFile->Visible = (Node == tnFile);
 
   lblHeader->Caption = Node->Text;
   lblHeader->Color = clBlack;
