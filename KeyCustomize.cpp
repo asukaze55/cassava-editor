@@ -274,8 +274,8 @@ void __fastcall TfmKey::btnOpenClick(TObject *Sender)
 //---------------------------------------------------------------------------
 bool TfmKey::SaveKey(String FileName)
 {
-  TStringList *File = new TStringList;
-  TStringList *OneRow = new TStringList;
+  std::unique_ptr<TStringList> File = std::make_unique<TStringList>();
+  std::unique_ptr<TStringList> OneRow = std::make_unique<TStringList>();
   File->Add("(Cassava-KeySetting)");
 
   for(int i=0; i<tvMenu->Items->Count; i++){
@@ -289,26 +289,28 @@ bool TfmKey::SaveKey(String FileName)
       File->Add(OneRow->CommaText);
     }
   }
-  try{
+  try {
     File->SaveToFile(FileName);
-  }catch(...){ delete File; delete OneRow; return false; }
+  } catch(...) {
+    return false;
+  }
 
-  delete File;
-  delete OneRow;
   return true;
 }
 //---------------------------------------------------------------------------
 bool TfmKey::LoadKey(String FileName)
 {
-  TStringList *File = new TStringList;
-  TStringList *OneRow = new TStringList;
-  try{
+  std::unique_ptr<TStringList> File = std::make_unique<TStringList>();
+  std::unique_ptr<TStringList> OneRow = std::make_unique<TStringList>();
+  try {
     File->LoadFromFile(FileName);
-  }catch(...){ delete File; delete OneRow; return false; }
+  } catch(...) {
+    return false;
+  }
 
   OneRow->CommaText = File->Strings[0];
   if(OneRow->Strings[0] != "(Cassava-KeySetting)"){
-    delete File; delete OneRow; return false;
+    return false;
   }
 
   for(int i=1; i<File->Count; i++){
@@ -328,8 +330,6 @@ bool TfmKey::LoadKey(String FileName)
     }
   }
 
-  delete File;
-  delete OneRow;
   return true;
 }
 //---------------------------------------------------------------------------

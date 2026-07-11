@@ -7,10 +7,9 @@
 class IniFile
 {
 private:
-  TIniFile *file;
+  std::unique_ptr<TIniFile> file;
 public:
-  IniFile(String fileName) : file(new TIniFile(fileName)) {}
-  ~IniFile() { delete file; }
+  IniFile(String fileName) : file(std::make_unique<TIniFile>(fileName)) {}
 
   bool ReadBool(const String section, const String key, bool def);
   double ReadFloat(const String section, const String key, double def);

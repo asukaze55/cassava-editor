@@ -392,7 +392,7 @@ void __fastcall TfmLetter::btnSaveClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void TfmLetter::DataSave(String FileName)
 {
-  IniFile *Ini = new IniFile(FileName);
+  std::unique_ptr<IniFile> Ini = std::make_unique<IniFile>(FileName);
   Ini->WriteString(L"差出人","Name",edMyName->Text);
   Ini->WriteString(L"差出人","Name2",edMyName2->Text);
   Ini->WriteString(L"差出人","Number",edMyNumber->Text);
@@ -440,8 +440,6 @@ void TfmLetter::DataSave(String FileName)
     Ini->WriteInteger(Section,"NameX",NameMiddle[i]);
     Ini->WriteInteger(Section,"NameSize",NameSize[i]);
   }
-
-  delete Ini;
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmLetter::btnReadClick(TObject *Sender)
@@ -456,7 +454,7 @@ void __fastcall TfmLetter::btnReadClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void TfmLetter::DataRead(String FileName)
 {
-  IniFile *Ini = new IniFile(FileName);
+  std::unique_ptr<IniFile> Ini = std::make_unique<IniFile>(FileName);
   edMyName->Text = Ini->ReadString(L"差出人","Name",edMyName->Text);
   edMyName2->Text = Ini->ReadString(L"差出人","Name2",edMyName->Text);
   edMyNumber->Text = Ini->ReadString(L"差出人","Number",edMyNumber->Text);
@@ -503,8 +501,6 @@ void TfmLetter::DataRead(String FileName)
     NameMiddle[i] = Ini->ReadInteger(Section,"NameX",NameMiddle[i]);
     NameSize[i] = Ini->ReadInteger(Section,"NameSize",NameSize[i]);
   }
-
-  delete Ini;
 }
 //---------------------------------------------------------------------------
 void TfmLetter::DataSetDefault()

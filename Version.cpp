@@ -63,7 +63,7 @@ private:
 //---------------------------------------------------------------------------
 void __fastcall UpdateCheckThread::Execute()
 {
-  TStringList *list = new TStringList();
+  std::unique_ptr<TStringList> list = std::make_unique<TStringList>();
   list->Text = HttpsGet("www.asukaze.net", 443,
                         "/soft/cassava/update.cgi?ver=" + Version::Current());
   if (list->Count < 6) {
@@ -79,7 +79,6 @@ void __fastcall UpdateCheckThread::Execute()
     newDate = list->Strings[4];
     newUrl = list->Strings[5];
   }
-  delete list;
   Synchronize(&MessageBox);
 }
 //---------------------------------------------------------------------------

@@ -71,14 +71,13 @@ void TfrOptionView::StoreToMainForm()
 //---------------------------------------------------------------------------
 void __fastcall TfrOptionView::btnFontClick(TObject *Sender)
 {
-  TFontDialog *dlgFont = new TFontDialog(this);
+  std::unique_ptr<TFontDialog> dlgFont = std::make_unique<TFontDialog>(nullptr);
   dlgFont->Font = stFont->Font;
   if(dlgFont->Execute()){
     stFont->Font = dlgFont->Font;
     stFont->Caption = stFont->Font->Name + " (" + stFont->Font->Size + ")";
     frOptionColor->cbFgColor->Selected = stFont->Font->Color;
   }
-  delete dlgFont;
 }
 //---------------------------------------------------------------------------
 

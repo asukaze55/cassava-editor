@@ -89,16 +89,11 @@ String TTypeOption::GetExtsStr(int From) const
 CsvReader::CsvReader(const TTypeOption* TypeOption, String FileName,
                      TEncoding *Encoding)
   : typeOption(TypeOption),
-    reader(new TStreamReader(FileName, Encoding, /* DetectBOM= */ true,
-                             /* BufferSize= */ 4096)),
+    reader(std::make_unique<TStreamReader>(
+        FileName, Encoding, /* DetectBOM= */ true, /* BufferSize= */ 4096)),
     data(""), last(1), pos(0), delimiterType(DELIMITER_TYPE_STRONG)
 {
   IncrementPos(false);
-}
-//---------------------------------------------------------------------------
-CsvReader::~CsvReader()
-{
-  delete reader;
 }
 //---------------------------------------------------------------------------
 void __fastcall CsvReader::IncrementPos(bool Quoted)
