@@ -37,7 +37,6 @@ __published:  // IDE 管理のコンポーネント
 private:  // ユーザー宣言
 public:   // ユーザー宣言
   __fastcall TfmOption(TComponent* Owner);
-  __fastcall ~TfmOption();
   TTreeNode *tnDataFormat;
   TTreeNode *tnFile;
   TTreeNode *tnBackUp;

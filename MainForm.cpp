@@ -217,7 +217,6 @@ void __fastcall TfmMain::ExecOpenMacro(System::TObject* Sender)
 //---------------------------------------------------------------------------
 __fastcall TfmMain::~TfmMain()
 {
-  delete MainGrid;
   delete History;
   delete Pref;
   if (LockingFile) { delete LockingFile; }

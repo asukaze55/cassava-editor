@@ -20,24 +20,13 @@ static int activeNodeIndex = 0;
 __fastcall TfmOption::TfmOption(TComponent* Owner)
 	: TForm(Owner)
 {
-  frOptionDataFormat = new TfrOptionDataFormat(Owner);
-  frOptionFile = new TfrOptionFile(Owner);
-  frOptionBackUp = new TfrOptionBackUp(Owner);
-  frOptionLaunch = new TfrOptionLaunch(Owner);
-  frOptionBehavior = new TfrOptionBehavior(Owner);
-  frOptionView = new TfrOptionView(Owner);
-  frOptionColor = new TfrOptionColor(Owner);
-}
-//---------------------------------------------------------------------------
-TfmOption::~TfmOption()
-{
-  delete frOptionDataFormat;
-  delete frOptionFile;
-  delete frOptionBackUp;
-  delete frOptionLaunch;
-  delete frOptionBehavior;
-  delete frOptionView;
-  delete frOptionColor;
+  frOptionDataFormat = new TfrOptionDataFormat(this);
+  frOptionFile = new TfrOptionFile(this);
+  frOptionBackUp = new TfrOptionBackUp(this);
+  frOptionLaunch = new TfrOptionLaunch(this);
+  frOptionBehavior = new TfrOptionBehavior(this);
+  frOptionView = new TfrOptionView(this);
+  frOptionColor = new TfrOptionColor(this);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmOption::FormShow(TObject *Sender)
