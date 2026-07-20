@@ -7,7 +7,6 @@
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TfmKey *fmKey;
 //---------------------------------------------------------------------------
 __fastcall TfmKey::TfmKey(TComponent* Owner)
         : TForm(Owner)

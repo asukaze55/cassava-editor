@@ -492,13 +492,12 @@ void TfmMain::ReadIni()
 
   delete Ini;
 
-  if(FileExists(Pref->Path + "AutoKey.csv"))
-  {
-    fmKey = new TfmKey(Application);
-      fmKey->MakeTree();
-      if(fmKey->LoadKey(Pref->Path + "AutoKey.csv"))
-        fmKey->MenuUpDate();
-    delete fmKey;
+  if (FileExists(Pref->Path + "AutoKey.csv")) {
+    std::unique_ptr<TfmKey> fmKey = std::make_unique<TfmKey>(nullptr);
+    fmKey->MakeTree();
+    if (fmKey->LoadKey(Pref->Path + "AutoKey.csv")) {
+      fmKey->MenuUpDate();
+    }
   }
 
   mnAppli0->Caption = (String)"&0: " + LaunchName[0];
@@ -1787,16 +1786,14 @@ void __fastcall TfmMain::mnOpenCellFileClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnPrintClick(TObject *Sender)
 {
-  fmPrint = new TfmPrint(Application);
-    fmPrint->ShowModal();
-  delete fmPrint;
+  std::unique_ptr<TfmPrint> fmPrint = std::make_unique<TfmPrint>(nullptr);
+  fmPrint->ShowModal();
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnLetterPrintClick(TObject *Sender)
 {
-  fmLetter = new TfmLetter(Application);
-    fmLetter->ShowModal();
-  delete fmLetter;
+  std::unique_ptr<TfmLetter> fmLetter = std::make_unique<TfmLetter>(nullptr);
+  fmLetter->ShowModal();
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnEndClick(TObject *Sender)
@@ -2893,9 +2890,8 @@ void __fastcall TfmMain::sbSortClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnKeyClick(TObject *Sender)
 {
-  fmKey = new TfmKey(Application);
-    fmKey->ShowModal();
-  delete fmKey;
+  std::unique_ptr<TfmKey> fmKey = std::make_unique<TfmKey>(nullptr);
+  fmKey->ShowModal();
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnCharCodeClick(TObject *Sender)

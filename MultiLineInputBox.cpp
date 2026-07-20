@@ -6,7 +6,6 @@
 #include "MultiLineInputBox.h"
 //---------------------------------------------------------------------
 #pragma resource "*.dfm"
-TfmMultiLineInputBox *fmMultiLineInputBox;
 //--------------------------------------------------------------------- 
 __fastcall TfmMultiLineInputBox::TfmMultiLineInputBox(TComponent* AOwner)
   : TForm(AOwner)

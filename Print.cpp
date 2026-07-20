@@ -9,7 +9,6 @@
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TfmPrint *fmPrint;
 //---------------------------------------------------------------------------
 __fastcall TfmPrint::TfmPrint(TComponent* Owner)
         : TForm(Owner)

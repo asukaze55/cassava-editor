@@ -22,8 +22,6 @@ public:
   virtual __fastcall TfmMultiLineInputBox(TComponent* AOwner);
 };
 //----------------------------------------------------------------------------
-extern PACKAGE TfmMultiLineInputBox *fmMultiLineInputBox;
-//----------------------------------------------------------------------------
 bool InputBoxMultiLine(
     const String ACaption, const String APrompt, String& AValue);
 //----------------------------------------------------------------------------
