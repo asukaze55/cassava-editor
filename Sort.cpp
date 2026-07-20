@@ -7,7 +7,6 @@
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TfmSort *fmSort;
 //---------------------------------------------------------------------------
 __fastcall TfmSort::TfmSort(TComponent* Owner)
     : TForm(Owner)

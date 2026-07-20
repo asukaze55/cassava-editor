@@ -2858,6 +2858,9 @@ void __fastcall TfmMain::mnSortClick(TObject *Sender)
     sortcol = MainGrid->Col;
   }
 
+  if (!fmSort) {
+    fmSort = new TfmSort(this);
+  }
   fmSort->udSortLeft->Position   = R.Left;
   fmSort->udSortTop->Position    = R.Top;
   fmSort->udSortRight->Position  = R.Right;
@@ -2871,6 +2874,9 @@ void __fastcall TfmMain::mnSortClick(TObject *Sender)
 void __fastcall TfmMain::mnpSortClick(TObject *Sender)
 {
   int sortcol = MainGrid->Selection.Left;
+  if (!fmSort) {
+    fmSort = new TfmSort(this);
+  }
   fmSort->udSortLeft->Position   = MainGrid->DataLeft;
   fmSort->udSortTop->Position    = MainGrid->DataTop;
   fmSort->udSortRight->Position  = MainGrid->DataRight;

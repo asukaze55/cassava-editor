@@ -25,6 +25,7 @@
 #include "EncodingDetector.h"
 #include "MainGrid.h"
 #include "Preference.h"
+#include "Sort.h"
 #include "TypeList.h"
 //---------------------------------------------------------------------------
 class TfmMain : public TForm
@@ -348,6 +349,7 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall acFixFirstColUpdate(TObject *Sender);
 
 private:    // ユーザー宣言
+  TfmSort *fmSort = nullptr;
   bool StartupMacroDone;
   void ExecStartupMacro();
   void __fastcall ExecOpenMacro(System::TObject* Sender);
