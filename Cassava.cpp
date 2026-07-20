@@ -31,7 +31,6 @@ int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
     Application->DefaultFont->Name = "Yu Gothic UI";
     Application->CreateForm(__classid(TfmMain), &fmMain);
     Application->CreateForm(__classid(TfmSort), &fmSort);
-    Application->CreateForm(__classid(TfmPasteDialog), &fmPasteDialog);
     FSetExceptMask(femALLEXCEPT);
     Application->Run();
   }

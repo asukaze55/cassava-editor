@@ -1477,18 +1477,17 @@ void TMainGrid::PasteFromClipboard(int Way, const TTypeOption *Format)
                ClipColCount == SelectColCount) {
       Way = EditorMode ? PASTE_OPTION_EDITOR : PASTE_OPTION_OVERWRITE;
     } else {
-      TfmPasteDialog *PstDlg = new TfmPasteDialog(Application);
+      std::unique_ptr<TfmPasteDialog> PstDlg =
+          std::make_unique<TfmPasteDialog>(nullptr);
       PstDlg->Way->ItemIndex = DefWay;
       PstDlg->lbMessage->Caption =
           (String)L"選択サイズ： " + SelectColCount + L" × " + SelectRowCount +
           L"　クリップボードサイズ： " + ClipColCount + L" × " + ClipRowCount;
       if (PstDlg->ShowModal() != IDOK) {
-        delete PstDlg;
         delete Data;
         return;
       }
       Way = DefWay = PstDlg->Way->ItemIndex;
-      delete PstDlg;
     }
   }
 
