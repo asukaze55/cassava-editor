@@ -66,18 +66,8 @@ __fastcall TMainGrid::TMainGrid(TComponent* Owner)  //デフォルトの設定
   ExecCellMacro = false;
   FDataRight = 1;
   FDataBottom = 1;
-  EOFMarker = new TObject();
-  EOLMarker = new TObject();
   FileOpenThread = nullptr;
   DefaultDrawing = false;
-  LastMatch = new TStringList();
-  FUndoList = new TUndoList();
-}
-//---------------------------------------------------------------------------
-__fastcall TMainGrid::~TMainGrid(){
-  UndoList->Clear();
-  if (EOFMarker) { delete EOFMarker; }
-  if (EOLMarker) { delete EOLMarker; }
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainGrid::ShowEditor()
@@ -1002,11 +992,11 @@ void TMainGrid::LoadFromFile(String FileName, TEncoding *encoding,
     bool isDetectedEncoding, const TTypeOption *Format,
     TNotifyEvent OnTerminate)
 {
-  TFileStream *File = new TFileStream(FileName, fmOpenRead|fmShareDenyNone);
+  std::unique_ptr<TFileStream> File =
+      std::make_unique<TFileStream>(FileName, fmOpenRead|fmShareDenyNone);
   int bufLength = min(File->Size, 1024);
   Clear();
   if (bufLength == 0) {
-    delete File;
     Modified = false;
     OnTerminate(this);
     return;
@@ -1015,13 +1005,11 @@ void TMainGrid::LoadFromFile(String FileName, TEncoding *encoding,
   byteBuffer.Length = bufLength;
   bufLength = File->Read(&(byteBuffer[0]), bufLength);
   byteBuffer.Length = bufLength;
-  delete File;
-
+ 
   DynamicArray<wchar_t> charBuffer;
   charBuffer.Length = bufLength;
-  TStreamReader *reader =
-      new TStreamReader(FileName, encoding, /* DetectBOM= */ true,
-                        /* BufferSize= */ 4096);
+  std::unique_ptr<TStreamReader> reader = std::make_unique<TStreamReader>(
+      FileName, encoding, /* DetectBOM= */ true, /* BufferSize= */ 4096);
   try {
     Encoding = encoding;
     int readCount = reader->ReadBlock(charBuffer, 0, bufLength);
@@ -1037,7 +1025,6 @@ void TMainGrid::LoadFromFile(String FileName, TEncoding *encoding,
     charBuffer = TEncoding::Default->GetChars(byteBuffer);
     AddBom = false;
   }
-  delete reader;
 
   TypeOption = Format;
   Cursor = crAppStart;
@@ -1072,10 +1059,9 @@ void __fastcall TMainGrid::FileOpenThreadTerminate(System::TObject* Sender)
 //---------------------------------------------------------------------------
 static String GetClipboardText()
 {
-  TClipboard *clip = new TClipboard;
+  std::unique_ptr<TClipboard> clip = std::make_unique<TClipboard>();
   if (!clip->HasFormat(CF_TEXT)) {
     clip->Close();
-    delete clip;
     return "";
   }
   String clipboardText;
@@ -1086,14 +1072,12 @@ static String GetClipboardText()
     } catch (...) {
       if (i >= 10) {
         clip->Close();
-        delete clip;
         throw;
       }
       Sleep(200);
     }
   }
   clip->Close();
-  delete clip;
   return clipboardText;
 }
 //---------------------------------------------------------------------------
@@ -1175,14 +1159,13 @@ void TMainGrid::PasteCSV(const std::vector<std::vector<String>>& Row, int Left,
 void TMainGrid::SaveToFile(String FileName, const TTypeOption *Format,
     bool SetModifiedFalse)
 {
-  TFileStream *fs = new TFileStream(FileName, fmCreate | fmShareDenyWrite);
-  EncodedWriter *ew = new EncodedWriter(fs, Encoding, AddBom);
+  std::unique_ptr<TFileStream> fileStream =
+      std::make_unique<TFileStream>(FileName, fmCreate | fmShareDenyWrite);
+  EncodedWriter encodedWriter(fileStream.get(), Encoding, AddBom);
 
-  WriteGrid(ew, Format);
+  WriteGrid(encodedWriter, Format);
 
-  delete ew;
-  delete fs;
-  if(SetModifiedFalse){
+  if (SetModifiedFalse) {
     Modified = false;
   }
 }
@@ -1199,14 +1182,14 @@ static inline void MaybeCompileQuoteScript(const TTypeOption *Format,
   }
 }
 //---------------------------------------------------------------------------
-void TMainGrid::WriteGrid(EncodedWriter *Writer, const TTypeOption *Format)
+void TMainGrid::WriteGrid(EncodedWriter &Writer, const TTypeOption *Format)
 {
   if (Format == nullptr) { Format = TypeOption; }
 
   TMacroContext macroContext;
   MaybeCompileQuoteScript(Format, &macroContext);
 
-  TStringList* Data = new TStringList;
+  std::unique_ptr<TStringList> Data = std::make_unique<TStringList>();
   for (int y = DataTop; y <= DataBottom; y++) {
     Data->Assign(Rows[y]);
 
@@ -1223,10 +1206,9 @@ void TMainGrid::WriteGrid(EncodedWriter *Writer, const TTypeOption *Format)
     if (ShowRowCounter) {
       Data->Delete(0);   // カウンタセルの削除
     }
-    Writer->Write(StringsToCSV(Data, Format, macroContext, 1, RYtoAY(y)) +
+    Writer.Write(StringsToCSV(Data.get(), Format, macroContext, 1, RYtoAY(y)) +
         ReturnCodeString(ReturnCode));
   }
-  delete Data;
 }
 //---------------------------------------------------------------------------
 String TMainGrid::StringsToCSV(TStrings* Data, const TTypeOption *Format,
@@ -1279,7 +1261,7 @@ String TMainGrid::StringsToCSV(TStrings* Data, const TTypeOption *Format,
 }
 //---------------------------------------------------------------------------
 static void SetClipboard(String text) {
-  TClipboard *clip = new TClipboard;
+  std::unique_ptr<TClipboard> clip = std::make_unique<TClipboard>();
   for (int i = 0;; i++) {
     try {
       clip->AsText = text;
@@ -1287,14 +1269,12 @@ static void SetClipboard(String text) {
     } catch (...) {
       if (i >= 10) {
         clip->Close();
-        delete clip;
         throw;
       }
       Sleep(200);
     }
   }
   clip->Close();
-  delete clip;
 }
 //---------------------------------------------------------------------------
 void TMainGrid::CopyToClipboard(const TTypeOption *Format, bool Cut)
@@ -1321,8 +1301,8 @@ void TMainGrid::CopyToClipboard(const TTypeOption *Format, bool Cut)
   TMacroContext macroContext;
   MaybeCompileQuoteScript(format, &macroContext);
 
-  TStringList *Data = new TStringList;
-  TStringList *OneLine = new TStringList;
+  std::unique_ptr<TStringList> Data = std::make_unique<TStringList>();
+  std::unique_ptr<TStringList> OneLine = std::make_unique<TStringList>();
   for (int y = STop; y <= SBottom; y++) {
     OneLine->Clear();
     for (int x = SLeft; x <= SRight; x++) {
@@ -1331,14 +1311,12 @@ void TMainGrid::CopyToClipboard(const TTypeOption *Format, bool Cut)
         SetCell(x, y, "");
       }
     }
-    Data->Add(
-        StringsToCSV(OneLine, format, macroContext, RXtoAX(SLeft), RYtoAY(y)));
+    Data->Add(StringsToCSV(
+        OneLine.get(), format, macroContext, RXtoAX(SLeft), RYtoAY(y)));
   }
-  delete OneLine;
   String Txt = Data->Text;
   Txt.SetLength(Txt.Length()-2);
   SetClipboard(Txt);
-  delete Data;
 
   String select = (String)"Select(" + RXtoAX(SLeft) + ", " + RYtoAY(STop) +
       ", " + RXtoAX(SRight) + ", " + RYtoAY(SBottom) + ");\n";
@@ -2290,7 +2268,7 @@ void TMainGrid::InsertCells_Right(long Left, long Right, long Top, long Bottom)
     InsertColumn(DataRight + 1, DataRight + colsToAdd);
   }
 
-  TStringList *Temp = new TStringList;
+  std::unique_ptr<TStringList> Temp = std::make_unique<TStringList>();
   int iEnd = min(Bottom, DataBottom);
   for (int i = Top; i <= iEnd; i++) {
     Temp->Assign(Rows[i]);
@@ -2298,9 +2276,8 @@ void TMainGrid::InsertCells_Right(long Left, long Right, long Top, long Bottom)
       Temp->Insert(Left, "");
       Temp->Delete(Temp->Count-1);
     }
-    Rows[i]->Assign(Temp);
+    Rows[i]->Assign(Temp.get());
   }
-  delete Temp;
   SetSelection(Left, Right, Top, Bottom);
 
   String select = (String)"Select(" + RXtoAX(Left) + ", " + RYtoAY(Top) + ", "
@@ -2335,7 +2312,7 @@ void TMainGrid::InsertCells_Down(long Left, long Right, long Top, long Bottom)
     InsertRow(DataBottom + 1, DataBottom + rowsToAdd);
   }
 
-  TStringList *Temp = new TStringList;
+  std::unique_ptr<TStringList> Temp = std::make_unique<TStringList>();
   int iEnd = min(Right, DataRight);
   for (int i = Left; i <= iEnd; i++) {
     Temp->Assign(Cols[i]);
@@ -2343,9 +2320,8 @@ void TMainGrid::InsertCells_Down(long Left, long Right, long Top, long Bottom)
       Temp->Insert(Top, "");
       Temp->Delete(Temp->Count-1);
     }
-    Cols[i]->Assign(Temp);
+    Cols[i]->Assign(Temp.get());
   }
-  delete Temp;
   SetSelection(Left, Right, Top, Bottom);
 
   String select = (String)"Select(" + RXtoAX(Left) + ", " + RYtoAY(Top) + ", "
@@ -2358,7 +2334,7 @@ void TMainGrid::DeleteCells_Left(long Left, long Right, long Top, long Bottom,
         bool UpdateWidth)
 {
   UndoList->Push();
-  TStringList *Temp = new TStringList;
+  std::unique_ptr<TStringList> Temp = std::make_unique<TStringList>();
   for (int i = Top; i <= min(Bottom, RowCount - 1); i++) {
     Temp->Assign(Rows[i]);
     for (int j = Left; j <= min(Right, Temp->Count - 1); j++) {
@@ -2367,9 +2343,8 @@ void TMainGrid::DeleteCells_Left(long Left, long Right, long Top, long Bottom,
       UndoList->ChangeCell(RXtoAX(j), RYtoAY(i), Cells[j][i], "",
                            RXtoAX(DataRight), RYtoAY(DataBottom));
     }
-    Rows[i]->Assign(Temp);
+    Rows[i]->Assign(Temp.get());
   }
-  delete Temp;
   if (UpdateWidth) {
     int delta = Right - Left + 1;
     for (int j = Left; j<ColCount - delta; j++) {
@@ -2386,7 +2361,7 @@ void TMainGrid::DeleteCells_Up(long Left, long Right, long Top, long Bottom,
         bool UpdateHeight)
 {
   UndoList->Push();
-  TStringList *Temp = new TStringList;
+  std::unique_ptr<TStringList> Temp = std::make_unique<TStringList>();
   for (int i = Left; i <= min(Right, ColCount - 1); i++) {
     Temp->Assign(Cols[i]);
     for (int j = Top; j <= min(Bottom, Temp->Count - 1) ; j++) {
@@ -2395,9 +2370,8 @@ void TMainGrid::DeleteCells_Up(long Left, long Right, long Top, long Bottom,
       UndoList->ChangeCell(RXtoAX(i), RYtoAY(j), Cells[i][j], "",
                            RXtoAX(DataRight), RYtoAY(DataBottom));
     }
-    Cols[i]->Assign(Temp);
+    Cols[i]->Assign(Temp.get());
   }
-  delete Temp;
   if (UpdateHeight) {
     int delta = Bottom - Top + 1;
     for (int j = Top; j < RowCount - delta; j++) {
@@ -2860,18 +2834,20 @@ inline static String StripCr(String str) {
   return StringReplace(str, "\r\n", "\n", TReplaceFlags() << rfReplaceAll);
 }
 //---------------------------------------------------------------------------
-static void UpdateMatch(const boost::wcmatch& From, TStrings *To, bool AddsCr)
+static void UpdateMatch(const boost::wcmatch& From, std::vector<String>& To,
+    bool AddsCr)
 {
-  To->Clear();
+  To.clear();
+  To.reserve(From.size());
   for (size_t i = 0; i < From.size(); i++) {
     String str = From[i].str().c_str();
-    To->Add(AddsCr ? AddCr(str) : str);
+    To.push_back(AddsCr ? AddCr(str) : str);
   }
 }
 //---------------------------------------------------------------------------
 static int FindHit(String CellText, String FindText, bool Case, bool Regex,
     bool Word, bool Back, boost::match_flag_type Flags, int *Length,
-    TStrings *LastMatch)
+    std::vector<String>& LastMatch)
 {
   if (!Regex) {
     *Length = FindText.Length();
@@ -2925,7 +2901,7 @@ static int FindHit(String CellText, String FindText, bool Case, bool Regex,
     }
   }
   if (next > withoutCr.c_str()) {
-    *Length = LastMatch->Strings[0].Length();
+    *Length = LastMatch[0].Length();
     return AddCr(withoutCr.SubString(1, next - withoutCr.c_str() - 1)).Length()
         + 1;
   }
@@ -2958,7 +2934,7 @@ static bool FindHit(String CellText, int x, int y)
   }
   bool found;
   int length;
-  TStrings *lastMatch = new TStringList();
+  std::vector<String> lastMatch;
   try {
     found = FindHit(CellText, findText, fmFind->Case(), fmFind->Regex(),
         fmFind->Word(), /* Back= */ false, boost::match_not_null, &length,
@@ -2966,7 +2942,6 @@ static bool FindHit(String CellText, int x, int y)
   } catch (...) {
     found = false;
   }
-  delete lastMatch;
   return found;
 }
 //---------------------------------------------------------------------------
@@ -2981,7 +2956,7 @@ void ShowRegexErrorMessage(const boost::regex_error& e) {
 bool TMainGrid::Find(String FindText, TGridRect Range, bool Case, bool Regex,
                      bool Word, bool Back)
 {
-  LastMatch->Clear();
+  LastMatch.clear();
 
   if (FindText == "") {
     return false;
@@ -3096,7 +3071,7 @@ bool TMainGrid::Find(String FindText, TGridRect Range, bool Case, bool Regex,
 }
 //---------------------------------------------------------------------------
 static String GetStringForReplace(
-    String ReplaceText, bool Regex, TStrings *Match) {
+    String ReplaceText, bool Regex, const std::vector<String>& Match) {
   if (!Regex) {
     return ReplaceText;
   }
@@ -3104,9 +3079,9 @@ static String GetStringForReplace(
     TCHAR nextChar = ReplaceText[i + 1];
     if (ReplaceText[i] == '$' && nextChar >= '0' && nextChar <= '9') {
       int group = nextChar - '0';
-      if (Match->Count > group) {
+      if (Match.size() > group) {
         ReplaceText.Delete(i, 2);
-        String str = Match->Strings[group];
+        String str = Match[group];
         ReplaceText.Insert(str, i);
         i += str.Length() - 1;
       }
@@ -3136,7 +3111,7 @@ bool TMainGrid::Replace(String FindText , String ReplaceText, TGridRect Range,
       ipEd->SelectAll();
     }
     if (Regex) {
-      if (LastMatch->Count > 0 && ipEd->SelText == LastMatch->Strings[0]) {
+      if (LastMatch.size() > 0 && ipEd->SelText == LastMatch[0]) {
         ipEd->SelText = GetStringForReplace(ReplaceText, Regex, LastMatch);
       }
     } else {

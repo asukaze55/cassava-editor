@@ -82,8 +82,10 @@ private:
     int GetDataLeft(){ return (ShowRowCounter ? 1 : 0); }
     int GetDataTop() { return (ShowColCounter ? 1 : 0); }
     int FDataRight, FDataBottom;
-    TObject *EOFMarker;
-    TObject *EOLMarker;
+    std::unique_ptr<TObject> FEOFMarker = std::make_unique<TObject>();
+    TObject *EOFMarker = FEOFMarker.get();
+    std::unique_ptr<TObject> FEOLMarker = std::make_unique<TObject>();
+    TObject *EOLMarker = FEOLMarker.get();
     void UpdateDataRight();
     void UpdateDataBottom();
     void UpdateDataRightBottom(int modx, int mody);
@@ -110,8 +112,6 @@ private:
     void ClearCalcCache();
     void ErrorCalcLoop();
 
-    TUndoList *FUndoList;
-
     TDropCsvFiles FOnDropFiles;
 
     int TextWidth(TCanvas *cnvs, String str);
@@ -119,14 +119,14 @@ private:
 
     TNotifyEvent OnFileOpenThreadTerminate;
 
-    TStrings *LastMatch;
+    std::vector<String> LastMatch;
 
 protected:
     void PasteCSV(const std::vector<std::vector<String>>& Row, int Left,
         int Top, int Way, int ClipCols, int ClipRows);
     String StringsToCSV(TStrings* Data, const TTypeOption *Format,
         const TMacroContext &MacroContext, int X, int Y);
-    void WriteGrid(EncodedWriter *Writer, const TTypeOption *Format);
+    void WriteGrid(EncodedWriter &Writer, const TTypeOption *Format);
 
     virtual bool __fastcall SelectCell(int ACol, int ARow);
     DYNAMIC void __fastcall MouseDown(Controls::TMouseButton Button,
@@ -189,7 +189,6 @@ public:
       = {read=GetACells, write=SetACells};
 
     __fastcall TMainGrid(TComponent* Owner);
-    __fastcall ~TMainGrid();
 
     void SetDragAcceptFiles(bool Accept);
     void Clear(int AColCount=4, int ARowCount=4, bool UpdateRightBottom=false);
@@ -354,14 +353,11 @@ public:
     __property bool ShowColCounter
                  = {read=FShowColCounter, write=SetShowColCounter};
 
-    __property TUndoList *UndoList = {read=FUndoList};
-    void SetUndoCsv(bool inRedo=false);
+    std::unique_ptr<TUndoList> UndoList = std::make_unique<TUndoList>();
     bool CanUndo() {
       return UndoList->CanUndo();
     }
     void Undo();
-
-    void SetRedoCsv();
     bool CanRedo(){
       return UndoList->CanRedo();
     }
