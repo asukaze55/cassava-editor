@@ -51,7 +51,7 @@ class CsvReader
 {
 private:
   const TTypeOption *typeOption;
-  std::unique_ptr<TStreamReader> reader;
+  std::unique_ptr<TTextReader> reader;
   String data;
   int last;
   int pos;
@@ -60,6 +60,7 @@ private:
 public:
   CsvReader(const TTypeOption* TypeOption, String FileName,
       TEncoding *Encoding);
+  CsvReader(const TTypeOption* TypeOption, String CsvText);
   CsvReaderState GetNextType();
   String Next();
   bool ReadLine(std::vector<String>& row);

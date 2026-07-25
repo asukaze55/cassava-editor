@@ -96,6 +96,14 @@ CsvReader::CsvReader(const TTypeOption* TypeOption, String FileName,
   IncrementPos(false);
 }
 //---------------------------------------------------------------------------
+CsvReader::CsvReader(const TTypeOption* TypeOption, String CsvText)
+  : typeOption(TypeOption),
+    reader(std::make_unique<TStringReader>(CsvText)),
+    data(""), last(1), pos(0), delimiterType(DELIMITER_TYPE_STRONG)
+{
+  IncrementPos(false);
+}
+//---------------------------------------------------------------------------
 void __fastcall CsvReader::IncrementPos(bool Quoted)
 {
   pos++;

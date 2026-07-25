@@ -122,8 +122,8 @@ private:
     TStrings *LastMatch;
 
 protected:
-    void PasteCSV(TStrings *List, int Left, int Top, int Way, int ClipCols,
-        int ClipRows, const TTypeOption *Format);
+    void PasteCSV(const std::vector<std::vector<String>>& Row, int Left,
+        int Top, int Way, int ClipCols, int ClipRows);
     String StringsToCSV(TStrings* Data, const TTypeOption *Format,
         const TMacroContext &MacroContext, int X, int Y);
     void WriteGrid(EncodedWriter *Writer, const TTypeOption *Format);
@@ -213,9 +213,6 @@ public:
 #define PASTE_OPTION_INSERT_ROW 11
 #define PASTE_OPTION_INSERT_COL 12
     void PasteFromClipboard(int Way, const TTypeOption *Format = nullptr);
-    void SetCsv(TStringList *Dest, String Src, const TTypeOption *Format);
-    void QuotedDataToStrings(TStrings *Lines, String Text,
-        const TTypeOption *Format);
     const TTypeOption *TypeOption;
     int PasteOption;
     int DefWay;
