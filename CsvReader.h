@@ -62,7 +62,7 @@ public:
       TEncoding *Encoding);
   CsvReaderState GetNextType();
   String Next();
-  bool ReadLine(TStringList *);
+  bool ReadLine(std::vector<String>& row);
 };
 //---------------------------------------------------------------------------
 #endif

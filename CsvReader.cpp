@@ -221,15 +221,15 @@ String CsvReader::Next()
   return L"";
 }
 //---------------------------------------------------------------------------
-bool CsvReader::ReadLine(TStringList *List)
+bool CsvReader::ReadLine(std::vector<String>& row)
 {
-  List->Clear();
-  if(GetNextType() == NEXT_TYPE_END_OF_FILE){
+  row.clear();
+  if (GetNextType() == NEXT_TYPE_END_OF_FILE) {
     return false;
   }
-  do{
-    List->Add(Next());
-  }while(GetNextType() == NEXT_TYPE_HAS_MORE_CELL);
+  do {
+    row.push_back(Next());
+  } while (GetNextType() == NEXT_TYPE_HAS_MORE_CELL);
   return true;
 }
 //---------------------------------------------------------------------------

@@ -859,23 +859,20 @@ void TfmMain::ReadToolBar()
   TTypeOption typeOption("CSV");
   CsvReader reader(
       &typeOption, toolbarcsv, EncodingDetector.Detect(toolbarcsv));
-  TStringList *list = new TStringList();
-  reader.ReadLine(list);
-  if (list->Count == 0 || list->Strings[0] != "(Cassava-ToolBarSetting)") {
-    delete list;
+  std::vector<String> row;
+  reader.ReadLine(row);
+  if (row.size() == 0 || row[0] != "(Cassava-ToolBarSetting)") {
     return;
   }
   TToolBar *toolBar = nullptr;
   int width = 0;
   int tbarTop = 0;
   int tbarLeft = 0;
-  while (reader.ReadLine(list)) {
-    while (list->Count < 3) {
-      list->Add("");
-    }
-    String str0 = list->Strings[0];
-    String name = list->Strings[1];
-    String action = list->Strings[2];
+  while (reader.ReadLine(row)) {
+    row.resize(3);
+    String str0 = row[0];
+    String name = row[1];
+    String action = row[2];
 
     if (str0 != "" && str0[1] == '=') {
       tbarTop += CoolBar->RowSize;
@@ -899,7 +896,6 @@ void TfmMain::ReadToolBar()
   if (toolBar) {
     toolBar->Width = width;
   }
-  delete list;
   CoolBar->Visible = visible;
 }
 //---------------------------------------------------------------------------
