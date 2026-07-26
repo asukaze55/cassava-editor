@@ -381,12 +381,6 @@ CMCElement TTokenizer::GetNext(size_t index){
   return elements.at(index);
 }
 //---------------------------------------------------------------------------
-inline TStringList *newTStringList() {
-  TStringList *list = new TStringList();
-  list->CaseSensitive = true;
-  return list;
-}
-//---------------------------------------------------------------------------
 enum FunctionType { FUNCTION, METHOD, LAMBDA };
 //---------------------------------------------------------------------------
 class TCompiler {
@@ -397,10 +391,10 @@ private:
   String InName;
   std::map<String, String> ImportedFunctions;
   TMacroContext *Context;
-  TStringList *Variables;
-  TStringList *Constants;
-  TStringList *CapturableVariables;
-  TStringList *CapturedVariables;
+  std::set<String> Variables;
+  std::set<String> Constants;
+  std::set<String> CapturableVariables;
+  std::set<String> CapturedVariables;
   std::vector<__int64> *Breaks;
   std::vector<__int64> *Continues;
   int DummyIdentifier;
@@ -433,18 +427,17 @@ private:
 
   bool IsKnownVariable(const CMCElement& e) const {
     return e.type == tpVar
-        && (e.isSystemVar() || Variables->IndexOf(e.str) >= 0 ||
-            CapturableVariables->IndexOf(e.str) >= 0);
+        && (e.isSystemVar() || Variables.count(e.str) > 0 ||
+            CapturableVariables.count(e.str) > 0);
   }
 
 public:
-  TStringList *import;
+  std::vector<String> import;
 
   bool Compile(String source, String filePath, String libName,
                bool showMessage);
   TCompiler(TMacroContext *context) : Context(context), Breaks(nullptr),
-      Continues(nullptr), DummyIdentifier(0), import(newTStringList()) {}
-  ~TCompiler() { delete import; }
+      Continues(nullptr), DummyIdentifier(0) {}
 };
 //---------------------------------------------------------------------------
 void TCompiler::GetIf()
@@ -515,7 +508,7 @@ void TCompiler::GetFor()
       && lex->GetNext(1).type == tpVar && lex->GetNext(1).str == "of") {
     CMCElement var = lex->Get();
     if (!IsKnownVariable(var)) {
-      Variables->Add(var.str);
+      Variables.insert(var.str);
     }
     lex->Get(); // of
 
@@ -551,7 +544,7 @@ void TCompiler::GetFor()
 
     OutputInteger(nextPosition);
     Output(CMO_Goto, tpOpe);
-    Variables->Delete(Variables->IndexOf(var.str));
+    Variables.erase(var.str);
   } else {
     GetValues(';'); // Initialization
     int nextPosition = fout->Position;
@@ -586,7 +579,7 @@ void TCompiler::GetLegacyFor()
   lex->Get(); // '('
   CMCElement var  = lex->Get(); // 変数
   if (!IsKnownVariable(var)) {
-    Variables->Add(var.str);
+    Variables.insert(var.str);
   }
   lex->Get(); // "To"
 
@@ -615,8 +608,8 @@ constexpr char LAMBDA_EOS = 'L';
 String TCompiler::GetFunction(FunctionType functionType, String paramName)
 {
   TStream *orgFOut = fout;
-  TStringList* orgVariables = Variables;
-  TStringList* orgConstants = Constants;
+  std::set<String> orgVariables = std::move(Variables);
+  std::set<String> orgConstants = std::move(Constants);
 
   String functionName;
   if (functionType == LAMBDA) {
@@ -632,20 +625,20 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
     }
   }
 
-  Variables = newTStringList();
-  Constants = newTStringList();
+  Variables.clear();
+  Constants.clear();
   if (functionType == METHOD) {
-    Variables->Add("this");
-    Constants->Add("this");
+    Variables.insert("this");
+    Constants.insert("this");
   }
 
-  TStringList *parameters = newTStringList();
+  std::vector<String> parameters;
   int minArgs = 0;
   bool varArg = false;
   fout = new TMemoryStream();
   if (paramName != "") {
-    Variables->Add(paramName);
-    parameters->Add(paramName);
+    Variables.insert(paramName);
+    parameters.push_back(paramName);
     minArgs = 1;
   } else if (lex->GetNext().str == ")") {
     lex->Get();
@@ -659,21 +652,21 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
       if (e.type != tpVar) {
         throw CMCException(L"引数名が不正です：" + e.str);
       }
-      if (e.isSystemVar() || Variables->IndexOf(e.str) >= 0) {
+      if (e.isSystemVar() || Variables.count(e.str) > 0) {
         throw CMCException(L"引数名がすでに使用されています：" + e.str);
       }
-      Variables->Add(e.str);
-      parameters->Add(e.str);
+      Variables.insert(e.str);
+      parameters.push_back(e.str);
       e = lex->Get();
       if (e.str == '=') {
-        OutputInteger(parameters->Count);
+        OutputInteger(parameters.size());
         int placeholder = OutputPositionPlaceholder();
         Output(CMO_DefParam, tpOpe);
         GetSentence(LAMBDA_EOS, /* allowBlock= */ false);
         FillPositionPlaceholder(placeholder);
         e = lex->Get();
       } else if (!varArg) {
-        minArgs = parameters->Count;
+        minArgs = parameters.size();
       }
       if (e.str == ')') {
         break;
@@ -685,15 +678,15 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
     }
   }
   if (varArg) {
-    OutputInteger(parameters->Count - 1);
+    OutputInteger(parameters.size() - 1);
     Output(CMO_VarArg, tpOpe);
   }
-  for (int i = 0; i < parameters->Count; i++) {
-    Output(parameters->Strings[i], tpVar);
+  for (int i = 0; i < parameters.size(); i++) {
+    Output(parameters[i], tpVar);
   }
   bool funcEqual = false;
   String outName = GetMacroModuleName(
-      InName, functionName, minArgs, varArg || minArgs < parameters->Count);
+      InName, functionName, minArgs, varArg || minArgs < parameters.size());
   if (functionType == LAMBDA) {
     CMCElement arrow = lex->Get();
     if (arrow.str != "=>") {
@@ -704,11 +697,9 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
     }
   } else if (lex->GetNext().str == ";") {
     delete fout;
-    delete Variables;
-    delete Constants;
     fout = orgFOut;
-    Variables = orgVariables;
-    Constants = orgConstants;
+    Variables = std::move(orgVariables);
+    Constants = std::move(orgConstants);
     return outName;
   } else if (lex->GetNext().str == "=") {
     lex->Get();
@@ -716,15 +707,15 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
   }
 
   Context->Modules[outName] = fout;
-  wchar_t H = parameters->Count * 2;
+  wchar_t H = parameters.size() * 2;
   Output((String)H + "func=", tpFunc);
 
   if (functionType != LAMBDA) {
     // Ok to use these pre-defined variables.
-    Variables->Add("x");
-    Variables->Add("y");
-    Variables->Add("Left");
-    Variables->Add("Top");
+    Variables.insert("x");
+    Variables.insert("y");
+    Variables.insert("Left");
+    Variables.insert("Top");
   }
 
   if(funcEqual){
@@ -733,11 +724,9 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
     GetSentence(';');     // 関数本体
   }
 
-  delete Variables;
-  delete Constants;
   fout = orgFOut;
-  Variables = orgVariables;
-  Constants = orgConstants;
+  Variables = std::move(orgVariables);
+  Constants = std::move(orgConstants);
   return outName;
 }
 //---------------------------------------------------------------------------
@@ -757,15 +746,13 @@ void TCompiler::GetReturn(char EOS)
 //---------------------------------------------------------------------------
 void TCompiler::GetLambda(String paramName)
 {
-  TStringList* orgCapturableVariables = CapturableVariables;
-  TStringList* orgCapturedVariables = CapturedVariables;
-  CapturableVariables = newTStringList();
-  CapturableVariables->AddStrings(orgCapturableVariables);
-  CapturableVariables->AddStrings(Variables);
-  CapturedVariables = newTStringList();
+  std::set<String> orgCapturableVariables = CapturableVariables;
+  CapturableVariables.insert(Variables.begin(), Variables.end());
+  std::set<String> orgCapturedVariables = std::move(CapturedVariables);
+  CapturedVariables.clear();
 
   String functionName = GetFunction(LAMBDA, paramName);
-  if (CapturedVariables->Count == 0) {
+  if (CapturedVariables.empty()) {
     Output(functionName, tpString);
   } else {
     Output((String)'\0' + "{}", tpFunc);
@@ -773,16 +760,13 @@ void TCompiler::GetLambda(String paramName)
     Output(functionName, tpString);
     Output(CMO_ObjKey, tpOpe);
 
-    for (int i = 0; i < CapturedVariables->Count; i++) {
-      String name = CapturedVariables->Strings[i];
+    for (String name : CapturedVariables) {
       Output(name, tpString);
-      if (Variables->IndexOf(name) < 0) {
+      if (Variables.count(name) == 0) {
         Output("this", tpVar);
         Output(name, tpString);
         Output(".", tpOpe);
-        if (orgCapturedVariables->IndexOf(name) < 0) {
-          orgCapturedVariables->Add(name);
-        }
+        orgCapturedVariables.insert(name);
       } else {
         Output(name, tpVar);
       }
@@ -790,10 +774,8 @@ void TCompiler::GetLambda(String paramName)
     }
   }
 
-  delete CapturableVariables;
-  delete CapturedVariables;
-  CapturableVariables = orgCapturableVariables;
-  CapturedVariables = orgCapturedVariables;
+  CapturableVariables = std::move(orgCapturableVariables);
+  CapturedVariables = std::move(orgCapturedVariables);
 }
 //---------------------------------------------------------------------------
 void TCompiler::GetCell()
@@ -1029,8 +1011,8 @@ void TCompiler::GetImport()
     throw CMCException(L"import するファイル名が不正です：" + e.str);
   }
   String libName = e.str;
-  if (import->IndexOf(libName) < 0) {
-    import->Add(libName);
+  if (std::find(import.begin(), import.end(), libName) == import.end()) {
+    import.push_back(libName);
   }
   for (std::map<String, String>::iterator p = nameMap.begin();
        p != nameMap.end(); ++p) {
@@ -1189,17 +1171,15 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         return true;
       } else {
         lex->Get(); // "(" があるはず
-        bool isLambdaCall = ((Variables->IndexOf(e.str) >= 0
-                              || CapturableVariables->IndexOf(e.str) >= 0)
+        bool isLambdaCall = ((Variables.count(e.str) > 0
+                              || CapturableVariables.count(e.str) > 0)
                              && (ls.size() == 0 || ls.back().str != "."));
         if (isLambdaCall) {
-          if (Variables->IndexOf(e.str) < 0) {
+          if (Variables.count(e.str) == 0) {
             Output("this", tpVar);
             Output(e.str, tpString);
             Output(".", tpOpe);
-            if (CapturedVariables->IndexOf(e.str) < 0) {
-              CapturedVariables->Add(e.str);
-            }
+            CapturedVariables.insert(e.str);
           } else {
             Output(e.str, tpVar);
           }
@@ -1239,8 +1219,8 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         char H;
         GetValues(')', &H);
         String libName = MaybeAddLibToLibName(e.str + ".cms");
-        if (import->IndexOf(libName) < 0) {
-          import->Add(libName);
+        if (std::find(import.begin(), import.end(), libName) == import.end()) {
+          import.push_back(libName);
         }
         String internalName = (String)H + "$" + libName + "\n" + f.str;
         Push(CMCElement(internalName, prElement, tpFunc), &ls);
@@ -1253,9 +1233,9 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
           throw CMCException(
               L"定数宣言が不正です。「=」で初期値を代入してください：" + e.str);
         }
-        Variables->Add(e.str);
+        Variables.insert(e.str);
         if (isConst) {
-          Constants->Add(e.str);
+          Constants.insert(e.str);
         }
         Push(e, &ls);
       } else if (e.str == "break" && firstloop && lex->GetNext().str == ";") {
@@ -1297,21 +1277,19 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
           if (lex->GetNext().str != "=") {
             throw CMCException(L"値が代入されていない変数です：" + e.str);
           }
-          Variables->Add(e.str);
+          Variables.insert(e.str);
         } else if (lex->GetNext().str == "=") {
-          if (Constants->IndexOf(e.str) >= 0) {
+          if (Constants.count(e.str) > 0) {
             throw CMCException(L"定数への再代入はできません：" + e.str);
-          } else if (CapturableVariables->IndexOf(e.str) >= 0) {
+          } else if (CapturableVariables.count(e.str) > 0) {
             throw CMCException(L"ラムダ式内では変数への再代入はできません：" +
                                e.str);
           }
-        } else if (Variables->IndexOf(e.str) < 0 &&
-                   CapturableVariables->IndexOf(e.str) >= 0) {
+        } else if (Variables.count(e.str) == 0 &&
+                   CapturableVariables.count(e.str) > 0) {
           Push(CMCElement("this", prElement, tpVar), &ls);
           Push(CMCElement("."), &ls);
-          if (CapturedVariables->IndexOf(e.str) < 0) {
-            CapturedVariables->Add(e.str);
-          }
+          CapturedVariables.insert(e.str);
           e.type = tpString;
         }
         Push(e, &ls);
@@ -1388,15 +1366,11 @@ bool TCompiler::Compile(String string, String filePath, String libName,
   Fail = false;
   lex = new TTokenizer(string);
   fout = new TMemoryStream();
-  Variables = newTStringList();
-  Constants = newTStringList();
-  CapturableVariables = newTStringList();
-  CapturedVariables = newTStringList();
   // Ok to use these pre-defined variables.
-  Variables->Add("x");
-  Variables->Add("y");
-  Variables->Add("Left");
-  Variables->Add("Top");
+  Variables.insert("x");
+  Variables.insert("y");
+  Variables.insert("Left");
+  Variables.insert("Top");
 
   try {
     GetBlock();
@@ -1425,10 +1399,6 @@ bool TCompiler::Compile(String string, String filePath, String libName,
   }
 
   delete lex;
-  delete Variables;
-  delete Constants;
-  delete CapturableVariables;
-  delete CapturedVariables;
   return !Fail;
 }
 //---------------------------------------------------------------------------
@@ -1436,7 +1406,7 @@ bool CompileMacro(String *source, String name, TMacroContext *context,
     bool showMessage)
 {
   TCompiler compiler(context);
-  compiler.import->Add(name);
+  compiler.import.push_back(name);
   int processed = 0;
 
   if (source != nullptr) {
@@ -1453,8 +1423,8 @@ bool CompileMacro(String *source, String name, TMacroContext *context,
     }
   }
 
-  for (int i = processed; i < compiler.import->Count; i++) {
-    String libName = compiler.import->Strings[i];
+  for (int i = processed; i < compiler.import.size(); i++) {
+    String libName = compiler.import[i];
     String libFileName = "";
     try{
       if (libName.Pos(":") > 0 || libName.SubString(1, 1) == "\\") {
