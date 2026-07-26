@@ -1521,64 +1521,66 @@ void __fastcall TfmMain::tmAutoSaverTimer(TObject *Sender)
   }catch(...){}
 }
 //---------------------------------------------------------------------------
-void TfmMain::GetCheckedMenus(TStringList *list)
+std::set<String> TfmMain::GetCheckedMenus()
 {
-  list->Clear();
+  std::set<String> checkedMenus;
   TMenuItem *items = MainMenu->Items;
-  for(int i=0; i<items->Count; i++){
-    AddCheckedMenus(list, items->Items[i]);
+  for (int i = 0; i < items->Count; i++) {
+    AddCheckedMenus(checkedMenus, items->Items[i]);
   }
+  return checkedMenus;
 }
 //---------------------------------------------------------------------------
-void TfmMain::AddCheckedMenus(TStringList *list, TMenuItem* item)
+void TfmMain::AddCheckedMenus(std::set<String>& checkedMenus, TMenuItem* item)
 {
    if (item == mnFile || item->Caption == "-") {
      return;
    }
 
-   if(item->Checked){
-     list->Add(item->Name);
+   if (item->Checked) {
+     checkedMenus.insert(item->Name);
    }
 
-   if(item->Count > 0){
-     for(int i=0; i<item->Count; i++){
-       AddCheckedMenus(list, item->Items[i]);
+   if (item->Count > 0) {
+     for (int i = 0; i < item->Count; i++) {
+       AddCheckedMenus(checkedMenus, item->Items[i]);
      }
    }
 }
 //---------------------------------------------------------------------------
-void TfmMain::RestoreCheckedMenus(TStringList *list)
+void TfmMain::RestoreCheckedMenus(const std::set<String>& checkedMenus)
 {
   TMenuItem *items = MainMenu->Items;
-  for(int i=0; i<items->Count; i++){
-    RestoreCheckedMenus(list, items->Items[i]);
+  for (int i = 0; i < items->Count; i++){
+    RestoreCheckedMenus(checkedMenus, items->Items[i]);
   }
 }
 //---------------------------------------------------------------------------
-void TfmMain::RestoreCheckedMenus(TStringList *list, TMenuItem* item)
+void TfmMain::RestoreCheckedMenus(const std::set<String>& checkedMenus,
+    TMenuItem* item)
 {
   if (item == mnFile || item->Caption == "-") {
     return;
   }
 
   bool isChecked = item->Checked;
-  bool toChecked = (list->IndexOf(item->Name) >= 0);
+  bool toChecked = (checkedMenus.count(item->Name) > 0);
   bool toChange;
-  if(item->GroupIndex > 0){
+  if (item->GroupIndex > 0) {
     toChange = (!isChecked && toChecked);
-  }else{
+  } else {
     toChange = (isChecked != toChecked);
   }
-  if(toChange){
-    if(item->OnClick){
+  if (toChange) {
+    if (item->OnClick) {
       item->OnClick(item);
     }
     item->Checked = toChecked;
   }
 
-  if(item->Count > 0){
-    for(int i=0; i<item->Count; i++){
-      RestoreCheckedMenus(list, item->Items[i]);
+  if (item->Count > 0) {
+    for (int i = 0; i < item->Count; i++) {
+      RestoreCheckedMenus(checkedMenus, item->Items[i]);
     }
   }
 }
@@ -1654,7 +1656,6 @@ void TfmMain::Export(String filename, String type)
 
     TStream *out = nullptr;
     EncodedWriter *ew = nullptr;
-    TStringList *checkedMenus = nullptr;
     try{
       out = new TFileStream(filename, fmCreate | fmShareDenyWrite);
       TEncoding *encoding = MainGrid->Encoding;
@@ -1662,8 +1663,7 @@ void TfmMain::Export(String filename, String type)
       TReturnCode inCellReturnCode = MainGrid->InCellReturnCode;
       bool addBom = MainGrid->AddBom;
       ew = new EncodedWriter(out, encoding, addBom);
-      checkedMenus = new TStringList();
-      GetCheckedMenus(checkedMenus);
+      std::set<String> checkedMenus = GetCheckedMenus();
 
       MacroExec(CmsFile, ew);
 
@@ -1676,7 +1676,6 @@ void TfmMain::Export(String filename, String type)
       Application->MessageBox(e->Message.c_str(),
                               L"Cassava Macro Interpreter", 0);
     }
-    if(checkedMenus) { delete checkedMenus; }
     if(ew) { delete ew; }
     if(out) { delete out; }
 }

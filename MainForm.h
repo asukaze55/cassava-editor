@@ -21,6 +21,7 @@
 #include <Vcl.StdCtrls.hpp>
 #include <Vcl.VirtualImageList.hpp>
 #include <map>
+#include <set>
 #include "Compiler.h"
 #include "EncodingDetector.h"
 #include "MainGrid.h"
@@ -354,10 +355,11 @@ private:    // ÉÜÅ[ÉUÅ[êÈåæ
   void ExecStartupMacro();
   void __fastcall ExecOpenMacro(System::TObject* Sender);
   void SaveFile(const TTypeOption *Format);
-  void GetCheckedMenus(TStringList *list);
-  void AddCheckedMenus(TStringList *list, TMenuItem* item);
-  void RestoreCheckedMenus(TStringList *list);
-  void RestoreCheckedMenus(TStringList *list, TMenuItem* item);
+  std::set<String> GetCheckedMenus();
+  void AddCheckedMenus(std::set<String>& checkedMenus, TMenuItem* item);
+  void RestoreCheckedMenus(const std::set<String>& checkedMenus);
+  void RestoreCheckedMenus(const std::set<String>& checkedMenus,
+      TMenuItem* item);
   void SearchMacro(TMenuItem *Parent);
   String GetUiFileName();
   void UpdateTitle();
