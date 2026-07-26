@@ -33,7 +33,7 @@ public:
   String UserPath;
 
   Preference(String cassavaPath);
-  IniFile *GetInifile();
+  IniFile GetInifile();
 };
 //---------------------------------------------------------------------------
 #endif

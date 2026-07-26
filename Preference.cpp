@@ -112,9 +112,9 @@ Preference::Preference(String cassavaPath)
   }
 }
 //---------------------------------------------------------------------------
-IniFile *Preference::GetInifile()
+IniFile Preference::GetInifile()
 {
-  return new IniFile(Path + "Cassava.ini");
+  return IniFile(Path + "Cassava.ini");
 }
 //---------------------------------------------------------------------------
 

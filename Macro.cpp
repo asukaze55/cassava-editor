@@ -1240,13 +1240,11 @@ void TMacro::ExecFnc(String s)
     }else if(s == "SaveIniSetting" && H == 0){
       fmMain->WriteIni(false);
     }else if(s == "GetIniSetting" && H ==  2){
-      IniFile *Ini = fmMain->Pref->GetInifile();
-      Stack.push_back(Element(Ini->ReadString(STR0, STR1, "")));
-      delete Ini;
+      IniFile ini = fmMain->Pref->GetInifile();
+      Stack.push_back(Element(ini.ReadString(STR0, STR1, "")));
     }else if(s == "SetIniSetting" && H == 3){
-      IniFile *Ini = fmMain->Pref->GetInifile();
-      Ini->WriteString(STR0, STR1, STR2);
-      delete Ini;
+      IniFile ini = fmMain->Pref->GetInifile();
+      ini.WriteString(STR0, STR1, STR2);
     }else if(s == "GetFontName" && H == 0){
       Stack.push_back(Element(env.Grid->Raw()->Font->Name));
     }else if(s == "SetFontName" && H == 1){

@@ -224,13 +224,13 @@ void TfmMain::ReadIni()
 {
   History.clear();
 
-  IniFile *Ini = Pref->GetInifile();
+  IniFile ini = Pref->GetInifile();
 
-  FStyle = IsDarkMode(Ini->ReadString("Mode", "Style", ""))
+  FStyle = IsDarkMode(ini.ReadString("Mode", "Style", ""))
       ? DARK_MODE_STYLE_NAME : LIGHT_MODE_STYLE_NAME;
   TStyleManager::TrySetStyle(FStyle);
 
-  int iniScreenDpi = Ini->ReadInteger("Position", "Dpi", ScreenDpi);
+  int iniScreenDpi = ini.ReadInteger("Position", "Dpi", ScreenDpi);
   double dpiRatio = (double)ScreenDpi / iniScreenDpi;
   int screenWidth = GetSystemMetrics (SM_CXSCREEN);
   int screenHeight = GetSystemMetrics (SM_CYSCREEN);
@@ -242,17 +242,17 @@ void TfmMain::ReadIni()
       virtualScreenTop + GetSystemMetrics (SM_CYVIRTUALSCREEN);
 
   int iniWidth =
-      Ini->ReadInteger("Position", "Width", Width) * dpiRatio + 0.5;
+      ini.ReadInteger("Position", "Width", Width) * dpiRatio + 0.5;
   Width = iniWidth <= screenWidth ? iniWidth : screenWidth;
   int iniHeight =
-      Ini->ReadInteger("Position", "Height", Height) * dpiRatio + 0.5;
+      ini.ReadInteger("Position", "Height", Height) * dpiRatio + 0.5;
   Height = iniHeight <= screenHeight ? iniHeight : screenHeight;
-  int iniLeft = Ini->ReadInteger("Position", "Left", -1);
+  int iniLeft = ini.ReadInteger("Position", "Left", -1);
   int left =
       (iniLeft >= virtualScreenLeft && iniLeft <= virtualScreenRight - Width)
           ? iniLeft : (screenWidth / 2 - Width / 2);
   Left =  left;
-  int iniTop = Ini->ReadInteger("Position", "Top", -1);
+  int iniTop = ini.ReadInteger("Position", "Top", -1);
   int top =
       (iniTop >= virtualScreenTop && iniTop <= virtualScreenBottom - Height)
           ? iniTop : (screenHeight / 2 - Height / 2);
@@ -268,47 +268,47 @@ void TfmMain::ReadIni()
     }
   }
 
-  if (Ini->ReadBool("Mode", "ShowToolbar", true) != mnShowToolbar->Checked) {
+  if (ini.ReadBool("Mode", "ShowToolbar", true) != mnShowToolbar->Checked) {
     mnShowToolbarClick(this);
   }
-  FToolBarSize = Ini->ReadInteger("Mode", "ToolbarSize", 16 * ScreenDpi / 96);
-  if (Ini->ReadBool("Mode", "ShowStatusbar", true)
+  FToolBarSize = ini.ReadInteger("Mode", "ToolbarSize", 16 * ScreenDpi / 96);
+  if (ini.ReadBool("Mode", "ShowStatusbar", true)
       != mnShowStatusbar->Checked) {
     mnShowStatusbarClick(this);
   }
 
   MainGrid->Color =
-      (TColor) Ini->ReadInteger("Font", "BgColor", MainGrid->Color);
+      (TColor) ini.ReadInteger("Font", "BgColor", MainGrid->Color);
   MainGrid->CalcBgColor =
-      (TColor) Ini->ReadInteger("Font", "CalcBgColor", clAqua);
+      (TColor) ini.ReadInteger("Font", "CalcBgColor", clAqua);
   MainGrid->CalcErrorBgColor =
-      (TColor) Ini->ReadInteger("Font", "CalcErrorBgColor", clRed);
-  MainGrid->CalcErrorFgColor = (TColor) Ini->ReadInteger(
+      (TColor) ini.ReadInteger("Font", "CalcErrorBgColor", clRed);
+  MainGrid->CalcErrorFgColor = (TColor) ini.ReadInteger(
       "Font", "CalcErrorFgColor", MainGrid->Font->Color);
   MainGrid->CalcFgColor =
-      (TColor) Ini->ReadInteger("Font", "CalcFgColor", MainGrid->Font->Color);
+      (TColor) ini.ReadInteger("Font", "CalcFgColor", MainGrid->Font->Color);
   MainGrid->CurrentRowBgColor =
-      (TColor) Ini->ReadInteger("Font", "CurrentRowBgColor", MainGrid->Color);
+      (TColor) ini.ReadInteger("Font", "CurrentRowBgColor", MainGrid->Color);
   MainGrid->CurrentColBgColor =
-      (TColor) Ini->ReadInteger("Font", "CurrentColBgColor", MainGrid->Color);
+      (TColor) ini.ReadInteger("Font", "CurrentColBgColor", MainGrid->Color);
   MainGrid->DummyBgColor =
-      (TColor) Ini->ReadInteger("Font", "DummyBgColor", clCream);
+      (TColor) ini.ReadInteger("Font", "DummyBgColor", clCream);
   MainGrid->EvenRowBgColor =
-      (TColor) Ini->ReadInteger("Font", "EvenRowBgColor", MainGrid->Color);
+      (TColor) ini.ReadInteger("Font", "EvenRowBgColor", MainGrid->Color);
   MainGrid->FixFgColor =
-      (TColor) Ini->ReadInteger("Font", "FixFgColor", MainGrid->Font->Color);
+      (TColor) ini.ReadInteger("Font", "FixFgColor", MainGrid->Font->Color);
   MainGrid->FixedColor =
-      (TColor) Ini->ReadInteger("Font", "FixedColor", MainGrid->FixedColor);
+      (TColor) ini.ReadInteger("Font", "FixedColor", MainGrid->FixedColor);
   MainGrid->FoundBgColor =
-      (TColor) Ini->ReadInteger("Font", "FoundBgColor", clYellow);
-  MainGrid->UrlColor = (TColor) Ini->ReadInteger("Font", "UrlColor", clBlue);
-  MainGrid->WordWrap = Ini->ReadBool("Font", "WordWrap", false);
+      (TColor) ini.ReadInteger("Font", "FoundBgColor", clYellow);
+  MainGrid->UrlColor = (TColor) ini.ReadInteger("Font", "UrlColor", clBlue);
+  MainGrid->WordWrap = ini.ReadBool("Font", "WordWrap", false);
   MainGrid->TextAlignment =
-      Ini->ReadInteger("Font", "TextAlign", MainGrid->TextAlignment);
-  MainGrid->NumberComma = Ini->ReadInteger("Font", "NumberComma", 0);
-  MainGrid->DecimalDigits = Ini->ReadInteger("Font", "DecimalDigits", -1);
+      ini.ReadInteger("Font", "TextAlign", MainGrid->TextAlignment);
+  MainGrid->NumberComma = ini.ReadInteger("Font", "NumberComma", 0);
+  MainGrid->DecimalDigits = ini.ReadInteger("Font", "DecimalDigits", -1);
   MainGrid->MinColWidth =
-      Ini->ReadInteger("Font", "MinColWidth", MainGrid->MinColWidth);
+      ini.ReadInteger("Font", "MinColWidth", MainGrid->MinColWidth);
 
   Show();
   SearchMacro(mnMacro);
@@ -319,176 +319,170 @@ void TfmMain::ReadIni()
   Top = top;
 
   WindowState =
-      Ini->ReadInteger("Position", "Mode", 0) == 2 ? wsMaximized : wsNormal;
-  MainGrid->Font->Name = Ini->ReadString("Font", "Name",
+      ini.ReadInteger("Position", "Mode", 0) == 2 ? wsMaximized : wsNormal;
+  MainGrid->Font->Name = ini.ReadString("Font", "Name",
       Screen->Fonts->IndexOf(L"Yu Gothic UI") >= 0 ? L"Yu Gothic UI"
                                                    : L"‚l‚r ‚oƒSƒVƒbƒN");
-  MainGrid->Font->Size = Ini->ReadInteger("Font", "Size", 12) * dpiRatio + 0.5;
-  if (Ini->ReadBool("Font", "Bold", false)) {
+  MainGrid->Font->Size = ini.ReadInteger("Font", "Size", 12) * dpiRatio + 0.5;
+  if (ini.ReadBool("Font", "Bold", false)) {
     MainGrid->Font->Style = MainGrid->Font->Style << fsBold;
   }
-  if (Ini->ReadBool("Font", "Italic", false)) {
+  if (ini.ReadBool("Font", "Italic", false)) {
     MainGrid->Font->Style = MainGrid->Font->Style << fsItalic;
   }
-  if (Ini->ReadBool("Font", "Underline", false)) {
+  if (ini.ReadBool("Font", "Underline", false)) {
     MainGrid->Font->Style = MainGrid->Font->Style << fsUnderline;
   }
-  if (Ini->ReadBool("Font", "StrikeOut", false)) {
+  if (ini.ReadBool("Font", "StrikeOut", false)) {
     MainGrid->Font->Style = MainGrid->Font->Style << fsStrikeOut;
   }
-  MainGrid->TBMargin = Ini->ReadInteger("Font", "TBMargin", 2);
-  MainGrid->LRMargin = Ini->ReadInteger("Font", "LRMargin", 4);
-  MainGrid->CellLineMargin = Ini->ReadInteger("Font", "CellLineMargin", 0);
+  MainGrid->TBMargin = ini.ReadInteger("Font", "TBMargin", 2);
+  MainGrid->LRMargin = ini.ReadInteger("Font", "LRMargin", 4);
+  MainGrid->CellLineMargin = ini.ReadInteger("Font", "CellLineMargin", 0);
   MainGrid->Font->Color =
-      (TColor) Ini->ReadInteger("Font", "FgColor", MainGrid->Font->Color);
+      (TColor) ini.ReadInteger("Font", "FgColor", MainGrid->Font->Color);
   MainGrid->Canvas->Font = MainGrid->Font;
 
-    PrintFontName = Ini->ReadString("Print","FontName",MainGrid->Font->Name);
-    PrintFontSize = Ini->ReadInteger("Print","FontSize",MainGrid->Font->Size);
-    PrintMargin[0] = Ini->ReadInteger("Print","MarginLeft",15);
-    PrintMargin[1] = Ini->ReadInteger("Print","MarginRight",15);
-    PrintMargin[2] = Ini->ReadInteger("Print","MarginTop",15);
-    PrintMargin[3] = Ini->ReadInteger("Print","MarginBottom",15);
-    PrintHeader = Ini->ReadString("Print", "Header", "%f");
-    PrintHeaderPosition = Ini->ReadInteger("Print", "HeaderPosition", 2);
-    PrintFooter = Ini->ReadString("Print", "Footer", "- %p -");
-    PrintFooterPosition = Ini->ReadInteger("Print", "FooterPosition", 2);
+  PrintFontName = ini.ReadString("Print", "FontName", MainGrid->Font->Name);
+  PrintFontSize = ini.ReadInteger("Print", "FontSize", MainGrid->Font->Size);
+  PrintMargin[0] = ini.ReadInteger("Print", "MarginLeft", 15);
+  PrintMargin[1] = ini.ReadInteger("Print", "MarginRight", 15);
+  PrintMargin[2] = ini.ReadInteger("Print", "MarginTop", 15);
+  PrintMargin[3] = ini.ReadInteger("Print", "MarginBottom", 15);
+  PrintHeader = ini.ReadString("Print", "Header", "%f");
+  PrintHeaderPosition = ini.ReadInteger("Print", "HeaderPosition", 2);
+  PrintFooter = ini.ReadString("Print", "Footer", "- %p -");
+  PrintFooterPosition = ini.ReadInteger("Print", "FooterPosition", 2);
 
-    int TypeCount = Ini->ReadInteger("DataType","Count", 0);
-    if(TypeCount > 0){
-      TTypeList newTypeList;
-      for(int i=0; i<TypeCount; i++){
-        String Section = (String)"DataType:" + i;
-        TTypeOption option;
-        option.Name = Ini->ReadString(Section, "Name", L"[V‹K]");
-        String exts = Ini->ReadString(Section, "Exts", "csv");
-        option.SetExts(exts);
-        option.ForceExt = Ini->ReadBool(Section, "ForceExt", false);
-        option.SepChars =
-            Ascii2Ctrl(Ini->ReadString(Section, "SepChars", ",\\t"));
-        option.WeakSepChars =
-            Ascii2Ctrl(Ini->ReadString(Section, "WeakSepChars", "\\_"));
-        option.QuoteChars =
-            Ascii2Ctrl(Ini->ReadString(Section, "QuoteChars", "\""));
-        option.QuoteOption =
-            (TQuoteOption) Ini->ReadInteger(Section, "Quote", QUOTE_NORMAL);
-        option.QuoteExpression =
-            Ini->ReadString(Section, "QuoteExpression", "");
-        option.OmitComma = Ini->ReadBool(Section, "OmitComma", true);
-        option.DummyEof = Ini->ReadBool(Section, "DummyEof", false);
-        option.DummyEol = Ini->ReadBool(Section, "DummyEol", false);
-        newTypeList.Add(option);
-      }
-      TypeList = newTypeList;
+  int TypeCount = ini.ReadInteger("DataType", "Count", 0);
+  if (TypeCount > 0) {
+    TTypeList newTypeList;
+    for (int i = 0; i < TypeCount; i++) {
+      String Section = (String)"DataType:" + i;
+      TTypeOption option;
+      option.Name = ini.ReadString(Section, "Name", L"[V‹K]");
+      String exts = ini.ReadString(Section, "Exts", "csv");
+      option.SetExts(exts);
+      option.ForceExt = ini.ReadBool(Section, "ForceExt", false);
+      option.SepChars =
+          Ascii2Ctrl(ini.ReadString(Section, "SepChars", ",\\t"));
+      option.WeakSepChars =
+          Ascii2Ctrl(ini.ReadString(Section, "WeakSepChars", "\\_"));
+      option.QuoteChars =
+          Ascii2Ctrl(ini.ReadString(Section, "QuoteChars", "\""));
+      option.QuoteOption =
+          (TQuoteOption) ini.ReadInteger(Section, "Quote", QUOTE_NORMAL);
+      option.QuoteExpression =
+          ini.ReadString(Section, "QuoteExpression", "");
+      option.OmitComma = ini.ReadBool(Section, "OmitComma", true);
+      option.DummyEof = ini.ReadBool(Section, "DummyEof", false);
+      option.DummyEol = ini.ReadBool(Section, "DummyEol", false);
+      newTypeList.Add(option);
     }
+    TypeList = newTypeList;
+  }
 
-    BackupOnSave = Ini->ReadBool("Backup","OnSave",true);
-    BackupOnTime = Ini->ReadBool("Backup","OnTime",false);
-    BackupOnOpen = Ini->ReadBool("Backup","OnOpen",true);
-    BuFileNameS  = Ini->ReadString("Backup","FileNameS","%f.%x~");
-    BuFileNameT  = Ini->ReadString("Backup","FileNameT","#%f.%x#");
-    DelBuSSaved  = Ini->ReadBool("Backup","DeleteSSaved",
-      !(Ini->ValueExists("Backup","OnSave")));
-    DelBuSExit   = Ini->ReadBool("Backup","DeleteS",false);
-    DelBuT       = Ini->ReadBool("Backup","DeleteT",true);
-    BuInterval   = Ini->ReadInteger("Backup","Interval",5);
+  BackupOnSave = ini.ReadBool("Backup", "OnSave", true);
+  BackupOnTime = ini.ReadBool("Backup", "OnTime", false);
+  BackupOnOpen = ini.ReadBool("Backup", "OnOpen", true);
+  BuFileNameS = ini.ReadString("Backup", "FileNameS", "%f.%x~");
+  BuFileNameT = ini.ReadString("Backup", "FileNameT", "#%f.%x#");
+  DelBuSSaved = ini.ReadBool(
+      "Backup", "DeleteSSaved", !(ini.ValueExists("Backup", "OnSave")));
+  DelBuSExit = ini.ReadBool("Backup", "DeleteS", false);
+  DelBuT = ini.ReadBool("Backup", "DeleteT", true);
+  BuInterval = ini.ReadInteger("Backup", "Interval", 5);
 
-    int X = Ini->ReadInteger("Mode","Paste",-1);
-      MainGrid->PasteOption = X;
-      if(X >= 0) mnPasteNormal->Checked = false;
-      if     (X == 0) mnPasteOption0->Checked = true;
-      else if(X == 1) mnPasteOption1->Checked = true;
-      else if(X == 2) mnPasteOption2->Checked = true;
-      else if(X == 3) mnPasteOption3->Checked = true;
-      else if(X == 4) mnPasteOption4->Checked = true;
-      else if(X == 5) mnPasteOption5->Checked = true;
-    MainGrid->DragBehavior = (TDragBehavior)
-        Ini->ReadInteger("Mode", "DragCounter", dbMoveIfSelected);
-    MainGrid->EnterMove = Ini->ReadInteger("Mode","EnterMove",0);
+  int pasteOption = ini.ReadInteger("Mode", "Paste", -1);
+  MainGrid->PasteOption = pasteOption;
+  mnPasteNormal->Checked = (pasteOption < 0);
+  mnPasteOption0->Checked = (pasteOption == 0);
+  mnPasteOption1->Checked = (pasteOption == 1);
+  mnPasteOption2->Checked = (pasteOption == 2);
+  mnPasteOption3->Checked = (pasteOption == 3);
+  mnPasteOption4->Checked = (pasteOption == 4);
+  mnPasteOption5->Checked = (pasteOption == 5);
+  MainGrid->DragBehavior =
+      (TDragBehavior) ini.ReadInteger("Mode", "DragCounter", dbMoveIfSelected);
+  MainGrid->EnterMove = ini.ReadInteger("Mode", "EnterMove", 0);
 
-    int FixedRows = Ini->ReadInteger("Mode","FixTopRow",0);
-    int FixedCols = Ini->ReadInteger("Mode","FixLeftCol",0);
-    if(FixedRows + 1 >= MainGrid->RowCount){
-      MainGrid->ChangeRowCount(FixedRows + 2);
-    }
-    MainGrid->Row = FixedRows + 1;
-    if(FixedCols + 1 >= MainGrid->ColCount){
-      MainGrid->ChangeColCount(FixedCols + 2);
-    }
-    MainGrid->Col = FixedCols + 1;
-    mnFixUpLeftClick(this);
+  int FixedRows = ini.ReadInteger("Mode", "FixTopRow", 0);
+  int FixedCols = ini.ReadInteger("Mode", "FixLeftCol", 0);
+  if (FixedRows + 1 >= MainGrid->RowCount) {
+    MainGrid->ChangeRowCount(FixedRows + 2);
+  }
+  MainGrid->Row = FixedRows + 1;
+  if (FixedCols + 1 >= MainGrid->ColCount) {
+    MainGrid->ChangeColCount(FixedCols + 2);
+  }
+  MainGrid->Col = FixedCols + 1;
+  mnFixUpLeftClick(this);
 
-    MainGrid->ShowToolTipForLongCell
-      = Ini->ReadBool("Mode", "ShowToolTipForLongCell", false);
-    Application->HintPause
-      = Ini->ReadInteger("Mode","HintPause",Application->HintPause);
-    Application->HintHidePause
-      = Ini->ReadInteger("Mode","HintHidePause",Application->HintHidePause);
+  MainGrid->ShowToolTipForLongCell =
+      ini.ReadBool("Mode", "ShowToolTipForLongCell", false);
+  Application->HintPause =
+      ini.ReadInteger("Mode", "HintPause", Application->HintPause);
+  Application->HintHidePause =
+      ini.ReadInteger("Mode", "HintHidePause", Application->HintHidePause);
 
-    MainGrid->LeftArrowInCell = Ini->ReadBool("Mode","LeftArrowInCell",false);
-    MainGrid->WheelMoveCursol = Ini->ReadInteger("Mode","WheelMoveCursol",0);
-    MainGrid->WheelScrollStep = Ini->ReadInteger("Mode","WheelScrollStep",1);
-    MainGrid->AlwaysShowEditor = Ini->ReadBool("Mode","AlwaysShowEditor",true);
-    SortAll = Ini->ReadBool("Mode","SortAll",false);
-    int UseURL = Ini->ReadInteger("Mode","UseURL",1);
-      MainGrid->ShowURLBlue     = UseURL;
-      MainGrid->DblClickOpenURL = UseURL;
-    MakeNewWindow = Ini->ReadBool("Mode","NewWindow",false);
-    TitleFullPath = Ini->ReadBool("Mode","TitleFullPath",false);
-    LockFile = Ini->ReadInteger("Mode","LockFile",0);
-    LockingFile = nullptr;
-    CheckTimeStamp = Ini->ReadBool("Mode","CheckTimeStamp", true);
-    SortByNumber = Ini->ReadBool("Mode","SortByNumber",true);
-    SortIgnoreCase = Ini->ReadBool("Mode", "SortIgnoreCase", false);
-    SortIgnoreZenhan = Ini->ReadBool("Mode", "SortIgnoreZenhan", false);
-    SortDirection = Ini->ReadInteger("Mode", "SortDirection", 0);
-    EncodingDetector.Enabled = Ini->ReadBool("Mode", "CheckKanji", true);
-    EncodingDetector.DefaultEncoding =
-        ToEncoding(Ini->ReadInteger("Mode", "DefaultCharCode", CHARCODE_UTF8));
-    if (FileName == "") {
-      MainGrid->Encoding = EncodingDetector.DefaultEncoding;
-    }
-    MainGrid->CompactColWidth =
-        Ini->ReadBool("Mode","CompactColWidth", true);
-    MainGrid->CalcWidthForAllRow =
-        Ini->ReadBool("Mode","CalcWidthForAllRow", 0);
-    MainGrid->MaxRowHeightLines =
-        Ini->ReadFloat("Mode", "MaxRowHeightLines", 1.5);
-    StopMacroCount = Ini->ReadInteger("Mode","StopMacro", 0);
-    MainGrid->UndoList->MaxCount = Ini->ReadInteger("Mode", "UndoCount", 100);
+  MainGrid->LeftArrowInCell = ini.ReadBool("Mode", "LeftArrowInCell", false);
+  MainGrid->WheelMoveCursol = ini.ReadInteger("Mode", "WheelMoveCursol", 0);
+  MainGrid->WheelScrollStep = ini.ReadInteger("Mode", "WheelScrollStep", 1);
+  MainGrid->AlwaysShowEditor = ini.ReadBool("Mode", "AlwaysShowEditor", true);
+  SortAll = ini.ReadBool("Mode", "SortAll", false);
+  int useURL = ini.ReadInteger("Mode", "UseURL", 1);
+  MainGrid->ShowURLBlue = useURL;
+  MainGrid->DblClickOpenURL = useURL;
+  MakeNewWindow = ini.ReadBool("Mode", "NewWindow", false);
+  TitleFullPath = ini.ReadBool("Mode", "TitleFullPath", false);
+  LockFile = ini.ReadInteger("Mode", "LockFile", 0);
+  LockingFile = nullptr;
+  CheckTimeStamp = ini.ReadBool("Mode", "CheckTimeStamp", true);
+  SortByNumber = ini.ReadBool("Mode", "SortByNumber", true);
+  SortIgnoreCase = ini.ReadBool("Mode", "SortIgnoreCase", false);
+  SortIgnoreZenhan = ini.ReadBool("Mode", "SortIgnoreZenhan", false);
+  SortDirection = ini.ReadInteger("Mode", "SortDirection", 0);
+  EncodingDetector.Enabled = ini.ReadBool("Mode", "CheckKanji", true);
+  EncodingDetector.DefaultEncoding =
+      ToEncoding(ini.ReadInteger("Mode", "DefaultCharCode", CHARCODE_UTF8));
+  if (FileName == "") {
+    MainGrid->Encoding = EncodingDetector.DefaultEncoding;
+  }
+  MainGrid->CompactColWidth = ini.ReadBool("Mode","CompactColWidth", true);
+  MainGrid->CalcWidthForAllRow = ini.ReadBool("Mode","CalcWidthForAllRow", 0);
+  MainGrid->MaxRowHeightLines = ini.ReadFloat("Mode", "MaxRowHeightLines", 1.5);
+  StopMacroCount = ini.ReadInteger("Mode", "StopMacro", 0);
+  MainGrid->UndoList->MaxCount = ini.ReadInteger("Mode", "UndoCount", 100);
 
-    fmFind->cbCase->Checked = Ini->ReadBool("Search", "Case", false);
-    fmFind->cbWordSearch->Checked = Ini->ReadBool("Search", "Word", false);
-    fmFind->cbRegex->Checked = Ini->ReadBool("Search", "Regex", false);
-    fmFind->rgRange->ItemIndex = Ini->ReadInteger("Search", "Range", 3);
+  fmFind->cbCase->Checked = ini.ReadBool("Search", "Case", false);
+  fmFind->cbWordSearch->Checked = ini.ReadBool("Search", "Word", false);
+  fmFind->cbRegex->Checked = ini.ReadBool("Search", "Regex", false);
+  fmFind->rgRange->ItemIndex = ini.ReadInteger("Search", "Range", 3);
 
-    String LaunchName[3];
-    mnAppli0->Hint = Ini->ReadString("Application", "E0", "");
-    mnAppli0->Tag  = Ini->ReadBool("Application", "Q0", true);
-    mnAppli0->Enabled = (mnAppli0->Hint != "");
-    LaunchName[0]  = Ini->ReadString("Application", "N0", L"–¢Ý’è");
-    mnAppli1->Hint = Ini->ReadString("Application", "E1", "");
-    mnAppli1->Tag  = Ini->ReadBool("Application", "Q1", true);
-    mnAppli1->Enabled = (mnAppli1->Hint != "");
-    LaunchName[1]  = Ini->ReadString("Application", "N1", L"–¢Ý’è");
-    mnAppli2->Hint = Ini->ReadString("Application", "E2", "");
-    mnAppli2->Tag  = Ini->ReadBool("Application", "Q2", true);
-    mnAppli2->Enabled = (mnAppli2->Hint != "");
-    LaunchName[2]  = Ini->ReadString("Application", "N2", L"–¢Ý’è");
-    MainGrid->BrowserFileName = Ini->ReadString("Application", "Browser", "");
-
+  String LaunchName[3];
+  mnAppli0->Hint = ini.ReadString("Application", "E0", "");
+  mnAppli0->Tag = ini.ReadBool("Application", "Q0", true);
+  mnAppli0->Enabled = (mnAppli0->Hint != "");
+  LaunchName[0] = ini.ReadString("Application", "N0", L"–¢Ý’è");
+  mnAppli1->Hint = ini.ReadString("Application", "E1", "");
+  mnAppli1->Tag  = ini.ReadBool("Application", "Q1", true);
+  mnAppli1->Enabled = (mnAppli1->Hint != "");
+  LaunchName[1]  = ini.ReadString("Application", "N1", L"–¢Ý’è");
+  mnAppli2->Hint = ini.ReadString("Application", "E2", "");
+  mnAppli2->Tag  = ini.ReadBool("Application", "Q2", true);
+  mnAppli2->Enabled = (mnAppli2->Hint != "");
+  LaunchName[2]  = ini.ReadString("Application", "N2", L"–¢Ý’è");
+  MainGrid->BrowserFileName = ini.ReadString("Application", "Browser", "");
   History.clear();
   for (int i = 0; i < 10; i++) {
-    String historyFile = Ini->ReadString("History", (String)i, "");
+    String historyFile = ini.ReadString("History", (String)i, "");
     if (historyFile != "") {
       History.push_back(historyFile);
     } else {
       break;
     }
   }
-  dlgOpenMacro->InitialDir = Ini->ReadString("History", "Macro", "");
-
-  delete Ini;
+  dlgOpenMacro->InitialDir = ini.ReadString("History", "Macro", "");
 
   if (FileExists(Pref->Path + "AutoKey.csv")) {
     std::unique_ptr<TfmKey> fmKey = std::make_unique<TfmKey>(nullptr);
@@ -508,156 +502,157 @@ void TfmMain::ReadIni()
 void TfmMain::WriteIni(bool PosSlide)
 {
   try {
-    IniFile *Ini = Pref->GetInifile();
+    IniFile ini = Pref->GetInifile();
     // Use the historical style names to be compatible with older versions.
-    Ini->WriteString(
+    ini.WriteString(
         "Mode", "Style", IsDarkMode(Style) ? "Windows10 Dark": "Windows");
-    Ini->WriteInteger("Position", "Mode", WindowState == wsMaximized ? 2 : 0);
-    if(WindowState == wsNormal){
+    ini.WriteInteger("Position", "Mode", WindowState == wsMaximized ? 2 : 0);
+    if (WindowState == wsNormal) {
       int Slide = PosSlide ? 32 : 0;
-      Ini->WriteInteger("Position","Left",Left+Slide);
-      Ini->WriteInteger("Position","Top",Top+Slide);
-      Ini->WriteInteger("Position","Width",Width);
-      Ini->WriteInteger("Position","Height",Height);
+      ini.WriteInteger("Position", "Left", Left+Slide);
+      ini.WriteInteger("Position", "Top", Top+Slide);
+      ini.WriteInteger("Position", "Width", Width);
+      ini.WriteInteger("Position", "Height", Height);
     }
-    Ini->WriteInteger("Position", "Dpi", ScreenDpi);
-    Ini->WriteString("Font","Name",MainGrid->Font->Name);
-    Ini->WriteInteger("Font","Size",MainGrid->Font->Size);
-    Ini->WriteInteger("Font","Bold",MainGrid->Font->Style.Contains(fsBold));
-    Ini->WriteInteger("Font","Italic",MainGrid->Font->Style.Contains(fsItalic));
-    Ini->WriteInteger("Font","Underline",MainGrid->Font->Style.Contains(fsUnderline));
-    Ini->WriteInteger("Font","StrikeOut",MainGrid->Font->Style.Contains(fsStrikeOut));
-    Ini->WriteInteger("Font","TBMargin",MainGrid->TBMargin);
-    Ini->WriteInteger("Font","LRMargin",MainGrid->LRMargin);
-    Ini->WriteInteger("Font","CellLineMargin",MainGrid->CellLineMargin);
-    Ini->WriteInteger("Font", "BgColor", MainGrid->Color);
-    Ini->WriteInteger("Font", "CalcBgColor", MainGrid->CalcBgColor);
-    Ini->WriteInteger("Font", "CalcErrorBgColor", MainGrid->CalcErrorBgColor);
-    Ini->WriteInteger("Font", "CalcErrorFgColor", MainGrid->CalcErrorFgColor);
-    Ini->WriteInteger("Font", "CalcFgColor", MainGrid->CalcFgColor);
-    Ini->WriteInteger("Font", "CurrentColBgColor", MainGrid->CurrentColBgColor);
-    Ini->WriteInteger("Font", "CurrentRowBgColor", MainGrid->CurrentRowBgColor);
-    Ini->WriteInteger("Font", "DummyBgColor", MainGrid->DummyBgColor);
-    Ini->WriteInteger("Font", "EvenRowBgColor", MainGrid->EvenRowBgColor);
-    Ini->WriteInteger("Font", "FgColor", MainGrid->Font->Color);
-    Ini->WriteInteger("Font", "FixFgColor", MainGrid->FixFgColor);
-    Ini->WriteInteger("Font", "FixedColor", MainGrid->FixedColor);
-    Ini->WriteInteger("Font", "FoundBgColor", MainGrid->FoundBgColor);
-    Ini->WriteInteger("Font", "UrlColor", MainGrid->UrlColor);
-    Ini->WriteBool("Font","WordWrap",MainGrid->WordWrap);
-    Ini->WriteInteger("Font","TextAlign", MainGrid->TextAlignment);
-    Ini->WriteInteger("Font","NumberComma", MainGrid->NumberComma);
-    Ini->WriteInteger("Font","DecimalDigits", MainGrid->DecimalDigits);
-    Ini->WriteInteger("Font","MinColWidth", MainGrid->MinColWidth);
+    ini.WriteInteger("Position", "Dpi", ScreenDpi);
+    ini.WriteString("Font", "Name", MainGrid->Font->Name);
+    ini.WriteInteger("Font", "Size", MainGrid->Font->Size);
+    ini.WriteInteger("Font", "Bold", MainGrid->Font->Style.Contains(fsBold));
+    ini.WriteInteger(
+        "Font", "Italic", MainGrid->Font->Style.Contains(fsItalic));
+    ini.WriteInteger(
+        "Font", "Underline", MainGrid->Font->Style.Contains(fsUnderline));
+    ini.WriteInteger(
+        "Font", "StrikeOut", MainGrid->Font->Style.Contains(fsStrikeOut));
+    ini.WriteInteger("Font", "TBMargin", MainGrid->TBMargin);
+    ini.WriteInteger("Font", "LRMargin", MainGrid->LRMargin);
+    ini.WriteInteger("Font", "CellLineMargin", MainGrid->CellLineMargin);
+    ini.WriteInteger("Font", "BgColor", MainGrid->Color);
+    ini.WriteInteger("Font", "CalcBgColor", MainGrid->CalcBgColor);
+    ini.WriteInteger("Font", "CalcErrorBgColor", MainGrid->CalcErrorBgColor);
+    ini.WriteInteger("Font", "CalcErrorFgColor", MainGrid->CalcErrorFgColor);
+    ini.WriteInteger("Font", "CalcFgColor", MainGrid->CalcFgColor);
+    ini.WriteInteger("Font", "CurrentColBgColor", MainGrid->CurrentColBgColor);
+    ini.WriteInteger("Font", "CurrentRowBgColor", MainGrid->CurrentRowBgColor);
+    ini.WriteInteger("Font", "DummyBgColor", MainGrid->DummyBgColor);
+    ini.WriteInteger("Font", "EvenRowBgColor", MainGrid->EvenRowBgColor);
+    ini.WriteInteger("Font", "FgColor", MainGrid->Font->Color);
+    ini.WriteInteger("Font", "FixFgColor", MainGrid->FixFgColor);
+    ini.WriteInteger("Font", "FixedColor", MainGrid->FixedColor);
+    ini.WriteInteger("Font", "FoundBgColor", MainGrid->FoundBgColor);
+    ini.WriteInteger("Font", "UrlColor", MainGrid->UrlColor);
+    ini.WriteBool("Font", "WordWrap", MainGrid->WordWrap);
+    ini.WriteInteger("Font", "TextAlign", MainGrid->TextAlignment);
+    ini.WriteInteger("Font", "NumberComma", MainGrid->NumberComma);
+    ini.WriteInteger("Font", "DecimalDigits", MainGrid->DecimalDigits);
+    ini.WriteInteger("Font", "MinColWidth", MainGrid->MinColWidth);
 
-    Ini->WriteString("Print","FontName",PrintFontName);
-    Ini->WriteInteger("Print","FontSize",PrintFontSize);
-    Ini->WriteInteger("Print","MarginLeft",PrintMargin[0]);
-    Ini->WriteInteger("Print","MarginRight",PrintMargin[1]);
-    Ini->WriteInteger("Print","MarginTop",PrintMargin[2]);
-    Ini->WriteInteger("Print","MarginBottom",PrintMargin[3]);
-    Ini->WriteString("Print", "Header", PrintHeader);
-    Ini->WriteInteger("Print", "HeaderPosition", PrintHeaderPosition);
-    Ini->WriteString("Print", "Footer", PrintFooter);
-    Ini->WriteInteger("Print", "FooterPosition", PrintFooterPosition);
+    ini.WriteString("Print", "FontName", PrintFontName);
+    ini.WriteInteger("Print", "FontSize", PrintFontSize);
+    ini.WriteInteger("Print", "MarginLeft", PrintMargin[0]);
+    ini.WriteInteger("Print", "MarginRight", PrintMargin[1]);
+    ini.WriteInteger("Print", "MarginTop", PrintMargin[2]);
+    ini.WriteInteger("Print", "MarginBottom", PrintMargin[3]);
+    ini.WriteString("Print", "Header", PrintHeader);
+    ini.WriteInteger("Print", "HeaderPosition", PrintHeaderPosition);
+    ini.WriteString("Print", "Footer", PrintFooter);
+    ini.WriteInteger("Print", "FooterPosition", PrintFooterPosition);
 
     int DataCount = TypeList.Count;
-    Ini->WriteInteger("DataType", "Count", DataCount);
-    for(int i=0; i<DataCount; i++){
+    ini.WriteInteger("DataType", "Count", DataCount);
+    for (int i = 0; i < DataCount; i++) {
       String Section = (String)"DataType:" + i;
       TTypeOption *TO = TypeList.Items(i);
-      Ini->WriteString(Section, "Name", TO->Name);
-      Ini->WriteString(Section, "Exts", TO->GetExtsStr(0));
-      Ini->WriteBool(Section, "ForceExt", TO->ForceExt);
-      Ini->WriteString(Section, "SepChars", Ctrl2Ascii(TO->SepChars));
-      Ini->WriteString(Section, "WeakSepChars", Ctrl2Ascii(TO->WeakSepChars));
-      Ini->WriteString(Section, "QuoteChars", Ctrl2Ascii(TO->QuoteChars));
-      Ini->WriteInteger(Section, "Quote", TO->QuoteOption);
-      Ini->WriteString(Section, "QuoteExpression", TO->QuoteExpression);
-      Ini->WriteBool(Section, "OmitComma", TO->OmitComma);
-      Ini->WriteBool(Section, "DummyEof", TO->DummyEof);
-      Ini->WriteBool(Section, "DummyEol", TO->DummyEol);
+      ini.WriteString(Section, "Name", TO->Name);
+      ini.WriteString(Section, "Exts", TO->GetExtsStr(0));
+      ini.WriteBool(Section, "ForceExt", TO->ForceExt);
+      ini.WriteString(Section, "SepChars", Ctrl2Ascii(TO->SepChars));
+      ini.WriteString(Section, "WeakSepChars", Ctrl2Ascii(TO->WeakSepChars));
+      ini.WriteString(Section, "QuoteChars", Ctrl2Ascii(TO->QuoteChars));
+      ini.WriteInteger(Section, "Quote", TO->QuoteOption);
+      ini.WriteString(Section, "QuoteExpression", TO->QuoteExpression);
+      ini.WriteBool(Section, "OmitComma", TO->OmitComma);
+      ini.WriteBool(Section, "DummyEof", TO->DummyEof);
+      ini.WriteBool(Section, "DummyEol", TO->DummyEol);
     }
 
-    Ini->WriteBool("Backup","OnSave",BackupOnSave);
-    Ini->WriteBool("Backup","OnTime",BackupOnTime);
-    Ini->WriteBool("Backup","OnOpen",BackupOnOpen);
-    Ini->WriteString("Backup","FileNameS",BuFileNameS);
-    Ini->WriteString("Backup","FileNameT",BuFileNameT);
-    Ini->WriteBool("Backup","DeleteSSaved",DelBuSSaved);
-    Ini->WriteBool("Backup","DeleteS",DelBuSExit);
-    Ini->WriteBool("Backup","DeleteT",DelBuT);
-    Ini->WriteInteger("Backup","Interval",BuInterval);
+    ini.WriteBool("Backup", "OnSave", BackupOnSave);
+    ini.WriteBool("Backup", "OnTime", BackupOnTime);
+    ini.WriteBool("Backup", "OnOpen", BackupOnOpen);
+    ini.WriteString("Backup", "FileNameS", BuFileNameS);
+    ini.WriteString("Backup", "FileNameT", BuFileNameT);
+    ini.WriteBool("Backup", "DeleteSSaved", DelBuSSaved);
+    ini.WriteBool("Backup", "DeleteS", DelBuSExit);
+    ini.WriteBool("Backup", "DeleteT", DelBuT);
+    ini.WriteInteger("Backup", "Interval", BuInterval);
 
-    Ini->WriteInteger("Mode","Paste",MainGrid->PasteOption);
-    Ini->WriteInteger("Mode", "DragCounter", MainGrid->DragBehavior);
-    Ini->WriteInteger("Mode","EnterMove",MainGrid->EnterMove);
-    Ini->WriteInteger("Mode","FixTopRow",
-      MainGrid->ShowColCounter ? 0 : MainGrid->FixedRows);
-    Ini->WriteInteger("Mode","FixLeftCol",
-      MainGrid->ShowRowCounter ? 0 : MainGrid->FixedCols);
-    Ini->WriteBool("Mode","ShowToolbar",mnShowToolbar->Checked);
-    Ini->WriteInteger("Mode", "ToolbarSize", ToolBarSize);
-    Ini->WriteBool("Mode","ShowStatusbar",mnShowStatusbar->Checked);
-    Ini->WriteBool("Mode", "ShowToolTipForLongCell",
-      MainGrid->ShowToolTipForLongCell);
-    Ini->WriteInteger("Mode","HintPause",Application->HintPause);
-    Ini->WriteInteger("Mode","HintHidePause",Application->HintHidePause);
-    Ini->WriteBool("Mode","LeftArrowInCell",MainGrid->LeftArrowInCell);
-    Ini->WriteInteger("Mode","WheelMoveCursol",MainGrid->WheelMoveCursol);
-    Ini->WriteInteger("Mode","WheelScrollStep",MainGrid->WheelScrollStep);
-    Ini->WriteBool("Mode","AlwaysShowEditor", MainGrid->AlwaysShowEditor);
-    Ini->WriteBool("Mode","SortAll", SortAll);
-    Ini->WriteInteger("Mode","UseURL", MainGrid->DblClickOpenURL);
+    ini.WriteInteger("Mode", "Paste", MainGrid->PasteOption);
+    ini.WriteInteger("Mode", "DragCounter", MainGrid->DragBehavior);
+    ini.WriteInteger("Mode", "EnterMove", MainGrid->EnterMove);
+    ini.WriteInteger("Mode", "FixTopRow",
+        MainGrid->ShowColCounter ? 0 : MainGrid->FixedRows);
+    ini.WriteInteger("Mode", "FixLeftCol",
+        MainGrid->ShowRowCounter ? 0 : MainGrid->FixedCols);
+    ini.WriteBool("Mode", "ShowToolbar", mnShowToolbar->Checked);
+    ini.WriteInteger("Mode", "ToolbarSize", ToolBarSize);
+    ini.WriteBool("Mode", "ShowStatusbar", mnShowStatusbar->Checked);
+    ini.WriteBool("Mode", "ShowToolTipForLongCell",
+        MainGrid->ShowToolTipForLongCell);
+    ini.WriteInteger("Mode", "HintPause", Application->HintPause);
+    ini.WriteInteger("Mode", "HintHidePause", Application->HintHidePause);
+    ini.WriteBool("Mode", "LeftArrowInCell", MainGrid->LeftArrowInCell);
+    ini.WriteInteger("Mode", "WheelMoveCursol", MainGrid->WheelMoveCursol);
+    ini.WriteInteger("Mode", "WheelScrollStep", MainGrid->WheelScrollStep);
+    ini.WriteBool("Mode", "AlwaysShowEditor", MainGrid->AlwaysShowEditor);
+    ini.WriteBool("Mode", "SortAll", SortAll);
+    ini.WriteInteger("Mode", "UseURL", MainGrid->DblClickOpenURL);
 
-    Ini->WriteBool("Mode", "NewWindow", MakeNewWindow);
-    Ini->WriteBool("Mode"," TitleFullPath", TitleFullPath);
-    Ini->WriteInteger("Mode", "LockFile", LockFile);
-    Ini->WriteBool("Mode", "CheckTimeStamp", CheckTimeStamp);
-    Ini->WriteBool("Mode", "SortByNumber", SortByNumber);
-    Ini->WriteBool("Mode", "SortIgnoreCase", SortIgnoreCase);
-    Ini->WriteBool("Mode", "SortIgnoreZenhan", SortIgnoreZenhan);
-    Ini->WriteBool("Mode", "SortDirection", SortDirection);
-    Ini->WriteBool("Mode", "CheckKanji", EncodingDetector.Enabled);
-    Ini->WriteInteger("Mode", "DefaultCharCode",
+    ini.WriteBool("Mode", "NewWindow", MakeNewWindow);
+    ini.WriteBool("Mode"," TitleFullPath", TitleFullPath);
+    ini.WriteInteger("Mode", "LockFile", LockFile);
+    ini.WriteBool("Mode", "CheckTimeStamp", CheckTimeStamp);
+    ini.WriteBool("Mode", "SortByNumber", SortByNumber);
+    ini.WriteBool("Mode", "SortIgnoreCase", SortIgnoreCase);
+    ini.WriteBool("Mode", "SortIgnoreZenhan", SortIgnoreZenhan);
+    ini.WriteBool("Mode", "SortDirection", SortDirection);
+    ini.WriteBool("Mode", "CheckKanji", EncodingDetector.Enabled);
+    ini.WriteInteger("Mode", "DefaultCharCode",
         ToCharCode(EncodingDetector.DefaultEncoding));
-    Ini->WriteBool("Mode", "CompactColWidth", MainGrid->CompactColWidth);
-    Ini->WriteBool("Mode", "CalcWidthForAllRow", MainGrid->CalcWidthForAllRow);
-    Ini->WriteFloat("Mode", "MaxRowHeightLines", MainGrid->MaxRowHeightLines);
-    Ini->WriteInteger("Mode", "StopMacro", StopMacroCount);
-    Ini->WriteInteger("Mode", "UndoCount", MainGrid->UndoList->MaxCount);
+    ini.WriteBool("Mode", "CompactColWidth", MainGrid->CompactColWidth);
+    ini.WriteBool("Mode", "CalcWidthForAllRow", MainGrid->CalcWidthForAllRow);
+    ini.WriteFloat("Mode", "MaxRowHeightLines", MainGrid->MaxRowHeightLines);
+    ini.WriteInteger("Mode", "StopMacro", StopMacroCount);
+    ini.WriteInteger("Mode", "UndoCount", MainGrid->UndoList->MaxCount);
 
-    Ini->WriteBool("Search", "Case", fmFind->cbCase->Checked);
-    Ini->WriteBool("Search", "Word", fmFind->cbWordSearch->Checked);
-    Ini->WriteBool("Search", "Regex", fmFind->cbRegex->Checked);
-    Ini->WriteInteger("Search", "Range", fmFind->rgRange->ItemIndex);
+    ini.WriteBool("Search", "Case", fmFind->cbCase->Checked);
+    ini.WriteBool("Search", "Word", fmFind->cbWordSearch->Checked);
+    ini.WriteBool("Search", "Regex", fmFind->cbRegex->Checked);
+    ini.WriteInteger("Search", "Range", fmFind->rgRange->ItemIndex);
 
-    Ini->WriteString("Application", "E0", mnAppli0->Hint);
-    Ini->WriteString("Application", "N0", mnAppli0->Caption.c_str() + 4);
-    Ini->WriteBool("Application", "Q0", mnAppli0->Tag);
-    Ini->WriteString("Application", "E1", mnAppli1->Hint);
-    Ini->WriteString("Application", "N1", mnAppli1->Caption.c_str() + 4);
-    Ini->WriteBool("Application", "Q1", mnAppli1->Tag);
-    Ini->WriteString("Application", "E2", mnAppli2->Hint);
-    Ini->WriteString("Application", "N2", mnAppli2->Caption.c_str() + 4);
-    Ini->WriteBool("Application", "Q2", mnAppli2->Tag);
-    Ini->WriteString("Application", "Browser", MainGrid->BrowserFileName);
+    ini.WriteString("Application", "E0", mnAppli0->Hint);
+    ini.WriteString("Application", "N0", mnAppli0->Caption.c_str() + 4);
+    ini.WriteBool("Application", "Q0", mnAppli0->Tag);
+    ini.WriteString("Application", "E1", mnAppli1->Hint);
+    ini.WriteString("Application", "N1", mnAppli1->Caption.c_str() + 4);
+    ini.WriteBool("Application", "Q1", mnAppli1->Tag);
+    ini.WriteString("Application", "E2", mnAppli2->Hint);
+    ini.WriteString("Application", "N2", mnAppli2->Caption.c_str() + 4);
+    ini.WriteBool("Application", "Q2", mnAppli2->Tag);
+    ini.WriteString("Application", "Browser", MainGrid->BrowserFileName);
 
     for (int i = 0; i < History.size(); i++) {
-      Ini->WriteString("History", (String)i, History[i]);
+      ini.WriteString("History", (String)i, History[i]);
     }
     for (int i = History.size(); i < 10; i++) {
-      Ini->DeleteKey("History", (String)i);
+      ini.DeleteKey("History", (String)i);
     }
     if (dlgOpenMacro->InitialDir != "" &&
         dlgOpenMacro->InitialDir != Pref->UserPath + "Macro") {
-      Ini->WriteString("History", "Macro", dlgOpenMacro->InitialDir);
+      ini.WriteString("History", "Macro", dlgOpenMacro->InitialDir);
     } else {
-      Ini->DeleteKey("History", "Macro");
+      ini.DeleteKey("History", "Macro");
     }
-
-    delete Ini;
-  }catch(...){}
+  } catch(...) {}
 }
 //---------------------------------------------------------------------------
 TToolButton *TfmMain::AddToolButton(String Label, String Name, String Action,
