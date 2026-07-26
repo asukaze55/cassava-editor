@@ -278,7 +278,7 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall mnSortClick(TObject *Sender);
   void __fastcall sbSortClick(TObject *Sender);
   void __fastcall mnKCodeClick(TObject *Sender);
-  void __fastcall mnOpenHistorysClick(TObject *Sender);
+  void __fastcall mnOpenHistoryClick(TObject *Sender);
   void __fastcall mnOpenHistoryClearClick(TObject *Sender);
   void __fastcall mnOptionDlgClick(TObject *Sender);
   void __fastcall mnPrintClick(TObject *Sender);
@@ -400,7 +400,7 @@ public:     // ユーザー宣言
   String FullPath;
   Preference *Pref;
   TDateTime TimeStamp;
-  TStringList *History;
+  std::vector<String> History;
   void SetHistory(String S);
   void SetFilter();
   String MakeId(String prefix, String caption, int i);

@@ -63,7 +63,6 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
   Application->OnActivate = ApplicationActivate;
   Application->OnHint = ApplicationHint;
 
-  History = new TStringList;
   ScreenDpi = Screen->PixelsPerInch;
 
   TTypeList defaultTypeList;
@@ -217,14 +216,13 @@ void __fastcall TfmMain::ExecOpenMacro(System::TObject* Sender)
 //---------------------------------------------------------------------------
 __fastcall TfmMain::~TfmMain()
 {
-  delete History;
   delete Pref;
   if (LockingFile) { delete LockingFile; }
 }
 //---------------------------------------------------------------------------
 void TfmMain::ReadIni()
 {
-  History->Clear();
+  History.clear();
 
   IniFile *Ini = Pref->GetInifile();
 
@@ -479,11 +477,11 @@ void TfmMain::ReadIni()
     LaunchName[2]  = Ini->ReadString("Application", "N2", L"ñ¢ê›íË");
     MainGrid->BrowserFileName = Ini->ReadString("Application", "Browser", "");
 
-  History->Clear();
+  History.clear();
   for (int i = 0; i < 10; i++) {
     String historyFile = Ini->ReadString("History", (String)i, "");
     if (historyFile != "") {
-      History->Add(historyFile);
+      History.push_back(historyFile);
     } else {
       break;
     }
@@ -645,10 +643,10 @@ void TfmMain::WriteIni(bool PosSlide)
     Ini->WriteBool("Application", "Q2", mnAppli2->Tag);
     Ini->WriteString("Application", "Browser", MainGrid->BrowserFileName);
 
-    for (int i = 0; i < History->Count; i++) {
-      Ini->WriteString("History", (String)i, History->Strings[i]);
+    for (int i = 0; i < History.size(); i++) {
+      Ini->WriteString("History", (String)i, History[i]);
     }
-    for (int i = History->Count; i < 10; i++) {
+    for (int i = History.size(); i < 10; i++) {
       Ini->DeleteKey("History", (String)i);
     }
     if (dlgOpenMacro->InitialDir != "" &&
@@ -1690,14 +1688,12 @@ void TfmMain::Export(String filename, String type)
 //---------------------------------------------------------------------------
 void TfmMain::SetHistory(String S)
 {
-  if(S != ""){
-    for(int i=History->Count-1; i>=0; i--){
-      if(History->Strings[i] == S) History->Delete(i);
-    }
-    History->Insert(0,S);
+  if (S != "") {
+    std::erase_if(History, [S](String value) { return value == S; });
+    History.insert(History.begin(), S);
   }
-  for(int i=History->Count-1; i>=10; i--){
-    History->Delete(i);
+  if (History.size() > 10) {
+    History.resize(10);
   }
 
   TMenuItem *MnHist[10] = {
@@ -1705,9 +1701,9 @@ void TfmMain::SetHistory(String S)
     mnOpenHistory4, mnOpenHistory5, mnOpenHistory6, mnOpenHistory7,
     mnOpenHistory8, mnOpenHistory9 };
 
-  for(int i=0; i<10; i++){
-    if(i < History->Count){
-      MnHist[i]->Caption = (String)"&" + i + ": " + History->Strings[i];
+  for (int i = 0; i < 10; i++) {
+    if (i < History.size()){
+      MnHist[i]->Caption = (String)"&" + i + ": " + History[i];
       MnHist[i]->Enabled = true;
       MnHist[i]->Visible = true;
     } else {
@@ -1715,19 +1711,19 @@ void TfmMain::SetHistory(String S)
       MnHist[i]->Caption = (String)"&" + i + L": (Ç»Çµ)";
     }
   }
-  if(History->Count == 0){
+  if (History.size() == 0) {
     mnOpenHistory0->Enabled = false;
     mnOpenHistory0->Visible = true;
   }
 }
 //---------------------------------------------------------------------------
-void __fastcall TfmMain::mnOpenHistorysClick(TObject *Sender)
+void __fastcall TfmMain::mnOpenHistoryClick(TObject *Sender)
 {
   int Num = static_cast<TMenuItem *>(Sender)->Tag;
-  String FN = History->Strings[Num];
+  String FN = History[Num];
 
-  if(!FileExists(FN)){
-    History->Delete(Num);
+  if (!FileExists(FN)) {
+    History.erase(History.begin() + Num);
     SetHistory("");
     Application->MessageBox(
       (L"ÉtÉ@ÉCÉã " + FN + L" ÇÕë∂ç›ÇµÇ‹ÇπÇÒ").c_str(),
@@ -1755,18 +1751,18 @@ void __fastcall TfmMain::PopMenuOpenPopup(TObject *Sender)
     delete OldItem;
   }
 
-  for(int i=0; i<History->Count; i++){
+  for (int i = 0; i < History.size(); i++) {
     TMenuItem *NewItem = new TMenuItem(mi->Owner);
-    NewItem->Caption = (String)"&" + i + ": " + History->Strings[i];
+    NewItem->Caption = (String)"&" + i + ": " + History[i];
     NewItem->Tag = i;
-    NewItem->OnClick = mnOpenHistorysClick;
+    NewItem->OnClick = mnOpenHistoryClick;
     mi->Add(NewItem);
   }
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnOpenHistoryClearClick(TObject *Sender)
 {
-  History->Clear();
+  History.clear();
   SetHistory("");
 }
 //---------------------------------------------------------------------------
