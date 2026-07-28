@@ -92,6 +92,60 @@ CMCElement::CMCElement(String s){
   }
 }
 //---------------------------------------------------------------------------
+double TByteVector::ReadDouble(int& Index) const {
+  double result;
+  std::memcpy(&result, Data.data() + Index, sizeof(double));
+  Index += sizeof(double);
+  return result;
+}
+//---------------------------------------------------------------------------
+int TByteVector::ReadInteger(int& Index) const {
+  int result;
+  std::memcpy(&result, Data.data() + Index, sizeof(int));
+  Index += sizeof(int);
+  return result;
+}
+//---------------------------------------------------------------------------
+String TByteVector::ReadString(int& Index) const {
+  int length = ReadInteger(Index);
+  if (length == 0) {
+    return "";
+  }
+  String value;
+  value.SetLength(length);
+  int size = length * sizeof(wchar_t);
+  std::memcpy(value.c_str(), Data.data() + Index, size);
+  Index += size;
+  return value;
+}
+//---------------------------------------------------------------------------
+void TByteVector::Write(const TByteVector& Bytes) {
+  int p = Data.size();
+  Data.resize(Data.size() + Bytes.Data.size());
+  std::memcpy(Data.data() + p, Bytes.Data.data(), Bytes.Data.size());
+}
+//---------------------------------------------------------------------------
+void TByteVector::WriteDouble(double Value) {
+  int p = Data.size();
+  Data.resize(Data.size() + sizeof(double));
+  std::memcpy(Data.data() + p, &Value, sizeof(double));
+}
+//---------------------------------------------------------------------------
+void TByteVector::WriteInteger(int Value) {
+  int p = Data.size();
+  Data.resize(Data.size() + sizeof(int));
+  std::memcpy(Data.data() + p, &Value, sizeof(int));
+}
+//---------------------------------------------------------------------------
+void TByteVector::WriteString(String Value) {
+  int length = Value.Length();
+  int size = length * sizeof(wchar_t);
+  int p = Data.size();
+  Data.resize(Data.size() + sizeof(int) + size);
+  std::memcpy(Data.data() + p, &length, sizeof(int));
+  std::memcpy(Data.data() + p + sizeof(int), Value.c_str(), size);
+}
+//---------------------------------------------------------------------------
 class CMCException{
 public:
   String Message;
@@ -387,7 +441,7 @@ class TCompiler {
 private:
   bool Fail;
   TTokenizer *lex;
-  TStream *fout;
+  TByteVector fout;
   String InName;
   std::map<String, String> ImportedFunctions;
   TMacroContext *Context;
@@ -471,16 +525,16 @@ void TCompiler::GetWhile()
   Continues = &continues;
 
   lex->Get(); // '('
-  int bp1to = fout->Position;
+  int bp1to = fout.Size();
   GetValues(')');
   breaks.push_back(OutputPositionPlaceholder());
   Output(CMO_IfThen, tpOpe);
   GetSentence(';');
   OutputInteger(bp1to);
   Output(CMO_Goto, tpOpe);
-  int bp2to = fout->Position;
+  int bp2to = fout.Size();
 
-  FillPositionPlaceholders(breaks, fout->Position);
+  FillPositionPlaceholders(breaks, fout.Size());
   Breaks = originalBreaks;
 
   FillPositionPlaceholders(continues, bp1to);
@@ -521,7 +575,7 @@ void TCompiler::GetFor()
     Output(index, tpVar);
     OutputInteger(0);
     Output("=", tpOpe);
-    int nextPosition = fout->Position;
+    int nextPosition = fout.Size();
 
     Output(index, tpVar);
     Output(collection, tpVar);
@@ -537,7 +591,7 @@ void TCompiler::GetFor()
     Output(".", tpOpe);
     Output("=", tpOpe);
     GetSentence(';'); // Loop body
-    continuePosition = fout->Position;
+    continuePosition = fout.Size();
 
     Output(index, tpVar);
     Output(CMO_Inc, tpOpe);
@@ -547,27 +601,26 @@ void TCompiler::GetFor()
     Variables.erase(var.str);
   } else {
     GetValues(';'); // Initialization
-    int nextPosition = fout->Position;
+    int nextPosition = fout.Size();
     GetValues(';'); // Condition
     breaks.push_back(OutputPositionPlaceholder());
     Output(CMO_IfThen, tpOpe);
 
-    TStream *fs = fout;
-    TStream *ms = new TMemoryStream();
-    fout = ms;
+    TByteVector orgFOut = std::move(fout);
+    fout = {};
     GetValues(')'); // Final Expression
-    fout = fs;
+    TByteVector finalExpression = std::move(fout);
+    fout = std::move(orgFOut);
 
     GetSentence(';'); // Loop Body
-    continuePosition = fout->Position;
-    fout->CopyFrom(ms, 0);
-    delete ms;
+    continuePosition = fout.Size();
+    fout.Write(finalExpression);
 
     OutputInteger(nextPosition);
     Output(CMO_Goto, tpOpe);
   }
 
-  FillPositionPlaceholders(breaks, fout->Position);
+  FillPositionPlaceholders(breaks, fout.Size());
   Breaks = originalBreaks;
 
   FillPositionPlaceholders(continues, continuePosition);
@@ -586,7 +639,7 @@ void TCompiler::GetLegacyFor()
   Output(var);
   OutputInteger(1);
   Output("=", tpOpe);
-  int nextPosition = fout->Position;
+  int nextPosition = fout.Size();
 
   Output(var);
   GetValues(')'); // Max Value
@@ -607,7 +660,6 @@ constexpr char LAMBDA_EOS = 'L';
 //---------------------------------------------------------------------------
 String TCompiler::GetFunction(FunctionType functionType, String paramName)
 {
-  TStream *orgFOut = fout;
   std::set<String> orgVariables = std::move(Variables);
   std::set<String> orgConstants = std::move(Constants);
 
@@ -635,7 +687,8 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
   std::vector<String> parameters;
   int minArgs = 0;
   bool varArg = false;
-  fout = new TMemoryStream();
+  TByteVector orgFOut = std::move(fout);
+  fout = {};
   if (paramName != "") {
     Variables.insert(paramName);
     parameters.push_back(paramName);
@@ -696,8 +749,7 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
       funcEqual = true;
     }
   } else if (lex->GetNext().str == ";") {
-    delete fout;
-    fout = orgFOut;
+    fout = std::move(orgFOut);
     Variables = std::move(orgVariables);
     Constants = std::move(orgConstants);
     return outName;
@@ -706,7 +758,6 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
     funcEqual = true;
   }
 
-  Context->Modules[outName] = fout;
   wchar_t H = parameters.size() * 2;
   Output((String)H + "func=", tpFunc);
 
@@ -724,7 +775,8 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
     GetSentence(';');     // 関数本体
   }
 
-  fout = orgFOut;
+  Context->Modules[outName] = std::move(fout);
+  fout = std::move(orgFOut);
   Variables = std::move(orgVariables);
   Constants = std::move(orgConstants);
   return outName;
@@ -808,36 +860,32 @@ void TCompiler::Output(String str, char type) {
     return;
   }
 
-  fout->Write(&type, 1);
+  fout.WriteChar(type);
   switch (type) {
     case '$': case '*': case '~': case '!': {
-      int length = str.Length();
-      fout->Write(&length, INT_SIZE);
-      fout->Write(str.c_str(), length * (int) sizeof(wchar_t));
+      fout.WriteString(str);
       break;
     }
     case '-': {
       AnsiString ansiStr = str;
       if (ansiStr.Length() == 1) {
-        fout->Write(ansiStr.c_str(), 1);
+        fout.WriteChar(ansiStr[1]);
       } else {
         char c = CMOCode(str);
         if (c == '\0') {
           throw CMCException(L"サポートされていない演算子です：" + str);
         } else {
-          fout->Write(&c, 1);
+          fout.WriteChar(c);
         }
       }
       break;
     }
     case 'i': {
-      int i = str.ToInt();
-      fout->Write(&i, INT_SIZE);
+      fout.WriteInteger(str.ToInt());
       break;
     }
     case 'd': {
-      double d = str.ToDouble();
-      fout->Write(&d, (int)sizeof(double));
+      fout.WriteDouble(str.ToDouble());
       break;
     }
   }
@@ -845,35 +893,29 @@ void TCompiler::Output(String str, char type) {
 //---------------------------------------------------------------------------
 void TCompiler::OutputInteger(int value)
 {
-  fout->Write("i", 1);
-  fout->Write(&value, INT_SIZE);
+  fout.WriteChar('i');
+  fout.WriteInteger(value);
 }
 //---------------------------------------------------------------------------
 int TCompiler::OutputPositionPlaceholder()
 {
-  fout->Write("i", 1);
-  int position = fout->Position;
-  fout->Seek(INT_SIZE, soFromCurrent);
+  fout.WriteChar('i');
+  int position = fout.Size();
+  fout.WriteInteger(0);
   return position;
 }
 //---------------------------------------------------------------------------
 void TCompiler::FillPositionPlaceholder(int placeholder)
 {
-  int position = fout->Position;
-  fout->Position = placeholder;
-  fout->Write(&position, INT_SIZE);
-  fout->Position = position;
+  fout.WriteInteger(fout.Size(), placeholder);
 }
 //---------------------------------------------------------------------------
 void TCompiler::FillPositionPlaceholders(
     const std::vector<__int64>& placeholders, int position)
 {
-  int current = fout->Position;
   for (__int64 placeholder : placeholders) {
-    fout->Position = placeholder;
-    fout->Write(&position, INT_SIZE);
+    fout.WriteInteger(position, placeholder);
   }
-  fout->Position = current;
 }
 //---------------------------------------------------------------------------
 void TCompiler::Push(CMCElement e, std::deque<CMCElement> *L)
@@ -954,8 +996,8 @@ void TCompiler::GetClass()
     throw CMCException(L"クラス宣言には { が必要です：" + paren);
   }
   ImportedFunctions[name] = InName + "\n" + name;
-  TStream *orgFOut = fout;
-  fout = new TMemoryStream();
+  TByteVector orgFOut = std::move(fout);
+  fout = {};
   String constructor = GetObject();
 
   String outName;
@@ -969,8 +1011,8 @@ void TCompiler::GetClass()
   }
 
   Output(CMO_Return, tpOpe);
-  Context->Modules[outName] = fout;
-  fout = orgFOut;
+  Context->Modules[outName] = std::move(fout);
+  fout = std::move(orgFOut);
 }
 //---------------------------------------------------------------------------
 void TCompiler::GetImport()
@@ -1365,7 +1407,7 @@ bool TCompiler::Compile(String string, String filePath, String libName,
   InName = libName;
   Fail = false;
   lex = new TTokenizer(string);
-  fout = new TMemoryStream();
+  fout = {};
   // Ok to use these pre-defined variables.
   Variables.insert("x");
   Variables.insert("y");
@@ -1393,9 +1435,7 @@ bool TCompiler::Compile(String string, String filePath, String libName,
   }
 
   if (!Fail) {
-    Context->Modules[libName] = fout;
-  } else {
-    delete fout;
+    Context->Modules[libName] = std::move(fout);
   }
 
   delete lex;

@@ -329,17 +329,14 @@ public:
 //---------------------------------------------------------------------------
 class TMacro{
 private:
-  TStream *fs;
-  String ReadString(TStream *fs);
-  TStream *GetStreamFor(String FileName);
-  void ExecOpe(char c);
+  const TByteVector& GetByteVector(String FileName);
+  void ExecOpe(char c, int &p);
   void ExecMethod(String name, int H, const std::vector<Element>& ope,
                   bool isLambda);
   void ExecPrimitiveMethod(String s, int H, const std::vector<Element>& ope);
   void ExecFnc(String s);
   std::vector<Element> Stack;
   int LoopCount;
-  String FileName;
   bool canWriteFile;
   EncodedWriter *fs_io;
   const TMacroContext &Context;
@@ -567,22 +564,6 @@ bool Element::HasMember(String name) const
   return env->GetObject(vl)->Vars.count(name) > 0;
 }
 //---------------------------------------------------------------------------
-String TMacro::ReadString(TStream *fs)
-{
-  int length;
-  if (fs->Read(&length, (int) sizeof(int)) == 0) {
-    return "";
-  }
-  if (length == 0) {
-    return "";
-  }
-  wchar_t *buffer = new wchar_t[length];
-  fs->Read(buffer, length * (int) sizeof(wchar_t));
-  String value = String(buffer, length);
-  delete[] buffer;
-  return value;
-}
-//---------------------------------------------------------------------------
 String NormalizeNewLine(String Val)
 {
   TReplaceFlags replaceAll = TReplaceFlags() << rfReplaceAll;
@@ -627,7 +608,7 @@ void TMacro::ExecMethod(String name, int H, const std::vector<Element>& ope,
   }
   String funcName = funcPtr.Str();
   try {
-    GetStreamFor(funcPtr.Str());
+    GetByteVector(funcPtr.Str());
   } catch (...) {
     throw MacroException(isLambda
         ? L"関数オブジェクトではありません：" + objName
@@ -1641,14 +1622,14 @@ void TMacro::ExecFnc(String s)
     }
 }
 //---------------------------------------------------------------------------
-void TMacro::ExecOpe(char c){
+void TMacro::ExecOpe(char c, int &p){
   if (c == CMO_Goto || c == CMO_Jump || c == CMO_Minus || c == CMO_Inc ||
       c == CMO_Dec || c == '!' || c == CMO_VarArg) {
     if (Stack.size() < 1) { throw MacroException(c, ME_HIKISU); }
     Element ope = Stack.back();
     Stack.pop_back();
     if (c == CMO_Goto) {
-      fs->Position = ope.Val();
+      p = ope.Val();
       Stack.clear();
       LoopCount++;
       Application->ProcessMessages();
@@ -1658,7 +1639,7 @@ void TMacro::ExecOpe(char c){
       }
       if (!RunningOk) { throw MacroException(L"中断しました"); }
     }
-    else if (c == CMO_Jump) { fs->Position = ope.Val(); }
+    else if (c == CMO_Jump) { p = ope.Val(); }
     else if (c == CMO_Minus) { Stack.push_back(Element(-(ope.Val()))); }
     else if (c == CMO_Inc) { ope.Sbst(Element(ope.Val() + 1)); }
     else if (c == CMO_Dec) { ope.Sbst(Element(ope.Val() - 1)); }
@@ -1733,13 +1714,13 @@ void TMacro::ExecOpe(char c){
     } else if (c == '&') {
       if (ope1.Val() == 0) {
         Stack.push_back(ope1);
-        fs->Position = ope2.Val();
+        p = ope2.Val();
         return;
       }
     } else if (c == '|') {
       if (ope1.Val() != 0) {
         Stack.push_back(ope1);
-        fs->Position = ope2.Val();
+        p = ope2.Val();
         return;
       }
     } else if (c == '.') {
@@ -1770,13 +1751,13 @@ void TMacro::ExecOpe(char c){
       Stack.push_back(Element((vars.find(ope1.Str()) != vars.end()) ? 1 : 0));
     } else if (c == CMO_IfThen) {
       if (ope1.Val() == 0) {
-        fs->Position = ope2.Val();
+        p = ope2.Val();
       }
     } else if (c == CMO_Cell) {
       Stack.push_back(Element(ope1.Val(), ope2.Val(), &env));
     } else if (c == CMO_DefParam) {
       if (Stack.size() >= ope1.Val()) {
-        fs->Position = ope2.Val();
+        p = ope2.Val();
       }
     } else {
       throw MacroException((String)"Invalid operator: " + c);
@@ -1784,7 +1765,7 @@ void TMacro::ExecOpe(char c){
   }
 }
 //---------------------------------------------------------------------------
-TStream *TMacro::GetStreamFor(String funcName){
+const TByteVector& TMacro::GetByteVector(String funcName){
   try {
     return Context.Modules.at(funcName);
   } catch (...) {
@@ -1795,71 +1776,46 @@ TStream *TMacro::GetStreamFor(String funcName){
 Element TMacro::Do(String FileName, const std::vector<Element> &AStack,
                    int x, int y, Element *thisPtr) {
   Element ReturnValue;
-  // 再帰呼び出し対応のため、メソッド終了時にStreamのPositionを元に戻す
-  long oldpc = 0L;
   Stack = AStack;
-  fs = nullptr;
-  try{
-    fs = GetStreamFor(FileName);
-    oldpc = fs->Position;
-    fs->Position = 0;
 
-    env.Vars.clear();
-    env.Vars["x"] = Element(((x >= 0) ? x : env.Grid->GetCol()));
-    env.Vars["y"] = Element(((y >= 0) ? y : env.Grid->GetRow()));
-    env.Vars["Left"] = Element(env.Grid->GetLeft());
-    env.Vars["Top"] = Element(env.Grid->GetTop());
-    if (thisPtr) {
-      env.Vars["this"] = *thisPtr;
-    }
-    char Type;
-    LoopCount = 0;
-    while(fs->Read(&Type, 1) > 0) {
-      if(Type == '$'){
-        Stack.push_back(Element(ReadString(fs)));
-      }else if(Type == '*'){
-        ExecFnc(ReadString(fs));
-      }else if(Type == '~'){
-        String name = ReadString(fs);
-        Stack.push_back(Element(name, etVar, &env));
-      }else if(Type == '!'){
-        Stack.push_back(Element(ReadString(fs), etSystem, true, &env));
-      }else if(Type == '-'){
-        char c;
-        fs->Read(&c, 1);
-        if(c == CMO_Return){
-          if (Stack.size() > 0) {
-            ReturnValue = Stack.back().Value();
-          }
-          break;
-        }else{
-          ExecOpe(c);
-        }
-      }else if(Type == 'i'){
-        int i;
-        fs->Read(&i, (int) sizeof(int));
-        Stack.push_back(Element(i));
-      }else if(Type == 'd' || Type == 'I'){
-        double d;
-        fs->Read(&d, (int) sizeof(double));
-        Stack.push_back(Element(d));
-      }
-    }
+  const TByteVector& bytes = GetByteVector(FileName);
+  int p = 0;
 
-  } catch (MacroException e) {
-    if(fs){
-      fs->Position = oldpc;
-    }
-    throw e;
-  } catch(Exception *e) {
-    if(fs){
-      fs->Position = oldpc;
-    }
-    throw e;
+  env.Vars.clear();
+  env.Vars["x"] = Element(((x >= 0) ? x : env.Grid->GetCol()));
+  env.Vars["y"] = Element(((y >= 0) ? y : env.Grid->GetRow()));
+  env.Vars["Left"] = Element(env.Grid->GetLeft());
+  env.Vars["Top"] = Element(env.Grid->GetTop());
+  if (thisPtr) {
+    env.Vars["this"] = *thisPtr;
   }
-
-  if(fs){
-    fs->Position = oldpc;
+  LoopCount = 0;
+  while (p < bytes.Size()) {
+    char Type = bytes.ReadChar(p);
+    if (Type == '$') {
+      Stack.push_back(Element(bytes.ReadString(p)));
+    } else if (Type == '*') {
+      ExecFnc(bytes.ReadString(p));
+    } else if (Type == '~') {
+      String name = bytes.ReadString(p);
+      Stack.push_back(Element(name, etVar, &env));
+    } else if (Type == '!') {
+      Stack.push_back(Element(bytes.ReadString(p), etSystem, true, &env));
+    } else if (Type == '-') {
+      char c = bytes.ReadChar(p);
+      if (c == CMO_Return) {
+        if (Stack.size() > 0) {
+          ReturnValue = Stack.back().Value();
+        }
+        break;
+      } else {
+        ExecOpe(c, p);
+      }
+    } else if (Type == 'i') {
+      Stack.push_back(Element(bytes.ReadInteger(p)));
+    } else if (Type == 'd') {
+      Stack.push_back(Element(bytes.ReadDouble(p)));
+    }
   }
   return ReturnValue;
 }
