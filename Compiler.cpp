@@ -440,7 +440,7 @@ enum FunctionType { FUNCTION, METHOD, LAMBDA };
 class TCompiler {
 private:
   bool Fail;
-  TTokenizer *lex;
+  std::unique_ptr<TTokenizer> lex;
   TByteVector fout;
   String InName;
   std::map<String, String> ImportedFunctions;
@@ -1147,7 +1147,7 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         }
         return false; // ブロック終了
       case '(':
-        if (IsLambda(lex)) {
+        if (IsLambda(lex.get())) {
           GetLambda();
         } else {
           GetValues(')');
@@ -1406,7 +1406,7 @@ bool TCompiler::Compile(String string, String filePath, String libName,
 {
   InName = libName;
   Fail = false;
-  lex = new TTokenizer(string);
+  lex = std::make_unique<TTokenizer>(string);
   fout = {};
   // Ok to use these pre-defined variables.
   Variables.insert("x");
@@ -1438,7 +1438,6 @@ bool TCompiler::Compile(String string, String filePath, String libName,
     Context->Modules[libName] = std::move(fout);
   }
 
-  delete lex;
   return !Fail;
 }
 //---------------------------------------------------------------------------
@@ -1486,14 +1485,13 @@ bool CompileMacro(String *source, String name, TMacroContext *context,
         }
         return false;
       }
-      TFileStream *file =
-          new TFileStream(libFileName, fmOpenRead|fmShareDenyNone);
+      std::unique_ptr<TFileStream> file = std::make_unique<TFileStream>(
+          libFileName, fmOpenRead | fmShareDenyNone);
       int filelength = file->Size;
       DynamicArray<Byte> buf;
       buf.Length = filelength;
       filelength = file->Read(&(buf[0]), filelength);
       buf.Length = filelength;
-      delete file;
       String string;
       try {
         string = TEncoding::UTF8->GetString(buf);

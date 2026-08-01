@@ -292,38 +292,28 @@ public:
 class TEnvironment {
 private:
   TEnvironment *global;
-  std::vector<TEnvironment*> *objects;
+  std::vector<std::unique_ptr<TEnvironment>> objects;
 public:
   std::map<String, Element> Vars;
   bool ReadOnly;
   GridProxy *Grid;
 
   TEnvironment(bool readOnly, GridProxy *grid,  TEnvironment *gl) :
-      Vars(), ReadOnly(readOnly), Grid(grid), global(gl), objects(nullptr) {}
-  ~TEnvironment() {
-    if (objects) {
-      for (size_t i = 0; i < objects->size(); i++) {
-        delete objects->at(i);
-      }
-      delete objects;
-    }
-  }
+      Vars(), ReadOnly(readOnly), Grid(grid), global(gl) {}
+  TEnvironment(TEnvironment&& env) = default;
+
   TEnvironment *GetGlobal() { return global ? global : this; }
   TEnvironment CreateSubEnvironment() {
     return TEnvironment(ReadOnly, Grid, GetGlobal());
   }
-  TEnvironment *NewObject() {
-    return new TEnvironment(ReadOnly, Grid, GetGlobal());
+  std::unique_ptr<TEnvironment> NewObject() {
+    return std::make_unique<TEnvironment>(ReadOnly, Grid, GetGlobal());
   }
-  std::vector<TEnvironment*> *GetObjects() {
-    TEnvironment *gl = GetGlobal();
-    if (!gl->objects) {
-      gl->objects = new std::vector<TEnvironment*>();
-    }
-    return gl->objects;
+  std::vector<std::unique_ptr<TEnvironment>>& GetObjects() {
+    return GetGlobal()->objects;
   }
   TEnvironment *GetObject(int id) {
-    return GetObjects()->at(id);
+    return GetObjects()[id].get();
   }
 };
 //---------------------------------------------------------------------------
@@ -347,8 +337,9 @@ public:
              int x = -1, int y = -1, Element *thisPtr = nullptr);
 
   TMacro(EncodedWriter *io, int ml, const TMacroContext &context,
-          TEnvironment e) :
-      fs_io(io), canWriteFile(io), MaxLoop(ml), Context(context), env(e) {}
+          TEnvironment&& e) :
+      fs_io(io), canWriteFile(io), MaxLoop(ml), Context(context),
+      env(std::move(e)) {}
 };
 //---------------------------------------------------------------------------
 static int RunningCount = 0;
@@ -855,7 +846,7 @@ void CallOnClick(TMenuItem *menuItem)
 //---------------------------------------------------------------------------
 class UserDialog {
  private:
-  TForm *Form;
+  std::unique_ptr<TForm> Form;
   std::map<TObject *, Element> ElementMap;
 
   TControl *ConvertDialogControl(
@@ -866,9 +857,6 @@ class UserDialog {
   String ReturnValue;
 
   UserDialog(const Element& element, String caption);
-  ~UserDialog() {
-    delete Form;
-  }
   void ShowModal() {
     Form->ShowModal();
   }
@@ -876,12 +864,13 @@ class UserDialog {
 //---------------------------------------------------------------------------
 UserDialog::UserDialog(const Element& element, String caption)
 {
-  Form = new TForm(fmMain);
+  Form = std::make_unique<TForm>(static_cast<TComponent*>(nullptr));
   Form->BorderStyle = bsDialog;
   Form->Caption = caption;
   Form->Position = poMainFormCenter;
   bool hasDefault = false;
-  TControl *control = ConvertDialogControl(element.Value(), Form, &hasDefault);
+  TControl *control =
+      ConvertDialogControl(element.Value(), Form.get(), &hasDefault);
   control->Left = 8;
   control->Top = 8;
   Form->ClientHeight = control->Height + 16;
@@ -893,7 +882,7 @@ TControl *UserDialog::ConvertDialogControl(
     const Element& element, TWinControl *parent, bool *hasDefault)
 {
   if (!element.HasMember("tagName")) {
-    TLabel *label = new TLabel(Form);
+    TLabel *label = new TLabel(Form.get());
     label->Parent = parent;
     label->Caption = element.Str();
     label->Height = Form->Canvas->TextHeight(label->Caption) + 12;
@@ -904,7 +893,7 @@ TControl *UserDialog::ConvertDialogControl(
   String tagName = element.GetMember("tagName").Str().UpperCase();
   Element childNodes = element.GetMember("childNodes").Value();
   if (tagName == "BUTTON") {
-    TButton *button = new TButton(Form);
+    TButton *button = new TButton(Form.get());
     button->Parent = parent;
     button->Caption =  childNodes.HasMember("0")
         ? childNodes.GetMember("0").Str(): (String)" ";
@@ -918,7 +907,7 @@ TControl *UserDialog::ConvertDialogControl(
     ElementMap[button] = element;
     return button;
   } else if (tagName == "INPUT") {
-    TEdit *edit = new TEdit(Form);
+    TEdit *edit = new TEdit(Form.get());
     edit->Parent = parent;
     int size = element.HasMember("size") ? element.GetMember("size").Val() : 20;
     edit->Width = 16 * size;
@@ -931,7 +920,7 @@ TControl *UserDialog::ConvertDialogControl(
     ElementMap[edit] = element;
     return edit;
   } else if (tagName == "TEXTAREA") {
-    TMemo *memo = new TMemo(Form);
+    TMemo *memo = new TMemo(Form.get());
     memo->Parent = parent;
     int cols = element.HasMember("cols") ? element.GetMember("cols").Val() : 20;
     memo->Width = 16 * cols;
@@ -952,7 +941,7 @@ TControl *UserDialog::ConvertDialogControl(
     ElementMap[memo] = element;
     return memo;
   } else {
-    TPanel *panel = new TPanel(Form);
+    TPanel *panel = new TPanel(Form.get());
     panel->BevelOuter = bvNone;
     panel->Parent = parent;
     int height = 0;
@@ -1062,9 +1051,9 @@ void TMacro::ExecFnc(String s)
           Element(L"ä÷êîÇÕílÇï‘ÇµÇ‹ÇπÇÒÅF" + s + "/" + H, etErr, nullptr));
     }
   }else if(s == "{}") {
-      std::vector<TEnvironment*> *objects = env.GetObjects();
-      Stack.push_back(Element(objects->size(), "", etObject, env.GetGlobal()));
-      objects->push_back(env.NewObject());
+      std::vector<std::unique_ptr<TEnvironment>>& objects = env.GetObjects();
+      Stack.push_back(Element(objects.size(), "", etObject, env.GetGlobal()));
+      objects.push_back(env.NewObject());
     }else if(s == "(constructor)") {
       Element obj = Stack.back();
       Element funcPtr = obj.GetMember("constructor");
@@ -1567,10 +1556,10 @@ void TMacro::ExecFnc(String s)
       if(!DirectoryExists(dirName)){
         ForceDirectories(dirName);
       }
-      TFileStream *fs = new TFileStream(fileName, fmCreate | fmShareDenyWrite);
+      std::unique_ptr<TFileStream> fs =
+          std::make_unique<TFileStream>(fileName, fmCreate | fmShareDenyWrite);
       DynamicArray<System::Byte> array = TEncoding::UTF8->GetBytes(STR0);
       fs->Write(&(array[0]), array.Length);
-      delete fs;
     }else if(s == "Sort" && H >= 1 && H <= 9) {
       int left = VAL0;
       int top = (H > 1 ? VAL1 : 1);
@@ -1645,16 +1634,16 @@ void TMacro::ExecOpe(char c, int &p){
     else if (c == CMO_Dec) { ope.Sbst(Element(ope.Val() - 1)); }
     else if (c == '!') { Stack.push_back(Element(((ope.Val() == 0) ? 1 : 0))); }
     else if (c == CMO_VarArg) {
-      TEnvironment *varArg = env.NewObject();
+      std::unique_ptr<TEnvironment> varArg = env.NewObject();
       int fromIndex = ope.Val();
       for (int i = fromIndex; i < Stack.size(); i++) {
         varArg->Vars[(String)(i - fromIndex)] = Element(Stack[i].Value());
       }
       varArg->Vars["length"] = Element(Stack.size() - fromIndex);
-      std::vector<TEnvironment*> *objects = env.GetObjects();
+      std::vector<std::unique_ptr<TEnvironment>>& objects = env.GetObjects();
       Stack.erase(Stack.begin() + fromIndex, Stack.end());
-      Stack.push_back(Element(objects->size(), "", etObject, env.GetGlobal()));
-      objects->push_back(varArg);
+      Stack.push_back(Element(objects.size(), "", etObject, env.GetGlobal()));
+      objects.push_back(std::move(varArg));
     }
   } else if (c == CMO_ObjKey) {
     if (Stack.size() < 3) { throw MacroException(c, ME_HIKISU); }
