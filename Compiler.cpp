@@ -92,21 +92,21 @@ CMCElement::CMCElement(String s){
   }
 }
 //---------------------------------------------------------------------------
-double TByteVector::ReadDouble(int& Index) const {
+double TByteVector::ReadDouble(size_t& Index) const {
   double result;
   std::memcpy(&result, Data.data() + Index, sizeof(double));
   Index += sizeof(double);
   return result;
 }
 //---------------------------------------------------------------------------
-int TByteVector::ReadInteger(int& Index) const {
+int TByteVector::ReadInteger(size_t& Index) const {
   int result;
   std::memcpy(&result, Data.data() + Index, sizeof(int));
   Index += sizeof(int);
   return result;
 }
 //---------------------------------------------------------------------------
-String TByteVector::ReadString(int& Index) const {
+String TByteVector::ReadString(size_t& Index) const {
   int length = ReadInteger(Index);
   if (length == 0) {
     return "";
@@ -449,8 +449,8 @@ private:
   std::set<String> Constants;
   std::set<String> CapturableVariables;
   std::set<String> CapturedVariables;
-  std::vector<__int64> *Breaks;
-  std::vector<__int64> *Continues;
+  std::vector<size_t> *Breaks;
+  std::vector<size_t> *Continues;
   int DummyIdentifier;
 
   void Output(CMCElement e);
@@ -458,7 +458,7 @@ private:
   void OutputInteger(int value);
   int OutputPositionPlaceholder();
   void FillPositionPlaceholder(int placeholder);
-  void FillPositionPlaceholders(const std::vector<__int64>& placeholders,
+  void FillPositionPlaceholders(const std::vector<size_t>& placeholders,
                                 int position);
   void Push(CMCElement e, std::deque<CMCElement> *L);
   void PushAll(std::deque<CMCElement> *L);
@@ -516,12 +516,12 @@ void TCompiler::GetIf()
 //---------------------------------------------------------------------------
 void TCompiler::GetWhile()
 {
-  std::vector<__int64> *originalBreaks = Breaks;
-  std::vector<__int64> breaks;
+  std::vector<size_t> *originalBreaks = Breaks;
+  std::vector<size_t> breaks;
   Breaks = &breaks;
 
-  std::vector<__int64> *originalContinues = Continues;
-  std::vector<__int64> continues;
+  std::vector<size_t> *originalContinues = Continues;
+  std::vector<size_t> continues;
   Continues = &continues;
 
   lex->Get(); // '('
@@ -543,12 +543,12 @@ void TCompiler::GetWhile()
 //---------------------------------------------------------------------------
 void TCompiler::GetFor()
 {
-  std::vector<__int64> *originalBreaks = Breaks;
-  std::vector<__int64> breaks;
+  std::vector<size_t> *originalBreaks = Breaks;
+  std::vector<size_t> breaks;
   Breaks = &breaks;
 
-  std::vector<__int64> *originalContinues = Continues;
-  std::vector<__int64> continues;
+  std::vector<size_t> *originalContinues = Continues;
+  std::vector<size_t> continues;
   Continues = &continues;
 
   lex->Get(); // '('
@@ -911,9 +911,9 @@ void TCompiler::FillPositionPlaceholder(int placeholder)
 }
 //---------------------------------------------------------------------------
 void TCompiler::FillPositionPlaceholders(
-    const std::vector<__int64>& placeholders, int position)
+    const std::vector<size_t>& placeholders, int position)
 {
-  for (__int64 placeholder : placeholders) {
+  for (size_t placeholder : placeholders) {
     fout.WriteInteger(position, placeholder);
   }
 }

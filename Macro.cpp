@@ -320,7 +320,7 @@ public:
 class TMacro{
 private:
   const TByteVector& GetByteVector(String FileName);
-  void ExecOpe(char c, int &p);
+  void ExecOpe(char c, size_t &p);
   void ExecMethod(String name, int H, const std::vector<Element>& ope,
                   bool isLambda);
   void ExecPrimitiveMethod(String s, int H, const std::vector<Element>& ope);
@@ -1611,7 +1611,7 @@ void TMacro::ExecFnc(String s)
     }
 }
 //---------------------------------------------------------------------------
-void TMacro::ExecOpe(char c, int &p){
+void TMacro::ExecOpe(char c, size_t &p){
   if (c == CMO_Goto || c == CMO_Jump || c == CMO_Minus || c == CMO_Inc ||
       c == CMO_Dec || c == '!' || c == CMO_VarArg) {
     if (Stack.size() < 1) { throw MacroException(c, ME_HIKISU); }
@@ -1768,7 +1768,7 @@ Element TMacro::Do(String FileName, const std::vector<Element> &AStack,
   Stack = AStack;
 
   const TByteVector& bytes = GetByteVector(FileName);
-  int p = 0;
+  size_t p = 0;
 
   env.Vars.clear();
   env.Vars["x"] = Element(((x >= 0) ? x : env.Grid->GetCol()));

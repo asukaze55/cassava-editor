@@ -10,22 +10,22 @@ private:
   std::vector<std::byte> Data;
 
 public:
-  int Size() const {
+  size_t Size() const {
     return Data.size();
   }
-  char ReadChar(int& Index) const {
+  char ReadChar(size_t& Index) const {
     return static_cast<char>(Data[Index++]);
   }
-  double ReadDouble(int& Index) const;
-  int ReadInteger(int& Index) const;
-  String ReadString(int& Index) const;
+  double ReadDouble(size_t& Index) const;
+  int ReadInteger(size_t& Index) const;
+  String ReadString(size_t& Index) const;
   void Write(const TByteVector& Bytes);
   void WriteChar(char Value) {
     Data.push_back(static_cast<std::byte>(Value));
   }
   void WriteDouble(double Value);
   void WriteInteger(int Value);
-  void WriteInteger(int Value, int Index) {
+  void WriteInteger(int Value, size_t Index) {
     std::memcpy(Data.data() + Index, &Value, sizeof(int));
   }
   void WriteString(String Value);
