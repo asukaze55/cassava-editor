@@ -900,18 +900,18 @@ void TMainGrid::SetRowDataRight(int Row, int Right, bool ExpandOnly)
   }
 }
 //---------------------------------------------------------------------------
-void GetReturnCode(const DynamicArray<wchar_t> &charBuffer, bool useQuote,
+void GetReturnCode(const TCharArray &charArray, bool useQuote,
                    TReturnCode *code, TReturnCode *inCellCode)
 {
   int crlf[2] = {0, 0};
   int lf[2] = {0, 0};
   int cr[2] = {0, 0};
   int inCell = 0;
-  int len = charBuffer.Length;
+  int len = charArray.Length;
   for (int i = 0; i < len - 1; i++) {
-    wchar_t d = charBuffer[i];
+    wchar_t d = charArray[i];
     if (d == L'\x0D') {
-      if (charBuffer[i + 1] == L'\x0A') {
+      if (charArray[i + 1] == L'\x0A') {
         crlf[inCell]++;
         i++;
       } else {
@@ -925,7 +925,7 @@ void GetReturnCode(const DynamicArray<wchar_t> &charBuffer, bool useQuote,
   }
   if (len > 0) {
     // LastChar
-    wchar_t d = charBuffer[len - 1];
+    wchar_t d = charArray[len - 1];
     if (d == L'\x0D') {
       cr[inCell]++;
     } else if (d == L'\x0A') {
@@ -973,16 +973,16 @@ void __fastcall TMainGrid::DropCsvFiles(TWMDropFiles inMsg)
   delete[] fileNames;
 }
 //---------------------------------------------------------------------------
-static bool HasBom(DynamicArray<Byte> buf, TEncoding *encoding)
+static bool HasBom(TBytes bytes, TEncoding *encoding)
 {
   switch (encoding->CodePage) {
     case CODE_PAGE_UTF8:
-      return buf.Length > 3
-             && buf[0] == 0xef && buf[1] == 0xbb && buf[2] == 0xbf;
+      return bytes.Length > 3
+             && bytes[0] == 0xef && bytes[1] == 0xbb && bytes[2] == 0xbf;
     case CODE_PAGE_UTF16LE:
-      return buf.Length > 2 && buf[0] == 0xff && buf[1] == 0xfe;
+      return bytes.Length > 2 && bytes[0] == 0xff && bytes[1] == 0xfe;
     case CODE_PAGE_UTF16BE:
-      return buf.Length > 2 && buf[0] == 0xfe && buf[1] == 0xff;
+      return bytes.Length > 2 && bytes[0] == 0xfe && bytes[1] == 0xff;
     default:
       return false;
   }
@@ -1001,20 +1001,19 @@ void TMainGrid::LoadFromFile(String FileName, TEncoding *encoding,
     OnTerminate(this);
     return;
   }
-  DynamicArray<Byte> byteBuffer;
-  byteBuffer.Length = bufLength;
-  bufLength = File->Read(&(byteBuffer[0]), bufLength);
-  byteBuffer.Length = bufLength;
- 
-  DynamicArray<wchar_t> charBuffer;
-  charBuffer.Length = bufLength;
+  TBytes bytes;
+  bytes.Length = bufLength;
+  bufLength = File->Read(bytes, bufLength);
+
+  TCharArray charArray;
+  charArray.Length = bufLength;
   std::unique_ptr<TStreamReader> reader = std::make_unique<TStreamReader>(
       FileName, encoding, /* DetectBOM= */ true, /* BufferSize= */ 4096);
   try {
     Encoding = encoding;
-    int readCount = reader->ReadBlock(charBuffer, 0, bufLength);
-    charBuffer.Length = readCount;
-    AddBom = HasBom(byteBuffer, encoding);
+    int readCount = reader->ReadBlock(charArray, 0, bufLength);
+    charArray.Length = readCount;
+    AddBom = HasBom(bytes, encoding);
   } catch (...) {
     if (!isDetectedEncoding) {
       Application->MessageBox(
@@ -1022,7 +1021,7 @@ void TMainGrid::LoadFromFile(String FileName, TEncoding *encoding,
           CASSAVA_TITLE, 0);
     }
     Encoding = TEncoding::Default;
-    charBuffer = TEncoding::Default->GetChars(byteBuffer);
+    charArray = TEncoding::Default->GetChars(bytes);
     AddBom = false;
   }
 
@@ -1031,7 +1030,7 @@ void TMainGrid::LoadFromFile(String FileName, TEncoding *encoding,
   Hint = L"ファイルを読み込み中です。";
   ShowHint = true;
 
-  GetReturnCode(charBuffer, TypeOption->UseQuote(), &ReturnCode,
+  GetReturnCode(charArray, TypeOption->UseQuote(), &ReturnCode,
                 &InCellReturnCode);
 
   OnFileOpenThreadTerminate = OnTerminate;

@@ -1488,15 +1488,14 @@ bool CompileMacro(String *source, String name, TMacroContext *context,
       std::unique_ptr<TFileStream> file = std::make_unique<TFileStream>(
           libFileName, fmOpenRead | fmShareDenyNone);
       int filelength = file->Size;
-      DynamicArray<Byte> buf;
-      buf.Length = filelength;
-      filelength = file->Read(&(buf[0]), filelength);
-      buf.Length = filelength;
+      TBytes bytes;
+      bytes.Length = filelength;
+      filelength = file->Read(bytes, filelength);
       String string;
       try {
-        string = TEncoding::UTF8->GetString(buf);
+        string = TEncoding::UTF8->GetString(bytes);
       } catch (...) {
-        string = TEncoding::GetEncoding(932)->GetString(buf);
+        string = TEncoding::GetEncoding(932)->GetString(bytes);
       }
       bool ok = compiler.Compile(string, libFileName, libName, showMessage);
       if (!ok) { return false; }

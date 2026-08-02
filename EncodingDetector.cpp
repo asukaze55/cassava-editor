@@ -167,18 +167,17 @@ TEncoding *TEncodingDetector::Detect(String fileName)
 
   std::unique_ptr<TFileStream> file =
       std::make_unique<TFileStream>(fileName, fmOpenRead|fmShareDenyNone);
-  int bufLength = min(file->Size, 1024);
-  if (bufLength == 0) {
+  int length = min(file->Size, 1024);
+  if (length == 0) {
     return DefaultEncoding;
   }
 
-  DynamicArray<Byte> byteBuffer;
-  byteBuffer.Length = bufLength;
-  bufLength = file->Read(&(byteBuffer[0]), bufLength);
-  byteBuffer.Length = bufLength;
+  TBytes bytes;
+  bytes.Length = length;
+  length = file->Read(bytes, length);
 
   return ToEncoding(
-      DetectCharCode(&(byteBuffer[0]), bufLength, ToCharCode(DefaultEncoding)));
+      DetectCharCode(bytes.data(), length, ToCharCode(DefaultEncoding)));
 }
 //---------------------------------------------------------------------------
 TEncoding *ToEncoding(int charCode)

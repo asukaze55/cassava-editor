@@ -1558,8 +1558,8 @@ void TMacro::ExecFnc(String s)
       }
       std::unique_ptr<TFileStream> fs =
           std::make_unique<TFileStream>(fileName, fmCreate | fmShareDenyWrite);
-      DynamicArray<System::Byte> array = TEncoding::UTF8->GetBytes(STR0);
-      fs->Write(&(array[0]), array.Length);
+      TBytes bytes = TEncoding::UTF8->GetBytes(STR0);
+      fs->Write(bytes, bytes.Length);
     }else if(s == "Sort" && H >= 1 && H <= 9) {
       int left = VAL0;
       int top = (H > 1 ? VAL1 : 1);
