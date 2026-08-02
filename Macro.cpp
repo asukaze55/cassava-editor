@@ -255,13 +255,15 @@ class TEnvironment;
 class Element {
 private:
   String st = "";
-  double vl;
+  union {
+    double vl;
+    struct { int x; int y; } cell;
+  };
   TEnvironment *env = nullptr;
   Element &GetVar() const;
 public:
   ElementType Type;
   bool isNum() const;
-  int X, Y;
 
   Element() : Type(etErr) {}
   Element(double d) : Type(etNumber), vl(d) {}
@@ -269,8 +271,7 @@ public:
       Type(t), st(s), vl(d), env(e) {}
   Element(String s) : Type(etString), st(s) {}
   Element(String s, ElementType t, TEnvironment *e) : Type(t), st(s), env(e) {}
-  Element(int cl, int rw, TEnvironment *e) :
-      Type(etCell), X(cl), Y(rw), env(e) {}
+  Element(int x, int y, TEnvironment *e) : Type(etCell), cell({x, y}), env(e) {}
 
   double Val() const;
   String Str() const;
@@ -363,7 +364,7 @@ double Element::Val() const
   if (Type == etErr && st != "") {
     throw MacroException(st);
   } else if (Type == etCell) {
-    return ToDouble(env->Grid->GetCell(X, Y), 0);
+    return ToDouble(env->Grid->GetCell(cell.x, cell.y), 0);
   } else if(Type == etVar) {
     Element &e = GetVar();
     if (e.Type == etErr) {
@@ -391,7 +392,7 @@ String Element::Str() const
   if (Type == etErr && st != "") {
     throw MacroException(st);
   } else if (Type == etCell){
-    return env->Grid->GetCell(X, Y);
+    return env->Grid->GetCell(cell.x, cell.y);
   } else if (Type == etVar) {
     Element &e = GetVar();
     if (e.Type == etErr) {
@@ -457,7 +458,7 @@ bool Element::isNum() const
   if(Type == etVar){
     return GetVar().isNum();
   }else if(Type == etCell){
-    return env->Grid->IsNumberAtACell(X,Y);
+    return env->Grid->IsNumberAtACell(cell.x, cell.y);
   }
   return Type == etNumber || Type == etSystem;
 }
@@ -515,7 +516,7 @@ void Element::Sbst(const Element &e)
       g->Select(Sel.Left, Sel.Top, Sel.Right, Sel.Bottom);
     }
   } else if (Type == etCell) {
-    env->Grid->SetCell(X, Y, e.Value().Str());
+    env->Grid->SetCell(cell.x, cell.y, e.Value().Str());
   } else {
     throw MacroException(L"‘ã“üæ‚ª¶•Ó’l‚Å‚Í‚ ‚è‚Ü‚¹‚ñF" + Str());
   }
