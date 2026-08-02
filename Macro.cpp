@@ -21,7 +21,8 @@ using namespace std;
 //---------------------------------------------------------------------------
 enum ElementType {
   etErr,
-  etAtom,
+  etString,
+  etNumber,
   etVar,
   etCell,
   etSystem,
@@ -253,32 +254,24 @@ class TEnvironment;
 //---------------------------------------------------------------------------
 class Element {
 private:
-  String st;
+  String st = "";
   double vl;
-  bool Num;
-  TEnvironment *env;
+  TEnvironment *env = nullptr;
   Element &GetVar() const;
 public:
   ElementType Type;
   bool isNum() const;
   int X, Y;
-  Element() : Type(etErr), Num(true), vl(0), st(""), env(nullptr) {};
-  Element(double d) :
-      Type(etAtom), Num(true), vl(d), env(nullptr) {};
+
+  Element() : Type(etErr) {}
+  Element(double d) : Type(etNumber), vl(d) {}
   Element(double d, String s, ElementType t, TEnvironment *e) :
-      Type(t), Num(true), st(s), vl(d), env(e) {};
-  Element(String s) :
-      Type(etAtom), Num(false), st(s), env(nullptr) {};
-  Element(String s, ElementType t, TEnvironment *e) :
-      Type(t), Num(false), st(s), env(e) {};
-  Element(String s, ElementType t, bool nm, TEnvironment *e) :
-      Type(t), Num(nm), st(s), env(e) {};
-  Element(int cl, int rw, TEnvironment *e);
-  Element(int cl, int rw, bool nm, TEnvironment *e) :
-      Type(etCell), Num(nm), X(cl), Y(rw), env(e) {};
-  Element(const Element &e) :
-      st(e.st), vl(e.vl), Type(e.Type), Num(e.Num), X(e.X), Y(e.Y),
-      env(e.env) {};
+      Type(t), st(s), vl(d), env(e) {}
+  Element(String s) : Type(etString), st(s) {}
+  Element(String s, ElementType t, TEnvironment *e) : Type(t), st(s), env(e) {}
+  Element(int cl, int rw, TEnvironment *e) :
+      Type(etCell), X(cl), Y(rw), env(e) {}
+
   double Val() const;
   String Str() const;
   String Name() const { return st; }
@@ -360,12 +353,6 @@ double ToDouble(String str, double def)
   }
 }
 //---------------------------------------------------------------------------
-Element::Element(int cl, int rw, TEnvironment *e)
-    : Type(etCell), X(cl), Y(rw), env(e)
-{
-  Num = env->Grid->IsNumberAtACell(cl, rw);
-}
-//---------------------------------------------------------------------------
 Element &Element::GetVar() const
 {
   return env->Vars[st];
@@ -393,7 +380,7 @@ double Element::Val() const
     else if(st == "SelTop")    { return env->Grid->GetSelTop(); }
     else if(st == "SelRight")  { return env->Grid->GetSelRight(); }
     else if(st == "SelBottom") { return env->Grid->GetSelBottom(); }
-  } else if (Num) {
+  } else if (Type == etNumber || Type == etObject) {
     return vl;
   }
   return ToDouble(st, 0);
@@ -428,7 +415,7 @@ String Element::Str() const
       s += it->first + ": ";
       if (it->second.Type == etObject) {
         s += "{...}";
-      } else if (it->second.Num) {
+      } else if (it->second.isNum()) {
         s += it->second.Str();
       } else if (it->second.Str().Pos("\n") > 0) {
         s += "...";
@@ -439,7 +426,7 @@ String Element::Str() const
     return s + "}";
   } else if (st != "") {
     return st;
-  } else if (Num) {
+  } else if (Type == etNumber) {
     return String(vl);
   }
   return st;
@@ -455,8 +442,8 @@ Element Element::Value() const
     }
     return e;
   } else if (Type == etCell) {
-    if (Num) {
-      return Element(Val(), Str(), etAtom, nullptr);
+    if (isNum()) {
+      return Element(Val(), Str(), etNumber, nullptr);
     }
     return Element(Str());
   } else if (Type == etSystem) {
@@ -472,7 +459,7 @@ bool Element::isNum() const
   }else if(Type == etCell){
     return env->Grid->IsNumberAtACell(X,Y);
   }
-  return Num;
+  return Type == etNumber || Type == etSystem;
 }
 //---------------------------------------------------------------------------
 void Element::Sbst(const Element &e)
@@ -1789,7 +1776,7 @@ Element TMacro::Do(String FileName, const std::vector<Element> &AStack,
       String name = bytes.ReadString(p);
       Stack.push_back(Element(name, etVar, &env));
     } else if (Type == '!') {
-      Stack.push_back(Element(bytes.ReadString(p), etSystem, true, &env));
+      Stack.push_back(Element(bytes.ReadString(p), etSystem, &env));
     } else if (Type == '-') {
       char c = bytes.ReadChar(p);
       if (c == CMO_Return) {
