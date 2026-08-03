@@ -197,156 +197,130 @@
     </PropertyGroup>
     <ItemGroup>
         <CppCompile Include="AutoOpen.cpp">
-            <BuildOrder>5</BuildOrder>
             <DependentOn>AutoOpen.h</DependentOn>
-            <BuildOrder>16</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="Cassava.cpp">
-            <BuildOrder>-1</BuildOrder>
             <BuildOrder>0</BuildOrder>
         </CppCompile>
-        <ResFiles Include="Cassava.res">
-            <BuildOrder>-1</BuildOrder>
+        <CppCompile Include="Cassava.cpp">
             <BuildOrder>1</BuildOrder>
-        </ResFiles>
+        </CppCompile>
         <CppCompile Include="Compiler.cpp">
-            <BuildOrder>22</BuildOrder>
             <DependentOn>Compiler.h</DependentOn>
-            <BuildOrder>11</BuildOrder>
+            <BuildOrder>2</BuildOrder>
         </CppCompile>
         <CppCompile Include="CsvReader.cpp">
             <DependentOn>CsvReader.h</DependentOn>
-            <BuildOrder>28</BuildOrder>
+            <BuildOrder>3</BuildOrder>
         </CppCompile>
         <CppCompile Include="EncodedWriter.cpp">
-            <BuildOrder>24</BuildOrder>
             <DependentOn>EncodedWriter.h</DependentOn>
-            <BuildOrder>13</BuildOrder>
+            <BuildOrder>4</BuildOrder>
         </CppCompile>
         <CppCompile Include="EncodingDetector.cpp">
             <DependentOn>EncodingDetector.h</DependentOn>
-            <BuildOrder>33</BuildOrder>
+            <BuildOrder>5</BuildOrder>
         </CppCompile>
         <CppCompile Include="FileOpenThread.cpp">
-            <BuildOrder>7</BuildOrder>
             <DependentOn>FileOpenThread.h</DependentOn>
-            <BuildOrder>26</BuildOrder>
+            <BuildOrder>6</BuildOrder>
         </CppCompile>
         <CppCompile Include="Find.cpp">
             <Form>fmFind</Form>
             <DependentOn>Find.h</DependentOn>
-            <BuildOrder>14</BuildOrder>
+            <BuildOrder>7</BuildOrder>
         </CppCompile>
         <CppCompile Include="FormattedFileName.cpp">
-            <BuildOrder>9</BuildOrder>
             <DependentOn>FormattedFileName.h</DependentOn>
-            <BuildOrder>28</BuildOrder>
+            <BuildOrder>8</BuildOrder>
         </CppCompile>
         <CppCompile Include="HTTPConnection.cpp">
             <DependentOn>HTTPConnection.h</DependentOn>
-            <BuildOrder>30</BuildOrder>
+            <BuildOrder>9</BuildOrder>
         </CppCompile>
         <CppCompile Include="KeyCustomize.cpp">
-            <BuildOrder>6</BuildOrder>
             <Form>fmKey</Form>
             <DependentOn>KeyCustomize.h</DependentOn>
-            <BuildOrder>17</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="Letter.cpp">
-            <BuildOrder>3</BuildOrder>
-            <Form>fmLetter</Form>
-            <DependentOn>Letter.h</DependentOn>
-            <BuildOrder>18</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="Macro.cpp">
-            <BuildOrder>25</BuildOrder>
-            <DependentOn>Macro.h</DependentOn>
             <BuildOrder>10</BuildOrder>
         </CppCompile>
+        <CppCompile Include="Letter.cpp">
+            <Form>fmLetter</Form>
+            <DependentOn>Letter.h</DependentOn>
+            <BuildOrder>11</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="Macro.cpp">
+            <DependentOn>Macro.h</DependentOn>
+            <BuildOrder>12</BuildOrder>
+        </CppCompile>
         <CppCompile Include="MainForm.cpp">
-            <BuildOrder>4</BuildOrder>
             <Form>fmMain</Form>
             <DependentOn>MainForm.h</DependentOn>
-            <BuildOrder>15</BuildOrder>
+            <BuildOrder>13</BuildOrder>
         </CppCompile>
         <CppCompile Include="MainGrid.cpp">
-            <BuildOrder>21</BuildOrder>
             <DependentOn>MainGrid.h</DependentOn>
-            <BuildOrder>2</BuildOrder>
+            <BuildOrder>14</BuildOrder>
         </CppCompile>
         <CppCompile Include="MultiLineInputBox.cpp">
-            <BuildOrder>9</BuildOrder>
             <Form>fmMultiLineInputBox</Form>
             <DependentOn>MultiLineInputBox.h</DependentOn>
-            <BuildOrder>28</BuildOrder>
+            <BuildOrder>15</BuildOrder>
         </CppCompile>
         <CppCompile Include="Option.cpp">
-            <BuildOrder>6</BuildOrder>
             <Form>fmOption</Form>
             <DependentOn>Option.h</DependentOn>
-            <BuildOrder>17</BuildOrder>
+            <BuildOrder>16</BuildOrder>
         </CppCompile>
         <CppCompile Include="OptionBackUp.cpp">
-            <BuildOrder>19</BuildOrder>
             <Form>frOptionBackUp</Form>
             <DesignClass>TFrame</DesignClass>
             <DependentOn>OptionBackUp.h</DependentOn>
-            <BuildOrder>0</BuildOrder>
+            <BuildOrder>17</BuildOrder>
         </CppCompile>
         <CppCompile Include="OptionBehavior.cpp">
-            <BuildOrder>21</BuildOrder>
             <Form>frOptionBehavior</Form>
             <DesignClass>TFrame</DesignClass>
             <DependentOn>OptionBehavior.h</DependentOn>
-            <BuildOrder>2</BuildOrder>
+            <BuildOrder>18</BuildOrder>
         </CppCompile>
         <CppCompile Include="OptionColor.cpp">
-            <BuildOrder>22</BuildOrder>
             <Form>frOptionColor</Form>
             <DesignClass>TFrame</DesignClass>
             <DependentOn>OptionColor.h</DependentOn>
-            <BuildOrder>11</BuildOrder>
+            <BuildOrder>19</BuildOrder>
         </CppCompile>
         <CppCompile Include="OptionDataFormat.cpp">
-            <BuildOrder>3</BuildOrder>
             <Form>frOptionDataFormat</Form>
             <DesignClass>TFrame</DesignClass>
             <DependentOn>OptionDataFormat.h</DependentOn>
-            <BuildOrder>18</BuildOrder>
+            <BuildOrder>20</BuildOrder>
         </CppCompile>
         <CppCompile Include="OptionFile.cpp">
-            <BuildOrder>23</BuildOrder>
             <Form>frOptionFile</Form>
             <DesignClass>TFrame</DesignClass>
             <DependentOn>OptionFile.h</DependentOn>
-            <BuildOrder>12</BuildOrder>
+            <BuildOrder>21</BuildOrder>
         </CppCompile>
         <CppCompile Include="OptionLaunch.cpp">
-            <BuildOrder>20</BuildOrder>
             <Form>frOptionLaunch</Form>
             <DesignClass>TFrame</DesignClass>
             <DependentOn>OptionLaunch.h</DependentOn>
-            <BuildOrder>1</BuildOrder>
+            <BuildOrder>22</BuildOrder>
         </CppCompile>
         <CppCompile Include="OptionView.cpp">
             <Form>frOptionView</Form>
             <DesignClass>TFrame</DesignClass>
             <DependentOn>OptionView.h</DependentOn>
-            <BuildOrder>29</BuildOrder>
+            <BuildOrder>23</BuildOrder>
         </CppCompile>
         <CppCompile Include="PasteDlg.cpp">
-            <BuildOrder>4</BuildOrder>
             <Form>fmPasteDialog</Form>
             <DependentOn>PasteDlg.h</DependentOn>
-            <BuildOrder>15</BuildOrder>
+            <BuildOrder>24</BuildOrder>
         </CppCompile>
         <CppCompile Include="Preference.cpp">
-            <BuildOrder>25</BuildOrder>
             <DependentOn>Preference.h</DependentOn>
-            <BuildOrder>10</BuildOrder>
+            <BuildOrder>25</BuildOrder>
         </CppCompile>
         <CppCompile Include="Print.cpp">
-            <BuildOrder>7</BuildOrder>
             <Form>fmPrint</Form>
             <DependentOn>Print.h</DependentOn>
             <BuildOrder>26</BuildOrder>
@@ -354,20 +328,19 @@
         <CppCompile Include="Sort.cpp">
             <Form>fmSort</Form>
             <DependentOn>Sort.h</DependentOn>
-            <BuildOrder>32</BuildOrder>
+            <BuildOrder>27</BuildOrder>
         </CppCompile>
         <CppCompile Include="TypeList.cpp">
-            <BuildOrder>23</BuildOrder>
             <DependentOn>TypeList.h</DependentOn>
-            <BuildOrder>12</BuildOrder>
+            <BuildOrder>28</BuildOrder>
         </CppCompile>
         <CppCompile Include="Undo.cpp">
             <DependentOn>Undo.h</DependentOn>
-            <BuildOrder>31</BuildOrder>
+            <BuildOrder>29</BuildOrder>
         </CppCompile>
         <CppCompile Include="Version.cpp">
             <DependentOn>Version.h</DependentOn>
-            <BuildOrder>31</BuildOrder>
+            <BuildOrder>30</BuildOrder>
         </CppCompile>
         <FormResources Include="OptionColor.dfm"/>
         <FormResources Include="OptionDataFormat.dfm"/>
