@@ -4,7 +4,7 @@
         <ProjectType>CppVCLApplication</ProjectType>
         <MainSource>Cassava.cpp</MainSource>
         <Config Condition="'$(Config)'==''">リリース</Config>
-        <ProjectVersion>20.1</ProjectVersion>
+        <ProjectVersion>20.3</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
@@ -110,7 +110,7 @@
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
         <BCC_UseClassicCompiler>false</BCC_UseClassicCompiler>
         <Icon_MainIcon>$(BDS)\bin\cbuilder_PROJECTICON.ico</Icon_MainIcon>
-        <Custom_Styles>&quot;Windows11 Modern Dark|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows11_Modern_Dark.vsf&quot;</Custom_Styles>
+        <Custom_Styles>&quot;Windows Modern Dark SE|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows_Modern_Dark_SE.vsf&quot;</Custom_Styles>
         <UWP_CppLogo44>$(BDS)\bin\Artwork\Windows\UWP\cppreg_UwpDefault_44.png</UWP_CppLogo44>
         <UWP_CppLogo150>$(BDS)\bin\Artwork\Windows\UWP\cppreg_UwpDefault_150.png</UWP_CppLogo150>
     </PropertyGroup>
@@ -137,6 +137,7 @@
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+        <BCC_EnableBatchCompilation>true</BCC_EnableBatchCompilation>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <BCC_MonitorGlobalAndStackData>true</BCC_MonitorGlobalAndStackData>
@@ -342,22 +343,22 @@
             <DependentOn>Version.h</DependentOn>
             <BuildOrder>30</BuildOrder>
         </CppCompile>
-        <FormResources Include="OptionColor.dfm"/>
-        <FormResources Include="OptionDataFormat.dfm"/>
-        <FormResources Include="OptionFile.dfm"/>
-        <FormResources Include="OptionLaunch.dfm"/>
+        <FormResources Include="Find.dfm"/>
+        <FormResources Include="KeyCustomize.dfm"/>
+        <FormResources Include="Letter.dfm"/>
+        <FormResources Include="MainForm.dfm"/>
         <FormResources Include="MultiLineInputBox.dfm"/>
         <FormResources Include="Option.dfm"/>
         <FormResources Include="OptionBackUp.dfm"/>
         <FormResources Include="OptionBehavior.dfm"/>
-        <FormResources Include="Sort.dfm"/>
+        <FormResources Include="OptionColor.dfm"/>
+        <FormResources Include="OptionDataFormat.dfm"/>
+        <FormResources Include="OptionFile.dfm"/>
+        <FormResources Include="OptionLaunch.dfm"/>
         <FormResources Include="OptionView.dfm"/>
         <FormResources Include="PasteDlg.dfm"/>
         <FormResources Include="Print.dfm"/>
-        <FormResources Include="Letter.dfm"/>
-        <FormResources Include="MainForm.dfm"/>
-        <FormResources Include="Find.dfm"/>
-        <FormResources Include="KeyCustomize.dfm"/>
+        <FormResources Include="Sort.dfm"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -423,8 +424,8 @@
                     <Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
                 </Parameters>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k290.bpl">Embarcadero C++Builder Office 2000 サーバー パッケージ</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp290.bpl">Embarcadero C++Builder Office XP サーバー パッケージ</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k370.bpl">Embarcadero C++Builder Office 2000 サーバー パッケージ</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp370.bpl">Embarcadero C++Builder Office XP サーバー パッケージ</Excluded_Packages>
                 </Excluded_Packages>
                 <Source>
                     <Source Name="MainSource">Cassava.cpp</Source>

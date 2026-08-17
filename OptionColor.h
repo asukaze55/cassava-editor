@@ -58,7 +58,7 @@ public:		// ÉÜÅ[ÉUÅ[êÈåæ
 };
 //---------------------------------------------------------------------------
 static constexpr wchar_t LIGHT_MODE_STYLE_NAME[] = L"Windows";
-static constexpr wchar_t DARK_MODE_STYLE_NAME[] = L"Windows11 Modern Dark";
+static constexpr wchar_t DARK_MODE_STYLE_NAME[] = L"Windows Modern Dark SE";
 //---------------------------------------------------------------------------
 static inline bool IsDarkMode(String Style)
 {

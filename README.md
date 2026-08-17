@@ -15,9 +15,9 @@
 
 C++Builder の \[ツール\]-\[GetIt パッケージマネージャ...\] メニューでパッケージマネージャを開き、以下のライブラリをインストールしてください。
 
-- Boost 1.70 for the Win64 Toolchain
-- Boost 1.70 for the Win32 Clang-enhanced Toolchain
-- VCL Windows Style - Windows11 Dark 1.0
+- Boost for the Win64 1.70
+- Boost for the Win32 Clang-enhanced 1.70
+- VCL Windows Style - Windows Modern Dark SE 1.0
 
 ### プロジェクトのビルドと実行
 
