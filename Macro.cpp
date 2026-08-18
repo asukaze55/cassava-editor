@@ -1385,7 +1385,7 @@ void TMacro::ExecFnc(String s)
     }else if(s == "Paste" && H == 1) {
       env.Grid->Raw()->PasteFromClipboard(VAL0);
     }else if(s == "random" && H == 1){
-      Stack.push_back(Element(random(VAL0)));
+      Stack.push_back(Element(Random(VAL0)));
     }else if(s == "cell" && H == 2){
       Stack.push_back(Element(VAL0, VAL1, &env));
     }else if(s == "left" && H == 2){
@@ -1803,7 +1803,7 @@ TMacroValue RunMacro(String FileName, int MaxLoop, const TMacroContext &Context,
 {
   if(!RunningOk){ return TMacroValue(); }
   if(!ReadOnly){ RunningCount++; }
-  randomize();
+  Randomize();
   GridProxy grid(fmMain->MainGrid, ReadOnly);
   TMacro mcr(IO, MaxLoop, Context, TEnvironment(ReadOnly, &grid, nullptr));
   Element r;
