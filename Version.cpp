@@ -1,8 +1,7 @@
 //---------------------------------------------------------------------------
-#pragma hdrstop
-#include "Version.h"
-#include "HTTPConnection.h"
+#include <System.Net.HttpClientComponent.hpp>
 #include "AutoOpen.h"
+#include "Version.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 //---------------------------------------------------------------------------
@@ -64,8 +63,19 @@ private:
 void __fastcall UpdateCheckThread::Execute()
 {
   std::unique_ptr<TStringList> list = std::make_unique<TStringList>();
-  list->Text = HttpsGet("www.asukaze.net", 443,
-                        "/soft/cassava/update.cgi?ver=" + Version::Current());
+
+  std::unique_ptr<TNetHTTPClient> client =
+      std::make_unique<TNetHTTPClient>(nullptr);
+  client->UserAgent = "CassavaEditor/" + Version::Current();
+  try {
+    auto response = client->Get(
+        "https://www.asukaze.net/soft/cassava/update.cgi?ver="
+        + Version::Current());
+    if (response->StatusCode == 200) {
+      list->Text = response->ContentAsString();
+    }
+  } catch (...) {}
+
   if (list->Count < 6) {
     newVer = "";
     newDate = "";

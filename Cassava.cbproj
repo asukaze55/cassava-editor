@@ -233,10 +233,6 @@
             <DependentOn>FormattedFileName.h</DependentOn>
             <BuildOrder>8</BuildOrder>
         </CppCompile>
-        <CppCompile Include="HTTPConnection.cpp">
-            <DependentOn>HTTPConnection.h</DependentOn>
-            <BuildOrder>9</BuildOrder>
-        </CppCompile>
         <CppCompile Include="KeyCustomize.cpp">
             <Form>fmKey</Form>
             <DependentOn>KeyCustomize.h</DependentOn>
