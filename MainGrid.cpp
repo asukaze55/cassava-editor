@@ -104,19 +104,19 @@ String FormatOmitDecimal(String str, int count)
 //---------------------------------------------------------------------------
 String FormatNumComma(String Str, int Count)
 {
-  if(Str == "" || Count <= 0) return Str;
+  if (Str == "" || Count <= 0) {
+    return Str;
+  }
   int len = Str.Length();
-  int L, R;
-  int i = 1;
-  for(; i<=len; i++){
-    if(Str[i] >= _T('0') && Str[i] <= _T('9')) break;
+  int left = 1;
+  while (left <= len && (Str[left] < L'0' || Str[left] > L'9')) {
+    left++;
   }
-  L = i;
-  for(; i<=len; i++){
-    if(Str[i] < _T('0') || Str[i] > _T('9')) break;
+  int right = left + 1;
+  while (right <= len && Str[right] >= L'0' && Str[right] <= L'9') {
+    right++;
   }
-  R = i;
-  for(i = R - Count; i > L; i -= Count){
+  for (int i = right - Count; i > left; i -= Count) {
     Str.Insert(",", i);
   }
   return Str;
