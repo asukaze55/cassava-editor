@@ -138,7 +138,7 @@ int TfmLetter::Name2Indent(String Name1)
   bool flag = false;
   for (int i = 1; i <= Name1.Length(); i++) {
     wchar_t c = Name1[i];
-    if (c == L'　' || c == ' ' || c == '_') {
+    if (c == u'　' || c == ' ' || c == '_') {
       flag = true;
     } else if (flag) {
       pos = i;
@@ -347,10 +347,10 @@ String TfmLetter::Tate(String Str)
     wchar_t c = Str[i];
     if (c == '_') {
       Str[i] = ' ';
-    } else if (!verticalFont && (c == '-' || c == L'ー' || c == L'－')) {
-      Str[i] = L'｜';
-    } else if (!verticalFont && c == L'、') {
-      Str[i] = L'　';
+    } else if (!verticalFont && (c == '-' || c == u'ー' || c == u'－')) {
+      Str[i] = u'｜';
+    } else if (!verticalFont && c == u'、') {
+      Str[i] = u'　';
     } else if (IsNumericChar(c)) {
       int length = 1;
       while (i + length <= Str.Length() && IsNumericChar(Str[i + length])) {

@@ -292,7 +292,7 @@ CMCElement TTokenizer::GetR()
     if (!Read(&c)) {
       return CMCEOF;
     }
-  } while (c <= ' ' || c == L'　' || c == L'\ufeff');
+  } while (c <= ' ' || c == u'　' || c == L'\ufeff');
 
   if (c == '$' || c == '#' || c == '@' || c >= '~') {
     throw CMCException((String)L"不正な文字です：" + c);

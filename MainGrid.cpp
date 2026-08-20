@@ -1583,98 +1583,98 @@ void TMainGrid::CopyAvr()
 //---------------------------------------------------------------------------
 wchar_t Hankaku2Zenkaku(wchar_t wc)
 {
-  if(wc == L' ') return L'　';
-  else if(wc < L'｡' || wc > L'ﾟ') return wc;
-  else if(wc >= L'ｱ' && wc <= L'ｵ') return L'ア' + (wc - L'ｱ') * 2;
-  else if(wc >= L'ｶ' && wc <= L'ﾁ') return L'カ' + (wc - L'ｶ') * 2;
-  else if(wc >= L'ﾂ' && wc <= L'ﾄ') return L'ツ' + (wc - L'ﾂ') * 2;
-  else if(wc >= L'ﾅ' && wc <= L'ﾉ') return L'ナ' + (wc - L'ﾅ');
-  else if(wc >= L'ﾊ' && wc <= L'ﾎ') return L'ハ' + (wc - L'ﾊ') * 3;
-  else if(wc >= L'ﾏ' && wc <= L'ﾓ') return L'マ' + (wc - L'ﾏ');
-  else if(wc >= L'ﾔ' && wc <= L'ﾖ') return L'ヤ' + (wc - L'ﾔ') * 2;
-  else if(wc >= L'ﾗ' && wc <= L'ﾛ') return L'ラ' + (wc - L'ﾗ');
-  else if(wc == L'ﾜ') return L'ワ';
-  else if(wc == L'ｦ') return L'ヲ';
-  else if(wc == L'ﾝ') return L'ン';
-  else if(wc >= L'ｧ' && wc <= L'ｫ') return L'ァ' + (wc - L'ｧ') * 2;
-  else if(wc >= L'ｬ' && wc <= L'ｮ') return L'ャ' + (wc - L'ｬ') * 2;
-  else if(wc == L'ｯ') return L'ッ';
-  else if(wc == L'ｰ') return L'ー';
-  else if(wc == L'ﾞ') return L'゛';
-  else if(wc == L'ﾟ') return L'゜';
-  else if(wc == L'｡') return L'。';
-  else if(wc == L'｢') return L'「';
-  else if(wc == L'｣') return L'」';
-  else if(wc == L'､') {
-    return L'、';
-  }else if(wc == L'･') return L'・';
+  if(wc == L' ') return u'　';
+  else if(wc < u'｡' || wc > u'ﾟ') return wc;
+  else if(wc >= u'ｱ' && wc <= u'ｵ') return u'ア' + (wc - u'ｱ') * 2;
+  else if(wc >= u'ｶ' && wc <= u'ﾁ') return u'カ' + (wc - u'ｶ') * 2;
+  else if(wc >= u'ﾂ' && wc <= u'ﾄ') return u'ツ' + (wc - u'ﾂ') * 2;
+  else if(wc >= u'ﾅ' && wc <= u'ﾉ') return u'ナ' + (wc - u'ﾅ');
+  else if(wc >= u'ﾊ' && wc <= u'ﾎ') return u'ハ' + (wc - u'ﾊ') * 3;
+  else if(wc >= u'ﾏ' && wc <= u'ﾓ') return u'マ' + (wc - u'ﾏ');
+  else if(wc >= u'ﾔ' && wc <= u'ﾖ') return u'ヤ' + (wc - u'ﾔ') * 2;
+  else if(wc >= u'ﾗ' && wc <= u'ﾛ') return u'ラ' + (wc - u'ﾗ');
+  else if(wc == u'ﾜ') return u'ワ';
+  else if(wc == u'ｦ') return u'ヲ';
+  else if(wc == u'ﾝ') return u'ン';
+  else if(wc >= u'ｧ' && wc <= u'ｫ') return u'ァ' + (wc - u'ｧ') * 2;
+  else if(wc >= u'ｬ' && wc <= u'ｮ') return u'ャ' + (wc - u'ｬ') * 2;
+  else if(wc == u'ｯ') return u'ッ';
+  else if(wc == u'ｰ') return u'ー';
+  else if(wc == u'ﾞ') return u'゛';
+  else if(wc == u'ﾟ') return u'゜';
+  else if(wc == u'｡') return u'。';
+  else if(wc == u'｢') return u'「';
+  else if(wc == u'｣') return u'」';
+  else if(wc == u'､') {
+    return u'、';
+  }else if(wc == u'･') return u'・';
 
   return wc;
 }
 //---------------------------------------------------------------------------
 int Zenkaku2Hankaku(wchar_t wc, wchar_t *ans)
 {
-  if(wc == L'　'){ *ans = L' '; return 1; }
-  else if(wc == L'ワ'){ *ans = L'ﾜ'; return 1; }
-  else if(wc == L'ヲ'){ *ans = L'ｦ'; return 1; }
-  else if(wc == L'ン'){ *ans = L'ﾝ'; return 1; }
-  else if(wc == L'ヴ'){ *ans = L'ｳ'; *(ans+1) = L'ﾞ'; return 2; }
-  else if(wc == L'゛'){ *ans = L'ﾞ'; return 1; }
-  else if(wc == L'゜'){ *ans = L'ﾟ'; return 1; }
-  else if(wc == L'ー'){ *ans = L'ｰ'; return 1; }
-  else if(wc == L'。'){ *ans = L'｡'; return 1; }
-  else if(wc == L'「'){ *ans = L'｢'; return 1; }
-  else if(wc == L'」'){ *ans = L'｣'; return 1; }
-  else if(wc == L'、'){ *ans = L'､'; return 1; }
-  else if(wc == L'・'){ *ans = L'･'; return 1; }
-  else if(wc < L'ァ' || wc > L'ロ'){ *ans = wc; return 1; }
-  else if(wc == L'ッ'){ *ans = L'ｯ'; return 1; }
-  else if(wc >= L'ァ' && wc <= L'オ'){
-    int x = (wc - L'ァ');
-    *ans = ((x % 2) ? (L'ｱ' + (x / 2)) : (L'ｧ' + (x / 2)));
+  if(wc == u'　'){ *ans = L' '; return 1; }
+  else if(wc == u'ワ'){ *ans = u'ﾜ'; return 1; }
+  else if(wc == u'ヲ'){ *ans = u'ｦ'; return 1; }
+  else if(wc == u'ン'){ *ans = u'ﾝ'; return 1; }
+  else if(wc == u'ヴ'){ *ans = u'ｳ'; *(ans+1) = u'ﾞ'; return 2; }
+  else if(wc == u'゛'){ *ans = u'ﾞ'; return 1; }
+  else if(wc == u'゜'){ *ans = u'ﾟ'; return 1; }
+  else if(wc == u'ー'){ *ans = u'ｰ'; return 1; }
+  else if(wc == u'。'){ *ans = u'｡'; return 1; }
+  else if(wc == u'「'){ *ans = u'｢'; return 1; }
+  else if(wc == u'」'){ *ans = u'｣'; return 1; }
+  else if(wc == u'、'){ *ans = u'､'; return 1; }
+  else if(wc == u'・'){ *ans = u'･'; return 1; }
+  else if(wc < u'ァ' || wc > u'ロ'){ *ans = wc; return 1; }
+  else if(wc == u'ッ'){ *ans = u'ｯ'; return 1; }
+  else if(wc >= u'ァ' && wc <= u'オ'){
+    int x = (wc - u'ァ');
+    *ans = ((x % 2) ? (u'ｱ' + (x / 2)) : (u'ｧ' + (x / 2)));
     return 1;
-  }else if(wc >= L'カ' && wc <= L'ヂ'){
-    int x = (wc - L'カ');
-    *ans = L'ｶ' + (x / 2);
+  }else if(wc >= u'カ' && wc <= u'ヂ'){
+    int x = (wc - u'カ');
+    *ans = u'ｶ' + (x / 2);
     if(x % 2){
-      *(ans+1) = L'ﾞ';
+      *(ans+1) = u'ﾞ';
       return 2;
     }else{
       return 1;
     }
-  }else if(wc >= L'ツ' && wc <= L'ド'){
-    int x = (wc - L'ツ');
-    *ans = L'ﾂ' + (x / 2);
+  }else if(wc >= u'ツ' && wc <= u'ド'){
+    int x = (wc - u'ツ');
+    *ans = u'ﾂ' + (x / 2);
     if(x % 2){
-      *(ans+1) = L'ﾞ';
+      *(ans+1) = u'ﾞ';
       return 2;
     }else{
       return 1;
     }
-  }else if(wc >= L'ナ' && wc <= L'ノ'){
-    *ans = L'ﾅ' + (wc - L'ナ');
+  }else if(wc >= u'ナ' && wc <= u'ノ'){
+    *ans = u'ﾅ' + (wc - u'ナ');
     return 1;
-  }else if(wc >= L'ハ' && wc <= L'ポ'){
-    int x = (wc - L'ハ');
-    *ans = L'ﾊ' + (x / 3);
+  }else if(wc >= u'ハ' && wc <= u'ポ'){
+    int x = (wc - u'ハ');
+    *ans = u'ﾊ' + (x / 3);
     if((x % 3) == 1){
-      *(ans+1) = L'ﾞ';
+      *(ans+1) = u'ﾞ';
       return 2;
     }else if((x % 3) == 2){
-      *(ans+1) = L'ﾟ';
+      *(ans+1) = u'ﾟ';
       return 2;
     }else{
       return 1;
     }
-  }else if(wc >= L'マ' && wc <= L'モ'){
-    *ans = L'ﾏ' + (wc - L'マ');
+  }else if(wc >= u'マ' && wc <= u'モ'){
+    *ans = u'ﾏ' + (wc - u'マ');
     return 1;
-  }else if(wc >= L'ャ' && wc <= L'ヨ'){
-    int x = (wc - L'ャ');
-    *ans = ((x % 2) ? (L'ﾔ' + (x / 2)) : (L'ｬ' + (x / 2)));
+  }else if(wc >= u'ャ' && wc <= u'ヨ'){
+    int x = (wc - u'ャ');
+    *ans = ((x % 2) ? (u'ﾔ' + (x / 2)) : (u'ｬ' + (x / 2)));
     return 1;
-  }else if(wc >= L'ラ' && wc <= L'ロ'){
-    *ans = L'ﾗ' + (wc - L'ラ');
+  }else if(wc >= u'ラ' && wc <= u'ロ'){
+    *ans = u'ﾗ' + (wc - u'ラ');
     return 1;
   }
 
@@ -1708,18 +1708,18 @@ String TMainGrid::TransChar(String Str, int Type)
     wchar_t *r=wcfr + size;
     for(; p < r; p++){
       if(Type==0){
-        if(*p == L'　')      *q = L' ';
-        else if(*p == L'’') *q = L'\'';
-        else if(*p == L'”') *q = L'\"';
-        else if(*p == L'￥') *q = L'\\';
-        else if(*p >= L'！' && *p <= L'～') *q = *p - (L'Ａ' - L'A');
+        if(*p == u'　')      *q = L' ';
+        else if(*p == u'’') *q = L'\'';
+        else if(*p == u'”') *q = L'\"';
+        else if(*p == u'￥') *q = L'\\';
+        else if(*p >= u'！' && *p <= u'～') *q = *p - (u'Ａ' - L'A');
         else                 *q = *p;
       }else{
-        if(*p == L' ')       *q = L'　';
-        else if(*p == L'\'') *q = L'’';
-        else if(*p == L'\"') *q = L'”';
-        else if(*p == L'\\') *q = L'￥';
-        else if(*p >= L'!' && *p <= L'~') *q = *p + (L'Ａ' - L'A');
+        if(*p == L' ')       *q = u'　';
+        else if(*p == L'\'') *q = u'’';
+        else if(*p == L'\"') *q = u'”';
+        else if(*p == L'\\') *q = u'￥';
+        else if(*p >= L'!' && *p <= L'~') *q = *p + (u'Ａ' - L'A');
         else                 *q = *p;
       }
       q++;
@@ -1759,15 +1759,15 @@ String TMainGrid::TransKana(String Str, int Type)
       q += Zenkaku2Hankaku(*p, q);
     }else if(Type==5){
       *q = Hankaku2Zenkaku(*p);
-      if(*(p+1) == L'ﾞ' &&
-          ((*p >= L'ｶ' && *p <= L'ﾄ') || (*p >= L'ﾊ' && *p <= L'ﾎ'))) {
+      if(*(p+1) == u'ﾞ' &&
+          ((*p >= u'ｶ' && *p <= u'ﾄ') || (*p >= u'ﾊ' && *p <= u'ﾎ'))) {
         (*q)++;
         p++;
-      }else if(*(p+1) == L'ﾟ' && *p >= L'ﾊ' && *p <= L'ﾎ') {
+      }else if(*(p+1) == u'ﾟ' && *p >= u'ﾊ' && *p <= u'ﾎ') {
         (*q) += 2;
         p++;
-      }else if(*(p+1) == L'ﾞ' && *p == L'ｳ') {
-        (*q) = L'ヴ';
+      }else if(*(p+1) == u'ﾞ' && *p == u'ｳ') {
+        (*q) = u'ヴ';
         p++;
       }
       q++;
