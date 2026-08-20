@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 #include <vcl.h>
 #include "MainForm.h"
 #pragma hdrstop
@@ -122,10 +122,10 @@ void __fastcall TfmKey::tvMenuChange(TObject *Sender, TTreeNode *Node)
     SCShift = NowMSC->Shift;
     rgSCKey->Enabled = true;
     if(NowMSC->Modified){
-      stUseSC->Caption = L"š";
+      stUseSC->Caption = L"â˜…";
       stUseSC->Visible = true;
     } else {
-      stUseSC->Caption = L"™";
+      stUseSC->Caption = L"â˜†";
       stUseSC->Visible = (SCKey != '\0');
     }
   }
@@ -172,9 +172,9 @@ void __fastcall TfmKey::tvMenuChanging(TObject *Sender, TTreeNode *Node,
         = static_cast<TMenuShortCut*>(tvMenu->Items->Item[i]->Data);
       if(MSC != NowMSC && NowMSC->MShortCut == MSC->MShortCut){
         if(Application->MessageBox(
-             (ShortCutToText(NowMSC->MShortCut) + L" ‚ÍAu" +
+             (ShortCutToText(NowMSC->MShortCut) + L" ã¯ã€ã€Œ" +
              MSC->MenuItem->Caption +
-             L"v‚Å‚·‚Å‚Éİ’è‚³‚ê‚Ä‚¢‚Ü‚·B").c_str(),
+             L"ã€ã§ã™ã§ã«è¨­å®šã•ã‚Œã¦ã„ã¾ã™ã€‚").c_str(),
              CASSAVA_TITLE,
              MB_OKCANCEL) == IDCANCEL){
           AllowChange = false;
@@ -248,9 +248,9 @@ void __fastcall TfmKey::btnSaveClick(TObject *Sender)
     }
 
     if (SaveKey(KeyFileName)) {
-      Application->MessageBox(L"•Û‘¶‚µ‚Ü‚µ‚½", CASSAVA_TITLE, 0);
+      Application->MessageBox(L"ä¿å­˜ã—ã¾ã—ãŸ", CASSAVA_TITLE, 0);
     } else {
-      Application->MessageBox(L"•Û‘¶‚É¸”s‚µ‚Ü‚µ‚½", CASSAVA_TITLE, 0);
+      Application->MessageBox(L"ä¿å­˜ã«å¤±æ•—ã—ã¾ã—ãŸ", CASSAVA_TITLE, 0);
     }
   }
 }
@@ -264,9 +264,9 @@ void __fastcall TfmKey::btnOpenClick(TObject *Sender)
     }
     if (LoadKey(KeyFileName)) {
       Application->MessageBox(
-          L"ƒtƒ@ƒCƒ‹‚ğ“Ç‚İ‚İ‚Ü‚µ‚½", CASSAVA_TITLE, 0);
+          L"ãƒ•ã‚¡ã‚¤ãƒ«ã‚’èª­ã¿è¾¼ã¿ã¾ã—ãŸ", CASSAVA_TITLE, 0);
     } else {
-      Application->MessageBox(L"“Ç‚İ‚İ‚É¸”s‚µ‚Ü‚µ‚½", CASSAVA_TITLE, 0);
+      Application->MessageBox(L"èª­ã¿è¾¼ã¿ã«å¤±æ•—ã—ã¾ã—ãŸ", CASSAVA_TITLE, 0);
     }
   }
 }

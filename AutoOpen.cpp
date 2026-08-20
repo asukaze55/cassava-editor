@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 #include <vcl.h>
 #include "MainForm.h"
 #pragma hdrstop
@@ -31,7 +31,7 @@ bool AutoOpen(String FileName, String BasePath)
     if(!FileExists(FullName)){
       if(FullName != ""){
         Application->MessageBox(
-          (FullName + L"\nƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB").c_str(),
+          (FullName + L"\nãƒ•ã‚¡ã‚¤ãƒ«ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚").c_str(),
           L"Not Found", 0);
       }
       return false;

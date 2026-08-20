@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 #ifndef OptionViewH
 #define OptionViewH
 //---------------------------------------------------------------------------
@@ -12,7 +12,7 @@ class TfmOption;
 //---------------------------------------------------------------------------
 class TfrOptionView : public TFrame
 {
-__published:	// IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
+__published:	// IDE ç®¡ç†ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
   TGroupBox *gbView;
   TCheckBox *cbWordWrap;
   TCheckBox *cbNumAlignRight;
@@ -56,9 +56,9 @@ __published:	// IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
   TUpDown *udToolBarSize;
   TLabel *lblToolBarSizePx;
   void __fastcall btnFontClick(TObject *Sender);
-private:	// ƒ†[ƒU[éŒ¾
+private:	// ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
   TfmOption *fmOption;
-public:		// ƒ†[ƒU[éŒ¾
+public:		// ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
   __fastcall TfrOptionView(TfmOption* Owner);
   void RestoreFromMainForm();
   void StoreToMainForm();

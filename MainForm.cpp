@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 #include <vcl.h>
 #include "MainForm.h"
 #pragma hdrstop
@@ -188,7 +188,7 @@ void TfmMain::ExecStartupMacro()
       MacroExec(ParamCmsFile, nullptr);
     } else {
       Application->MessageBox(
-          (ParamCmsFile + L"\nƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB").c_str(),
+          (ParamCmsFile + L"\nãƒ•ã‚¡ã‚¤ãƒ«ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚").c_str(),
           CASSAVA_TITLE, 0);
     }
   }
@@ -316,7 +316,7 @@ void TfmMain::ReadIni()
       ini.ReadInteger("Position", "Mode", 0) == 2 ? wsMaximized : wsNormal;
   MainGrid->Font->Name = ini.ReadString("Font", "Name",
       Screen->Fonts->IndexOf(L"Yu Gothic UI") >= 0 ? L"Yu Gothic UI"
-                                                   : L"‚l‚r ‚oƒSƒVƒbƒN");
+                                                   : L"ï¼­ï¼³ ï¼°ã‚´ã‚·ãƒƒã‚¯");
   MainGrid->Font->Size = ini.ReadInteger("Font", "Size", 12) * dpiRatio + 0.5;
   if (ini.ReadBool("Font", "Bold", false)) {
     MainGrid->Font->Style = MainGrid->Font->Style << fsBold;
@@ -354,7 +354,7 @@ void TfmMain::ReadIni()
     for (int i = 0; i < TypeCount; i++) {
       String Section = (String)"DataType:" + i;
       TTypeOption option;
-      option.Name = ini.ReadString(Section, "Name", L"[V‹K]");
+      option.Name = ini.ReadString(Section, "Name", L"[æ–°è¦]");
       String exts = ini.ReadString(Section, "Exts", "csv");
       option.SetExts(exts);
       option.ForceExt = ini.ReadBool(Section, "ForceExt", false);
@@ -457,15 +457,15 @@ void TfmMain::ReadIni()
   mnAppli0->Hint = ini.ReadString("Application", "E0", "");
   mnAppli0->Tag = ini.ReadBool("Application", "Q0", true);
   mnAppli0->Enabled = (mnAppli0->Hint != "");
-  LaunchName[0] = ini.ReadString("Application", "N0", L"–¢İ’è");
+  LaunchName[0] = ini.ReadString("Application", "N0", L"æœªè¨­å®š");
   mnAppli1->Hint = ini.ReadString("Application", "E1", "");
   mnAppli1->Tag  = ini.ReadBool("Application", "Q1", true);
   mnAppli1->Enabled = (mnAppli1->Hint != "");
-  LaunchName[1]  = ini.ReadString("Application", "N1", L"–¢İ’è");
+  LaunchName[1]  = ini.ReadString("Application", "N1", L"æœªè¨­å®š");
   mnAppli2->Hint = ini.ReadString("Application", "E2", "");
   mnAppli2->Tag  = ini.ReadBool("Application", "Q2", true);
   mnAppli2->Enabled = (mnAppli2->Hint != "");
-  LaunchName[2]  = ini.ReadString("Application", "N2", L"–¢İ’è");
+  LaunchName[2]  = ini.ReadString("Application", "N2", L"æœªè¨­å®š");
   MainGrid->BrowserFileName = ini.ReadString("Application", "Browser", "");
   History.clear();
   for (int i = 0; i < 10; i++) {
@@ -776,40 +776,40 @@ TToolBar *TfmMain::AddToolBar(String Label, String ImageList, int Top, int Left)
 
   if (Label == "#1") {
     int width = 0;
-    width += AddToolButton("6", L"V‹Kì¬", "New", width, toolBar)->Width;
-    width += AddToolButton("7", L"ŠJ‚­", "OpenHistory", width, toolBar)->Width;
-    width += AddToolButton("8", L"ã‘‚«•Û‘¶", "Save", width, toolBar)->Width;
+    width += AddToolButton("6", L"æ–°è¦ä½œæˆ", "New", width, toolBar)->Width;
+    width += AddToolButton("7", L"é–‹ã", "OpenHistory", width, toolBar)->Width;
+    width += AddToolButton("8", L"ä¸Šæ›¸ãä¿å­˜", "Save", width, toolBar)->Width;
     width += AddToolButton("", "-", "", width, toolBar)->Width;
-    width += AddToolButton("0", L"Ø‚èæ‚è", "Cut", width, toolBar)->Width;
-    width += AddToolButton("1", L"ƒRƒs[", "Copy", width, toolBar)->Width;
-    width += AddToolButton("2", L"“\‚è•t‚¯", "Paste", width, toolBar)->Width;
+    width += AddToolButton("0", L"åˆ‡ã‚Šå–ã‚Š", "Cut", width, toolBar)->Width;
+    width += AddToolButton("1", L"ã‚³ãƒ”ãƒ¼", "Copy", width, toolBar)->Width;
+    width += AddToolButton("2", L"è²¼ã‚Šä»˜ã‘", "Paste", width, toolBar)->Width;
     width += AddToolButton("", "-", "", width, toolBar)->Width;
-    width += AddToolButton("3", L"Œ³‚É–ß‚·", "Undo", width, toolBar)->Width;
-    width += AddToolButton("4", L"‚â‚è’¼‚µ", "Redo", width, toolBar)->Width;
+    width += AddToolButton("3", L"å…ƒã«æˆ»ã™", "Undo", width, toolBar)->Width;
+    width += AddToolButton("4", L"ã‚„ã‚Šç›´ã—", "Redo", width, toolBar)->Width;
     toolBar->Width = width;
   } else if (Label == "#2") {
     int width = 0;
-    width += AddToolButton("0", L"ƒ\[ƒg", "Sort", width, toolBar)->Width;
+    width += AddToolButton("0", L"ã‚½ãƒ¼ãƒˆ", "Sort", width, toolBar)->Width;
     width += AddToolButton("", "-", "", width, toolBar)->Width;
-    width += AddToolButton("1", L"‚Ps‘}“ü", "InsRow", width, toolBar)->Width;
-    width += AddToolButton("2", L"‚P—ñ‘}“ü", "InsCol", width, toolBar)->Width;
-    width += AddToolButton("3", L"‚Psíœ", "CutRow", width, toolBar)->Width;
-    width += AddToolButton("4", L"‚P—ñíœ", "CutCol", width, toolBar)->Width;
+    width += AddToolButton("1", L"ï¼‘è¡ŒæŒ¿å…¥", "InsRow", width, toolBar)->Width;
+    width += AddToolButton("2", L"ï¼‘åˆ—æŒ¿å…¥", "InsCol", width, toolBar)->Width;
+    width += AddToolButton("3", L"ï¼‘è¡Œå‰Šé™¤", "CutRow", width, toolBar)->Width;
+    width += AddToolButton("4", L"ï¼‘åˆ—å‰Šé™¤", "CutCol", width, toolBar)->Width;
     width += AddToolButton("", "-", "", width, toolBar)->Width;
-    width += AddToolButton("5", L"ŒŸõE’uŠ·", "Find", width, toolBar)->Width;
+    width += AddToolButton("5", L"æ¤œç´¢ãƒ»ç½®æ›", "Find", width, toolBar)->Width;
     width += AddToolButton("", "-", "", width, toolBar)->Width;
     width +=
-        AddToolButton("6", L"•\¦‚ÌXV", "Refresh", width, toolBar)->Width;
-    width += AddToolButton("8", L"ƒtƒHƒ“ƒg", "Font", width, toolBar)->Width;
+        AddToolButton("6", L"è¡¨ç¤ºã®æ›´æ–°", "Refresh", width, toolBar)->Width;
+    width += AddToolButton("8", L"ãƒ•ã‚©ãƒ³ãƒˆ", "Font", width, toolBar)->Width;
     width += AddToolButton(
-        "12", L"ƒZƒ‹“àŒvZ®‚ğˆ—", "CalcExpression", width, toolBar)->Width;
+        "12", L"ã‚»ãƒ«å†…è¨ˆç®—å¼ã‚’å‡¦ç†", "CalcExpression", width, toolBar)->Width;
     width += AddToolButton("", "-", "", width, toolBar)->Width;
     width += AddToolButton(
-        "9", L"ƒJ[ƒ\ƒ‹ˆÊ’u‚Ü‚Å‚ğŒÅ’è", "FixUpLeft", width, toolBar)->Width;
+        "9", L"ã‚«ãƒ¼ã‚½ãƒ«ä½ç½®ã¾ã§ã‚’å›ºå®š", "FixUpLeft", width, toolBar)->Width;
     width += AddToolButton(
-        "10", L"‚Ps–Ú‚ğŒÅ’è", "FixFirstRow", width, toolBar)->Width;
+        "10", L"ï¼‘è¡Œç›®ã‚’å›ºå®š", "FixFirstRow", width, toolBar)->Width;
     width += AddToolButton(
-        "11", L"‚P—ñ–Ú‚ğŒÅ’è", "FixFirstCol", width, toolBar)->Width;
+        "11", L"ï¼‘åˆ—ç›®ã‚’å›ºå®š", "FixFirstCol", width, toolBar)->Width;
     toolBar->Width = width;
   } else {
     toolBar->Width = 0;
@@ -914,10 +914,10 @@ void __fastcall TfmMain::UserToolBarAction(TObject *Sender)
       CmsFile = Pref->SharedPath + "Macro\\" + action;
     }
     if(FileExists(CmsFile)){
-      // ˆê’v‚·‚éƒtƒ@ƒCƒ‹‚ª‘¶İ‚·‚éê‡A‚»‚Ìƒtƒ@ƒCƒ‹‚ğÀs
+      // ä¸€è‡´ã™ã‚‹ãƒ•ã‚¡ã‚¤ãƒ«ãŒå­˜åœ¨ã™ã‚‹å ´åˆã€ãã®ãƒ•ã‚¡ã‚¤ãƒ«ã‚’å®Ÿè¡Œ
       MacroExec(CmsFile, nullptr);
     }else{
-      // ƒtƒ@ƒCƒ‹‚ª‘¶İ‚µ‚È‚¢ê‡AƒXƒNƒŠƒvƒg‚Æ‚µ‚ÄÀs
+      // ãƒ•ã‚¡ã‚¤ãƒ«ãŒå­˜åœ¨ã—ãªã„å ´åˆã€ã‚¹ã‚¯ãƒªãƒ—ãƒˆã¨ã—ã¦å®Ÿè¡Œ
       TCHAR c = *(action.LastChar());
       if(c != ';' && c != '}'){
         if(c != ')'){
@@ -992,7 +992,7 @@ void TfmMain::SetFilter()
     FilterExt += "*." + allExts[i];
   }
   String CFilter = (String)"Cassava (" + FilterExt + ")|" + FilterExt + "|";
-  dlgOpen->Filter = CFilter + OFilter + L"‚·‚×‚Ä‚Ìƒtƒ@ƒCƒ‹ (*.*)|*.*";
+  dlgOpen->Filter = CFilter + OFilter + L"ã™ã¹ã¦ã®ãƒ•ã‚¡ã‚¤ãƒ« (*.*)|*.*";
   dlgSave->Filter = SFilter;
 }
 //---------------------------------------------------------------------------
@@ -1140,8 +1140,8 @@ void __fastcall TfmMain::ApplicationActivate(System::TObject* Sender)
   if(FileAge(FileName, age)){
     if(age > TimeStamp){
       if(Application->MessageBox(
-        L"‘¼‚ÌƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚É‚æ‚Á‚Äƒtƒ@ƒCƒ‹‚ªXV‚³‚ê‚Ü‚µ‚½B\n"
-        L"Ä“Ç‚İ‚İ‚µ‚Ü‚·‚©H",
+        L"ä»–ã®ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã«ã‚ˆã£ã¦ãƒ•ã‚¡ã‚¤ãƒ«ãŒæ›´æ–°ã•ã‚Œã¾ã—ãŸã€‚\n"
+        L"å†èª­ã¿è¾¼ã¿ã—ã¾ã™ã‹ï¼Ÿ",
         FileName.c_str(), MB_YESNO + MB_ICONQUESTION) == IDYES){
         mnReloadClick(Sender);
       }
@@ -1186,14 +1186,14 @@ void TfmMain::Clear()
 {
   MainGrid->Clear();
   if (mnFixFirstRow->Checked || mnFixFirstCol->Checked) {
-    // Clear() ‚Åƒtƒ@ƒCƒ‹“Ç‚İ‚İ‚ğ’†’f‚µ‚½Œã‚ÅŒÅ’è‰ğœ‚·‚é•K—v‚ª‚ ‚é
+    // Clear() ã§ãƒ•ã‚¡ã‚¤ãƒ«èª­ã¿è¾¼ã¿ã‚’ä¸­æ–­ã—ãŸå¾Œã§å›ºå®šè§£é™¤ã™ã‚‹å¿…è¦ãŒã‚ã‚‹
     if (mnFixFirstRow->Checked) {
       acFixFirstRowExecute(this);
     }
     if (mnFixFirstCol->Checked) {
       acFixFirstColExecute(this);
     }
-    // 1—ñ–ÚE1s–Ú‚Ì•‚ğ‰Šú’l‚É–ß‚·‚½‚ßAÄ“x Clear()
+    // 1åˆ—ç›®ãƒ»1è¡Œç›®ã®å¹…ã‚’åˆæœŸå€¤ã«æˆ»ã™ãŸã‚ã€å†åº¦ Clear()
     MainGrid->Clear();
   }
   FileName = "";
@@ -1214,7 +1214,7 @@ void TfmMain::OpenFile(String OpenFileName, int CharCode,
 {
   if(!FileExists(OpenFileName)){
     Application->MessageBox(
-      (L"ƒtƒ@ƒCƒ‹ " + OpenFileName + L" ‚Í‘¶İ‚µ‚Ü‚¹‚ñ").c_str(),
+      (L"ãƒ•ã‚¡ã‚¤ãƒ« " + OpenFileName + L" ã¯å­˜åœ¨ã—ã¾ã›ã‚“").c_str(),
       ExtractFileName(OpenFileName).c_str(), MB_ICONERROR);
     return;
   }
@@ -1306,7 +1306,7 @@ void __fastcall TfmMain::mnReloadClick(TObject *Sender)
   String fileNameToReload = FileName;
   if (MainGrid->Modified) {
     int answer = Application->MessageBox(
-                     L"•ÒW’†‚Ì•ÏX‚ğ•Ê–¼‚Å•Û‘¶‚µ‚Ü‚·‚©H",
+                     L"ç·¨é›†ä¸­ã®å¤‰æ›´ã‚’åˆ¥åã§ä¿å­˜ã—ã¾ã™ã‹ï¼Ÿ",
                      CASSAVA_TITLE, MB_YESNOCANCEL + MB_ICONQUESTION);
     if (answer == IDYES) {
       mnSaveAsClick(Sender);
@@ -1325,7 +1325,7 @@ void __fastcall TfmMain::mnReloadCodeClick(TObject *Sender)
   String fileNameToReload = FileName;
   if (MainGrid->Modified) {
     int answer = Application->MessageBox(
-                     L"•ÒW’†‚Ì•ÏX‚ğ•Ê–¼‚Å•Û‘¶‚µ‚Ü‚·‚©H",
+                     L"ç·¨é›†ä¸­ã®å¤‰æ›´ã‚’åˆ¥åã§ä¿å­˜ã—ã¾ã™ã‹ï¼Ÿ",
                      CASSAVA_TITLE, MB_YESNOCANCEL + MB_ICONQUESTION);
     if (answer == IDYES) {
       mnSaveAsClick(Sender);
@@ -1340,7 +1340,7 @@ void __fastcall TfmMain::mnReloadCodeClick(TObject *Sender)
 String TfmMain::GetUiFileName()
 {
   if (FileName == "") {
-    return L"–³‘è";
+    return L"ç„¡é¡Œ";
   }
   return TitleFullPath ? FileName : ExtractFileName(FileName);
 }
@@ -1361,12 +1361,12 @@ bool TfmMain::IfModifiedThenSave()
 {
   if (MainGrid->Modified) {
     int a = Application->MessageBox(
-                (GetUiFileName() + L" ‚Ö‚Ì•ÏX‚ğ•Û‘¶‚µ‚Ü‚·‚©H").c_str(),
+                (GetUiFileName() + L" ã¸ã®å¤‰æ›´ã‚’ä¿å­˜ã—ã¾ã™ã‹ï¼Ÿ").c_str(),
                 CASSAVA_TITLE, MB_YESNOCANCEL + MB_ICONQUESTION);
     if (a == IDYES) {
       if (MainGrid->FileOpenThread) {
         Application->MessageBox(
-            L"ƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ‚ªŠ®—¹‚µ‚Ä‚¢‚È‚¢‚½‚ß•Û‘¶‚Å‚«‚Ü‚¹‚ñB",
+            L"ãƒ•ã‚¡ã‚¤ãƒ«ã®èª­ã¿è¾¼ã¿ãŒå®Œäº†ã—ã¦ã„ãªã„ãŸã‚ä¿å­˜ã§ãã¾ã›ã‚“ã€‚",
             CASSAVA_TITLE, MB_ICONERROR);
         return false;
       }
@@ -1396,7 +1396,7 @@ void TfmMain::SaveFile(const TTypeOption *Format)
 {
   if(MainGrid->FileOpenThread){
     Application->MessageBox(
-        L"ƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ‚ªŠ®—¹‚µ‚Ä‚¢‚È‚¢‚½‚ß•Û‘¶‚Å‚«‚Ü‚¹‚ñB",
+        L"ãƒ•ã‚¡ã‚¤ãƒ«ã®èª­ã¿è¾¼ã¿ãŒå®Œäº†ã—ã¦ã„ãªã„ãŸã‚ä¿å­˜ã§ãã¾ã›ã‚“ã€‚",
         CASSAVA_TITLE, MB_ICONERROR);
     return;
   }
@@ -1404,12 +1404,12 @@ void TfmMain::SaveFile(const TTypeOption *Format)
   if(FileName == "")
     mnSaveAsClick(this);
   else {
-    // ƒƒbƒN‚ğ‰ğœ
+    // ãƒ­ãƒƒã‚¯ã‚’è§£é™¤
     if(LockingFile){
       LockingFile.reset();
     }
 
-    // ƒoƒbƒNƒAƒbƒv‘O‚ÉAƒAƒNƒZƒXŒ ŒÀ‚ğŠm”F
+    // ãƒãƒƒã‚¯ã‚¢ãƒƒãƒ—å‰ã«ã€ã‚¢ã‚¯ã‚»ã‚¹æ¨©é™ã‚’ç¢ºèª
     if (FileExists(FileName)) {
       std::unique_ptr<TFileStream> accessTest;
       try {
@@ -1421,7 +1421,7 @@ void TfmMain::SaveFile(const TTypeOption *Format)
       }
     }
 
-    // •K—v‚È‚ç‚ÎƒoƒbƒNƒAƒbƒv
+    // å¿…è¦ãªã‚‰ã°ãƒãƒƒã‚¯ã‚¢ãƒƒãƒ—
     String NewFile = "";
     try {
       if(BackupOnSave && FileExists(FileName)){
@@ -1431,12 +1431,12 @@ void TfmMain::SaveFile(const TTypeOption *Format)
       }
     }catch(...){}
 
-    // •Û‘¶
+    // ä¿å­˜
     MainGrid->SaveToFile(FileName, Format);
     SetHistory(FileName);
     FileAge(FileName, TimeStamp);
 
-    // •K—v‚È‚ç‚ÎƒoƒbƒNƒAƒbƒv‚ğíœ
+    // å¿…è¦ãªã‚‰ã°ãƒãƒƒã‚¯ã‚¢ãƒƒãƒ—ã‚’å‰Šé™¤
     try {
       if(NewFile != ""){
         if(BackupOnSave && DelBuSSaved){
@@ -1445,7 +1445,7 @@ void TfmMain::SaveFile(const TTypeOption *Format)
       }
     }catch(...){}
 
-    // •K—v‚È‚ç‚ÎÄ“xƒƒbƒN
+    // å¿…è¦ãªã‚‰ã°å†åº¦ãƒ­ãƒƒã‚¯
     if(LockFile == cssv_lfOpen){
       LockingFile =
           std::make_unique<TFileStream>(FileName, fmOpenWrite|fmShareDenyWrite);
@@ -1462,7 +1462,7 @@ void __fastcall TfmMain::mnSaveAsClick(TObject *Sender)
 {
   if (FileName == "") {
     const TTypeOption *typeOption = MainGrid->TypeOption;
-    dlgSave->FileName = L"–³‘è." + typeOption->DefExt();
+    dlgSave->FileName = L"ç„¡é¡Œ." + typeOption->DefExt();
   } else {
     dlgSave->InitialDir = ExtractFilePath(FileName);
     dlgSave->FileName = ExtractFileName(FileName);
@@ -1574,7 +1574,7 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
 {
   if(MainGrid->FileOpenThread){
     Application->MessageBox(
-      L"ƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ‚ªŠ®—¹‚µ‚Ä‚¢‚È‚¢‚½‚ßƒGƒNƒXƒ|[ƒg‚Å‚«‚Ü‚¹‚ñB",
+      L"ãƒ•ã‚¡ã‚¤ãƒ«ã®èª­ã¿è¾¼ã¿ãŒå®Œäº†ã—ã¦ã„ãªã„ãŸã‚ã‚¨ã‚¯ã‚¹ãƒãƒ¼ãƒˆã§ãã¾ã›ã‚“ã€‚",
       CASSAVA_TITLE, MB_ICONERROR);
     return;
   }
@@ -1588,7 +1588,7 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
       String type = ChangeFileExt(sr.Name,"");
       String ext = ExtractFileExt(type);
       if(ext == ""){ ext = (String)"." + type; }
-      strFilter += type.UpperCase() + L" Œ`® (*" + ext + ")|*" + ext + "|";
+      strFilter += type.UpperCase() + L" å½¢å¼ (*" + ext + ")|*" + ext + "|";
       types.push_back(type);
     }while (FindNext(sr) == 0);
     FindClose(sr);
@@ -1598,14 +1598,14 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
       String type = ChangeFileExt(sr.Name,"");
       String ext = ExtractFileExt(type);
       if(ext == ""){ ext = (String)"." + type; }
-      strFilter += type.UpperCase() + L" Œ`® (*" + ext + ")|*" + ext + "|";
+      strFilter += type.UpperCase() + L" å½¢å¼ (*" + ext + ")|*" + ext + "|";
       types.push_back(type);
     }while (FindNext(sr) == 0);
     FindClose(sr);
   }
   if(strFilter == ""){
     Application->MessageBox(
-        L"ƒGƒNƒXƒ|[ƒg‰Â”\‚ÈŒ`®‚Í‚ ‚è‚Ü‚¹‚ñB", L"Cassava Export", 0);
+        L"ã‚¨ã‚¯ã‚¹ãƒãƒ¼ãƒˆå¯èƒ½ãªå½¢å¼ã¯ã‚ã‚Šã¾ã›ã‚“ã€‚", L"Cassava Export", 0);
     return;
   }
   dlgSave->Filter = strFilter;
@@ -1632,7 +1632,7 @@ void TfmMain::Export(String filename, String type)
     }
     if(!FileExists(CmsFile)){
       Application->MessageBox(
-          (type + L" Œ`®‚Å‚ÍƒGƒNƒXƒ|[ƒg‚Å‚«‚Ü‚¹‚ñB").c_str(),
+          (type + L" å½¢å¼ã§ã¯ã‚¨ã‚¯ã‚¹ãƒãƒ¼ãƒˆã§ãã¾ã›ã‚“ã€‚").c_str(),
           L"Cassava Export", 0);
       return;
     }
@@ -1682,7 +1682,7 @@ void TfmMain::SetHistory(String S)
       MnHist[i]->Visible = true;
     } else {
       MnHist[i]->Visible = false;
-      MnHist[i]->Caption = (String)"&" + i + L": (‚È‚µ)";
+      MnHist[i]->Caption = (String)"&" + i + L": (ãªã—)";
     }
   }
   if (History.size() == 0) {
@@ -1700,7 +1700,7 @@ void __fastcall TfmMain::mnOpenHistoryClick(TObject *Sender)
     History.erase(History.begin() + Num);
     SetHistory("");
     Application->MessageBox(
-      (L"ƒtƒ@ƒCƒ‹ " + FN + L" ‚Í‘¶İ‚µ‚Ü‚¹‚ñ").c_str(),
+      (L"ãƒ•ã‚¡ã‚¤ãƒ« " + FN + L" ã¯å­˜åœ¨ã—ã¾ã›ã‚“").c_str(),
       ExtractFileName(FN).c_str(), MB_ICONERROR);
     return;
   }
@@ -2289,7 +2289,7 @@ void __fastcall TfmMain::acFixFirstRowExecute(TObject *Sender)
   if(MainGrid->FileOpenThread){
     mnFixFirstRow->Checked = !MainGrid->ShowColCounter;
     Application->MessageBox(
-        L"ƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ’†‚ÍŒÅ’èƒZƒ‹‚ğ•ÏX‚Å‚«‚Ü‚¹‚ñB",
+        L"ãƒ•ã‚¡ã‚¤ãƒ«ã®èª­ã¿è¾¼ã¿ä¸­ã¯å›ºå®šã‚»ãƒ«ã‚’å¤‰æ›´ã§ãã¾ã›ã‚“ã€‚",
         CASSAVA_TITLE, MB_ICONERROR);
     return;
   }
@@ -2308,7 +2308,7 @@ void __fastcall TfmMain::acFixFirstColExecute(TObject *Sender)
 {
   if(MainGrid->FileOpenThread){
     Application->MessageBox(
-        L"ƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ’†‚ÍŒÅ’èƒZƒ‹‚ğ•ÏX‚Å‚«‚Ü‚¹‚ñB",
+        L"ãƒ•ã‚¡ã‚¤ãƒ«ã®èª­ã¿è¾¼ã¿ä¸­ã¯å›ºå®šã‚»ãƒ«ã‚’å¤‰æ›´ã§ãã¾ã›ã‚“ã€‚",
         CASSAVA_TITLE, MB_ICONERROR);
     return;
   }
@@ -2327,7 +2327,7 @@ void __fastcall TfmMain::mnFixUpLeftClick(TObject *Sender)
 {
   if(MainGrid->FileOpenThread){
     Application->MessageBox(
-        L"ƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ’†‚ÍŒÅ’èƒZƒ‹‚ğ•ÏX‚Å‚«‚Ü‚¹‚ñB",
+        L"ãƒ•ã‚¡ã‚¤ãƒ«ã®èª­ã¿è¾¼ã¿ä¸­ã¯å›ºå®šã‚»ãƒ«ã‚’å¤‰æ›´ã§ãã¾ã›ã‚“ã€‚",
         CASSAVA_TITLE, MB_ICONERROR);
     return;
   }
@@ -2372,7 +2372,7 @@ void __fastcall TfmMain::mnUnFixClick(TObject *Sender)
 {
   if(MainGrid->FileOpenThread){
     Application->MessageBox(
-        L"ƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ’†‚ÍŒÅ’èƒZƒ‹‚ğ•ÏX‚Å‚«‚Ü‚¹‚ñB",
+        L"ãƒ•ã‚¡ã‚¤ãƒ«ã®èª­ã¿è¾¼ã¿ä¸­ã¯å›ºå®šã‚»ãƒ«ã‚’å¤‰æ›´ã§ãã¾ã›ã‚“ã€‚",
         CASSAVA_TITLE, MB_ICONERROR);
     return;
   }
@@ -2562,7 +2562,7 @@ void __fastcall TfmMain::acMacroTerminateUpdate(TObject *Sender)
 void TfmMain::MacroExec(String CmsFile, EncodedWriter *io)
 {
   MainGrid->Cursor = crAppStart;
-  MainGrid->Hint = L"ƒ}ƒNƒ‚ğÀs’†‚Å‚·B";
+  MainGrid->Hint = L"ãƒã‚¯ãƒ­ã‚’å®Ÿè¡Œä¸­ã§ã™ã€‚";
   MainGrid->ShowHint = true;
   Application->Hint = MainGrid->Hint;
   ApplicationHint(nullptr);
@@ -2635,7 +2635,7 @@ TCalculatedCell TfmMain::GetCalculatedCell(String Str, int ACol, int ARow)
       result = TCalculatedCell(macroResult.string, ctOk);
     }
   }catch(...){
-    // ƒGƒ‰[—p‚ÌResultCell•¶š—ñ‚Íİ’èÏ‚İ
+    // ã‚¨ãƒ©ãƒ¼ç”¨ã®ResultCellæ–‡å­—åˆ—ã¯è¨­å®šæ¸ˆã¿
   }
   return result;
 }
@@ -2978,8 +2978,8 @@ void __fastcall TfmMain::mnCheckUpdateClick(TObject *Sender)
 void __fastcall TfmMain::mnAboutClick(TObject *Sender)
 {
   String message = "Cassava Editor\n   Ver. " + Version::CurrentText()
-    + L"\n   by ‚ ‚·‚©‚º\n                " + Version::CurrentDate();
-  Application->MessageBox(message.c_str(), L"ƒo[ƒWƒ‡ƒ“î•ñ", 0);
+    + L"\n   by ã‚ã™ã‹ãœ\n                " + Version::CurrentDate();
+  Application->MessageBox(message.c_str(), L"ãƒãƒ¼ã‚¸ãƒ§ãƒ³æƒ…å ±", 0);
 }
 //---------------------------------------------------------------------------
 

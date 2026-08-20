@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 #include <vcl.h>
 #include "MainForm.h"
 #pragma hdrstop
@@ -47,13 +47,13 @@ void __fastcall TfmOption::FormShow(TObject *Sender)
     frOptionView->Parent = pnlOption;
     frOptionColor->Visible = false;
     frOptionColor->Parent = pnlOption;
-    tnDataFormat = items->Add(nullptr, L"ƒf[ƒ^Œ`®");
-    tnFile = items->Add(nullptr, L"ƒtƒ@ƒCƒ‹");
-    tnBehavior = items->Add(nullptr, L"“®ì");
-    tnBackUp = items->Add(nullptr, L"ƒoƒbƒNƒAƒbƒv");
-    tnLaunch = items->Add(nullptr, L"ŠO•”ƒAƒvƒŠ˜AŒg");
-    tnView = items->Add(nullptr, L"•\¦");
-    tnColor = items->Add(nullptr, L"F");
+    tnDataFormat = items->Add(nullptr, L"ãƒ‡ãƒ¼ã‚¿å½¢å¼");
+    tnFile = items->Add(nullptr, L"ãƒ•ã‚¡ã‚¤ãƒ«");
+    tnBehavior = items->Add(nullptr, L"å‹•ä½œ");
+    tnBackUp = items->Add(nullptr, L"ãƒãƒƒã‚¯ã‚¢ãƒƒãƒ—");
+    tnLaunch = items->Add(nullptr, L"å¤–éƒ¨ã‚¢ãƒ—ãƒªé€£æº");
+    tnView = items->Add(nullptr, L"è¡¨ç¤º");
+    tnColor = items->Add(nullptr, L"è‰²");
   }
 
   frOptionDataFormat->RestoreFromMainForm();
@@ -94,7 +94,7 @@ void __fastcall TfmOption::tvCategoryMouseUp(
   if (Button != mbRight) { return; }
   TTreeNode *selected = tvCategory->Selected;
   if (selected->Parent != tnDataFormat /* Not a data format */
-      || selected->getNextSibling() == nullptr /* "V‹Kì¬" */) {
+      || selected->getNextSibling() == nullptr /* "æ–°è¦ä½œæˆ" */) {
     return;
   }
   mnDelete->Enabled = selected->getPrevSibling() != nullptr; // Not "Default"
@@ -122,21 +122,21 @@ void __fastcall TfmOption::btnOKClick(TObject *Sender)
     TTypeOption *p = frOptionDataFormat->TypeList.Items(i);
     if (p->Name == "") {
       Application->MessageBox(
-          L"ƒf[ƒ^Œ`®–¼‚Ìİ’è‚³‚ê‚Ä‚¢‚È‚¢ƒf[ƒ^Œ`®‚ª‚ ‚è‚Ü‚·B",
+          L"ãƒ‡ãƒ¼ã‚¿å½¢å¼åã®è¨­å®šã•ã‚Œã¦ã„ãªã„ãƒ‡ãƒ¼ã‚¿å½¢å¼ãŒã‚ã‚Šã¾ã™ã€‚",
           L"Cassava Option", MB_ICONWARNING);
       ModalResult = mrNone;
       return;
     }
     if (p->Exts.size() == 0) {
       Application->MessageBox(
-          (p->Name + L" ‚É•W€Šg’£q‚ªİ’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB").c_str(),
+          (p->Name + L" ã«æ¨™æº–æ‹¡å¼µå­ãŒè¨­å®šã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚").c_str(),
           L"Cassava Option", MB_ICONWARNING);
       ModalResult = mrNone;
       return;
     }
     if (p->SepChars.Length() == 0) {
       Application->MessageBox(
-          (p->Name + L" ‚É•W€‹æØ‚è•¶š‚ªİ’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB").c_str(),
+          (p->Name + L" ã«æ¨™æº–åŒºåˆ‡ã‚Šæ–‡å­—ãŒè¨­å®šã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚").c_str(),
           L"Cassava Option", MB_ICONWARNING);
       ModalResult = mrNone;
       return;

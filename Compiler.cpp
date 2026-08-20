@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 #include <vcl.h>
 #include "MainForm.h"
 #pragma hdrstop
@@ -198,7 +198,7 @@ wchar_t TTokenizer::ReadHex()
   } else if (c >= 'a' && c <= 'f') {
     return (c - 'a') + 10;
   }
-  throw CMCException((String)L"ƒGƒXƒP[ƒvƒV[ƒPƒ“ƒX ‚ª•s³‚Å‚·F" + c);
+  throw CMCException((String)L"ã‚¨ã‚¹ã‚±ãƒ¼ãƒ—ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ ãŒä¸æ­£ã§ã™ï¼š" + c);
 }
 //---------------------------------------------------------------------------
 wchar_t TTokenizer::Peek() const
@@ -218,7 +218,7 @@ String TTokenizer::GetString(wchar_t EOS)
     if (c == EOS) {
       return s + ansiStr;
     } else if (c == '\n') {
-      throw CMCException(L"•¶š—ñ’è”‚ªI—¹‚µ‚Ä‚¢‚Ü‚¹‚ñB");
+      throw CMCException(L"æ–‡å­—åˆ—å®šæ•°ãŒçµ‚äº†ã—ã¦ã„ã¾ã›ã‚“ã€‚");
     } else if (c == '\\') {
       Read(&c);
       if (c == 'n') {
@@ -240,7 +240,7 @@ String TTokenizer::GetString(wchar_t EOS)
     }
     s += c;
   }
-  throw CMCException(L"•¶š—ñ’è”‚ªI—¹‚µ‚Ä‚¢‚Ü‚¹‚ñB");
+  throw CMCException(L"æ–‡å­—åˆ—å®šæ•°ãŒçµ‚äº†ã—ã¦ã„ã¾ã›ã‚“ã€‚");
 }
 //---------------------------------------------------------------------------
 String TTokenizer::GetRegExp()
@@ -249,7 +249,7 @@ String TTokenizer::GetRegExp()
   wchar_t c;
   while (true) {
     if (!Read(&c) || c == '\n') {
-      throw CMCException(L"³‹K•\Œ»ƒŠƒeƒ‰ƒ‹‚ªI—¹‚µ‚Ä‚¢‚Ü‚¹‚ñB");
+      throw CMCException(L"æ­£è¦è¡¨ç¾ãƒªãƒ†ãƒ©ãƒ«ãŒçµ‚äº†ã—ã¦ã„ã¾ã›ã‚“ã€‚");
     }
     if (c == '/') {
       break;
@@ -292,10 +292,10 @@ CMCElement TTokenizer::GetR()
     if (!Read(&c)) {
       return CMCEOF;
     }
-  } while (c <= ' ' || c == L'@' || c == L'\ufeff');
+  } while (c <= ' ' || c == L'ã€€' || c == L'\ufeff');
 
   if (c == '$' || c == '#' || c == '@' || c >= '~') {
-    throw CMCException((String)L"•s³‚È•¶š‚Å‚·F" + c);
+    throw CMCException((String)L"ä¸æ­£ãªæ–‡å­—ã§ã™ï¼š" + c);
   }
 
   if (c == DBLQUOTE || c == QUOTE) {
@@ -372,7 +372,7 @@ CMCElement TTokenizer::GetR()
     } else if (s1 == "/") {
       return CMCElement(GetRegExp(), prElement, tpRegExp);
     } else {
-      throw CMCException(L"‰‰Zq‚ÌˆÊ’u‚ª•s³‚Å‚·F" + elm.str);
+      throw CMCException(L"æ¼”ç®—å­ã®ä½ç½®ãŒä¸æ­£ã§ã™ï¼š" + elm.str);
     }
   }
   return elm;
@@ -630,7 +630,7 @@ void TCompiler::GetFor()
 void TCompiler::GetLegacyFor()
 {
   lex->Get(); // '('
-  CMCElement var  = lex->Get(); // •Ï”
+  CMCElement var  = lex->Get(); // å¤‰æ•°
   if (!IsKnownVariable(var)) {
     Variables.insert(var.str);
   }
@@ -673,7 +673,7 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
     } else if (lex->Get().str == "(") {
       ImportedFunctions[functionName] = InName + "\n" + functionName;
     } else {
-      throw CMCException(L"function•¶‚ª•s³‚Å‚·F" + functionName);
+      throw CMCException(L"functionæ–‡ãŒä¸æ­£ã§ã™ï¼š" + functionName);
     }
   }
 
@@ -703,10 +703,10 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
         e = lex->Get();
       }
       if (e.type != tpVar) {
-        throw CMCException(L"ˆø”–¼‚ª•s³‚Å‚·F" + e.str);
+        throw CMCException(L"å¼•æ•°åãŒä¸æ­£ã§ã™ï¼š" + e.str);
       }
       if (e.isSystemVar() || Variables.count(e.str) > 0) {
-        throw CMCException(L"ˆø”–¼‚ª‚·‚Å‚Ég—p‚³‚ê‚Ä‚¢‚Ü‚·F" + e.str);
+        throw CMCException(L"å¼•æ•°åãŒã™ã§ã«ä½¿ç”¨ã•ã‚Œã¦ã„ã¾ã™ï¼š" + e.str);
       }
       Variables.insert(e.str);
       parameters.push_back(e.str);
@@ -724,9 +724,9 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
       if (e.str == ')') {
         break;
       } else if (varArg) {
-        throw CMCException(L") ‚ª•K—v‚Å‚·F" + e.str);
+        throw CMCException(L") ãŒå¿…è¦ã§ã™ï¼š" + e.str);
       } else if (e.str != ',') {
-        throw CMCException(L", ‚à‚µ‚­‚Í ) ‚ª•K—v‚Å‚·F" + e.str);
+        throw CMCException(L", ã‚‚ã—ãã¯ ) ãŒå¿…è¦ã§ã™ï¼š" + e.str);
       }
     }
   }
@@ -743,7 +743,7 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
   if (functionType == LAMBDA) {
     CMCElement arrow = lex->Get();
     if (arrow.str != "=>") {
-      throw CMCException(L"ƒ‰ƒ€ƒ_®‚ª•s³‚Å‚·F" + arrow.str);
+      throw CMCException(L"ãƒ©ãƒ ãƒ€å¼ãŒä¸æ­£ã§ã™ï¼š" + arrow.str);
     }
     if (lex->GetNext().str != "{") {
       funcEqual = true;
@@ -772,7 +772,7 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
   if(funcEqual){
     GetReturn(LAMBDA_EOS);
   }else{
-    GetSentence(';');     // ŠÖ”–{‘Ì
+    GetSentence(';');     // é–¢æ•°æœ¬ä½“
   }
 
   Context->Modules[outName] = std::move(fout);
@@ -792,7 +792,7 @@ void TCompiler::GetReturn(char EOS)
   } else if(H == 1) {
     Output(CMO_Return, tpOpe);
   } else {
-    throw CMCException((String)L"return •¶‚Éˆø”‚ª" + (int)H + L"ŒÂ‚ ‚è‚Ü‚·B");
+    throw CMCException((String)L"return æ–‡ã«å¼•æ•°ãŒ" + (int)H + L"å€‹ã‚ã‚Šã¾ã™ã€‚");
   }
 }
 //---------------------------------------------------------------------------
@@ -837,8 +837,8 @@ void TCompiler::GetCell()
   if (H == 2) {
     Output(CMO_Cell, tpOpe);
   } else {
-    throw CMCException((String)L"[x,y] Œ`®‚É , ‚ª"
-                     + (int)(H-1) + L"ŒÂ‚ ‚è‚Ü‚·B");
+    throw CMCException((String)L"[x,y] å½¢å¼ã« , ãŒ"
+                     + (int)(H-1) + L"å€‹ã‚ã‚Šã¾ã™ã€‚");
   }
 }
 //---------------------------------------------------------------------------
@@ -873,7 +873,7 @@ void TCompiler::Output(String str, char type) {
       } else {
         char c = CMOCode(str);
         if (c == '\0') {
-          throw CMCException(L"ƒTƒ|[ƒg‚³‚ê‚Ä‚¢‚È‚¢‰‰Zq‚Å‚·F" + str);
+          throw CMCException(L"ã‚µãƒãƒ¼ãƒˆã•ã‚Œã¦ã„ãªã„æ¼”ç®—å­ã§ã™ï¼š" + str);
         } else {
           fout.WriteChar(c);
         }
@@ -952,7 +952,7 @@ String TCompiler::GetObject()
       CMCElement colon = lex->Get();
       if (colon.str != ":") {
         throw CMCException(
-            L"ƒIƒuƒWƒFƒNƒgƒŠƒeƒ‰ƒ‹‚ÌŒ`®‚ª³‚µ‚­‚ ‚è‚Ü‚¹‚ñF" + key.str);
+            L"ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãƒªãƒ†ãƒ©ãƒ«ã®å½¢å¼ãŒæ­£ã—ãã‚ã‚Šã¾ã›ã‚“ï¼š" + key.str);
       }
       Output(key);
       bool inBlock = GetValues(',');
@@ -970,10 +970,10 @@ String TCompiler::GetObject()
     } else if (key.str == "}") {
       return constructor;
     } else if (key.iseof()) {
-      throw CMCException(L"ƒIƒuƒWƒFƒNƒgƒŠƒeƒ‰ƒ‹‚ªI—¹‚µ‚Ä‚¢‚Ü‚¹‚ñB");
+      throw CMCException(L"ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãƒªãƒ†ãƒ©ãƒ«ãŒçµ‚äº†ã—ã¦ã„ã¾ã›ã‚“ã€‚");
     } else {
       throw CMCException(
-          L"ƒIƒuƒWƒFƒNƒgƒŠƒeƒ‰ƒ‹‚ÌŒ`®‚ª³‚µ‚­‚ ‚è‚Ü‚¹‚ñF" + key.str);
+          L"ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãƒªãƒ†ãƒ©ãƒ«ã®å½¢å¼ãŒæ­£ã—ãã‚ã‚Šã¾ã›ã‚“ï¼š" + key.str);
     }
   }
 }
@@ -983,7 +983,7 @@ void TCompiler::GetObjectKey()
   char H;
   GetValues(']', &H);
   if(H != 1){
-    throw CMCException(L"obj[key] Œ`®‚ª³‚µ‚­‚ ‚è‚Ü‚¹‚ñB");
+    throw CMCException(L"obj[key] å½¢å¼ãŒæ­£ã—ãã‚ã‚Šã¾ã›ã‚“ã€‚");
   }
   Output(".", tpOpe);
 }
@@ -993,7 +993,7 @@ void TCompiler::GetClass()
   String name = lex->Get().str;
   String paren = lex->Get().str;
   if (paren != "{") {
-    throw CMCException(L"ƒNƒ‰ƒXéŒ¾‚É‚Í { ‚ª•K—v‚Å‚·F" + paren);
+    throw CMCException(L"ã‚¯ãƒ©ã‚¹å®£è¨€ã«ã¯ { ãŒå¿…è¦ã§ã™ï¼š" + paren);
   }
   ImportedFunctions[name] = InName + "\n" + name;
   TByteVector orgFOut = std::move(fout);
@@ -1019,13 +1019,13 @@ void TCompiler::GetImport()
 {
   CMCElement e = lex->Get();
   if (e.str != "{") {
-    throw CMCException(L"import •¶‚É { ‚ª•K—v‚Å‚·F" + e.str);
+    throw CMCException(L"import æ–‡ã« { ãŒå¿…è¦ã§ã™ï¼š" + e.str);
   }
   std::map<String, String> nameMap;
   while (true) {
     e = lex->Get();
     if (e.type != tpVar) {
-      throw CMCException(L"import ‚·‚éŠÖ”–¼EƒNƒ‰ƒX–¼‚ª•s³‚Å‚·F" + e.str);
+      throw CMCException(L"import ã™ã‚‹é–¢æ•°åãƒ»ã‚¯ãƒ©ã‚¹åãŒä¸æ­£ã§ã™ï¼š" + e.str);
     }
     String originalName = e.str;
     String aliasName = originalName;
@@ -1033,7 +1033,7 @@ void TCompiler::GetImport()
     if (e.str == "as") {
       e = lex->Get();
       if (e.type != tpVar) {
-        throw CMCException(L"import ‚Ì•Ê–¼‚ª•s³‚Å‚·F" + e.str);
+        throw CMCException(L"import ã®åˆ¥åãŒä¸æ­£ã§ã™ï¼š" + e.str);
       }
       aliasName = e.str;
       e = lex->Get();
@@ -1041,16 +1041,16 @@ void TCompiler::GetImport()
     nameMap[aliasName] = originalName;
     if (e.str == "}") { break; }
     if (e.str != ",") {
-      throw CMCException(L", ‚à‚µ‚­‚Í } ‚ª•K—v‚Å‚·F" + e.str);
+      throw CMCException(L", ã‚‚ã—ãã¯ } ãŒå¿…è¦ã§ã™ï¼š" + e.str);
     }
   }
   e = lex->Get();
   if (e.str != "from") {
-    throw CMCException(L"import •¶‚É from ‚ª•K—v‚Å‚·F" + e.str);
+    throw CMCException(L"import æ–‡ã« from ãŒå¿…è¦ã§ã™ï¼š" + e.str);
   }
   e = lex->Get();
   if (e.type != tpString) {
-    throw CMCException(L"import ‚·‚éƒtƒ@ƒCƒ‹–¼‚ª•s³‚Å‚·F" + e.str);
+    throw CMCException(L"import ã™ã‚‹ãƒ•ã‚¡ã‚¤ãƒ«åãŒä¸æ­£ã§ã™ï¼š" + e.str);
   }
   String libName = e.str;
   if (std::find(import.begin(), import.end(), libName) == import.end()) {
@@ -1062,7 +1062,7 @@ void TCompiler::GetImport()
   }
   e = lex->Get();
   if (e.str != ";") {
-    throw CMCException(L"import •¶‚É ; ‚ª•K—v‚Å‚·F" + e.str);
+    throw CMCException(L"import æ–‡ã« ; ãŒå¿…è¦ã§ã™ï¼š" + e.str);
   }
 }
 //---------------------------------------------------------------------------
@@ -1124,9 +1124,9 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
       case ';': case ')': case ']':
         if(c != EOS){
           if (EOS == ':') {
-            throw CMCException(L": ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB");
+            throw CMCException(L": ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚");
           } else {
-            throw CMCException(L"Š‡ŒÊ‚Ì‘Î‰‚ª³‚µ‚­‚ ‚è‚Ü‚¹‚ñB");
+            throw CMCException(L"æ‹¬å¼§ã®å¯¾å¿œãŒæ­£ã—ãã‚ã‚Šã¾ã›ã‚“ã€‚");
           }
         }
         PushAll(&ls);
@@ -1143,9 +1143,9 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
           return false;
         }
         if (!firstloop) {
-          throw CMCException(L"} ‚Ì‘O‚É ; ‚ª•K—v‚Å‚·B");
+          throw CMCException(L"} ã®å‰ã« ; ãŒå¿…è¦ã§ã™ã€‚");
         }
-        return false; // ƒuƒƒbƒNI—¹
+        return false; // ãƒ–ãƒ­ãƒƒã‚¯çµ‚äº†
       case '(':
         if (IsLambda(lex.get())) {
           GetLambda();
@@ -1156,7 +1156,7 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
       case '{':
         if (firstloop && allowBlock) {
           GetBlock();
-          return true; // ŠO‘¤‚ÌƒuƒƒbƒN‚ÍI—¹‚µ‚È‚¢
+          return true; // å¤–å´ã®ãƒ–ãƒ­ãƒƒã‚¯ã¯çµ‚äº†ã—ãªã„
         }
         GetObject();
         break;
@@ -1167,7 +1167,7 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
           if(nHikisu) *nHikisu = hikisu;
           return true;
         } else if (EOS == ':') {
-          throw CMCException(L": ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB");
+          throw CMCException(L": ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚");
         }
         hikisu++;
         Push(e, &ls);
@@ -1194,7 +1194,7 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         Push(CMCElement(funcName, prElement, tpString), &ls);
       } else if (AnsiPos("/" + e.str + "/", "/if/while/for/return/") > 0) {
         if (!firstloop) {
-          throw CMCException(e.str + L" ‚Ì‘O‚É ; ‚ª•K—v‚Å‚·B");
+          throw CMCException(e.str + L" ã®å‰ã« ; ãŒå¿…è¦ã§ã™ã€‚");
         }
         if (e.str == "if") {
           GetIf();
@@ -1212,7 +1212,7 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         GetLegacyFor();
         return true;
       } else {
-        lex->Get(); // "(" ‚ª‚ ‚é‚Í‚¸
+        lex->Get(); // "(" ãŒã‚ã‚‹ã¯ãš
         bool isLambdaCall = ((Variables.count(e.str) > 0
                               || CapturableVariables.count(e.str) > 0)
                              && (ls.size() == 0 || ls.back().str != "."));
@@ -1255,7 +1255,7 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         lex->Get(); // "."
         CMCElement f = lex->Get();
         if (lex->GetNext().str != "(") {
-          throw CMCException(L"’l‚ª‘ã“ü‚³‚ê‚Ä‚¢‚È‚¢•Ï”‚Å‚·F" + e.str);
+          throw CMCException(L"å€¤ãŒä»£å…¥ã•ã‚Œã¦ã„ãªã„å¤‰æ•°ã§ã™ï¼š" + e.str);
         }
         lex->Get(); // "("
         char H;
@@ -1270,10 +1270,10 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         bool isConst = (e.str == "const");
         e = lex->Get();
         if (IsKnownVariable(e)) {
-          throw CMCException(L"•Ï”–¼‚ª‚·‚Å‚Ég—p‚³‚ê‚Ä‚¢‚Ü‚·F" + e.str);
+          throw CMCException(L"å¤‰æ•°åãŒã™ã§ã«ä½¿ç”¨ã•ã‚Œã¦ã„ã¾ã™ï¼š" + e.str);
         } else if (isConst && lex->GetNext().str != "=") {
           throw CMCException(
-              L"’è”éŒ¾‚ª•s³‚Å‚·Bu=v‚Å‰Šú’l‚ğ‘ã“ü‚µ‚Ä‚­‚¾‚³‚¢F" + e.str);
+              L"å®šæ•°å®£è¨€ãŒä¸æ­£ã§ã™ã€‚ã€Œ=ã€ã§åˆæœŸå€¤ã‚’ä»£å…¥ã—ã¦ãã ã•ã„ï¼š" + e.str);
         }
         Variables.insert(e.str);
         if (isConst) {
@@ -1282,26 +1282,26 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         Push(e, &ls);
       } else if (e.str == "break" && firstloop && lex->GetNext().str == ";") {
         if (!Breaks) {
-          throw CMCException(L"break ‚Íƒ‹[ƒv“à‚Å‚Ì‚İg—p‚Å‚«‚Ü‚·B");
+          throw CMCException(L"break ã¯ãƒ«ãƒ¼ãƒ—å†…ã§ã®ã¿ä½¿ç”¨ã§ãã¾ã™ã€‚");
         }
         Breaks->push_back(OutputPositionPlaceholder());
         Output(CMO_Goto, tpOpe);
       } else if (e.str == "continue" && firstloop
                  && lex->GetNext().str == ";") {
         if (!Continues) {
-          throw CMCException(L"continue ‚Íƒ‹[ƒv“à‚Å‚Ì‚İg—p‚Å‚«‚Ü‚·B");
+          throw CMCException(L"continue ã¯ãƒ«ãƒ¼ãƒ—å†…ã§ã®ã¿ä½¿ç”¨ã§ãã¾ã™ã€‚");
         }
         Continues->push_back(OutputPositionPlaceholder());
         Output(CMO_Goto, tpOpe);
       } else if (e.str == "class" && lex->GetNext().type == tpVar) {
         if (!firstloop) {
-          throw CMCException(e.str + L" éŒ¾‚Ì‘O‚É ; ‚ª•K—v‚Å‚·B");
+          throw CMCException(e.str + L" å®£è¨€ã®å‰ã« ; ãŒå¿…è¦ã§ã™ã€‚");
         }
         GetClass();
         return true;
       } else if (e.str == "import" && lex->GetNext().str == "{") {
         if (!firstloop) {
-          throw CMCException(e.str + L" •¶‚Ì‘O‚É ; ‚ª•K—v‚Å‚·B");
+          throw CMCException(e.str + L" æ–‡ã®å‰ã« ; ãŒå¿…è¦ã§ã™ã€‚");
         }
         GetImport();
         return true;
@@ -1312,19 +1312,19 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         GetLambda(e.str);
       } else if (lex->GetNext().type != tpStructure
                  && lex->GetNext().type != tpOpe) {
-        throw CMCException(e.str + L" ‚Æ " + lex->GetNext().str
-            + L" ‚ÌŠÔ‚É‰‰Zq‚ª•K—v‚Å‚·B");
+        throw CMCException(e.str + L" ã¨ " + lex->GetNext().str
+            + L" ã®é–“ã«æ¼”ç®—å­ãŒå¿…è¦ã§ã™ã€‚");
       } else {
         if (isUndefined) {
           if (lex->GetNext().str != "=") {
-            throw CMCException(L"’l‚ª‘ã“ü‚³‚ê‚Ä‚¢‚È‚¢•Ï”‚Å‚·F" + e.str);
+            throw CMCException(L"å€¤ãŒä»£å…¥ã•ã‚Œã¦ã„ãªã„å¤‰æ•°ã§ã™ï¼š" + e.str);
           }
           Variables.insert(e.str);
         } else if (lex->GetNext().str == "=") {
           if (Constants.count(e.str) > 0) {
-            throw CMCException(L"’è”‚Ö‚ÌÄ‘ã“ü‚Í‚Å‚«‚Ü‚¹‚ñF" + e.str);
+            throw CMCException(L"å®šæ•°ã¸ã®å†ä»£å…¥ã¯ã§ãã¾ã›ã‚“ï¼š" + e.str);
           } else if (CapturableVariables.count(e.str) > 0) {
-            throw CMCException(L"ƒ‰ƒ€ƒ_®“à‚Å‚Í•Ï”‚Ö‚ÌÄ‘ã“ü‚Í‚Å‚«‚Ü‚¹‚ñF" +
+            throw CMCException(L"ãƒ©ãƒ ãƒ€å¼å†…ã§ã¯å¤‰æ•°ã¸ã®å†ä»£å…¥ã¯ã§ãã¾ã›ã‚“ï¼š" +
                                e.str);
           }
         } else if (Variables.count(e.str) == 0 &&
@@ -1340,7 +1340,7 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
       if (e.str == "::") {
         CMCElement f = lex->Get();
         if (lex->GetNext().str != "(") {
-          throw CMCException(L"ŠÖ”ŒÄ‚Ño‚µ‚É‚Í () ‚ª•K—v‚Å‚·F" + f.str);
+          throw CMCException(L"é–¢æ•°å‘¼ã³å‡ºã—ã«ã¯ () ãŒå¿…è¦ã§ã™ï¼š" + f.str);
         }
         lex->Get(); // "("
         char H;
@@ -1364,7 +1364,7 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
       } else if (e.str == ":") {
         PushAll(&ls);
         if (EOS != ':') {
-          throw CMCException(L": ‚ÌˆÊ’u‚ª³‚µ‚­‚ ‚è‚Ü‚¹‚ñB");
+          throw CMCException(L": ã®ä½ç½®ãŒæ­£ã—ãã‚ã‚Šã¾ã›ã‚“ã€‚");
         }
         return true;
       } else {
@@ -1372,8 +1372,8 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
       }
     } else{
       if (lex->GetNext().type != tpStructure && lex->GetNext().type != tpOpe) {
-        throw CMCException(e.str + L" ‚Æ " + lex->GetNext().str
-            + L" ‚ÌŠÔ‚É‰‰Zq‚ª•K—v‚Å‚·B");
+        throw CMCException(e.str + L" ã¨ " + lex->GetNext().str
+            + L" ã®é–“ã«æ¼”ç®—å­ãŒå¿…è¦ã§ã™ã€‚");
       }
       Push(e, &ls);
     }
@@ -1398,7 +1398,7 @@ String TCompiler::MaybeAddLibToLibName(String libName)
       return "lib/" + libName;
     }
   }
-  throw CMCException(libName + L"\nƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB");
+  throw CMCException(libName + L"\nãƒ•ã‚¡ã‚¤ãƒ«ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚");
 }
 //---------------------------------------------------------------------------
 bool TCompiler::Compile(String string, String filePath, String libName,
@@ -1419,7 +1419,7 @@ bool TCompiler::Compile(String string, String filePath, String libName,
   } catch (CMCException e) {
     if (showMessage) {
       Application->MessageBox(
-          (filePath + "\n" + lex->y + L"s–Ú\t" + lex->x + L"•¶š–Ú\n"
+          (filePath + "\n" + lex->y + L"è¡Œç›®\t" + lex->x + L"æ–‡å­—ç›®\n"
               + e.Message).c_str(),
           L"Cassava Macro Compiler", 0);
     }
@@ -1427,7 +1427,7 @@ bool TCompiler::Compile(String string, String filePath, String libName,
   } catch (Exception *e) {
     if (showMessage) {
       Application->MessageBox(
-          (filePath + "\n" + lex->y + L"s–Ú\t" + lex->x + L"•¶š–Ú\n"
+          (filePath + "\n" + lex->y + L"è¡Œç›®\t" + lex->x + L"æ–‡å­—ç›®\n"
               + e->Message).c_str(),
           L"Cassava Macro Compiler", 0);
     }
@@ -1480,7 +1480,7 @@ bool CompileMacro(String *source, String name, TMacroContext *context,
       if (libFileName == "" || !FileExists(libFileName)) {
         if (showMessage) {
           Application->MessageBox(
-              (libName + L"\nƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB").c_str(),
+              (libName + L"\nãƒ•ã‚¡ã‚¤ãƒ«ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚").c_str(),
               L"Cassava Macro Compiler", 0);
         }
         return false;

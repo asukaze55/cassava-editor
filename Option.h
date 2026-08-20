@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 
 #ifndef OptionH
 #define OptionH
@@ -22,7 +22,7 @@
 //---------------------------------------------------------------------------
 class TfmOption : public TForm
 {
-__published:  // IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
+__published:  // IDE ç®¡ç†ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
   TTreeView *tvCategory;
   TPanel *pnlClient;
   TPanel *pnlBottom;
@@ -42,8 +42,8 @@ __published:  // IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
       TShiftState Shift, int X, int Y);
   void __fastcall mnApplyToCurrentFileClick(TObject *Sender);
   void __fastcall mnDeleteClick(TObject *Sender);
-private:  // ƒ†[ƒU[éŒ¾
-public:   // ƒ†[ƒU[éŒ¾
+private:  // ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
+public:   // ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
   __fastcall TfmOption(TComponent* Owner);
   TfrOptionDataFormat *frOptionDataFormat;
   TfrOptionFile *frOptionFile;

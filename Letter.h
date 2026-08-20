@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 #ifndef LetterH
 #define LetterH
 //---------------------------------------------------------------------------
@@ -12,7 +12,7 @@
 //---------------------------------------------------------------------------
 class TfmLetter : public TForm
 {
-__published:	// IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
+__published:	// IDE ç®¡ç†ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
         TImage *imPreview;
     TGroupBox *bxFrom;
     TLabel *Label1;
@@ -88,7 +88,7 @@ __published:	// IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
     void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
     void __fastcall UpdatePreviewImage(TObject *Sender);
     void __fastcall btnHelpClick(TObject *Sender);
-private:	// ƒ†[ƒU[éŒ¾
+private:	// ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
     int NumberTop[2];
     int NumberLeft[2][7];
     int NumberSize[2];
@@ -103,7 +103,7 @@ private:	// ƒ†[ƒU[éŒ¾
     void DataSetDefault();
     String ZipCodeFontName;
 
-public:		// ƒ†[ƒU[éŒ¾
+public:		// ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
     __fastcall TfmLetter(TComponent* Owner);
     int TateBytes(String Str);
     int Name2Indent(String Name1);

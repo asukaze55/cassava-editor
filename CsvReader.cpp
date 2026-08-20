@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 #pragma hdrstop
 #include "CsvReader.h"
 //---------------------------------------------------------------------------
@@ -146,7 +146,7 @@ String CsvReader::Next()
 {
   if (delimiterType == DELIMITER_TYPE_WEAK_PRE
       || delimiterType == DELIMITER_TYPE_WEAK_POST) {
-    // ‰üs‚ÌŸ‚Öi‚ß‚éB‰üs‚Ìî•ñ‚Í GetNextType ‚Åæ‚éB
+    // æ”¹è¡Œã®æ¬¡ã¸é€²ã‚ã‚‹ã€‚æ”¹è¡Œã®æƒ…å ±ã¯ GetNextType ã§å–ã‚‹ã€‚
     if (data[pos] == L'\r') {
       IncrementPos(false);
       delimiterType = DELIMITER_TYPE_STRONG;
@@ -168,11 +168,11 @@ String CsvReader::Next()
     wchar_t ch = data[pos];
     if (!quoted) {
       if (ch == L'\r' || ch == L'\n') {
-        // ‰üs
+        // æ”¹è¡Œ
         delimiterType = DELIMITER_TYPE_WEAK_POST;
         return data.SubString(cellstart, cellend - cellstart);
       } else if (typeOption->SepChars.Pos(ch) > 0) {
-        // ‹­‹æØ‚è
+        // å¼·åŒºåˆ‡ã‚Š
         if (delimiterType != DELIMITER_TYPE_WEAK_PRE) {
           IncrementPos(false);
           delimiterType = DELIMITER_TYPE_STRONG;
@@ -181,7 +181,7 @@ String CsvReader::Next()
         delimiterType = DELIMITER_TYPE_STRONG;
         cellstart = pos + 1;
       } else if (typeOption->WeakSepChars.Pos(ch) > 0) {
-        // ã‹æØ‚è
+        // å¼±åŒºåˆ‡ã‚Š
         if (delimiterType == DELIMITER_TYPE_NONE) {
           IncrementPos(false);
           delimiterType = DELIMITER_TYPE_WEAK_PRE;
@@ -194,12 +194,12 @@ String CsvReader::Next()
       } else if (typeOption->UseQuote()
                  && typeOption->QuoteChars.Pos(ch) > 0
                  && delimiterType != DELIMITER_TYPE_NONE) {
-        // ƒNƒI[ƒg
+        // ã‚¯ã‚ªãƒ¼ãƒˆ
         quoted = true;
         delimiterType = DELIMITER_TYPE_NONE;
         cellstart = pos + 1;
       } else {
-        // ƒRƒ“ƒeƒ“ƒc
+        // ã‚³ãƒ³ãƒ†ãƒ³ãƒ„
         delimiterType = DELIMITER_TYPE_NONE;
       }
     } else { // Quoted
@@ -213,7 +213,7 @@ String CsvReader::Next()
           return data.SubString(cellstart, cellend - cellstart);
         }
       } else {
-        // ƒRƒ“ƒeƒ“ƒc
+        // ã‚³ãƒ³ãƒ†ãƒ³ãƒ„
         delimiterType = DELIMITER_TYPE_NONE;
         if(cellend < pos){
           data[cellend] = data[pos];

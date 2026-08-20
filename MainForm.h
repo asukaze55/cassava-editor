@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 #ifndef MainFormH
 #define MainFormH
 //---------------------------------------------------------------------------
@@ -31,7 +31,7 @@
 //---------------------------------------------------------------------------
 class TfmMain : public TForm
 {
-__published:	// IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
+__published:	// IDE ç®¡ç†ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
   TMainMenu *MainMenu;
   TMenuItem *mnFile;
   TMenuItem *mnOpen;
@@ -349,7 +349,7 @@ __published:	// IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
   void __fastcall acFixFirstColExecute(TObject *Sender);
   void __fastcall acFixFirstColUpdate(TObject *Sender);
 
-private:    // ƒ†[ƒU[éŒ¾
+private:    // ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
   TfmSort *fmSort = nullptr;
   bool StartupMacroDone;
   void ExecStartupMacro();
@@ -374,7 +374,7 @@ private:    // ƒ†[ƒU[éŒ¾
   int FToolBarSize;
   void SetToolBarSize(int Size);
 
-public:     // ƒ†[ƒU[éŒ¾
+public:     // ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
   TMainGrid *MainGrid;
   __fastcall TfmMain(TComponent* Owner);
   bool IfModifiedThenSave();

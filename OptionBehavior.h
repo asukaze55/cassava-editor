@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 
 #ifndef OptionBehaviorH
 #define OptionBehaviorH
@@ -13,7 +13,7 @@
 //---------------------------------------------------------------------------
 class TfrOptionBehavior : public TFrame
 {
-__published:	// IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
+__published:	// IDE ç®¡ç†ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
     TLabel *lblDragMove;
 	TComboBox *cbDragMove;
 	TComboBox *cbEnterMove;
@@ -39,8 +39,8 @@ __published:	// IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
   void __fastcall cbStopMacroKeyUpDown(TObject *Sender, WORD &Key,
           TShiftState Shift);
   void __fastcall cbStopMacroKeyPress(TObject *Sender, char &Key);
-private:	// ƒ†[ƒU[éŒ¾
-public:		// ƒ†[ƒU[éŒ¾
+private:	// ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
+public:		// ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
 	__fastcall TfrOptionBehavior(TComponent* Owner);
 	void RestoreFromMainForm();
 	void StoreToMainForm();

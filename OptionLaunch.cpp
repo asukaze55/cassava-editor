@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 #include <vcl.h>
 #include "MainForm.h"
 #pragma hdrstop
@@ -62,7 +62,7 @@ void __fastcall TfrOptionLaunch::edLaunchChange(TObject *Sender)
 
   if(Ed->Text==""){
     LName->Enabled = false;
-    LName->Text = L"–¢Ý’è";
+    LName->Text = L"æœªè¨­å®š";
   }else{
     LName->Text = ChangeFileExt(ExtractFileName(Ed->Text), "");
     LName->Enabled = true;

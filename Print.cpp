@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 #include <vcl.h>
 #include "MainForm.h"
 #pragma hdrstop
@@ -60,8 +60,8 @@ void TfmPrint::PrintOut()
   int pageHeight = printer->PageHeight;
 
   TMainGrid *mg = fmMain->MainGrid;
-  double multiplier = (double)printer->Canvas->TextWidth(L"‚ ") /
-      mg->Canvas->TextWidth(L"‚ ");
+  double multiplier = (double)printer->Canvas->TextWidth(L"ã‚") /
+      mg->Canvas->TextWidth(L"ã‚");
   int cellLRMargin = mg->LRMargin * multiplier;
   int cellTBMargin = mg->TBMargin * multiplier;
 
@@ -72,7 +72,7 @@ void TfmPrint::PrintOut()
     widthSum += widths[i];
   }
   if (widthSum > pageWidth - leftMargin - rightMargin) {
-    int minWidth = printer->Canvas->TextWidth(L"‚ ") + (2 * cellLRMargin);
+    int minWidth = printer->Canvas->TextWidth(L"ã‚") + (2 * cellLRMargin);
     mg->CompactWidth(widths, pageWidth - leftMargin - rightMargin, minWidth);
   }
 

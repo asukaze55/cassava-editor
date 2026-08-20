@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 #include <vcl.h>
 #include "MainForm.h"
 #pragma hdrstop
@@ -42,7 +42,7 @@ static inline String boolToStr(bool value)
   return (value ? "true" : "false");
 }
 //---------------------------------------------------------------------------
-__fastcall TMainGrid::TMainGrid(TComponent* Owner)  //ƒfƒtƒHƒ‹ƒg‚Ìİ’è
+__fastcall TMainGrid::TMainGrid(TComponent* Owner)  //ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã®è¨­å®š
     : TStringGrid(Owner)
 {
   Options = Options << goRowSizing << goColSizing << goRowMoving << goColMoving
@@ -238,7 +238,7 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
   Canvas->Pen->Color = PenColor;
 }
 //---------------------------------------------------------------------------
-//  Šî–{“üo—Íƒƒ\ƒbƒh
+//  åŸºæœ¬å…¥å‡ºåŠ›ãƒ¡ã‚½ãƒƒãƒ‰
 //
 void TMainGrid::SetExecCellMacro(bool Value)
 {
@@ -269,19 +269,19 @@ TCalculatedCell TMainGrid::GetCalculatedCell(int AX, int AY)
     return TCalculatedCell("", ctNotExpr);
   }
 
-  // ŒvZ®‚Å‚È‚¢‚à‚Ì‚Í‚È‚É‚à‚µ‚È‚¢
+  // è¨ˆç®—å¼ã§ãªã„ã‚‚ã®ã¯ãªã«ã‚‚ã—ãªã„
   String Str = Cells[rx][ry];
   if(!ExecCellMacro || Str.Length() == 0 || Str[1] != '='){
     return TCalculatedCell(Str, ctNotExpr);
   }
 
   String key = (String)"[" + AX + "," + AY + "]";
-  // ©ŒÈQÆ‚ğ‚Í‚¶‚­
+  // è‡ªå·±å‚ç…§ã‚’ã¯ã˜ã
   if (UsingCellMacro.count(key) > 0){
     ErrorCalcLoop();
     return TCalculatedCell(Str, ctError);
   }
-  // ƒLƒƒƒbƒVƒ…‚ª‚ ‚ê‚Î•Ô‚·
+  // ã‚­ãƒ£ãƒƒã‚·ãƒ¥ãŒã‚ã‚Œã°è¿”ã™
   if (CalculatedCellCache.count(key) > 0){
     const TCalculatedCell& cache = CalculatedCellCache[key];
     if (cache.calcType == ctError) {
@@ -291,25 +291,25 @@ TCalculatedCell TMainGrid::GetCalculatedCell(int AX, int AY)
   }
 
   if(OnGetCalculatedCell){
-    // ©ŒÈQÆƒ`ƒFƒbƒN‚Ì‚½‚ß‚ÌƒŠƒXƒg‚ğXV
+    // è‡ªå·±å‚ç…§ãƒã‚§ãƒƒã‚¯ã®ãŸã‚ã®ãƒªã‚¹ãƒˆã‚’æ›´æ–°
     UsingCellMacro[key] = Str;
 
-    // OnGetCalculatedCell‚ÉˆÏ÷
+    // OnGetCalculatedCellã«å§”è­²
     TCalculatedCell result = OnGetCalculatedCell(Str, AX, AY);
 
-    // ƒLƒƒƒbƒVƒ…‚ğXV
+    // ã‚­ãƒ£ãƒƒã‚·ãƒ¥ã‚’æ›´æ–°
     const TCalculatedCell& cache = CalculatedCellCache[key];
     if(CalculatedCellCache[key].calcType == ctError){
-      // ©ŒÈQÆƒGƒ‰[‚ª‹N‚±‚Á‚Ä‚¢‚ê‚ÎXV‚µ‚È‚¢
+      // è‡ªå·±å‚ç…§ã‚¨ãƒ©ãƒ¼ãŒèµ·ã“ã£ã¦ã„ã‚Œã°æ›´æ–°ã—ãªã„
       result = cache;
     }else{
       CalculatedCellCache[key] = result;
     }
 
-    // ©ŒÈQÆƒ`ƒFƒbƒN‚Ì‚½‚ß‚ÌƒŠƒXƒg‚ğŒ³‚É–ß‚·
+    // è‡ªå·±å‚ç…§ãƒã‚§ãƒƒã‚¯ã®ãŸã‚ã®ãƒªã‚¹ãƒˆã‚’å…ƒã«æˆ»ã™
     UsingCellMacro.erase(key);
 
-    // ¬Œ÷
+    // æˆåŠŸ
     return result;
   }else{
     return TCalculatedCell(Str, ctNotExpr);
@@ -463,7 +463,7 @@ void TMainGrid::Clear(int AColCount, int ARowCount, bool UpdateRightBottom)
     FileOpenThread = nullptr;
   }
   Row = FixedRows;  Col = FixedCols;
-  DefaultColWidth = 64;               //—ñ‚Ì•‚ğ64‚É–ß‚·
+  DefaultColWidth = 64;               //åˆ—ã®å¹…ã‚’64ã«æˆ»ã™
   ColWidths[0] = 32;
   if(FixedCols >= AColCount){ AColCount = FixedCols + 1; }
   if(FixedRows >= ARowCount){ ARowCount = FixedRows + 1; }
@@ -569,7 +569,7 @@ int TMainGrid::TextWidth(TCanvas *cnvs, String str)
 //---------------------------------------------------------------------------
 void TMainGrid::SetWidth(int i)
 {
-  int WMax = 0;                     //‚»‚Ì—ñ‚Å•‚ÌÅ‘å’l
+  int WMax = 0;                     //ãã®åˆ—ã§å¹…ã®æœ€å¤§å€¤
   if(i==0 && ShowRowCounter){
     if(DataBottom >= 0){
       ColWidths[i] = max(MinColWidth,
@@ -593,15 +593,15 @@ void TMainGrid::SetWidth(int i)
     WMax = max(WMax, TextWidth(Canvas, GetCellToDraw(i, j).text));
   }
   if(WMax > 0){ WMax += 2 * LRMargin; }
-  if(WMax < MinColWidth){ //‹·‚·‚¬‚È‚¢‚æ‚¤‚É
+  if(WMax < MinColWidth){ //ç‹­ã™ããªã„ã‚ˆã†ã«
     WMax = MinColWidth;
-  }else if( WMax >= ClientWidth - ColWidths[0]){ //L‚·‚¬‚È‚¢‚æ‚¤‚É
+  }else if( WMax >= ClientWidth - ColWidths[0]){ //åºƒã™ããªã„ã‚ˆã†ã«
     WMax = ClientWidth - ColWidths[0] - 2 * GridLineWidth;
   }
   ColWidths[i] = WMax;
 }
 //---------------------------------------------------------------------------
-void TMainGrid::SetWidth()             //—ñ•‚ÌÅ“K‰»
+void TMainGrid::SetWidth()             //åˆ—å¹…ã®æœ€é©åŒ–
 {
   if (CompactColWidth) {
     ShowAllColumn();
@@ -626,7 +626,7 @@ void TMainGrid::SetHeight(int j, bool useMaxRowHeightLines)
   }
   if (useMaxRowHeightLines) {
     maxRowHeight = min(maxRowHeight,
-        (Canvas->TextHeight(L"‚ ") * MaxRowHeightLines)
+        (Canvas->TextHeight(L"ã‚") * MaxRowHeightLines)
             + (CellLineMargin * (MaxRowHeightLines - 1))
             + (2 * TBMargin));
   }
@@ -723,7 +723,7 @@ void TMainGrid::ShowAllColumn()
   delete[] widths;
 }
 //---------------------------------------------------------------------------
-void TMainGrid::Cut()                  //‰EA‰º‚Ì—]Œv‚È€–Ú‚ğíœ
+void TMainGrid::Cut()                  //å³ã€ä¸‹ã®ä½™è¨ˆãªé …ç›®ã‚’å‰Šé™¤
 {
   if(Col > DataRight){ Col = DataRight; }
   if(Row > DataBottom){ Row = DataBottom; }
@@ -810,7 +810,7 @@ void TMainGrid::UpdateEOFMarker(int oldRight, int oldBottom)
   if(oldRight+1 < ColCount && oldBottom+1 < RowCount &&
      Objects[oldRight+1][oldBottom+1] == EOFMarker){
     if(Col == oldRight+1 && Row == oldBottom+1 && InplaceEditor){
-      // ObjectsXV‚É‘I‘ğ”ÍˆÍ‚ª‰Šú‰»‚³‚ê‚é‚Ì‚ğ•œŒ³
+      // Objectsæ›´æ–°æ™‚ã«é¸æŠç¯„å›²ãŒåˆæœŸåŒ–ã•ã‚Œã‚‹ã®ã‚’å¾©å…ƒ
       int ss = InplaceEditor->SelStart;
       int sl = InplaceEditor->SelLength;
       Objects[oldRight+1][oldBottom+1] = nullptr;
@@ -1017,7 +1017,7 @@ void TMainGrid::LoadFromFile(String FileName, TEncoding *encoding,
   } catch (...) {
     if (!isDetectedEncoding) {
       Application->MessageBox(
-          L"w’è‚³‚ê‚½•¶šƒR[ƒh‚Å‚Íƒtƒ@ƒCƒ‹‚ğŠJ‚¯‚Ü‚¹‚ñB",
+          L"æŒ‡å®šã•ã‚ŒãŸæ–‡å­—ã‚³ãƒ¼ãƒ‰ã§ã¯ãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‹ã‘ã¾ã›ã‚“ã€‚",
           CASSAVA_TITLE, 0);
     }
     Encoding = TEncoding::Default;
@@ -1027,7 +1027,7 @@ void TMainGrid::LoadFromFile(String FileName, TEncoding *encoding,
 
   TypeOption = Format;
   Cursor = crAppStart;
-  Hint = L"ƒtƒ@ƒCƒ‹‚ğ“Ç‚İ‚İ’†‚Å‚·B";
+  Hint = L"ãƒ•ã‚¡ã‚¤ãƒ«ã‚’èª­ã¿è¾¼ã¿ä¸­ã§ã™ã€‚";
   ShowHint = true;
 
   GetReturnCode(charArray, TypeOption->UseQuote(), &ReturnCode,
@@ -1084,12 +1084,12 @@ void TMainGrid::PasteCSV(const std::vector<std::vector<String>>& Row, int Left,
     int Top, int Way, int ClipCols, int ClipRows)
 {
   // Way
-  //  0: d‚È‚Á‚½•”•ª‚Ì‚İ
-  //  1: ‚­‚è•Ô‚µˆ—
-  //  2: ƒf[ƒ^ƒTƒCƒYã‘‚«
-  //  3: ‰E‘}“ü
-  //  4: ‰º‘}“ü
-  //  5: ƒeƒLƒXƒg‚Æ‚µ‚ÄƒZƒ‹“à‚É
+  //  0: é‡ãªã£ãŸéƒ¨åˆ†ã®ã¿
+  //  1: ãã‚Šè¿”ã—å‡¦ç†
+  //  2: ãƒ‡ãƒ¼ã‚¿ã‚µã‚¤ã‚ºä¸Šæ›¸ã
+  //  3: å³æŒ¿å…¥
+  //  4: ä¸‹æŒ¿å…¥
+  //  5: ãƒ†ã‚­ã‚¹ãƒˆã¨ã—ã¦ã‚»ãƒ«å†…ã«
   if (Way == 5) {
     ShowEditor();
     InplaceEditor->SelText = GetClipboardText();
@@ -1203,7 +1203,7 @@ void TMainGrid::WriteGrid(EncodedWriter &Writer, const TTypeOption *Format)
       }
     }
     if (ShowRowCounter) {
-      Data->Delete(0);   // ƒJƒEƒ“ƒ^ƒZƒ‹‚Ìíœ
+      Data->Delete(0);   // ã‚«ã‚¦ãƒ³ã‚¿ã‚»ãƒ«ã®å‰Šé™¤
     }
     Writer.Write(StringsToCSV(Data.get(), Format, macroContext, 1, RYtoAY(y)) +
         ReturnCodeString(ReturnCode));
@@ -1385,8 +1385,8 @@ void TMainGrid::PasteFromClipboard(int Way, const TTypeOption *Format)
           std::make_unique<TfmPasteDialog>(nullptr);
       PstDlg->Way->ItemIndex = DefWay;
       PstDlg->lbMessage->Caption =
-          (String)L"‘I‘ğƒTƒCƒYF " + SelectColCount + L" ~ " + SelectRowCount +
-          L"@ƒNƒŠƒbƒvƒ{[ƒhƒTƒCƒYF " + ClipColCount + L" ~ " + ClipRowCount;
+          (String)L"é¸æŠã‚µã‚¤ã‚ºï¼š " + SelectColCount + L" Ã— " + SelectRowCount +
+          L"ã€€ã‚¯ãƒªãƒƒãƒ—ãƒœãƒ¼ãƒ‰ã‚µã‚¤ã‚ºï¼š " + ClipColCount + L" Ã— " + ClipRowCount;
       if (PstDlg->ShowModal() != IDOK) {
         return;
       }
@@ -1583,98 +1583,98 @@ void TMainGrid::CopyAvr()
 //---------------------------------------------------------------------------
 wchar_t Hankaku2Zenkaku(wchar_t wc)
 {
-  if(wc == L' ') return L'@';
-  else if(wc < L'¡' || wc > L'ß') return wc;
-  else if(wc >= L'±' && wc <= L'µ') return L'ƒA' + (wc - L'±') * 2;
-  else if(wc >= L'¶' && wc <= L'Á') return L'ƒJ' + (wc - L'¶') * 2;
-  else if(wc >= L'Â' && wc <= L'Ä') return L'ƒc' + (wc - L'Â') * 2;
-  else if(wc >= L'Å' && wc <= L'É') return L'ƒi' + (wc - L'Å');
-  else if(wc >= L'Ê' && wc <= L'Î') return L'ƒn' + (wc - L'Ê') * 3;
-  else if(wc >= L'Ï' && wc <= L'Ó') return L'ƒ}' + (wc - L'Ï');
-  else if(wc >= L'Ô' && wc <= L'Ö') return L'ƒ„' + (wc - L'Ô') * 2;
-  else if(wc >= L'×' && wc <= L'Û') return L'ƒ‰' + (wc - L'×');
-  else if(wc == L'Ü') return L'ƒ';
-  else if(wc == L'¦') return L'ƒ’';
-  else if(wc == L'İ') return L'ƒ“';
-  else if(wc >= L'§' && wc <= L'«') return L'ƒ@' + (wc - L'§') * 2;
-  else if(wc >= L'¬' && wc <= L'®') return L'ƒƒ' + (wc - L'¬') * 2;
-  else if(wc == L'¯') return L'ƒb';
-  else if(wc == L'°') return L'[';
-  else if(wc == L'Ş') return L'J';
-  else if(wc == L'ß') return L'K';
-  else if(wc == L'¡') return L'B';
-  else if(wc == L'¢') return L'u';
-  else if(wc == L'£') return L'v';
-  else if(wc == L'¤') {
-    return L'A';
-  }else if(wc == L'¥') return L'E';
+  if(wc == L' ') return L'ã€€';
+  else if(wc < L'ï½¡' || wc > L'ï¾Ÿ') return wc;
+  else if(wc >= L'ï½±' && wc <= L'ï½µ') return L'ã‚¢' + (wc - L'ï½±') * 2;
+  else if(wc >= L'ï½¶' && wc <= L'ï¾') return L'ã‚«' + (wc - L'ï½¶') * 2;
+  else if(wc >= L'ï¾‚' && wc <= L'ï¾„') return L'ãƒ„' + (wc - L'ï¾‚') * 2;
+  else if(wc >= L'ï¾…' && wc <= L'ï¾‰') return L'ãƒŠ' + (wc - L'ï¾…');
+  else if(wc >= L'ï¾Š' && wc <= L'ï¾') return L'ãƒ' + (wc - L'ï¾Š') * 3;
+  else if(wc >= L'ï¾' && wc <= L'ï¾“') return L'ãƒ' + (wc - L'ï¾');
+  else if(wc >= L'ï¾”' && wc <= L'ï¾–') return L'ãƒ¤' + (wc - L'ï¾”') * 2;
+  else if(wc >= L'ï¾—' && wc <= L'ï¾›') return L'ãƒ©' + (wc - L'ï¾—');
+  else if(wc == L'ï¾œ') return L'ãƒ¯';
+  else if(wc == L'ï½¦') return L'ãƒ²';
+  else if(wc == L'ï¾') return L'ãƒ³';
+  else if(wc >= L'ï½§' && wc <= L'ï½«') return L'ã‚¡' + (wc - L'ï½§') * 2;
+  else if(wc >= L'ï½¬' && wc <= L'ï½®') return L'ãƒ£' + (wc - L'ï½¬') * 2;
+  else if(wc == L'ï½¯') return L'ãƒƒ';
+  else if(wc == L'ï½°') return L'ãƒ¼';
+  else if(wc == L'ï¾') return L'ã‚›';
+  else if(wc == L'ï¾Ÿ') return L'ã‚œ';
+  else if(wc == L'ï½¡') return L'ã€‚';
+  else if(wc == L'ï½¢') return L'ã€Œ';
+  else if(wc == L'ï½£') return L'ã€';
+  else if(wc == L'ï½¤') {
+    return L'ã€';
+  }else if(wc == L'ï½¥') return L'ãƒ»';
 
   return wc;
 }
 //---------------------------------------------------------------------------
 int Zenkaku2Hankaku(wchar_t wc, wchar_t *ans)
 {
-  if(wc == L'@'){ *ans = L' '; return 1; }
-  else if(wc == L'ƒ'){ *ans = L'Ü'; return 1; }
-  else if(wc == L'ƒ’'){ *ans = L'¦'; return 1; }
-  else if(wc == L'ƒ“'){ *ans = L'İ'; return 1; }
-  else if(wc == L'ƒ”'){ *ans = L'³'; *(ans+1) = L'Ş'; return 2; }
-  else if(wc == L'J'){ *ans = L'Ş'; return 1; }
-  else if(wc == L'K'){ *ans = L'ß'; return 1; }
-  else if(wc == L'['){ *ans = L'°'; return 1; }
-  else if(wc == L'B'){ *ans = L'¡'; return 1; }
-  else if(wc == L'u'){ *ans = L'¢'; return 1; }
-  else if(wc == L'v'){ *ans = L'£'; return 1; }
-  else if(wc == L'A'){ *ans = L'¤'; return 1; }
-  else if(wc == L'E'){ *ans = L'¥'; return 1; }
-  else if(wc < L'ƒ@' || wc > L'ƒ'){ *ans = wc; return 1; }
-  else if(wc == L'ƒb'){ *ans = L'¯'; return 1; }
-  else if(wc >= L'ƒ@' && wc <= L'ƒI'){
-    int x = (wc - L'ƒ@');
-    *ans = ((x % 2) ? (L'±' + (x / 2)) : (L'§' + (x / 2)));
+  if(wc == L'ã€€'){ *ans = L' '; return 1; }
+  else if(wc == L'ãƒ¯'){ *ans = L'ï¾œ'; return 1; }
+  else if(wc == L'ãƒ²'){ *ans = L'ï½¦'; return 1; }
+  else if(wc == L'ãƒ³'){ *ans = L'ï¾'; return 1; }
+  else if(wc == L'ãƒ´'){ *ans = L'ï½³'; *(ans+1) = L'ï¾'; return 2; }
+  else if(wc == L'ã‚›'){ *ans = L'ï¾'; return 1; }
+  else if(wc == L'ã‚œ'){ *ans = L'ï¾Ÿ'; return 1; }
+  else if(wc == L'ãƒ¼'){ *ans = L'ï½°'; return 1; }
+  else if(wc == L'ã€‚'){ *ans = L'ï½¡'; return 1; }
+  else if(wc == L'ã€Œ'){ *ans = L'ï½¢'; return 1; }
+  else if(wc == L'ã€'){ *ans = L'ï½£'; return 1; }
+  else if(wc == L'ã€'){ *ans = L'ï½¤'; return 1; }
+  else if(wc == L'ãƒ»'){ *ans = L'ï½¥'; return 1; }
+  else if(wc < L'ã‚¡' || wc > L'ãƒ­'){ *ans = wc; return 1; }
+  else if(wc == L'ãƒƒ'){ *ans = L'ï½¯'; return 1; }
+  else if(wc >= L'ã‚¡' && wc <= L'ã‚ª'){
+    int x = (wc - L'ã‚¡');
+    *ans = ((x % 2) ? (L'ï½±' + (x / 2)) : (L'ï½§' + (x / 2)));
     return 1;
-  }else if(wc >= L'ƒJ' && wc <= L'ƒa'){
-    int x = (wc - L'ƒJ');
-    *ans = L'¶' + (x / 2);
+  }else if(wc >= L'ã‚«' && wc <= L'ãƒ‚'){
+    int x = (wc - L'ã‚«');
+    *ans = L'ï½¶' + (x / 2);
     if(x % 2){
-      *(ans+1) = L'Ş';
+      *(ans+1) = L'ï¾';
       return 2;
     }else{
       return 1;
     }
-  }else if(wc >= L'ƒc' && wc <= L'ƒh'){
-    int x = (wc - L'ƒc');
-    *ans = L'Â' + (x / 2);
+  }else if(wc >= L'ãƒ„' && wc <= L'ãƒ‰'){
+    int x = (wc - L'ãƒ„');
+    *ans = L'ï¾‚' + (x / 2);
     if(x % 2){
-      *(ans+1) = L'Ş';
+      *(ans+1) = L'ï¾';
       return 2;
     }else{
       return 1;
     }
-  }else if(wc >= L'ƒi' && wc <= L'ƒm'){
-    *ans = L'Å' + (wc - L'ƒi');
+  }else if(wc >= L'ãƒŠ' && wc <= L'ãƒ'){
+    *ans = L'ï¾…' + (wc - L'ãƒŠ');
     return 1;
-  }else if(wc >= L'ƒn' && wc <= L'ƒ|'){
-    int x = (wc - L'ƒn');
-    *ans = L'Ê' + (x / 3);
+  }else if(wc >= L'ãƒ' && wc <= L'ãƒ'){
+    int x = (wc - L'ãƒ');
+    *ans = L'ï¾Š' + (x / 3);
     if((x % 3) == 1){
-      *(ans+1) = L'Ş';
+      *(ans+1) = L'ï¾';
       return 2;
     }else if((x % 3) == 2){
-      *(ans+1) = L'ß';
+      *(ans+1) = L'ï¾Ÿ';
       return 2;
     }else{
       return 1;
     }
-  }else if(wc >= L'ƒ}' && wc <= L'ƒ‚'){
-    *ans = L'Ï' + (wc - L'ƒ}');
+  }else if(wc >= L'ãƒ' && wc <= L'ãƒ¢'){
+    *ans = L'ï¾' + (wc - L'ãƒ');
     return 1;
-  }else if(wc >= L'ƒƒ' && wc <= L'ƒˆ'){
-    int x = (wc - L'ƒƒ');
-    *ans = ((x % 2) ? (L'Ô' + (x / 2)) : (L'¬' + (x / 2)));
+  }else if(wc >= L'ãƒ£' && wc <= L'ãƒ¨'){
+    int x = (wc - L'ãƒ£');
+    *ans = ((x % 2) ? (L'ï¾”' + (x / 2)) : (L'ï½¬' + (x / 2)));
     return 1;
-  }else if(wc >= L'ƒ‰' && wc <= L'ƒ'){
-    *ans = L'×' + (wc - L'ƒ‰');
+  }else if(wc >= L'ãƒ©' && wc <= L'ãƒ­'){
+    *ans = L'ï¾—' + (wc - L'ãƒ©');
     return 1;
   }
 
@@ -1708,18 +1708,18 @@ String TMainGrid::TransChar(String Str, int Type)
     wchar_t *r=wcfr + size;
     for(; p < r; p++){
       if(Type==0){
-        if(*p == L'@')      *q = L' ';
-        else if(*p == L'f') *q = L'\'';
-        else if(*p == L'h') *q = L'\"';
-        else if(*p == L'') *q = L'\\';
-        else if(*p >= L'I' && *p <= L'`') *q = *p - (L'‚`' - L'A');
+        if(*p == L'ã€€')      *q = L' ';
+        else if(*p == L'â€™') *q = L'\'';
+        else if(*p == L'â€') *q = L'\"';
+        else if(*p == L'ï¿¥') *q = L'\\';
+        else if(*p >= L'ï¼' && *p <= L'ï½') *q = *p - (L'ï¼¡' - L'A');
         else                 *q = *p;
       }else{
-        if(*p == L' ')       *q = L'@';
-        else if(*p == L'\'') *q = L'f';
-        else if(*p == L'\"') *q = L'h';
-        else if(*p == L'\\') *q = L'';
-        else if(*p >= L'!' && *p <= L'~') *q = *p + (L'‚`' - L'A');
+        if(*p == L' ')       *q = L'ã€€';
+        else if(*p == L'\'') *q = L'â€™';
+        else if(*p == L'\"') *q = L'â€';
+        else if(*p == L'\\') *q = L'ï¿¥';
+        else if(*p >= L'!' && *p <= L'~') *q = *p + (L'ï¼¡' - L'A');
         else                 *q = *p;
       }
       q++;
@@ -1759,15 +1759,15 @@ String TMainGrid::TransKana(String Str, int Type)
       q += Zenkaku2Hankaku(*p, q);
     }else if(Type==5){
       *q = Hankaku2Zenkaku(*p);
-      if(*(p+1) == L'Ş' &&
-          ((*p >= L'¶' && *p <= L'Ä') || (*p >= L'Ê' && *p <= L'Î'))) {
+      if(*(p+1) == L'ï¾' &&
+          ((*p >= L'ï½¶' && *p <= L'ï¾„') || (*p >= L'ï¾Š' && *p <= L'ï¾'))) {
         (*q)++;
         p++;
-      }else if(*(p+1) == L'ß' && *p >= L'Ê' && *p <= L'Î') {
+      }else if(*(p+1) == L'ï¾Ÿ' && *p >= L'ï¾Š' && *p <= L'ï¾') {
         (*q) += 2;
         p++;
-      }else if(*(p+1) == L'Ş' && *p == L'³') {
-        (*q) = L'ƒ”';
+      }else if(*(p+1) == L'ï¾' && *p == L'ï½³') {
+        (*q) = L'ãƒ´';
         p++;
       }
       q++;
@@ -1843,7 +1843,7 @@ void TMainGrid::Sequence(bool Inc)
   Modified = true;
 }
 //---------------------------------------------------------------------------
-//  ‘}“ü
+//  æŒ¿å…¥
 //
 void TMainGrid::ChangeRowCount(int Count)
 {
@@ -2141,17 +2141,17 @@ void TMainGrid::ConnectCell()
     Cells[L][T] = str;
   }else{
     int C = Col;
-    if(Row > DataBottom){ // ƒ_ƒ~[ƒZƒ‹‚Íˆ—‚µ‚È‚¢
+    if(Row > DataBottom){ // ãƒ€ãƒŸãƒ¼ã‚»ãƒ«ã¯å‡¦ç†ã—ãªã„
       Row = DataBottom;
       Col = DataRight;
     }else if(C > FixedCols && C > GetRowDataRight(Row)){
       Col = max(GetRowDataRight(Row), FixedCols);
-    }else if(C > FixedCols){ //ƒJƒ“ƒ}‚Ìíœ
+    }else if(C > FixedCols){ //ã‚«ãƒ³ãƒã®å‰Šé™¤
       String str = Cells[C - 1][Row] + Cells[C][Row];
       DeleteCells_Left(C, C, Row, Row, false);
       SetCell(C - 1, Row, str);
       Col--;
-    }else if(Row > FixedRows && Row <= DataBottom){ //ƒŠƒ^[ƒ“‚Ìíœ
+    }else if(Row > FixedRows && Row <= DataBottom){ //ãƒªã‚¿ãƒ¼ãƒ³ã®å‰Šé™¤
       int UpColCount, ThisColCount;
       if (TypeOption->DummyEol) {
         UpColCount = GetRowDataRight(Row - 1) - DataLeft + 1;
@@ -2163,7 +2163,7 @@ void TMainGrid::ConnectCell()
         for (x = ColCount - 1; x >= DataLeft && Cells[x][Row] == ""; x--) {}
         ThisColCount = x - DataLeft + 1;
       }
-      //—ñ”‚ª‘«‚è‚È‚¯‚ê‚Î‘‚â‚·
+      //åˆ—æ•°ãŒè¶³ã‚Šãªã‘ã‚Œã°å¢—ã‚„ã™
       if (AXtoRX(UpColCount + ThisColCount) > DataRight) {
         InsertColumn(DataRight + 1, AXtoRX(UpColCount + ThisColCount));
       }
@@ -2213,10 +2213,10 @@ void TMainGrid::DeleteCell_Left()
 
     if(i >= ColCount){
       if(Row < DataBottom){
-        // Ÿ‚Ìs‚©‚ç˜AŒ‹
+        // æ¬¡ã®è¡Œã‹ã‚‰é€£çµ
         Row++; Col = FixedCols; ConnectCell();
       }else{
-        // —ñ‚Ìk¬‚ğ‚İ‚é
+        // åˆ—ã®ç¸®å°ã‚’è©¦ã¿ã‚‹
         for (int j = DataTop; j < RowCount; j++) {
           if (HasData(FDataRight, j)) {
             return;
@@ -2225,7 +2225,7 @@ void TMainGrid::DeleteCell_Left()
         DeleteColumn(FDataRight);
       }
     }else{
-      // Œ»İ‚Ìs“à‚Å¶‚É‚Â‚ß‚é
+      // ç¾åœ¨ã®è¡Œå†…ã§å·¦ã«ã¤ã‚ã‚‹
       DeleteCells_Left(Col,Col,Row,Row);
     }
   }
@@ -2383,7 +2383,7 @@ void TMainGrid::DeleteCells_Up(long Left, long Right, long Top, long Bottom,
   UndoList->Pop(select + "DeleteCellUp();");
 }
 //---------------------------------------------------------------------------
-//  ‘I‘ğ
+//  é¸æŠ
 //
 void TMainGrid::SetSelection(long Left, long Right, long Top, long Bottom)
 {
@@ -2420,7 +2420,7 @@ void TMainGrid::SetSelection(long Left, long Right, long Top, long Bottom)
   }
 }
 //---------------------------------------------------------------------------
-//  ƒZƒ‹ˆÚ“®‚É‘S‘ÌÄ•`‰æ
+//  ã‚»ãƒ«ç§»å‹•æ™‚ã«å…¨ä½“å†æç”»
 //
 bool __fastcall TMainGrid::SelectCell(int ACol, int ARow)
 {
@@ -2430,7 +2430,7 @@ bool __fastcall TMainGrid::SelectCell(int ACol, int ARow)
   return TStringGrid::SelectCell(ACol,ARow);
 }
 //---------------------------------------------------------------------------
-//  ƒhƒ‰ƒbƒOƒCƒxƒ“ƒg‚Ìˆ—
+//  ãƒ‰ãƒ©ãƒƒã‚°ã‚¤ãƒ™ãƒ³ãƒˆã®å‡¦ç†
 //
 void __fastcall TMainGrid::MouseDown(Controls::TMouseButton Button,
     Classes::TShiftState Shift, int X, int Y)
@@ -2567,10 +2567,10 @@ void __fastcall TMainGrid::MouseMove(Classes::TShiftState Shift, int X, int Y)
       Hint = data;
       ShowHint = true;
     }else if(FileOpenThread){
-      Hint = L"ƒtƒ@ƒCƒ‹‚ğ“Ç‚İ‚İ’†‚Å‚·B";
+      Hint = L"ãƒ•ã‚¡ã‚¤ãƒ«ã‚’èª­ã¿è¾¼ã¿ä¸­ã§ã™ã€‚";
       ShowHint = true;
     }else if(GetRunningMacroCount() > 0){
-      Hint = L"ƒ}ƒNƒ‚ğÀs’†‚Å‚·B";
+      Hint = L"ãƒã‚¯ãƒ­ã‚’å®Ÿè¡Œä¸­ã§ã™ã€‚";
       ShowHint = true;
     }else{
       Application->CancelHint();
@@ -2622,10 +2622,10 @@ void __fastcall TMainGrid::MouseUp(Controls::TMouseButton Button,
       for(int i=Selection.Left; i<=Selection.Right; i++){
         if(i != ColToResize){
           int newWidth = ColWidths[i] * scale;
-          if(newWidth >= ClientWidth - ColWidths[0]){ //L‚·‚¬‚È‚¢‚æ‚¤‚É
+          if(newWidth >= ClientWidth - ColWidths[0]){ //åºƒã™ããªã„ã‚ˆã†ã«
             newWidth = ClientWidth - ColWidths[0] - 2 * GridLineWidth;
           }
-          if(newWidth < 16){ newWidth = 16; } //‹·‚·‚¬‚È‚¢‚æ‚¤‚É
+          if(newWidth < 16){ newWidth = 16; } //ç‹­ã™ããªã„ã‚ˆã†ã«
           ColWidths[i] = newWidth;
         }
       }
@@ -2654,7 +2654,7 @@ void __fastcall TMainGrid::MouseUp(Controls::TMouseButton Button,
 
   if ((ShowColCounter && Options.Contains(goColMoving)) ||
       (ShowRowCounter && Options.Contains(goRowMoving))) {
-    // sE—ñ‚ğˆÚ“®‚·‚é‚Æ”Ô†‚ª‹¶‚¤
+    // è¡Œãƒ»åˆ—ã‚’ç§»å‹•ã™ã‚‹ã¨ç•ªå·ãŒç‹‚ã†
     Invalidate();
   }
 }
@@ -2823,7 +2823,7 @@ void TMainGrid::ScrollCols(int Delta)
   }
 }
 //---------------------------------------------------------------------------
-//  ŒŸõ
+//  æ¤œç´¢
 //
 inline static String AddCr(String str) {
   return StringReplace(str, "\n", "\r\n", TReplaceFlags() << rfReplaceAll);
@@ -2946,8 +2946,8 @@ static bool FindHit(String CellText, int x, int y)
 //---------------------------------------------------------------------------
 void ShowRegexErrorMessage(const boost::regex_error& e) {
   Application->MessageBox(
-     ((String)L"³‹K•\Œ»ŒŸõ’†‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½B\n" +
-         L"³‹K•\Œ»ŒŸõƒIƒvƒVƒ‡ƒ“‚ğ‰ğœ‚·‚é‚©ŒŸõ•¶š—ñ‚ğC³‚µ‚Ä‚­‚¾‚³‚¢B\n" +
+     ((String)L"æ­£è¦è¡¨ç¾æ¤œç´¢ä¸­ã«ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸã€‚\n" +
+         L"æ­£è¦è¡¨ç¾æ¤œç´¢ã‚ªãƒ—ã‚·ãƒ§ãƒ³ã‚’è§£é™¤ã™ã‚‹ã‹æ¤œç´¢æ–‡å­—åˆ—ã‚’ä¿®æ­£ã—ã¦ãã ã•ã„ã€‚\n" +
          e.what()).c_str(),
      CASSAVA_TITLE, 0);
 }
@@ -3236,7 +3236,7 @@ bool TMainGrid::NumFind(double *Min, double *Max, TGridRect Range, bool Back)
   return false;
 }
 //---------------------------------------------------------------------------
-//  ƒL[“ü—Í‚ÌŠÄ‹
+//  ã‚­ãƒ¼å…¥åŠ›ã®ç›£è¦–
 //
 void __fastcall TMainGrid::KeyDown(Word &Key, Classes::TShiftState Shift)
 {
@@ -3405,9 +3405,9 @@ void __fastcall TMainGrid::KeyDownSub(System::TObject* Sender,
                           Word &Key, Classes::TShiftState Shift)
 {
   /*
-   * InplaceEditor“à‚Å‚ÌƒL[“ü—Í‚È‚Ç‚ÅA
-   * ê‡‚É‚æ‚Á‚Ä‚Í’Êí‚ÌKeyDown()‚ªÀs‚³‚ê‚È‚¢‚½‚ßA
-   * OnKeyDown ‚É‚±‚ÌŠÖ”‚ğ‚Â‚Á‚±‚ñ‚Åˆ—‚µ‚Ü‚·^^;
+   * InplaceEditorå†…ã§ã®ã‚­ãƒ¼å…¥åŠ›ãªã©ã§ã€
+   * å ´åˆã«ã‚ˆã£ã¦ã¯é€šå¸¸ã®KeyDown()ãŒå®Ÿè¡Œã•ã‚Œãªã„ãŸã‚ã€
+   * OnKeyDown ã«ã“ã®é–¢æ•°ã‚’ã¤ã£ã“ã‚“ã§å‡¦ç†ã—ã¾ã™^^;
    */
 
   if(Key == VK_DELETE && EditorMode)
@@ -3585,7 +3585,7 @@ void __fastcall TMainGrid::SetEditText(int ACol, int ARow, String Value)
   }
 }
 //---------------------------------------------------------------------------
-//  Undo ˆ—
+//  Undo å‡¦ç†
 //
 static void MacroScriptExec(String script)
 {

@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 
 #ifndef OptionColorH
 #define OptionColorH
@@ -14,7 +14,7 @@ class TfmOption;
 //---------------------------------------------------------------------------
 class TfrOptionColor : public TFrame
 {
-__published:	// IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
+__published:	// IDE ç®¡ç†ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
   TGroupBox *gbColor;
   TLabel *lblStyle;
   TLabel *lblBgColor;
@@ -49,9 +49,9 @@ __published:	// IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
   void __fastcall cbFgColorChange(TObject *Sender);
   void __fastcall cbBgColorChange(TObject *Sender);
   void __fastcall cbStyleChange(TObject *Sender);
-private:	// ƒ†[ƒU[éŒ¾
+private:	// ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
   TfmOption *fmOption;
-public:		// ƒ†[ƒU[éŒ¾
+public:		// ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
   __fastcall TfrOptionColor(TfmOption* Owner);
   void RestoreFromMainForm();
   void StoreToMainForm();
