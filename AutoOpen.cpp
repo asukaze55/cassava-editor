@@ -42,3 +42,31 @@ bool AutoOpen(String FileName, String BasePath)
   return true;
 }
 //---------------------------------------------------------------------------
+int ShellOpen(const std::vector<String>& Params)
+{
+  return SpawnProcess(Params, /* LookupPath= */ true);
+}
+//---------------------------------------------------------------------------
+int SpawnProcess(const std::vector<String>& Params, bool LookupPath)
+{
+  std::vector<String> quotedParams;
+  quotedParams.reserve(Params.size());
+  for (const String& param : Params) {
+    bool needQuote =
+        !param.IsEmpty() && param[1] != L'\"' && param.Pos(" ") > 0;
+    quotedParams.push_back(needQuote ? "\"" + param + "\"" : param);
+  }
+
+  std::vector<wchar_t*> argv;
+  argv.reserve(quotedParams.size() + 1);
+  for (const String& quotedParam : quotedParams) {
+    argv.push_back(quotedParam.c_str());
+  }
+  argv.push_back(nullptr);
+
+  if (LookupPath) {
+    return _wspawnvp(P_NOWAITO, Params[0].c_str(), argv.data());
+  }
+  return _wspawnv(P_NOWAITO, Params[0].c_str(), argv.data());
+}
+//---------------------------------------------------------------------------

@@ -2736,9 +2736,7 @@ void TMainGrid::OpenURL(String FileName)
   if (BrowserFileName == "") {
     AutoOpen(FileName, "");
   } else {
-    _wspawnl(P_NOWAITO, BrowserFileName.c_str(),
-        ((String)"\"" + BrowserFileName + "\"").c_str(),
-        ((String)"\"" + FileName + "\"").c_str(), nullptr);
+    SpawnProcess({BrowserFileName, FileName});
   }
 }
 //---------------------------------------------------------------------------

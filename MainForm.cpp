@@ -88,7 +88,8 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
   int ht = MainGrid->FixedRows;
   int positionShift = 0;
   int newWindowCount = 0;
-  wchar_t **newWindowArgs = new wchar_t*[ParamCount() + 3];
+  std::vector<String> newWindowArgs;
+  newWindowArgs.push_back(ParamStr(0));
 
   for (int i = 1; i <= ParamCount(); i++) {
     if (ParamStr(i)[1] == L'-') {
@@ -108,24 +109,16 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
         FileOpening = true;
       } else {
         newWindowCount++;
-        newWindowArgs[newWindowCount] = new wchar_t[ParamStr(i).Length() + 3];
-        wcscpy(newWindowArgs[newWindowCount],
-            ((String)("\"") + ParamStr(i) + "\"").c_str());
+        newWindowArgs.push_back(ParamStr(i));
       }
     }
   }
 
   if (newWindowCount > 0) {
-    newWindowArgs[0] = ParamStr(0).c_str();
-    newWindowArgs[newWindowCount + 1] = const_cast<wchar_t*>(L"-i");
-    newWindowArgs[newWindowCount + 2] =((String)(positionShift + 1)).c_str();
-    newWindowArgs[newWindowCount + 3] = nullptr;
-    _wspawnv(P_NOWAITO, ParamStr(0).c_str(), newWindowArgs);
-    for (int i = 1; i <= newWindowCount; i++) {
-      delete[] newWindowArgs[i];
-    }
+    newWindowArgs.push_back("-i");
+    newWindowArgs.push_back((String)(positionShift + 1));
+    SpawnProcess(newWindowArgs);
   }
-  delete[] newWindowArgs;
 
   if (!FileOpening) {
     FileName = "";
@@ -1174,7 +1167,7 @@ void __fastcall TfmMain::mnNewClick(TObject *Sender)
 {
   if (MakeNewWindow) {
     WriteIni(true);
-    _wspawnl(P_NOWAITO, ParamStr(0).c_str(), ParamStr(0).c_str(), nullptr);
+    SpawnProcess({ParamStr(0)});
   } else {
     if (IfModifiedThenSave()) {
       Clear();
@@ -1266,8 +1259,7 @@ void __fastcall TfmMain::mnOpenClick(TObject *Sender)
       WriteIni(true);
       TStrings *files = dlgOpen->Files;
       for(int i=0; i<files->Count; i++){
-        _wspawnl(P_NOWAITO, ParamStr(0).c_str(), ParamStr(0).c_str(),
-            ((String)"\"" + files->Strings[i] + "\"").c_str(), nullptr);
+        SpawnProcess({ParamStr(0), files->Strings[i]});
       }
     }
     dlgOpen->Options >> ofAllowMultiSelect;
@@ -1289,8 +1281,7 @@ void __fastcall TfmMain::MainGridDropFiles(TObject *Sender, int iFiles,
   if(MakeNewWindow){
     WriteIni(true);
     for(int i=0; i<iFiles; i++){
-      _wspawnl(P_NOWAITO, ParamStr(0).c_str(), ParamStr(0).c_str(),
-          ((String)"\"" + DropFileNames[i] + "\"").c_str(), nullptr);
+      SpawnProcess({ParamStr(0), DropFileNames[i]});
     }
   }else{
     if(IfModifiedThenSave()){
@@ -1707,8 +1698,7 @@ void __fastcall TfmMain::mnOpenHistoryClick(TObject *Sender)
 
   if(MakeNewWindow){
     WriteIni(true);
-    _wspawnl(P_NOWAITO, ParamStr(0).c_str(), ParamStr(0).c_str(),
-        ((String)"\"" + FN + "\"").c_str(), nullptr);
+    SpawnProcess({ParamStr(0), FN});
   }else{
     if(IfModifiedThenSave()) {
       OpenFile(FN);
@@ -2400,12 +2390,10 @@ void __fastcall TfmMain::mnAppliClick(TObject *Sender)
     if(MainGrid->Modified) return;
     TMenuItem *menuItem = static_cast<TMenuItem*>(Sender);
     String exe = menuItem->Hint;
-    String arg0 = (String)("\"") + exe + "\"";
     if(FileName == ""){
-      _wspawnl(P_NOWAITO, exe.c_str(), arg0.c_str(), nullptr);
+      SpawnProcess({exe});
     }else{
-      String arg1 = (String)("\"") + FileName + "\"";
-      _wspawnl(P_NOWAITO, exe.c_str(), arg0.c_str(), arg1.c_str(), nullptr);
+      SpawnProcess({exe, FileName});
     }
     if(menuItem->Tag){
       Close();
@@ -2509,13 +2497,12 @@ void __fastcall TfmMain::mnMacroOpenUserFolderClick(TObject *Sender)
   if(!DirectoryExists(path)){
     ForceDirectories(path);
   }
-  _wspawnlp(P_NOWAITO, L"Explorer.exe", L"/idlist", path.c_str(), nullptr);
+  ShellOpen({L"Explorer.exe", path});
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnMacroOpenFolderClick(TObject *Sender)
 {
-  _wspawnlp(P_NOWAITO, L"Explorer.exe", L"/idlist",
-            (Pref->SharedPath + "Macro").c_str(), nullptr);
+  ShellOpen({L"Explorer.exe", Pref->SharedPath + "Macro"});
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnMacroExecuteClick(TObject *Sender)

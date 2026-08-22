@@ -1478,13 +1478,12 @@ void TMacro::ExecFnc(String s)
         AutoOpen(FileName, ExtractFilePath(fmMain->FileName));
       }
     }else if(s == "ShellOpen" && H > 1){
-      wchar_t **argv = new wchar_t*[H+1];
-      for(int i=0; i<H; i++){
-        argv[i] = ope[i].Str().c_str();
+      std::vector<String> params;
+      params.reserve(H);
+      for (const Element& e : ope) {
+        params.push_back(e.Str());
       }
-      argv[H] = nullptr;
-      int result = _wspawnvp(P_NOWAITO, argv[0], argv);
-      delete[] argv;
+      int result = ShellOpen(params);
 
       if(result == -1){
         if(errno == ENOENT){
