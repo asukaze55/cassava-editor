@@ -253,22 +253,22 @@ void TfmMain::ReadIni()
   int left =
       (iniLeft >= virtualScreenLeft && iniLeft <= virtualScreenRight - Width)
           ? iniLeft : (screenWidth / 2 - Width / 2);
-  Left =  left;
   int iniTop = Ini->ReadInteger("Position", "Top", -1);
   int top =
       (iniTop >= virtualScreenTop && iniTop <= virtualScreenBottom - Height)
           ? iniTop : (screenHeight / 2 - Height / 2);
-  Top = top;
 
   for (int i = 1; i <= ParamCount(); i++) {
     if (ParamStr(i) == "-i") {
       int ps =
           ParamStr(i + 1).ToIntDef(0) * (GetSystemMetrics(SM_CYCAPTION) + 8);
-      Left += ps;
-      Top += ps;
+      left += ps;
+      top += ps;
       break;
     }
   }
+  Left =  left;
+  Top = top;
 
   if (Ini->ReadBool("Mode", "ShowToolbar", true) != mnShowToolbar->Checked) {
     mnShowToolbarClick(this);
