@@ -196,7 +196,7 @@ public:
     void SetWidth();
     void SetHeight(int j, bool useMaxRowHeightLines);
     void SetHeight();
-    void CompactWidth(int *Widths, int WindowSize, int Minimum);
+    void CompactWidth(std::vector<int>& Widths, int WindowSize, int Minimum);
     void Cut();
     void SetDataRightBottom(int rx, int by, bool updateTableSize=true);
     int GetRowDataRight(int Row);

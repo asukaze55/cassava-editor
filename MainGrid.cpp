@@ -656,7 +656,8 @@ void TMainGrid::SetHeight()
   }
 }
 //---------------------------------------------------------------------------
-void TMainGrid::CompactWidth(int *Widths, int WindowSize, int Minimum)
+void TMainGrid::CompactWidth(std::vector<int>& Widths, int WindowSize,
+    int Minimum)
 {
   std::vector<int> sortedWidths = {0};
   int sum = 0;
@@ -685,7 +686,7 @@ void TMainGrid::CompactWidth(int *Widths, int WindowSize, int Minimum)
 //---------------------------------------------------------------------------
 void TMainGrid::ShowAllColumn()
 {
-  int *widths = new int[ColCount];
+  std::vector<int> widths(ColCount);
   int windowSize =
       ClientWidth - 16 - (DataRight - DataLeft + 1) * GridLineWidth;
 
@@ -720,7 +721,6 @@ void TMainGrid::ShowAllColumn()
   for (int i = 0; i < ColCount; i++) {
     ColWidths[i] = widths[i];
   }
-  delete[] widths;
 }
 //---------------------------------------------------------------------------
 void TMainGrid::Cut()                  //右、下の余計な項目を削除

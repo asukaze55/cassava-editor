@@ -66,7 +66,7 @@ void TfmPrint::PrintOut()
   int cellTBMargin = mg->TBMargin * multiplier;
 
   int widthSum = 0;
-  int *widths = new int[mg->ColCount];
+  std::vector<int> widths(mg->ColCount);
   for (int i = mg->DataLeft; i <= mg->DataRight; i++) {
     widths[i] = mg->ColWidths[i] * multiplier;
     widthSum += widths[i];
@@ -89,7 +89,6 @@ void TfmPrint::PrintOut()
     newPage = true;
   }
   printer->EndDoc();
-  delete[] widths;
 }
 //---------------------------------------------------------------------------
 static TRect rectToDraw(int position, const TRect& page, const TRect& size,
@@ -128,7 +127,8 @@ static String formatHeaderFooter(String format, String fileName, int page)
 }
 //---------------------------------------------------------------------------
 int TfmPrint::PrintPage(TCanvas *Canvas, int Width, int Height, int Top,
-    int Widths[], int CellLRMargin, int CellTBMargin, int Page)
+    const std::vector<int>& Widths, int CellLRMargin, int CellTBMargin,
+    int Page)
 {
   TMainGrid *mg = fmMain->MainGrid;
   const double mmPt = Canvas->Font->PixelsPerInch / 25.4;

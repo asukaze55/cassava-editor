@@ -45,11 +45,12 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall btnFontClick(TObject *Sender);
   void __fastcall FormShow(TObject *Sender);
 private:	// ユーザー宣言
+  int PrintPage(TCanvas *Canvas, int Width, int Height, int Top,
+      const std::vector<int>& Widths, int CellLRMargin, int CellTBMargin,
+      int Page);
 public:		// ユーザー宣言
   __fastcall TfmPrint(TComponent* Owner);
   void PrintOut();
-  int PrintPage(TCanvas *Canvas, int Width, int Height, int Top, int Widths[],
-                int CellLRMargin, int CellTBMargin, int Page);
 };
 //---------------------------------------------------------------------------
 #endif
