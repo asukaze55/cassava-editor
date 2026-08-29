@@ -1,8 +1,7 @@
-//---------------------------------------------------------------------------
-#pragma hdrstop
-#include "Version.h"
-#include "HTTPConnection.h"
+Ôªø//---------------------------------------------------------------------------
+#include <System.Net.HttpClientComponent.hpp>
 #include "AutoOpen.h"
+#include "Version.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 //---------------------------------------------------------------------------
@@ -29,8 +28,8 @@ String Version::CurrentText()
     text = text.SubString(0, pre - 1) + " pre";
   }
   TReplaceFlags replaceAll = TReplaceFlags() << rfReplaceAll;
-  text = StringReplace(text, L"a", L" Éø", replaceAll);
-  text = StringReplace(text, L"b", L" É¿", replaceAll);
+  text = StringReplace(text, L"a", L" Œ±", replaceAll);
+  text = StringReplace(text, L"b", L" Œ≤", replaceAll);
   text = StringReplace(text, L"rc", L" RC", replaceAll);
 #if _WIN64
   text += " (64 bit)";
@@ -63,9 +62,20 @@ private:
 //---------------------------------------------------------------------------
 void __fastcall UpdateCheckThread::Execute()
 {
-  TStringList *list = new TStringList();
-  list->Text = HttpsGet("www.asukaze.net", 443,
-                        "/soft/cassava/update.cgi?ver=" + Version::Current());
+  std::unique_ptr<TStringList> list = std::make_unique<TStringList>();
+
+  std::unique_ptr<TNetHTTPClient> client =
+      std::make_unique<TNetHTTPClient>(nullptr);
+  client->UserAgent = "CassavaEditor/" + Version::Current();
+  try {
+    auto response = client->Get(
+        "https://www.asukaze.net/soft/cassava/update.cgi?ver="
+        + Version::Current());
+    if (response->StatusCode == 200) {
+      list->Text = response->ContentAsString();
+    }
+  } catch (...) {}
+
   if (list->Count < 6) {
     newVer = "";
     newDate = "";
@@ -79,27 +89,26 @@ void __fastcall UpdateCheckThread::Execute()
     newDate = list->Strings[4];
     newUrl = list->Strings[5];
   }
-  delete list;
   Synchronize(&MessageBox);
 }
 //---------------------------------------------------------------------------
 void __fastcall UpdateCheckThread::MessageBox()
 {
-  constexpr wchar_t title[] = L"çXêVÇÃämîF";
+  constexpr wchar_t title[] = L"Êõ¥Êñ∞„ÅÆÁ¢∫Ë™ç";
   if (newUrl == "") {
-    Application->MessageBox(L"èÓïÒÇÃéÊìæÇ…é∏îsÇµÇ‹ÇµÇΩÅB", title, 0);
+    Application->MessageBox(L"ÊÉÖÂ†±„ÅÆÂèñÂæó„Å´Â§±Êïó„Åó„Åæ„Åó„Åü„ÄÇ", title, 0);
     return;
   }
 
   if (Version::Compare(newDate, Version::CurrentDate()) > 0) {
-    String message = L"ÉoÅ[ÉWÉáÉì " + newVer + L" Ç™å©Ç¬Ç©ÇËÇ‹ÇµÇΩÅB\n" +
-        newUrl + L"ÇäJÇ´Ç‹Ç∑Ç©ÅH";
+    String message = L"„Éê„Éº„Ç∏„Éß„É≥ " + newVer + L" „ÅåË¶ã„Å§„Åã„Çä„Åæ„Åó„Åü„ÄÇ\n" +
+        newUrl + L"„ÇíÈñã„Åç„Åæ„Åô„ÅãÔºü";
     int mr = Application->MessageBox(message.c_str(), title, MB_OKCANCEL);
     if (mr == IDOK) {
       AutoOpen(newUrl, "");
     }
   } else {
-    Application->MessageBox(L"çXêVÇÕå©Ç¬Ç©ÇËÇ‹ÇπÇÒÇ≈ÇµÇΩÅB", title, 0);
+    Application->MessageBox(L"Êõ¥Êñ∞„ÅØË¶ã„Å§„Åã„Çä„Åæ„Åõ„Çì„Åß„Åó„Åü„ÄÇ", title, 0);
   }
 }
 //---------------------------------------------------------------------------

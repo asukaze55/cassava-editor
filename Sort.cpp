@@ -1,13 +1,12 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 #include <vcl.h>
+#include "MainForm.h"
 #pragma hdrstop
 
 #include "Sort.h"
-#include "MainForm.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TfmSort *fmSort;
 //---------------------------------------------------------------------------
 __fastcall TfmSort::TfmSort(TComponent* Owner)
     : TForm(Owner)

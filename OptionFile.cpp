@@ -1,15 +1,15 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 #include <vcl.h>
-#include <registry.hpp>
+#include "MainForm.h"
 #pragma hdrstop
 
+#include <registry.hpp>
+
 #include "OptionFile.h"
-#include "MainForm.h"
 #include "OptionLaunch.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TfrOptionFile *frOptionFile;
 //---------------------------------------------------------------------------
 __fastcall TfrOptionFile::TfrOptionFile(TComponent* Owner)
     : TFrame(Owner)

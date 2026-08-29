@@ -1,13 +1,12 @@
-//---------------------------------------------------------------------------
+Ôªø//---------------------------------------------------------------------------
 #include <vcl.h>
+#include "MainForm.h"
 #pragma hdrstop
 
 #include "KeyCustomize.h"
-#include "MainForm.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TfmKey *fmKey;
 //---------------------------------------------------------------------------
 __fastcall TfmKey::TfmKey(TComponent* Owner)
         : TForm(Owner)
@@ -123,10 +122,10 @@ void __fastcall TfmKey::tvMenuChange(TObject *Sender, TTreeNode *Node)
     SCShift = NowMSC->Shift;
     rgSCKey->Enabled = true;
     if(NowMSC->Modified){
-      stUseSC->Caption = L"Åö";
+      stUseSC->Caption = L"‚òÖ";
       stUseSC->Visible = true;
     } else {
-      stUseSC->Caption = L"Åô";
+      stUseSC->Caption = L"‚òÜ";
       stUseSC->Visible = (SCKey != '\0');
     }
   }
@@ -173,9 +172,9 @@ void __fastcall TfmKey::tvMenuChanging(TObject *Sender, TTreeNode *Node,
         = static_cast<TMenuShortCut*>(tvMenu->Items->Item[i]->Data);
       if(MSC != NowMSC && NowMSC->MShortCut == MSC->MShortCut){
         if(Application->MessageBox(
-             (ShortCutToText(NowMSC->MShortCut) + L" ÇÕÅAÅu" +
+             (ShortCutToText(NowMSC->MShortCut) + L" „ÅØ„ÄÅ„Äå" +
              MSC->MenuItem->Caption +
-             L"ÅvÇ≈Ç∑Ç≈Ç…ê›íËÇ≥ÇÍÇƒÇ¢Ç‹Ç∑ÅB").c_str(),
+             L"„Äç„Åß„Åô„Åß„Å´Ë®≠ÂÆö„Åï„Çå„Å¶„ÅÑ„Åæ„Åô„ÄÇ").c_str(),
              CASSAVA_TITLE,
              MB_OKCANCEL) == IDCANCEL){
           AllowChange = false;
@@ -249,9 +248,9 @@ void __fastcall TfmKey::btnSaveClick(TObject *Sender)
     }
 
     if (SaveKey(KeyFileName)) {
-      Application->MessageBox(L"ï€ë∂ÇµÇ‹ÇµÇΩ", CASSAVA_TITLE, 0);
+      Application->MessageBox(L"‰øùÂ≠ò„Åó„Åæ„Åó„Åü", CASSAVA_TITLE, 0);
     } else {
-      Application->MessageBox(L"ï€ë∂Ç…é∏îsÇµÇ‹ÇµÇΩ", CASSAVA_TITLE, 0);
+      Application->MessageBox(L"‰øùÂ≠ò„Å´Â§±Êïó„Åó„Åæ„Åó„Åü", CASSAVA_TITLE, 0);
     }
   }
 }
@@ -265,17 +264,17 @@ void __fastcall TfmKey::btnOpenClick(TObject *Sender)
     }
     if (LoadKey(KeyFileName)) {
       Application->MessageBox(
-          L"ÉtÉ@ÉCÉãÇì«Ç›çûÇ›Ç‹ÇµÇΩ", CASSAVA_TITLE, 0);
+          L"„Éï„Ç°„Ç§„É´„ÇíË™≠„ÅøËæº„Åø„Åæ„Åó„Åü", CASSAVA_TITLE, 0);
     } else {
-      Application->MessageBox(L"ì«Ç›çûÇ›Ç…é∏îsÇµÇ‹ÇµÇΩ", CASSAVA_TITLE, 0);
+      Application->MessageBox(L"Ë™≠„ÅøËæº„Åø„Å´Â§±Êïó„Åó„Åæ„Åó„Åü", CASSAVA_TITLE, 0);
     }
   }
 }
 //---------------------------------------------------------------------------
 bool TfmKey::SaveKey(String FileName)
 {
-  TStringList *File = new TStringList;
-  TStringList *OneRow = new TStringList;
+  std::unique_ptr<TStringList> File = std::make_unique<TStringList>();
+  std::unique_ptr<TStringList> OneRow = std::make_unique<TStringList>();
   File->Add("(Cassava-KeySetting)");
 
   for(int i=0; i<tvMenu->Items->Count; i++){
@@ -289,26 +288,28 @@ bool TfmKey::SaveKey(String FileName)
       File->Add(OneRow->CommaText);
     }
   }
-  try{
+  try {
     File->SaveToFile(FileName);
-  }catch(...){ delete File; delete OneRow; return false; }
+  } catch(...) {
+    return false;
+  }
 
-  delete File;
-  delete OneRow;
   return true;
 }
 //---------------------------------------------------------------------------
 bool TfmKey::LoadKey(String FileName)
 {
-  TStringList *File = new TStringList;
-  TStringList *OneRow = new TStringList;
-  try{
+  std::unique_ptr<TStringList> File = std::make_unique<TStringList>();
+  std::unique_ptr<TStringList> OneRow = std::make_unique<TStringList>();
+  try {
     File->LoadFromFile(FileName);
-  }catch(...){ delete File; delete OneRow; return false; }
+  } catch(...) {
+    return false;
+  }
 
   OneRow->CommaText = File->Strings[0];
   if(OneRow->Strings[0] != "(Cassava-KeySetting)"){
-    delete File; delete OneRow; return false;
+    return false;
   }
 
   for(int i=1; i<File->Count; i++){
@@ -328,8 +329,6 @@ bool TfmKey::LoadKey(String FileName)
     }
   }
 
-  delete File;
-  delete OneRow;
   return true;
 }
 //---------------------------------------------------------------------------

@@ -1,8 +1,9 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 #include <vcl.h>
-#pragma hdrstop
-#include "Find.h"
 #include "MainForm.h"
+#pragma hdrstop
+
+#include "Find.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -81,8 +82,8 @@ void __fastcall TfmFind::btnNextClick(TObject *Sender)
   fmMain->StatusBar->Panels->Items[0]->Text = found
       ? ""
       : (PageControl->TabIndex == 0)
-          ? edFindText->Text + " ‚ÍŒ©‚Â‚©‚è‚Ü‚¹‚ñ"
-          : "ŒŸõ‘ÎÛ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ";
+          ? edFindText->Text + " ã¯è¦‹ã¤ã‹ã‚Šã¾ã›ã‚“"
+          : "æ¤œç´¢å¯¾è±¡ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“";
   fmMain->MainGrid->Invalidate();
   fmMain->MainGrid->SetFocus();
 }
@@ -103,7 +104,7 @@ void __fastcall TfmFind::btnAllReplaceClick(TObject *Sender)
       edReplaceText->Text, range.Left, range.Top, range.Right, range.Bottom,
       cbCase->Checked, cbRegex->Checked, cbWordSearch->Checked);
   Application->MessageBox(
-      ((String)count + L" ŒÂ‚ÌƒZƒ‹‚ğ’uŠ·‚µ‚Ü‚µ‚½B").c_str(), L"‚·‚×‚Ä’uŠ·", 0);
+      ((String)count + L" å€‹ã®ã‚»ãƒ«ã‚’ç½®æ›ã—ã¾ã—ãŸã€‚").c_str(), L"ã™ã¹ã¦ç½®æ›", 0);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmFind::btnCancelClick(TObject *Sender)

@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 #pragma hdrstop
 #include "EncodedWriter.h"
 //---------------------------------------------------------------------------
@@ -18,8 +18,8 @@ void EncodedWriter::Write(String data)
       }
       Bom = false;
     }
-    DynamicArray<System::Byte> array = Encoding->GetBytes(data);
-    Stream->Write(&(array[0]), array.Length);
+    TBytes bytes = Encoding->GetBytes(data);
+    Stream->Write(bytes, bytes.Length);
   }
 }
 //---------------------------------------------------------------------------

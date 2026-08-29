@@ -1,17 +1,17 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 #include <vcl.h>
+#include "MainForm.h"
 #pragma hdrstop
 
+#include "Option.h"
 #include "OptionView.h"
-#include "MainForm.h"
 #include "OptionColor.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TfrOptionView *frOptionView;
 //---------------------------------------------------------------------------
-__fastcall TfrOptionView::TfrOptionView(TComponent* Owner)
-    : TFrame(Owner)
+__fastcall TfrOptionView::TfrOptionView(TfmOption* Owner)
+    : TFrame(Owner), fmOption(Owner)
 {
 }
 //---------------------------------------------------------------------------
@@ -71,14 +71,13 @@ void TfrOptionView::StoreToMainForm()
 //---------------------------------------------------------------------------
 void __fastcall TfrOptionView::btnFontClick(TObject *Sender)
 {
-  TFontDialog *dlgFont = new TFontDialog(this);
+  std::unique_ptr<TFontDialog> dlgFont = std::make_unique<TFontDialog>(nullptr);
   dlgFont->Font = stFont->Font;
   if(dlgFont->Execute()){
     stFont->Font = dlgFont->Font;
     stFont->Caption = stFont->Font->Name + " (" + stFont->Font->Size + ")";
-    frOptionColor->cbFgColor->Selected = stFont->Font->Color;
+    fmOption->frOptionColor->cbFgColor->Selected = stFont->Font->Color;
   }
-  delete dlgFont;
 }
 //---------------------------------------------------------------------------
 

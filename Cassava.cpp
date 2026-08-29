@@ -1,9 +1,9 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 #include <vcl.h>
 #include <tchar.h>
 #include <Vcl.Styles.hpp>
 #include <Vcl.Themes.hpp>
-#pragma hdrstop
+
 USEFORM("OptionDataFormat.cpp", frOptionDataFormat); /* TFrame: File Type */
 USEFORM("OptionColor.cpp", frOptionColor); /* TFrame: File Type */
 USEFORM("OptionLaunch.cpp", frOptionLaunch); /* TFrame: File Type */
@@ -30,8 +30,6 @@ int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
     Application->Title = "Cassava Editor";
     Application->DefaultFont->Name = "Yu Gothic UI";
     Application->CreateForm(__classid(TfmMain), &fmMain);
-    Application->CreateForm(__classid(TfmSort), &fmSort);
-    Application->CreateForm(__classid(TfmPasteDialog), &fmPasteDialog);
     FSetExceptMask(femALLEXCEPT);
     Application->Run();
   }

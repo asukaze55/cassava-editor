@@ -1,11 +1,13 @@
-//---------------------------------------------------------------------------
+Ôªø//---------------------------------------------------------------------------
 #include <vcl.h>
+#include "MainForm.h"
+#pragma hdrstop
+
 #include <Vcl.clipbrd.hpp>
 #include <shellapi.h>
 #include <string.h>
 #include <process.h>
 #include <boost\regex.hpp>
-#pragma hdrstop
 
 #include "AutoOpen.h"
 #include "Compiler.h"
@@ -14,7 +16,6 @@
 #include "FileOpenThread.h"
 #include "Find.h"
 #include "Macro.h"
-#include "MainForm.h"
 #include "MainGrid.h"
 #include "PasteDlg.h"
 
@@ -41,7 +42,7 @@ static inline String boolToStr(bool value)
   return (value ? "true" : "false");
 }
 //---------------------------------------------------------------------------
-__fastcall TMainGrid::TMainGrid(TComponent* Owner)  //ÉfÉtÉHÉãÉgÇÃê›íË
+__fastcall TMainGrid::TMainGrid(TComponent* Owner)  //„Éá„Éï„Ç©„É´„Éà„ÅÆË®≠ÂÆö
     : TStringGrid(Owner)
 {
   Options = Options << goRowSizing << goColSizing << goRowMoving << goColMoving
@@ -65,18 +66,8 @@ __fastcall TMainGrid::TMainGrid(TComponent* Owner)  //ÉfÉtÉHÉãÉgÇÃê›íË
   ExecCellMacro = false;
   FDataRight = 1;
   FDataBottom = 1;
-  EOFMarker = new TObject();
-  EOLMarker = new TObject();
   FileOpenThread = nullptr;
   DefaultDrawing = false;
-  LastMatch = new TStringList();
-  FUndoList = new TUndoList();
-}
-//---------------------------------------------------------------------------
-__fastcall TMainGrid::~TMainGrid(){
-  UndoList->Clear();
-  if (EOFMarker) { delete EOFMarker; }
-  if (EOLMarker) { delete EOLMarker; }
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainGrid::ShowEditor()
@@ -113,19 +104,19 @@ String FormatOmitDecimal(String str, int count)
 //---------------------------------------------------------------------------
 String FormatNumComma(String Str, int Count)
 {
-  if(Str == "" || Count <= 0) return Str;
+  if (Str == "" || Count <= 0) {
+    return Str;
+  }
   int len = Str.Length();
-  int L, R;
-  int i = 1;
-  for(; i<=len; i++){
-    if(Str[i] >= _T('0') && Str[i] <= _T('9')) break;
+  int left = 1;
+  while (left <= len && (Str[left] < L'0' || Str[left] > L'9')) {
+    left++;
   }
-  L = i;
-  for(; i<=len; i++){
-    if(Str[i] < _T('0') || Str[i] > _T('9')) break;
+  int right = left + 1;
+  while (right <= len && Str[right] >= L'0' && Str[right] <= L'9') {
+    right++;
   }
-  R = i;
-  for(i = R - Count; i > L; i -= Count){
+  for (int i = right - Count; i > left; i -= Count) {
     Str.Insert(",", i);
   }
   return Str;
@@ -247,7 +238,7 @@ void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
   Canvas->Pen->Color = PenColor;
 }
 //---------------------------------------------------------------------------
-//  äÓñ{ì¸èoóÕÉÅÉ\ÉbÉh
+//  Âü∫Êú¨ÂÖ•Âá∫Âäõ„É°„ÇΩ„ÉÉ„Éâ
 //
 void TMainGrid::SetExecCellMacro(bool Value)
 {
@@ -278,19 +269,19 @@ TCalculatedCell TMainGrid::GetCalculatedCell(int AX, int AY)
     return TCalculatedCell("", ctNotExpr);
   }
 
-  // åvéZéÆÇ≈Ç»Ç¢Ç‡ÇÃÇÕÇ»Ç…Ç‡ÇµÇ»Ç¢
+  // Ë®àÁÆóÂºè„Åß„Å™„ÅÑ„ÇÇ„ÅÆ„ÅØ„Å™„Å´„ÇÇ„Åó„Å™„ÅÑ
   String Str = Cells[rx][ry];
   if(!ExecCellMacro || Str.Length() == 0 || Str[1] != '='){
     return TCalculatedCell(Str, ctNotExpr);
   }
 
   String key = (String)"[" + AX + "," + AY + "]";
-  // é©å»éQè∆ÇÇÕÇ∂Ç≠
+  // Ëá™Â∑±ÂèÇÁÖß„Çí„ÅØ„Åò„Åè
   if (UsingCellMacro.count(key) > 0){
     ErrorCalcLoop();
     return TCalculatedCell(Str, ctError);
   }
-  // ÉLÉÉÉbÉVÉÖÇ™Ç†ÇÍÇŒï‘Ç∑
+  // „Ç≠„É£„ÉÉ„Ç∑„É•„Åå„ÅÇ„Çå„Å∞Ëøî„Åô
   if (CalculatedCellCache.count(key) > 0){
     const TCalculatedCell& cache = CalculatedCellCache[key];
     if (cache.calcType == ctError) {
@@ -300,25 +291,25 @@ TCalculatedCell TMainGrid::GetCalculatedCell(int AX, int AY)
   }
 
   if(OnGetCalculatedCell){
-    // é©å»éQè∆É`ÉFÉbÉNÇÃÇΩÇﬂÇÃÉäÉXÉgÇçXêV
+    // Ëá™Â∑±ÂèÇÁÖß„ÉÅ„Çß„ÉÉ„ÇØ„ÅÆ„Åü„ÇÅ„ÅÆ„É™„Çπ„Éà„ÇíÊõ¥Êñ∞
     UsingCellMacro[key] = Str;
 
-    // OnGetCalculatedCellÇ…àœè˜
+    // OnGetCalculatedCell„Å´ÂßîË≠≤
     TCalculatedCell result = OnGetCalculatedCell(Str, AX, AY);
 
-    // ÉLÉÉÉbÉVÉÖÇçXêV
+    // „Ç≠„É£„ÉÉ„Ç∑„É•„ÇíÊõ¥Êñ∞
     const TCalculatedCell& cache = CalculatedCellCache[key];
     if(CalculatedCellCache[key].calcType == ctError){
-      // é©å»éQè∆ÉGÉâÅ[Ç™ãNÇ±Ç¡ÇƒÇ¢ÇÍÇŒçXêVÇµÇ»Ç¢
+      // Ëá™Â∑±ÂèÇÁÖß„Ç®„É©„Éº„ÅåËµ∑„Åì„Å£„Å¶„ÅÑ„Çå„Å∞Êõ¥Êñ∞„Åó„Å™„ÅÑ
       result = cache;
     }else{
       CalculatedCellCache[key] = result;
     }
 
-    // é©å»éQè∆É`ÉFÉbÉNÇÃÇΩÇﬂÇÃÉäÉXÉgÇå≥Ç…ñﬂÇ∑
+    // Ëá™Â∑±ÂèÇÁÖß„ÉÅ„Çß„ÉÉ„ÇØ„ÅÆ„Åü„ÇÅ„ÅÆ„É™„Çπ„Éà„ÇíÂÖÉ„Å´Êàª„Åô
     UsingCellMacro.erase(key);
 
-    // ê¨å˜
+    // ÊàêÂäü
     return result;
   }else{
     return TCalculatedCell(Str, ctNotExpr);
@@ -472,7 +463,7 @@ void TMainGrid::Clear(int AColCount, int ARowCount, bool UpdateRightBottom)
     FileOpenThread = nullptr;
   }
   Row = FixedRows;  Col = FixedCols;
-  DefaultColWidth = 64;               //óÒÇÃïùÇ64Ç…ñﬂÇ∑
+  DefaultColWidth = 64;               //Âàó„ÅÆÂπÖ„Çí64„Å´Êàª„Åô
   ColWidths[0] = 32;
   if(FixedCols >= AColCount){ AColCount = FixedCols + 1; }
   if(FixedRows >= ARowCount){ ARowCount = FixedRows + 1; }
@@ -578,7 +569,7 @@ int TMainGrid::TextWidth(TCanvas *cnvs, String str)
 //---------------------------------------------------------------------------
 void TMainGrid::SetWidth(int i)
 {
-  int WMax = 0;                     //ÇªÇÃóÒÇ≈ïùÇÃç≈ëÂíl
+  int WMax = 0;                     //„Åù„ÅÆÂàó„ÅßÂπÖ„ÅÆÊúÄÂ§ßÂÄ§
   if(i==0 && ShowRowCounter){
     if(DataBottom >= 0){
       ColWidths[i] = max(MinColWidth,
@@ -602,15 +593,15 @@ void TMainGrid::SetWidth(int i)
     WMax = max(WMax, TextWidth(Canvas, GetCellToDraw(i, j).text));
   }
   if(WMax > 0){ WMax += 2 * LRMargin; }
-  if(WMax < MinColWidth){ //ã∑Ç∑Ç¨Ç»Ç¢ÇÊÇ§Ç…
+  if(WMax < MinColWidth){ //Áã≠„Åô„Åé„Å™„ÅÑ„Çà„ÅÜ„Å´
     WMax = MinColWidth;
-  }else if( WMax >= ClientWidth - ColWidths[0]){ //çLÇ∑Ç¨Ç»Ç¢ÇÊÇ§Ç…
+  }else if( WMax >= ClientWidth - ColWidths[0]){ //Â∫É„Åô„Åé„Å™„ÅÑ„Çà„ÅÜ„Å´
     WMax = ClientWidth - ColWidths[0] - 2 * GridLineWidth;
   }
   ColWidths[i] = WMax;
 }
 //---------------------------------------------------------------------------
-void TMainGrid::SetWidth()             //óÒïùÇÃç≈ìKâª
+void TMainGrid::SetWidth()             //ÂàóÂπÖ„ÅÆÊúÄÈÅ©Âåñ
 {
   if (CompactColWidth) {
     ShowAllColumn();
@@ -635,7 +626,7 @@ void TMainGrid::SetHeight(int j, bool useMaxRowHeightLines)
   }
   if (useMaxRowHeightLines) {
     maxRowHeight = min(maxRowHeight,
-        (Canvas->TextHeight(L"Ç†") * MaxRowHeightLines)
+        (Canvas->TextHeight(L"„ÅÇ") * MaxRowHeightLines)
             + (CellLineMargin * (MaxRowHeightLines - 1))
             + (2 * TBMargin));
   }
@@ -665,7 +656,8 @@ void TMainGrid::SetHeight()
   }
 }
 //---------------------------------------------------------------------------
-void TMainGrid::CompactWidth(int *Widths, int WindowSize, int Minimum)
+void TMainGrid::CompactWidth(std::vector<int>& Widths, int WindowSize,
+    int Minimum)
 {
   std::vector<int> sortedWidths = {0};
   int sum = 0;
@@ -694,7 +686,7 @@ void TMainGrid::CompactWidth(int *Widths, int WindowSize, int Minimum)
 //---------------------------------------------------------------------------
 void TMainGrid::ShowAllColumn()
 {
-  int *widths = new int[ColCount];
+  std::vector<int> widths(ColCount);
   int windowSize =
       ClientWidth - 16 - (DataRight - DataLeft + 1) * GridLineWidth;
 
@@ -729,10 +721,9 @@ void TMainGrid::ShowAllColumn()
   for (int i = 0; i < ColCount; i++) {
     ColWidths[i] = widths[i];
   }
-  delete[] widths;
 }
 //---------------------------------------------------------------------------
-void TMainGrid::Cut()                  //âEÅAâ∫ÇÃó]åvÇ»çÄñ⁄ÇçÌèú
+void TMainGrid::Cut()                  //Âè≥„ÄÅ‰∏ã„ÅÆ‰ΩôË®à„Å™È†ÖÁõÆ„ÇíÂâäÈô§
 {
   if(Col > DataRight){ Col = DataRight; }
   if(Row > DataBottom){ Row = DataBottom; }
@@ -819,7 +810,7 @@ void TMainGrid::UpdateEOFMarker(int oldRight, int oldBottom)
   if(oldRight+1 < ColCount && oldBottom+1 < RowCount &&
      Objects[oldRight+1][oldBottom+1] == EOFMarker){
     if(Col == oldRight+1 && Row == oldBottom+1 && InplaceEditor){
-      // ObjectsçXêVéûÇ…ëIëîÕàÕÇ™èâä˙âªÇ≥ÇÍÇÈÇÃÇïúå≥
+      // ObjectsÊõ¥Êñ∞ÊôÇ„Å´ÈÅ∏ÊäûÁØÑÂõ≤„ÅåÂàùÊúüÂåñ„Åï„Çå„Çã„ÅÆ„ÇíÂæ©ÂÖÉ
       int ss = InplaceEditor->SelStart;
       int sl = InplaceEditor->SelLength;
       Objects[oldRight+1][oldBottom+1] = nullptr;
@@ -909,18 +900,18 @@ void TMainGrid::SetRowDataRight(int Row, int Right, bool ExpandOnly)
   }
 }
 //---------------------------------------------------------------------------
-void GetReturnCode(const DynamicArray<wchar_t> &charBuffer, bool useQuote,
+void GetReturnCode(const TCharArray &charArray, bool useQuote,
                    TReturnCode *code, TReturnCode *inCellCode)
 {
   int crlf[2] = {0, 0};
   int lf[2] = {0, 0};
   int cr[2] = {0, 0};
   int inCell = 0;
-  int len = charBuffer.Length;
+  int len = charArray.Length;
   for (int i = 0; i < len - 1; i++) {
-    wchar_t d = charBuffer[i];
+    wchar_t d = charArray[i];
     if (d == L'\x0D') {
-      if (charBuffer[i + 1] == L'\x0A') {
+      if (charArray[i + 1] == L'\x0A') {
         crlf[inCell]++;
         i++;
       } else {
@@ -934,7 +925,7 @@ void GetReturnCode(const DynamicArray<wchar_t> &charBuffer, bool useQuote,
   }
   if (len > 0) {
     // LastChar
-    wchar_t d = charBuffer[len - 1];
+    wchar_t d = charArray[len - 1];
     if (d == L'\x0D') {
       cr[inCell]++;
     } else if (d == L'\x0A') {
@@ -982,16 +973,16 @@ void __fastcall TMainGrid::DropCsvFiles(TWMDropFiles inMsg)
   delete[] fileNames;
 }
 //---------------------------------------------------------------------------
-static bool HasBom(DynamicArray<Byte> buf, TEncoding *encoding)
+static bool HasBom(TBytes bytes, TEncoding *encoding)
 {
   switch (encoding->CodePage) {
     case CODE_PAGE_UTF8:
-      return buf.Length > 3
-             && buf[0] == 0xef && buf[1] == 0xbb && buf[2] == 0xbf;
+      return bytes.Length > 3
+             && bytes[0] == 0xef && bytes[1] == 0xbb && bytes[2] == 0xbf;
     case CODE_PAGE_UTF16LE:
-      return buf.Length > 2 && buf[0] == 0xff && buf[1] == 0xfe;
+      return bytes.Length > 2 && bytes[0] == 0xff && bytes[1] == 0xfe;
     case CODE_PAGE_UTF16BE:
-      return buf.Length > 2 && buf[0] == 0xfe && buf[1] == 0xff;
+      return bytes.Length > 2 && bytes[0] == 0xfe && bytes[1] == 0xff;
     default:
       return false;
   }
@@ -1001,49 +992,45 @@ void TMainGrid::LoadFromFile(String FileName, TEncoding *encoding,
     bool isDetectedEncoding, const TTypeOption *Format,
     TNotifyEvent OnTerminate)
 {
-  TFileStream *File = new TFileStream(FileName, fmOpenRead|fmShareDenyNone);
+  std::unique_ptr<TFileStream> File =
+      std::make_unique<TFileStream>(FileName, fmOpenRead|fmShareDenyNone);
   int bufLength = min(File->Size, 1024);
   Clear();
   if (bufLength == 0) {
-    delete File;
     Modified = false;
     OnTerminate(this);
     return;
   }
-  DynamicArray<Byte> byteBuffer;
-  byteBuffer.Length = bufLength;
-  bufLength = File->Read(&(byteBuffer[0]), bufLength);
-  byteBuffer.Length = bufLength;
-  delete File;
+  TBytes bytes;
+  bytes.Length = bufLength;
+  bufLength = File->Read(bytes, bufLength);
 
-  DynamicArray<wchar_t> charBuffer;
-  charBuffer.Length = bufLength;
-  TStreamReader *reader =
-      new TStreamReader(FileName, encoding, /* DetectBOM= */ true,
-                        /* BufferSize= */ 4096);
+  TCharArray charArray;
+  charArray.Length = bufLength;
+  std::unique_ptr<TStreamReader> reader = std::make_unique<TStreamReader>(
+      FileName, encoding, /* DetectBOM= */ true, /* BufferSize= */ 4096);
   try {
     Encoding = encoding;
-    int readCount = reader->ReadBlock(charBuffer, 0, bufLength);
-    charBuffer.Length = readCount;
-    AddBom = HasBom(byteBuffer, encoding);
+    int readCount = reader->ReadBlock(charArray, 0, bufLength);
+    charArray.Length = readCount;
+    AddBom = HasBom(bytes, encoding);
   } catch (...) {
     if (!isDetectedEncoding) {
       Application->MessageBox(
-          L"éwíËÇ≥ÇÍÇΩï∂éöÉRÅ[ÉhÇ≈ÇÕÉtÉ@ÉCÉãÇäJÇØÇ‹ÇπÇÒÅB",
+          L"ÊåáÂÆö„Åï„Çå„ÅüÊñáÂ≠ó„Ç≥„Éº„Éâ„Åß„ÅØ„Éï„Ç°„Ç§„É´„ÇíÈñã„Åë„Åæ„Åõ„Çì„ÄÇ",
           CASSAVA_TITLE, 0);
     }
     Encoding = TEncoding::Default;
-    charBuffer = TEncoding::Default->GetChars(byteBuffer);
+    charArray = TEncoding::Default->GetChars(bytes);
     AddBom = false;
   }
-  delete reader;
 
   TypeOption = Format;
   Cursor = crAppStart;
-  Hint = L"ÉtÉ@ÉCÉãÇì«Ç›çûÇ›íÜÇ≈Ç∑ÅB";
+  Hint = L"„Éï„Ç°„Ç§„É´„ÇíË™≠„ÅøËæº„Åø‰∏≠„Åß„Åô„ÄÇ";
   ShowHint = true;
 
-  GetReturnCode(charBuffer, TypeOption->UseQuote(), &ReturnCode,
+  GetReturnCode(charArray, TypeOption->UseQuote(), &ReturnCode,
                 &InCellReturnCode);
 
   OnFileOpenThreadTerminate = OnTerminate;
@@ -1071,10 +1058,9 @@ void __fastcall TMainGrid::FileOpenThreadTerminate(System::TObject* Sender)
 //---------------------------------------------------------------------------
 static String GetClipboardText()
 {
-  TClipboard *clip = new TClipboard;
+  std::unique_ptr<TClipboard> clip = std::make_unique<TClipboard>();
   if (!clip->HasFormat(CF_TEXT)) {
     clip->Close();
-    delete clip;
     return "";
   }
   String clipboardText;
@@ -1085,27 +1071,25 @@ static String GetClipboardText()
     } catch (...) {
       if (i >= 10) {
         clip->Close();
-        delete clip;
         throw;
       }
       Sleep(200);
     }
   }
   clip->Close();
-  delete clip;
   return clipboardText;
 }
 //---------------------------------------------------------------------------
-void TMainGrid::PasteCSV(TStrings *List, int Left, int Top, int Way,
-                         int ClipCols, int ClipRows, const TTypeOption *Format)
+void TMainGrid::PasteCSV(const std::vector<std::vector<String>>& Row, int Left,
+    int Top, int Way, int ClipCols, int ClipRows)
 {
   // Way
-  //  0: èdÇ»Ç¡ÇΩïîï™ÇÃÇ›
-  //  1: Ç≠ÇËï‘Çµèàóù
-  //  2: ÉfÅ[É^ÉTÉCÉYè„èëÇ´
-  //  3: âEë}ì¸
-  //  4: â∫ë}ì¸
-  //  5: ÉeÉLÉXÉgÇ∆ÇµÇƒÉZÉãì‡Ç…
+  //  0: Èáç„Å™„Å£„ÅüÈÉ®ÂàÜ„ÅÆ„Åø
+  //  1: „Åè„ÇäËøî„ÅóÂá¶ÁêÜ
+  //  2: „Éá„Éº„Çø„Çµ„Ç§„Ç∫‰∏äÊõ∏„Åç
+  //  3: Âè≥ÊåøÂÖ•
+  //  4: ‰∏ãÊåøÂÖ•
+  //  5: „ÉÜ„Ç≠„Çπ„Éà„Å®„Åó„Å¶„Çª„É´ÂÜÖ„Å´
   if (Way == 5) {
     ShowEditor();
     InplaceEditor->SelText = GetClipboardText();
@@ -1152,11 +1136,9 @@ void TMainGrid::PasteCSV(TStrings *List, int Left, int Top, int Way,
     }
     InsertCells_Down(Left, Left + ClipCols - 1, Top, Top + ClipRows - 1);
   }
-  TStringList *OneRow = new TStringList;
   for (int i = 0; i < iEnd; i++) {
     int ii = (Way == 1 && ClipRows > 0) ? i % ClipRows : i;
-    SetCsv(OneRow, List->Strings[ii], Format);
-    int jEnd = OneRow->Count;
+    int jEnd = Row[ii].size();
     if (Way == 0) {
       jEnd = min(selRight - Left + 1, jEnd);
     } else if (Way == 1) {
@@ -1164,76 +1146,25 @@ void TMainGrid::PasteCSV(TStrings *List, int Left, int Top, int Way,
     }
     for (int j = 0; j < jEnd; j++) {
       int jj = (Way == 1 && ClipCols > 0) ? j % ClipCols : j;
-      if (jj < OneRow->Count) {
-        SetCell(j + Left, i + Top, OneRow->Strings[jj]);
+      if (jj < Row[ii].size()) {
+        SetCell(j + Left, i + Top, Row[ii][jj]);
       }
     }
     SetRowDataRight(i + Top, jEnd + Left - 1, /* Expand= */ true);
   }
-  delete OneRow;
   Modified = true;
-}
-//---------------------------------------------------------------------------
-void TMainGrid::SetCsv(TStringList *Dest, String Src, const TTypeOption *Format)
-{
-  int CellBegin = 1;
-  bool Quoted = false;
-  int Kugiri = 2; // 0:í èÌ 1:é„ãÊêÿÇËÅi" "Åj 2:ã≠ãÊêÿÇËÅi"," "\t"Åj
-  Dest->Clear();
-  for(int i=1; i<=Src.Length(); i++){
-    if (Format->SepChars.Pos(Src[i]) > 0) {
-      if(!Quoted){
-	      if(Kugiri != 1) Dest->Add(Src.SubString(CellBegin,i-CellBegin));
-	      Kugiri = 2;
-	      CellBegin = i+1;
-      }
-    } else if (Format->WeakSepChars.Pos(Src[i]) > 0) {
-      if(!Quoted){
-      	if(Kugiri == 0){
-      	  Dest->Add(Src.SubString(CellBegin,i-CellBegin));
-      	  Kugiri = 1;
-      	}
-      	CellBegin = i+1;
-      }
-    } else if (Format->UseQuote() && Format->QuoteChars.Pos(Src[i]) > 0) {
-      if(Quoted){
-      	if(i<Src.Length() && Src[i+1]=='\"'){
-      	  Src.Delete(i,1);
-      	}else{
-      	  Dest->Add(Src.SubString(CellBegin,i-CellBegin));
-	        Kugiri = 1;
-	        CellBegin = i+1;
-      	  Quoted = false;
-      	}
-      }else{
-      	if(Kugiri > 0){
-      	  Quoted = true;
-      	  Kugiri = 0;
-      	  CellBegin = i+1;
-      	}
-      }
-    }else{
-      Kugiri = 0;
-    }
-  }
-  if(CellBegin <= Src.Length()){
-    Dest->Add(Src.SubString(CellBegin,Src.Length()-CellBegin+1));
-  }else if(Kugiri == 2 || Quoted){
-    Dest->Add("");
-  }
 }
 //---------------------------------------------------------------------------
 void TMainGrid::SaveToFile(String FileName, const TTypeOption *Format,
     bool SetModifiedFalse)
 {
-  TFileStream *fs = new TFileStream(FileName, fmCreate | fmShareDenyWrite);
-  EncodedWriter *ew = new EncodedWriter(fs, Encoding, AddBom);
+  std::unique_ptr<TFileStream> fileStream =
+      std::make_unique<TFileStream>(FileName, fmCreate | fmShareDenyWrite);
+  EncodedWriter encodedWriter(fileStream.get(), Encoding, AddBom);
 
-  WriteGrid(ew, Format);
+  WriteGrid(encodedWriter, Format);
 
-  delete ew;
-  delete fs;
-  if(SetModifiedFalse){
+  if (SetModifiedFalse) {
     Modified = false;
   }
 }
@@ -1250,14 +1181,14 @@ static inline void MaybeCompileQuoteScript(const TTypeOption *Format,
   }
 }
 //---------------------------------------------------------------------------
-void TMainGrid::WriteGrid(EncodedWriter *Writer, const TTypeOption *Format)
+void TMainGrid::WriteGrid(EncodedWriter &Writer, const TTypeOption *Format)
 {
   if (Format == nullptr) { Format = TypeOption; }
 
   TMacroContext macroContext;
   MaybeCompileQuoteScript(Format, &macroContext);
 
-  TStringList* Data = new TStringList;
+  std::unique_ptr<TStringList> Data = std::make_unique<TStringList>();
   for (int y = DataTop; y <= DataBottom; y++) {
     Data->Assign(Rows[y]);
 
@@ -1272,12 +1203,11 @@ void TMainGrid::WriteGrid(EncodedWriter *Writer, const TTypeOption *Format)
       }
     }
     if (ShowRowCounter) {
-      Data->Delete(0);   // ÉJÉEÉìÉ^ÉZÉãÇÃçÌèú
+      Data->Delete(0);   // „Ç´„Ç¶„É≥„Çø„Çª„É´„ÅÆÂâäÈô§
     }
-    Writer->Write(StringsToCSV(Data, Format, macroContext, 1, RYtoAY(y)) +
+    Writer.Write(StringsToCSV(Data.get(), Format, macroContext, 1, RYtoAY(y)) +
         ReturnCodeString(ReturnCode));
   }
-  delete Data;
 }
 //---------------------------------------------------------------------------
 String TMainGrid::StringsToCSV(TStrings* Data, const TTypeOption *Format,
@@ -1329,32 +1259,8 @@ String TMainGrid::StringsToCSV(TStrings* Data, const TTypeOption *Format,
   return Text;
 }
 //---------------------------------------------------------------------------
-void TMainGrid::QuotedDataToStrings(TStrings *Lines, String Text,
-    const TTypeOption *Format)
-{
-  Lines->Text = Text;
-  if (Format->QuoteOption == QUOTE_NONE) {
-    return;
-  }
-  int i=0;
-  while(i<Lines->Count){
-    int qc = 0;
-    String str = Lines->Strings[i];
-    for(int j=1; j<=str.Length(); j++){
-      if(str.IsDelimiter(Format->QuoteChars, j)){ qc++; }
-    }
-    if((qc % 2) && i+1 <Lines->Count){
-      Lines->Strings[i] =
-          str + ReturnCodeString(ReturnCode) + Lines->Strings[i+1];
-      Lines->Delete(i+1);
-    }else{
-      i++;
-    }
-  }
-}
-//---------------------------------------------------------------------------
 static void SetClipboard(String text) {
-  TClipboard *clip = new TClipboard;
+  std::unique_ptr<TClipboard> clip = std::make_unique<TClipboard>();
   for (int i = 0;; i++) {
     try {
       clip->AsText = text;
@@ -1362,14 +1268,12 @@ static void SetClipboard(String text) {
     } catch (...) {
       if (i >= 10) {
         clip->Close();
-        delete clip;
         throw;
       }
       Sleep(200);
     }
   }
   clip->Close();
-  delete clip;
 }
 //---------------------------------------------------------------------------
 void TMainGrid::CopyToClipboard(const TTypeOption *Format, bool Cut)
@@ -1396,8 +1300,8 @@ void TMainGrid::CopyToClipboard(const TTypeOption *Format, bool Cut)
   TMacroContext macroContext;
   MaybeCompileQuoteScript(format, &macroContext);
 
-  TStringList *Data = new TStringList;
-  TStringList *OneLine = new TStringList;
+  std::unique_ptr<TStringList> Data = std::make_unique<TStringList>();
+  std::unique_ptr<TStringList> OneLine = std::make_unique<TStringList>();
   for (int y = STop; y <= SBottom; y++) {
     OneLine->Clear();
     for (int x = SLeft; x <= SRight; x++) {
@@ -1406,14 +1310,12 @@ void TMainGrid::CopyToClipboard(const TTypeOption *Format, bool Cut)
         SetCell(x, y, "");
       }
     }
-    Data->Add(
-        StringsToCSV(OneLine, format, macroContext, RXtoAX(SLeft), RYtoAY(y)));
+    Data->Add(StringsToCSV(
+        OneLine.get(), format, macroContext, RXtoAX(SLeft), RYtoAY(y)));
   }
-  delete OneLine;
   String Txt = Data->Text;
   Txt.SetLength(Txt.Length()-2);
   SetClipboard(Txt);
-  delete Data;
 
   String select = (String)"Select(" + RXtoAX(SLeft) + ", " + RYtoAY(STop) +
       ", " + RXtoAX(SRight) + ", " + RYtoAY(SBottom) + ");\n";
@@ -1455,16 +1357,19 @@ void TMainGrid::PasteFromClipboard(int Way, const TTypeOption *Format)
   int SelectRowCount = SBottom - STop + 1;
   int SelectColCount = SRight - SLeft + 1;
 
-  TStringList *Data = new TStringList;
-  QuotedDataToStrings(Data, clipboardText, Format);
-  int ClipRowCount = Data->Count;
+  CsvReader reader(Format, clipboardText);
+  std::vector<std::vector<String>> data;
   int ClipColCount = 0;
-  TStringList *ARow = new TStringList;
-  for (int i = 0; i < ClipRowCount; i++) {
-    SetCsv(ARow, Data->Strings[i], Format);
-    ClipColCount = max(ARow->Count, ClipColCount);
+  std::vector<String> row;
+  while (reader.ReadLine(row)) {
+    if (reader.GetNextType() == NEXT_TYPE_END_OF_FILE && row.size() == 1 &&
+        row[0] == "") {
+      break;
+    }
+    ClipColCount = max(row.size(), ClipColCount);
+    data.push_back(std::move(row));
   }
-  delete ARow;
+  int ClipRowCount = data.size();
 
   if (Way < 0) {
     if (PasteOption >= 0 && PasteOption != PASTE_OPTION_EDITOR) {
@@ -1476,18 +1381,16 @@ void TMainGrid::PasteFromClipboard(int Way, const TTypeOption *Format)
                ClipColCount == SelectColCount) {
       Way = EditorMode ? PASTE_OPTION_EDITOR : PASTE_OPTION_OVERWRITE;
     } else {
-      TfmPasteDialog *PstDlg = new TfmPasteDialog(Application);
+      std::unique_ptr<TfmPasteDialog> PstDlg =
+          std::make_unique<TfmPasteDialog>(nullptr);
       PstDlg->Way->ItemIndex = DefWay;
       PstDlg->lbMessage->Caption =
-          (String)L"ëIëÉTÉCÉYÅF " + SelectColCount + L" Å~ " + SelectRowCount +
-          L"Å@ÉNÉäÉbÉvÉ{Å[ÉhÉTÉCÉYÅF " + ClipColCount + L" Å~ " + ClipRowCount;
+          (String)L"ÈÅ∏Êäû„Çµ„Ç§„Ç∫Ôºö " + SelectColCount + L" √ó " + SelectRowCount +
+          L"„ÄÄ„ÇØ„É™„ÉÉ„Éó„Éú„Éº„Éâ„Çµ„Ç§„Ç∫Ôºö " + ClipColCount + L" √ó " + ClipRowCount;
       if (PstDlg->ShowModal() != IDOK) {
-        delete PstDlg;
-        delete Data;
         return;
       }
       Way = DefWay = PstDlg->Way->ItemIndex;
-      delete PstDlg;
     }
   }
 
@@ -1500,7 +1403,7 @@ void TMainGrid::PasteFromClipboard(int Way, const TTypeOption *Format)
     Way = PASTE_OPTION_OVERWRITE;
   }
   UndoList->Push();
-  PasteCSV(Data, SLeft, STop, Way, ClipColCount, ClipRowCount, Format);
+  PasteCSV(data, SLeft, STop, Way, ClipColCount, ClipRowCount);
   UndoList->PopWithRecordedMacro((String)"Select(" + RXtoAX(SLeft) + ", " +
       RYtoAY(STop) + ", " + RXtoAX(SRight) + ", " + RYtoAY(SBottom) +
       ");\nPaste(" + Way + ");");
@@ -1514,7 +1417,6 @@ void TMainGrid::PasteFromClipboard(int Way, const TTypeOption *Format)
                  STop, STop + ClipRowCount - 1);
   }
 
-  delete Data;
   Modified = true;
   Invalidate();
 }
@@ -1537,47 +1439,21 @@ bool TMainGrid::IsNumber(String Str)
 //---------------------------------------------------------------------------
 struct DoubleData {
   double Num;
-  TStringList *Data;
-  int Row;
-
-  DoubleData(double num, TStringList *data, int row)
-      : Num(num), Data(data), Row(row) {}
+  std::vector<String> Data;
 };
-//---------------------------------------------------------------------------
-int __fastcall CompareDoubleData(void *a, void *b) {
-  DoubleData *dda = static_cast<DoubleData*>(a);
-  DoubleData *ddb = static_cast<DoubleData*>(b);
-  if(dda->Num == ddb->Num){
-    if(dda->Row == ddb->Row) return 0;
-    return ((dda->Row < ddb->Row) ? -1 : 1);
-  }else return ((dda->Num < ddb->Num) ? -1 : 1);
-}
 //---------------------------------------------------------------------------
 struct StringData {
   String Str;
-  TStringList *Data;
-  int Row;
-
-  StringData(String str, TStringList *data, int row)
-      : Str(str), Data(data), Row(row) {}
+  std::vector<String> Data;
 };
-//---------------------------------------------------------------------------
-int __fastcall CompareOrderedString(void *a, void *b) {
-  StringData *osa = static_cast<StringData*>(a);
-  StringData *osb = static_cast<StringData*>(b);
-  if(osa->Str == osb->Str){
-    if(osa->Row == osb->Row) return 0;
-    return ((osa->Row < osb->Row) ? -1 : 1);
-  }else return ((osa->Str < osb->Str) ? -1 : 1);
-}
 //---------------------------------------------------------------------------
 void TMainGrid::Sort(int SLeft, int STop, int SRight, int SBottom, int SCol,
   bool Ascending, bool NumSort, bool IgnoreCase, bool IgnoreZenhan)
 {
   UndoList->Push();
-  TList *stringList = new TList;
-  TList *numberList = new TList;
-  TList *emptyList = new TList;
+  std::vector<StringData> stringList;
+  std::vector<DoubleData> numberList;
+  std::vector<std::vector<String>> emptyList;
 
   if (SLeft < 0) { SLeft = 0; }
   if (SRight < 0) { SRight = 0; }
@@ -1585,15 +1461,16 @@ void TMainGrid::Sort(int SLeft, int STop, int SRight, int SBottom, int SCol,
   if (SBottom < 0) { SBottom = 0; }
 
   for (int y = STop; y <= SBottom; y++) {
-    TStringList *data = new TStringList;
+    std::vector<String> data;
+    data.reserve(SRight - SLeft + 1);
     for (int x = SLeft; x <= SRight; x++) {
-      data->Add(Cells[x][y]);
+      data.push_back(Cells[x][y]);
     }
     String str = Cells[SCol][y];
     if (str == "") {
-      emptyList->Add(data);
+      emptyList.push_back(std::move(data));
     } else if (NumSort && IsNumber(str)) {
-      numberList->Add(new DoubleData(str.ToDouble(), data, y));
+      numberList.push_back({.Num = str.ToDouble(), .Data = std::move(data)});
     } else {
       if (IgnoreCase) {
         str = str.UpperCase();
@@ -1601,40 +1478,32 @@ void TMainGrid::Sort(int SLeft, int STop, int SRight, int SBottom, int SCol,
       if (IgnoreZenhan) {
         str = TransChar(TransKana(str, 5), 1);
       }
-      stringList->Add(new StringData(str, data, y));
+      stringList.push_back({.Str = str, .Data = std::move(data)});
     }
   }
-  stringList->Sort(CompareOrderedString);
-  numberList->Sort(CompareDoubleData);
+  std::stable_sort(stringList.begin(), stringList.end(),
+      [](const StringData& a, const StringData& b) { return a.Str < b.Str; });
+  std::stable_sort(numberList.begin(), numberList.end(),
+      [](const DoubleData& a, const DoubleData& b) { return a.Num < b.Num; });
 
-  int nonEmptyBottom = STop + stringList->Count + numberList->Count - 1;
+  int nonEmptyBottom = STop + stringList.size() + numberList.size() - 1;
   for (int y = STop; y <= SBottom; y++) {
-    TStringList *data;
+    std::vector<String>* data;
     if (y > nonEmptyBottom) {
-      data =
-          static_cast<TStringList*>(emptyList->Items[y - nonEmptyBottom - 1]);
+      data = &emptyList[y - nonEmptyBottom - 1];
     } else {
       int index = Ascending ? y - STop : nonEmptyBottom - y;
-      if (index < numberList->Count) {
-        DoubleData *dd = static_cast<DoubleData*>(numberList->Items[index]);
-        data = dd->Data;
-        delete dd;
+      if (index < numberList.size()) {
+        data = &numberList[index].Data;
       } else {
-        StringData *sd = static_cast<StringData*>(
-            stringList->Items[index - numberList->Count]);
-        data = sd->Data;
-        delete sd;
+        data = &stringList[index - numberList.size()].Data;
       }
     }
     for (int x = SLeft; x <= SRight; x++) {
-      SetCell(x, y, data->Strings[x - SLeft]);
+      SetCell(x, y, (*data)[x - SLeft]);
     }
-    delete data;
   }
 
-  delete stringList;
-  delete numberList;
-  delete emptyList;
   UndoList->Pop((String)"Sort(" + RXtoAX(SLeft) + ", " + RYtoAY(STop) + ", "
       + RXtoAX(SRight) + ", " + RYtoAY(SBottom) + ", " + RXtoAX(SCol) + ", "
       + boolToStr(!Ascending) + ", " + boolToStr(NumSort) + ", "
@@ -1714,98 +1583,98 @@ void TMainGrid::CopyAvr()
 //---------------------------------------------------------------------------
 wchar_t Hankaku2Zenkaku(wchar_t wc)
 {
-  if(wc == L' ') return L'Å@';
-  else if(wc < L'°' || wc > L'ﬂ') return wc;
-  else if(wc >= L'±' && wc <= L'µ') return L'ÉA' + (wc - L'±') * 2;
-  else if(wc >= L'∂' && wc <= L'¡') return L'ÉJ' + (wc - L'∂') * 2;
-  else if(wc >= L'¬' && wc <= L'ƒ') return L'Éc' + (wc - L'¬') * 2;
-  else if(wc >= L'≈' && wc <= L'…') return L'Éi' + (wc - L'≈');
-  else if(wc >= L' ' && wc <= L'Œ') return L'Én' + (wc - L' ') * 3;
-  else if(wc >= L'œ' && wc <= L'”') return L'É}' + (wc - L'œ');
-  else if(wc >= L'‘' && wc <= L'÷') return L'ÉÑ' + (wc - L'‘') * 2;
-  else if(wc >= L'◊' && wc <= L'€') return L'Éâ' + (wc - L'◊');
-  else if(wc == L'‹') return L'Éè';
-  else if(wc == L'¶') return L'Éí';
-  else if(wc == L'›') return L'Éì';
-  else if(wc >= L'ß' && wc <= L'´') return L'É@' + (wc - L'ß') * 2;
-  else if(wc >= L'¨' && wc <= L'Æ') return L'ÉÉ' + (wc - L'¨') * 2;
-  else if(wc == L'Ø') return L'Éb';
-  else if(wc == L'∞') return L'Å[';
-  else if(wc == L'ﬁ') return L'ÅJ';
-  else if(wc == L'ﬂ') return L'ÅK';
-  else if(wc == L'°') return L'ÅB';
-  else if(wc == L'¢') return L'Åu';
-  else if(wc == L'£') return L'Åv';
-  else if(wc == L'§') {
-    return L'ÅA';
-  }else if(wc == L'•') return L'ÅE';
+  if(wc == L' ') return u'„ÄÄ';
+  else if(wc < u'ÔΩ°' || wc > u'Ôæü') return wc;
+  else if(wc >= u'ÔΩ±' && wc <= u'ÔΩµ') return u'„Ç¢' + (wc - u'ÔΩ±') * 2;
+  else if(wc >= u'ÔΩ∂' && wc <= u'ÔæÅ') return u'„Ç´' + (wc - u'ÔΩ∂') * 2;
+  else if(wc >= u'ÔæÇ' && wc <= u'ÔæÑ') return u'„ÉÑ' + (wc - u'ÔæÇ') * 2;
+  else if(wc >= u'ÔæÖ' && wc <= u'Ôæâ') return u'„Éä' + (wc - u'ÔæÖ');
+  else if(wc >= u'Ôæä' && wc <= u'Ôæé') return u'„Éè' + (wc - u'Ôæä') * 3;
+  else if(wc >= u'Ôæè' && wc <= u'Ôæì') return u'„Éû' + (wc - u'Ôæè');
+  else if(wc >= u'Ôæî' && wc <= u'Ôæñ') return u'„É§' + (wc - u'Ôæî') * 2;
+  else if(wc >= u'Ôæó' && wc <= u'Ôæõ') return u'„É©' + (wc - u'Ôæó');
+  else if(wc == u'Ôæú') return u'„ÉØ';
+  else if(wc == u'ÔΩ¶') return u'„É≤';
+  else if(wc == u'Ôæù') return u'„É≥';
+  else if(wc >= u'ÔΩß' && wc <= u'ÔΩ´') return u'„Ç°' + (wc - u'ÔΩß') * 2;
+  else if(wc >= u'ÔΩ¨' && wc <= u'ÔΩÆ') return u'„É£' + (wc - u'ÔΩ¨') * 2;
+  else if(wc == u'ÔΩØ') return u'„ÉÉ';
+  else if(wc == u'ÔΩ∞') return u'„Éº';
+  else if(wc == u'Ôæû') return u'„Çõ';
+  else if(wc == u'Ôæü') return u'„Çú';
+  else if(wc == u'ÔΩ°') return u'„ÄÇ';
+  else if(wc == u'ÔΩ¢') return u'„Äå';
+  else if(wc == u'ÔΩ£') return u'„Äç';
+  else if(wc == u'ÔΩ§') {
+    return u'„ÄÅ';
+  }else if(wc == u'ÔΩ•') return u'„Éª';
 
   return wc;
 }
 //---------------------------------------------------------------------------
 int Zenkaku2Hankaku(wchar_t wc, wchar_t *ans)
 {
-  if(wc == L'Å@'){ *ans = L' '; return 1; }
-  else if(wc == L'Éè'){ *ans = L'‹'; return 1; }
-  else if(wc == L'Éí'){ *ans = L'¶'; return 1; }
-  else if(wc == L'Éì'){ *ans = L'›'; return 1; }
-  else if(wc == L'Éî'){ *ans = L'≥'; *(ans+1) = L'ﬁ'; return 2; }
-  else if(wc == L'ÅJ'){ *ans = L'ﬁ'; return 1; }
-  else if(wc == L'ÅK'){ *ans = L'ﬂ'; return 1; }
-  else if(wc == L'Å['){ *ans = L'∞'; return 1; }
-  else if(wc == L'ÅB'){ *ans = L'°'; return 1; }
-  else if(wc == L'Åu'){ *ans = L'¢'; return 1; }
-  else if(wc == L'Åv'){ *ans = L'£'; return 1; }
-  else if(wc == L'ÅA'){ *ans = L'§'; return 1; }
-  else if(wc == L'ÅE'){ *ans = L'•'; return 1; }
-  else if(wc < L'É@' || wc > L'Éç'){ *ans = wc; return 1; }
-  else if(wc == L'Éb'){ *ans = L'Ø'; return 1; }
-  else if(wc >= L'É@' && wc <= L'ÉI'){
-    int x = (wc - L'É@');
-    *ans = ((x % 2) ? (L'±' + (x / 2)) : (L'ß' + (x / 2)));
+  if(wc == u'„ÄÄ'){ *ans = L' '; return 1; }
+  else if(wc == u'„ÉØ'){ *ans = u'Ôæú'; return 1; }
+  else if(wc == u'„É≤'){ *ans = u'ÔΩ¶'; return 1; }
+  else if(wc == u'„É≥'){ *ans = u'Ôæù'; return 1; }
+  else if(wc == u'„É¥'){ *ans = u'ÔΩ≥'; *(ans+1) = u'Ôæû'; return 2; }
+  else if(wc == u'„Çõ'){ *ans = u'Ôæû'; return 1; }
+  else if(wc == u'„Çú'){ *ans = u'Ôæü'; return 1; }
+  else if(wc == u'„Éº'){ *ans = u'ÔΩ∞'; return 1; }
+  else if(wc == u'„ÄÇ'){ *ans = u'ÔΩ°'; return 1; }
+  else if(wc == u'„Äå'){ *ans = u'ÔΩ¢'; return 1; }
+  else if(wc == u'„Äç'){ *ans = u'ÔΩ£'; return 1; }
+  else if(wc == u'„ÄÅ'){ *ans = u'ÔΩ§'; return 1; }
+  else if(wc == u'„Éª'){ *ans = u'ÔΩ•'; return 1; }
+  else if(wc < u'„Ç°' || wc > u'„É≠'){ *ans = wc; return 1; }
+  else if(wc == u'„ÉÉ'){ *ans = u'ÔΩØ'; return 1; }
+  else if(wc >= u'„Ç°' && wc <= u'„Ç™'){
+    int x = (wc - u'„Ç°');
+    *ans = ((x % 2) ? (u'ÔΩ±' + (x / 2)) : (u'ÔΩß' + (x / 2)));
     return 1;
-  }else if(wc >= L'ÉJ' && wc <= L'Éa'){
-    int x = (wc - L'ÉJ');
-    *ans = L'∂' + (x / 2);
+  }else if(wc >= u'„Ç´' && wc <= u'„ÉÇ'){
+    int x = (wc - u'„Ç´');
+    *ans = u'ÔΩ∂' + (x / 2);
     if(x % 2){
-      *(ans+1) = L'ﬁ';
+      *(ans+1) = u'Ôæû';
       return 2;
     }else{
       return 1;
     }
-  }else if(wc >= L'Éc' && wc <= L'Éh'){
-    int x = (wc - L'Éc');
-    *ans = L'¬' + (x / 2);
+  }else if(wc >= u'„ÉÑ' && wc <= u'„Éâ'){
+    int x = (wc - u'„ÉÑ');
+    *ans = u'ÔæÇ' + (x / 2);
     if(x % 2){
-      *(ans+1) = L'ﬁ';
+      *(ans+1) = u'Ôæû';
       return 2;
     }else{
       return 1;
     }
-  }else if(wc >= L'Éi' && wc <= L'Ém'){
-    *ans = L'≈' + (wc - L'Éi');
+  }else if(wc >= u'„Éä' && wc <= u'„Éé'){
+    *ans = u'ÔæÖ' + (wc - u'„Éä');
     return 1;
-  }else if(wc >= L'Én' && wc <= L'É|'){
-    int x = (wc - L'Én');
-    *ans = L' ' + (x / 3);
+  }else if(wc >= u'„Éè' && wc <= u'„Éù'){
+    int x = (wc - u'„Éè');
+    *ans = u'Ôæä' + (x / 3);
     if((x % 3) == 1){
-      *(ans+1) = L'ﬁ';
+      *(ans+1) = u'Ôæû';
       return 2;
     }else if((x % 3) == 2){
-      *(ans+1) = L'ﬂ';
+      *(ans+1) = u'Ôæü';
       return 2;
     }else{
       return 1;
     }
-  }else if(wc >= L'É}' && wc <= L'ÉÇ'){
-    *ans = L'œ' + (wc - L'É}');
+  }else if(wc >= u'„Éû' && wc <= u'„É¢'){
+    *ans = u'Ôæè' + (wc - u'„Éû');
     return 1;
-  }else if(wc >= L'ÉÉ' && wc <= L'Éà'){
-    int x = (wc - L'ÉÉ');
-    *ans = ((x % 2) ? (L'‘' + (x / 2)) : (L'¨' + (x / 2)));
+  }else if(wc >= u'„É£' && wc <= u'„É®'){
+    int x = (wc - u'„É£');
+    *ans = ((x % 2) ? (u'Ôæî' + (x / 2)) : (u'ÔΩ¨' + (x / 2)));
     return 1;
-  }else if(wc >= L'Éâ' && wc <= L'Éç'){
-    *ans = L'◊' + (wc - L'Éâ');
+  }else if(wc >= u'„É©' && wc <= u'„É≠'){
+    *ans = u'Ôæó' + (wc - u'„É©');
     return 1;
   }
 
@@ -1839,18 +1708,18 @@ String TMainGrid::TransChar(String Str, int Type)
     wchar_t *r=wcfr + size;
     for(; p < r; p++){
       if(Type==0){
-        if(*p == L'Å@')      *q = L' ';
-        else if(*p == L'Åf') *q = L'\'';
-        else if(*p == L'Åh') *q = L'\"';
-        else if(*p == L'Åè') *q = L'\\';
-        else if(*p >= L'ÅI' && *p <= L'Å`') *q = *p - (L'Ç`' - L'A');
+        if(*p == u'„ÄÄ')      *q = L' ';
+        else if(*p == u'‚Äô') *q = L'\'';
+        else if(*p == u'‚Äù') *q = L'\"';
+        else if(*p == u'Ôø•') *q = L'\\';
+        else if(*p >= u'ÔºÅ' && *p <= u'ÔΩû') *q = *p - (u'Ôº°' - L'A');
         else                 *q = *p;
       }else{
-        if(*p == L' ')       *q = L'Å@';
-        else if(*p == L'\'') *q = L'Åf';
-        else if(*p == L'\"') *q = L'Åh';
-        else if(*p == L'\\') *q = L'Åè';
-        else if(*p >= L'!' && *p <= L'~') *q = *p + (L'Ç`' - L'A');
+        if(*p == L' ')       *q = u'„ÄÄ';
+        else if(*p == L'\'') *q = u'‚Äô';
+        else if(*p == L'\"') *q = u'‚Äù';
+        else if(*p == L'\\') *q = u'Ôø•';
+        else if(*p >= L'!' && *p <= L'~') *q = *p + (u'Ôº°' - L'A');
         else                 *q = *p;
       }
       q++;
@@ -1890,15 +1759,15 @@ String TMainGrid::TransKana(String Str, int Type)
       q += Zenkaku2Hankaku(*p, q);
     }else if(Type==5){
       *q = Hankaku2Zenkaku(*p);
-      if(*(p+1) == L'ﬁ' &&
-          ((*p >= L'∂' && *p <= L'ƒ') || (*p >= L' ' && *p <= L'Œ'))) {
+      if(*(p+1) == u'Ôæû' &&
+          ((*p >= u'ÔΩ∂' && *p <= u'ÔæÑ') || (*p >= u'Ôæä' && *p <= u'Ôæé'))) {
         (*q)++;
         p++;
-      }else if(*(p+1) == L'ﬂ' && *p >= L' ' && *p <= L'Œ') {
+      }else if(*(p+1) == u'Ôæü' && *p >= u'Ôæä' && *p <= u'Ôæé') {
         (*q) += 2;
         p++;
-      }else if(*(p+1) == L'ﬁ' && *p == L'≥') {
-        (*q) = L'Éî';
+      }else if(*(p+1) == u'Ôæû' && *p == u'ÔΩ≥') {
+        (*q) = u'„É¥';
         p++;
       }
       q++;
@@ -1974,7 +1843,7 @@ void TMainGrid::Sequence(bool Inc)
   Modified = true;
 }
 //---------------------------------------------------------------------------
-//  ë}ì¸
+//  ÊåøÂÖ•
 //
 void TMainGrid::ChangeRowCount(int Count)
 {
@@ -2272,17 +2141,17 @@ void TMainGrid::ConnectCell()
     Cells[L][T] = str;
   }else{
     int C = Col;
-    if(Row > DataBottom){ // É_É~Å[ÉZÉãÇÕèàóùÇµÇ»Ç¢
+    if(Row > DataBottom){ // „ÉÄ„Éü„Éº„Çª„É´„ÅØÂá¶ÁêÜ„Åó„Å™„ÅÑ
       Row = DataBottom;
       Col = DataRight;
     }else if(C > FixedCols && C > GetRowDataRight(Row)){
       Col = max(GetRowDataRight(Row), FixedCols);
-    }else if(C > FixedCols){ //ÉJÉìÉ}ÇÃçÌèú
+    }else if(C > FixedCols){ //„Ç´„É≥„Éû„ÅÆÂâäÈô§
       String str = Cells[C - 1][Row] + Cells[C][Row];
       DeleteCells_Left(C, C, Row, Row, false);
       SetCell(C - 1, Row, str);
       Col--;
-    }else if(Row > FixedRows && Row <= DataBottom){ //ÉäÉ^Å[ÉìÇÃçÌèú
+    }else if(Row > FixedRows && Row <= DataBottom){ //„É™„Çø„Éº„É≥„ÅÆÂâäÈô§
       int UpColCount, ThisColCount;
       if (TypeOption->DummyEol) {
         UpColCount = GetRowDataRight(Row - 1) - DataLeft + 1;
@@ -2294,7 +2163,7 @@ void TMainGrid::ConnectCell()
         for (x = ColCount - 1; x >= DataLeft && Cells[x][Row] == ""; x--) {}
         ThisColCount = x - DataLeft + 1;
       }
-      //óÒêîÇ™ë´ÇËÇ»ÇØÇÍÇŒëùÇ‚Ç∑
+      //ÂàóÊï∞„ÅåË∂≥„Çä„Å™„Åë„Çå„Å∞Â¢ó„ÇÑ„Åô
       if (AXtoRX(UpColCount + ThisColCount) > DataRight) {
         InsertColumn(DataRight + 1, AXtoRX(UpColCount + ThisColCount));
       }
@@ -2344,10 +2213,10 @@ void TMainGrid::DeleteCell_Left()
 
     if(i >= ColCount){
       if(Row < DataBottom){
-        // éüÇÃçsÇ©ÇÁòAåã
+        // Ê¨°„ÅÆË°å„Åã„ÇâÈÄ£Áµê
         Row++; Col = FixedCols; ConnectCell();
       }else{
-        // óÒÇÃèkè¨ÇééÇ›ÇÈ
+        // Âàó„ÅÆÁ∏ÆÂ∞è„ÇíË©¶„Åø„Çã
         for (int j = DataTop; j < RowCount; j++) {
           if (HasData(FDataRight, j)) {
             return;
@@ -2356,7 +2225,7 @@ void TMainGrid::DeleteCell_Left()
         DeleteColumn(FDataRight);
       }
     }else{
-      // åªç›ÇÃçsì‡Ç≈ç∂Ç…Ç¬ÇﬂÇÈ
+      // ÁèæÂú®„ÅÆË°åÂÜÖ„ÅßÂ∑¶„Å´„Å§„ÇÅ„Çã
       DeleteCells_Left(Col,Col,Row,Row);
     }
   }
@@ -2398,7 +2267,7 @@ void TMainGrid::InsertCells_Right(long Left, long Right, long Top, long Bottom)
     InsertColumn(DataRight + 1, DataRight + colsToAdd);
   }
 
-  TStringList *Temp = new TStringList;
+  std::unique_ptr<TStringList> Temp = std::make_unique<TStringList>();
   int iEnd = min(Bottom, DataBottom);
   for (int i = Top; i <= iEnd; i++) {
     Temp->Assign(Rows[i]);
@@ -2406,9 +2275,8 @@ void TMainGrid::InsertCells_Right(long Left, long Right, long Top, long Bottom)
       Temp->Insert(Left, "");
       Temp->Delete(Temp->Count-1);
     }
-    Rows[i]->Assign(Temp);
+    Rows[i]->Assign(Temp.get());
   }
-  delete Temp;
   SetSelection(Left, Right, Top, Bottom);
 
   String select = (String)"Select(" + RXtoAX(Left) + ", " + RYtoAY(Top) + ", "
@@ -2443,7 +2311,7 @@ void TMainGrid::InsertCells_Down(long Left, long Right, long Top, long Bottom)
     InsertRow(DataBottom + 1, DataBottom + rowsToAdd);
   }
 
-  TStringList *Temp = new TStringList;
+  std::unique_ptr<TStringList> Temp = std::make_unique<TStringList>();
   int iEnd = min(Right, DataRight);
   for (int i = Left; i <= iEnd; i++) {
     Temp->Assign(Cols[i]);
@@ -2451,9 +2319,8 @@ void TMainGrid::InsertCells_Down(long Left, long Right, long Top, long Bottom)
       Temp->Insert(Top, "");
       Temp->Delete(Temp->Count-1);
     }
-    Cols[i]->Assign(Temp);
+    Cols[i]->Assign(Temp.get());
   }
-  delete Temp;
   SetSelection(Left, Right, Top, Bottom);
 
   String select = (String)"Select(" + RXtoAX(Left) + ", " + RYtoAY(Top) + ", "
@@ -2466,7 +2333,7 @@ void TMainGrid::DeleteCells_Left(long Left, long Right, long Top, long Bottom,
         bool UpdateWidth)
 {
   UndoList->Push();
-  TStringList *Temp = new TStringList;
+  std::unique_ptr<TStringList> Temp = std::make_unique<TStringList>();
   for (int i = Top; i <= min(Bottom, RowCount - 1); i++) {
     Temp->Assign(Rows[i]);
     for (int j = Left; j <= min(Right, Temp->Count - 1); j++) {
@@ -2475,9 +2342,8 @@ void TMainGrid::DeleteCells_Left(long Left, long Right, long Top, long Bottom,
       UndoList->ChangeCell(RXtoAX(j), RYtoAY(i), Cells[j][i], "",
                            RXtoAX(DataRight), RYtoAY(DataBottom));
     }
-    Rows[i]->Assign(Temp);
+    Rows[i]->Assign(Temp.get());
   }
-  delete Temp;
   if (UpdateWidth) {
     int delta = Right - Left + 1;
     for (int j = Left; j<ColCount - delta; j++) {
@@ -2494,7 +2360,7 @@ void TMainGrid::DeleteCells_Up(long Left, long Right, long Top, long Bottom,
         bool UpdateHeight)
 {
   UndoList->Push();
-  TStringList *Temp = new TStringList;
+  std::unique_ptr<TStringList> Temp = std::make_unique<TStringList>();
   for (int i = Left; i <= min(Right, ColCount - 1); i++) {
     Temp->Assign(Cols[i]);
     for (int j = Top; j <= min(Bottom, Temp->Count - 1) ; j++) {
@@ -2503,9 +2369,8 @@ void TMainGrid::DeleteCells_Up(long Left, long Right, long Top, long Bottom,
       UndoList->ChangeCell(RXtoAX(i), RYtoAY(j), Cells[i][j], "",
                            RXtoAX(DataRight), RYtoAY(DataBottom));
     }
-    Cols[i]->Assign(Temp);
+    Cols[i]->Assign(Temp.get());
   }
-  delete Temp;
   if (UpdateHeight) {
     int delta = Bottom - Top + 1;
     for (int j = Top; j < RowCount - delta; j++) {
@@ -2518,7 +2383,7 @@ void TMainGrid::DeleteCells_Up(long Left, long Right, long Top, long Bottom,
   UndoList->Pop(select + "DeleteCellUp();");
 }
 //---------------------------------------------------------------------------
-//  ëIë
+//  ÈÅ∏Êäû
 //
 void TMainGrid::SetSelection(long Left, long Right, long Top, long Bottom)
 {
@@ -2555,7 +2420,7 @@ void TMainGrid::SetSelection(long Left, long Right, long Top, long Bottom)
   }
 }
 //---------------------------------------------------------------------------
-//  ÉZÉãà⁄ìÆéûÇ…ëSëÃçƒï`âÊ
+//  „Çª„É´ÁßªÂãïÊôÇ„Å´ÂÖ®‰ΩìÂÜçÊèèÁîª
 //
 bool __fastcall TMainGrid::SelectCell(int ACol, int ARow)
 {
@@ -2565,7 +2430,7 @@ bool __fastcall TMainGrid::SelectCell(int ACol, int ARow)
   return TStringGrid::SelectCell(ACol,ARow);
 }
 //---------------------------------------------------------------------------
-//  ÉhÉâÉbÉOÉCÉxÉìÉgÇÃèàóù
+//  „Éâ„É©„ÉÉ„Ç∞„Ç§„Éô„É≥„Éà„ÅÆÂá¶ÁêÜ
 //
 void __fastcall TMainGrid::MouseDown(Controls::TMouseButton Button,
     Classes::TShiftState Shift, int X, int Y)
@@ -2702,10 +2567,10 @@ void __fastcall TMainGrid::MouseMove(Classes::TShiftState Shift, int X, int Y)
       Hint = data;
       ShowHint = true;
     }else if(FileOpenThread){
-      Hint = L"ÉtÉ@ÉCÉãÇì«Ç›çûÇ›íÜÇ≈Ç∑ÅB";
+      Hint = L"„Éï„Ç°„Ç§„É´„ÇíË™≠„ÅøËæº„Åø‰∏≠„Åß„Åô„ÄÇ";
       ShowHint = true;
     }else if(GetRunningMacroCount() > 0){
-      Hint = L"É}ÉNÉçÇé¿çsíÜÇ≈Ç∑ÅB";
+      Hint = L"„Éû„ÇØ„É≠„ÇíÂÆüË°å‰∏≠„Åß„Åô„ÄÇ";
       ShowHint = true;
     }else{
       Application->CancelHint();
@@ -2757,10 +2622,10 @@ void __fastcall TMainGrid::MouseUp(Controls::TMouseButton Button,
       for(int i=Selection.Left; i<=Selection.Right; i++){
         if(i != ColToResize){
           int newWidth = ColWidths[i] * scale;
-          if(newWidth >= ClientWidth - ColWidths[0]){ //çLÇ∑Ç¨Ç»Ç¢ÇÊÇ§Ç…
+          if(newWidth >= ClientWidth - ColWidths[0]){ //Â∫É„Åô„Åé„Å™„ÅÑ„Çà„ÅÜ„Å´
             newWidth = ClientWidth - ColWidths[0] - 2 * GridLineWidth;
           }
-          if(newWidth < 16){ newWidth = 16; } //ã∑Ç∑Ç¨Ç»Ç¢ÇÊÇ§Ç…
+          if(newWidth < 16){ newWidth = 16; } //Áã≠„Åô„Åé„Å™„ÅÑ„Çà„ÅÜ„Å´
           ColWidths[i] = newWidth;
         }
       }
@@ -2789,7 +2654,7 @@ void __fastcall TMainGrid::MouseUp(Controls::TMouseButton Button,
 
   if ((ShowColCounter && Options.Contains(goColMoving)) ||
       (ShowRowCounter && Options.Contains(goRowMoving))) {
-    // çsÅEóÒÇà⁄ìÆÇ∑ÇÈÇ∆î‘çÜÇ™ã∂Ç§
+    // Ë°å„ÉªÂàó„ÇíÁßªÂãï„Åô„Çã„Å®Áï™Âè∑„ÅåÁãÇ„ÅÜ
     Invalidate();
   }
 }
@@ -2871,9 +2736,7 @@ void TMainGrid::OpenURL(String FileName)
   if (BrowserFileName == "") {
     AutoOpen(FileName, "");
   } else {
-    _wspawnl(P_NOWAITO, BrowserFileName.c_str(),
-        ((String)"\"" + BrowserFileName + "\"").c_str(),
-        ((String)"\"" + FileName + "\"").c_str(), nullptr);
+    SpawnProcess({BrowserFileName, FileName});
   }
 }
 //---------------------------------------------------------------------------
@@ -2958,7 +2821,7 @@ void TMainGrid::ScrollCols(int Delta)
   }
 }
 //---------------------------------------------------------------------------
-//  åüçı
+//  Ê§úÁ¥¢
 //
 inline static String AddCr(String str) {
   return StringReplace(str, "\n", "\r\n", TReplaceFlags() << rfReplaceAll);
@@ -2968,18 +2831,20 @@ inline static String StripCr(String str) {
   return StringReplace(str, "\r\n", "\n", TReplaceFlags() << rfReplaceAll);
 }
 //---------------------------------------------------------------------------
-static void UpdateMatch(const boost::wcmatch& From, TStrings *To, bool AddsCr)
+static void UpdateMatch(const boost::wcmatch& From, std::vector<String>& To,
+    bool AddsCr)
 {
-  To->Clear();
+  To.clear();
+  To.reserve(From.size());
   for (size_t i = 0; i < From.size(); i++) {
     String str = From[i].str().c_str();
-    To->Add(AddsCr ? AddCr(str) : str);
+    To.push_back(AddsCr ? AddCr(str) : str);
   }
 }
 //---------------------------------------------------------------------------
 static int FindHit(String CellText, String FindText, bool Case, bool Regex,
     bool Word, bool Back, boost::match_flag_type Flags, int *Length,
-    TStrings *LastMatch)
+    std::vector<String>& LastMatch)
 {
   if (!Regex) {
     *Length = FindText.Length();
@@ -3033,7 +2898,7 @@ static int FindHit(String CellText, String FindText, bool Case, bool Regex,
     }
   }
   if (next > withoutCr.c_str()) {
-    *Length = LastMatch->Strings[0].Length();
+    *Length = LastMatch[0].Length();
     return AddCr(withoutCr.SubString(1, next - withoutCr.c_str() - 1)).Length()
         + 1;
   }
@@ -3066,7 +2931,7 @@ static bool FindHit(String CellText, int x, int y)
   }
   bool found;
   int length;
-  TStrings *lastMatch = new TStringList();
+  std::vector<String> lastMatch;
   try {
     found = FindHit(CellText, findText, fmFind->Case(), fmFind->Regex(),
         fmFind->Word(), /* Back= */ false, boost::match_not_null, &length,
@@ -3074,14 +2939,13 @@ static bool FindHit(String CellText, int x, int y)
   } catch (...) {
     found = false;
   }
-  delete lastMatch;
   return found;
 }
 //---------------------------------------------------------------------------
 void ShowRegexErrorMessage(const boost::regex_error& e) {
   Application->MessageBox(
-     ((String)L"ê≥ãKï\åªåüçıíÜÇ…ÉGÉâÅ[Ç™î≠ê∂ÇµÇ‹ÇµÇΩÅB\n" +
-         L"ê≥ãKï\åªåüçıÉIÉvÉVÉáÉìÇâèúÇ∑ÇÈÇ©åüçıï∂éöóÒÇèCê≥ÇµÇƒÇ≠ÇæÇ≥Ç¢ÅB\n" +
+     ((String)L"Ê≠£Ë¶èË°®ÁèæÊ§úÁ¥¢‰∏≠„Å´„Ç®„É©„Éº„ÅåÁô∫Áîü„Åó„Åæ„Åó„Åü„ÄÇ\n" +
+         L"Ê≠£Ë¶èË°®ÁèæÊ§úÁ¥¢„Ç™„Éó„Ç∑„Éß„É≥„ÇíËß£Èô§„Åô„Çã„ÅãÊ§úÁ¥¢ÊñáÂ≠óÂàó„Çí‰øÆÊ≠£„Åó„Å¶„Åè„Å†„Åï„ÅÑ„ÄÇ\n" +
          e.what()).c_str(),
      CASSAVA_TITLE, 0);
 }
@@ -3089,7 +2953,7 @@ void ShowRegexErrorMessage(const boost::regex_error& e) {
 bool TMainGrid::Find(String FindText, TGridRect Range, bool Case, bool Regex,
                      bool Word, bool Back)
 {
-  LastMatch->Clear();
+  LastMatch.clear();
 
   if (FindText == "") {
     return false;
@@ -3204,7 +3068,7 @@ bool TMainGrid::Find(String FindText, TGridRect Range, bool Case, bool Regex,
 }
 //---------------------------------------------------------------------------
 static String GetStringForReplace(
-    String ReplaceText, bool Regex, TStrings *Match) {
+    String ReplaceText, bool Regex, const std::vector<String>& Match) {
   if (!Regex) {
     return ReplaceText;
   }
@@ -3212,9 +3076,9 @@ static String GetStringForReplace(
     TCHAR nextChar = ReplaceText[i + 1];
     if (ReplaceText[i] == '$' && nextChar >= '0' && nextChar <= '9') {
       int group = nextChar - '0';
-      if (Match->Count > group) {
+      if (Match.size() > group) {
         ReplaceText.Delete(i, 2);
-        String str = Match->Strings[group];
+        String str = Match[group];
         ReplaceText.Insert(str, i);
         i += str.Length() - 1;
       }
@@ -3244,7 +3108,7 @@ bool TMainGrid::Replace(String FindText , String ReplaceText, TGridRect Range,
       ipEd->SelectAll();
     }
     if (Regex) {
-      if (LastMatch->Count > 0 && ipEd->SelText == LastMatch->Strings[0]) {
+      if (LastMatch.size() > 0 && ipEd->SelText == LastMatch[0]) {
         ipEd->SelText = GetStringForReplace(ReplaceText, Regex, LastMatch);
       }
     } else {
@@ -3370,7 +3234,7 @@ bool TMainGrid::NumFind(double *Min, double *Max, TGridRect Range, bool Back)
   return false;
 }
 //---------------------------------------------------------------------------
-//  ÉLÅ[ì¸óÕÇÃäƒéã
+//  „Ç≠„ÉºÂÖ•Âäõ„ÅÆÁõ£Ë¶ñ
 //
 void __fastcall TMainGrid::KeyDown(Word &Key, Classes::TShiftState Shift)
 {
@@ -3539,9 +3403,9 @@ void __fastcall TMainGrid::KeyDownSub(System::TObject* Sender,
                           Word &Key, Classes::TShiftState Shift)
 {
   /*
-   * InplaceEditorì‡Ç≈ÇÃÉLÅ[ì¸óÕÇ»Ç«Ç≈ÅA
-   * èÍçáÇ…ÇÊÇ¡ÇƒÇÕí èÌÇÃKeyDown()Ç™é¿çsÇ≥ÇÍÇ»Ç¢ÇΩÇﬂÅA
-   * OnKeyDown Ç…Ç±ÇÃä÷êîÇÇ¬Ç¡Ç±ÇÒÇ≈èàóùÇµÇ‹Ç∑^^;
+   * InplaceEditorÂÜÖ„Åß„ÅÆ„Ç≠„ÉºÂÖ•Âäõ„Å™„Å©„Åß„ÄÅ
+   * Â†¥Âêà„Å´„Çà„Å£„Å¶„ÅØÈÄöÂ∏∏„ÅÆKeyDown()„ÅåÂÆüË°å„Åï„Çå„Å™„ÅÑ„Åü„ÇÅ„ÄÅ
+   * OnKeyDown „Å´„Åì„ÅÆÈñ¢Êï∞„Çí„Å§„Å£„Åì„Çì„ÅßÂá¶ÁêÜ„Åó„Åæ„Åô^^;
    */
 
   if(Key == VK_DELETE && EditorMode)
@@ -3719,7 +3583,7 @@ void __fastcall TMainGrid::SetEditText(int ACol, int ARow, String Value)
   }
 }
 //---------------------------------------------------------------------------
-//  Undo èàóù
+//  Undo Âá¶ÁêÜ
 //
 static void MacroScriptExec(String script)
 {

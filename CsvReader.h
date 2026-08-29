@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 #ifndef CsvReaderH
 #define CsvReaderH
 //---------------------------------------------------------------------------
@@ -51,7 +51,7 @@ class CsvReader
 {
 private:
   const TTypeOption *typeOption;
-  TStreamReader *reader;
+  std::unique_ptr<TTextReader> reader;
   String data;
   int last;
   int pos;
@@ -60,10 +60,10 @@ private:
 public:
   CsvReader(const TTypeOption* TypeOption, String FileName,
       TEncoding *Encoding);
-  ~CsvReader();
+  CsvReader(const TTypeOption* TypeOption, String CsvText);
   CsvReaderState GetNextType();
   String Next();
-  bool ReadLine(TStringList *);
+  bool ReadLine(std::vector<String>& row);
 };
 //---------------------------------------------------------------------------
 #endif

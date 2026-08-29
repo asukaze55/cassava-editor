@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 
 #ifndef OptionColorH
 #define OptionColorH
@@ -10,9 +10,11 @@
 #include <ExtCtrls.hpp>
 #include <ComCtrls.hpp>
 //---------------------------------------------------------------------------
+class TfmOption;
+//---------------------------------------------------------------------------
 class TfrOptionColor : public TFrame
 {
-__published:	// IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
+__published:	// IDE ç®¡ç†ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
   TGroupBox *gbColor;
   TLabel *lblStyle;
   TLabel *lblBgColor;
@@ -47,21 +49,20 @@ __published:	// IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
   void __fastcall cbFgColorChange(TObject *Sender);
   void __fastcall cbBgColorChange(TObject *Sender);
   void __fastcall cbStyleChange(TObject *Sender);
-private:	// ƒ†[ƒU[éŒ¾
-public:		// ƒ†[ƒU[éŒ¾
-  __fastcall TfrOptionColor(TComponent* Owner);
+private:	// ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
+  TfmOption *fmOption;
+public:		// ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
+  __fastcall TfrOptionColor(TfmOption* Owner);
   void RestoreFromMainForm();
   void StoreToMainForm();
 };
 //---------------------------------------------------------------------------
 static constexpr wchar_t LIGHT_MODE_STYLE_NAME[] = L"Windows";
-static constexpr wchar_t DARK_MODE_STYLE_NAME[] = L"Windows11 Modern Dark";
+static constexpr wchar_t DARK_MODE_STYLE_NAME[] = L"Windows Modern Dark SE";
 //---------------------------------------------------------------------------
 static inline bool IsDarkMode(String Style)
 {
   return Style.Pos("Dark") > 0;
 }
-//---------------------------------------------------------------------------
-extern PACKAGE TfrOptionColor *frOptionColor;
 //---------------------------------------------------------------------------
 #endif

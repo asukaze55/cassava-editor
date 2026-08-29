@@ -1,29 +1,30 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 #include <vcl.h>
+#include "MainForm.h"
 #pragma hdrstop
 
 #include "FileOpenThread.h"
 #include "CsvReader.h"
 #pragma package(smart_init)
 //---------------------------------------------------------------------------
-// ’ˆÓFˆÙ‚È‚éƒXƒŒƒbƒh‚ªŠ—L‚·‚é VCL ‚Ìƒƒ\ƒbƒh/ŠÖ”/ƒvƒƒpƒeƒB‚ğ
-//       •Ê‚ÌƒXƒŒƒbƒh‚Ì’†‚©‚çˆµ‚¤ê‡C”r‘¼ˆ—‚Ì–â‘è‚ª”­¶‚µ‚Ü‚·B
+// æ³¨æ„ï¼šç•°ãªã‚‹ã‚¹ãƒ¬ãƒƒãƒ‰ãŒæ‰€æœ‰ã™ã‚‹ VCL ã®ãƒ¡ã‚½ãƒƒãƒ‰/é–¢æ•°/ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’
+//       åˆ¥ã®ã‚¹ãƒ¬ãƒƒãƒ‰ã®ä¸­ã‹ã‚‰æ‰±ã†å ´åˆï¼Œæ’ä»–å‡¦ç†ã®å•é¡ŒãŒç™ºç”Ÿã—ã¾ã™ã€‚
 //
-//       ƒƒCƒ“ƒXƒŒƒbƒh‚ÌŠ—L‚·‚éƒIƒuƒWƒFƒNƒg‚É‘Î‚µ‚Ä‚Í Synchronize
-//       ƒƒ\ƒbƒh‚ğg‚¤–‚ª‚Å‚«‚Ü‚·B‘¼‚ÌƒIƒuƒWƒFƒNƒg‚ğQÆ‚·‚é‚½‚ß
-//       ‚Ìƒƒ\ƒbƒh‚ğƒXƒŒƒbƒhƒNƒ‰ƒX‚É’Ç‰Á‚µCSynchronize ƒƒ\ƒbƒh‚Ì
-//       ˆø”‚Æ‚µ‚Ä“n‚µ‚Ü‚·B
+//       ãƒ¡ã‚¤ãƒ³ã‚¹ãƒ¬ãƒƒãƒ‰ã®æ‰€æœ‰ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã«å¯¾ã—ã¦ã¯ Synchronize
+//       ãƒ¡ã‚½ãƒƒãƒ‰ã‚’ä½¿ã†äº‹ãŒã§ãã¾ã™ã€‚ä»–ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å‚ç…§ã™ã‚‹ãŸã‚
+//       ã®ãƒ¡ã‚½ãƒƒãƒ‰ã‚’ã‚¹ãƒ¬ãƒƒãƒ‰ã‚¯ãƒ©ã‚¹ã«è¿½åŠ ã—ï¼ŒSynchronize ãƒ¡ã‚½ãƒƒãƒ‰ã®
+//       å¼•æ•°ã¨ã—ã¦æ¸¡ã—ã¾ã™ã€‚
 //
-//       ‚½‚Æ‚¦‚Î UpdateCaption ‚ğˆÈ‰º‚Ì‚æ‚¤‚É’è‹`‚µA
+//       ãŸã¨ãˆã° UpdateCaption ã‚’ä»¥ä¸‹ã®ã‚ˆã†ã«å®šç¾©ã—ã€
 //
 //      void __fastcall FileOpenThread::UpdateCaption()
 //      {
-//        Form1->Caption = "ƒXƒŒƒbƒh‚©‚ç‘‚«Š·‚¦‚Ü‚µ‚½";
+//        Form1->Caption = "ã‚¹ãƒ¬ãƒƒãƒ‰ã‹ã‚‰æ›¸ãæ›ãˆã¾ã—ãŸ";
 //      }
 //
-//       Execute ƒƒ\ƒbƒh‚Ì’†‚Å Synchronize ƒƒ\ƒbƒh‚É“n‚·‚±‚Æ‚ÅƒƒC
-//       ƒ“ƒXƒŒƒbƒh‚ªŠ—L‚·‚é Form1 ‚Ì Caption ƒvƒƒpƒeƒB‚ğˆÀ‘S‚É•Ï
-//       X‚Å‚«‚Ü‚·B
+//       Execute ãƒ¡ã‚½ãƒƒãƒ‰ã®ä¸­ã§ Synchronize ãƒ¡ã‚½ãƒƒãƒ‰ã«æ¸¡ã™ã“ã¨ã§ãƒ¡ã‚¤
+//       ãƒ³ã‚¹ãƒ¬ãƒƒãƒ‰ãŒæ‰€æœ‰ã™ã‚‹ Form1 ã® Caption ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’å®‰å…¨ã«å¤‰
+//       æ›´ã§ãã¾ã™ã€‚
 //
 //      Synchronize(&UpdateCaption);
 //---------------------------------------------------------------------------
@@ -34,7 +35,7 @@ private:
   String FFileName;
   TEncoding *FEncoding;
   bool FIsDetectedEncoding;
-  TList *allCells;
+  std::vector<std::unique_ptr<TStringList>> allCells;
   int updatedRows;
   int maxCol;
   void __fastcall UpdateGrid();
@@ -86,32 +87,31 @@ void __fastcall FileOpenThread::UpdateGrid()
     Grid->ChangeColCount(maxCol + 1);
   }
   int dt = updatedRows + Grid->DataTop;
-  int maxRow = allCells->Count + dt - 1;
+  int maxRow = allCells.size() + dt - 1;
   if (maxRow >= Grid->RowCount) {
     Grid->RowCount = maxRow + 1;
   }
   Grid->SetDataRightBottom(maxCol, maxRow, true);
-  for (int i = 0; i < allCells->Count; i++) {
-    TStringList *row = static_cast<TStringList*>(allCells->Items[i]);
+  for (int i = 0; i < allCells.size(); i++) {
+    TStringList *row = allCells[i].get();
     int count = row->Count;
     for (int x = count; x <= Grid->ColCount; x++) {
       row->Add("");
     }
     Grid->Rows[i + dt] = row;
     Grid->SetRowDataRight(i + dt, count - 1);
-    delete row;
   }
   Grid->SetWidth();
   Grid->SetHeight();
 
-  updatedRows += allCells->Count;
-  allCells->Clear();
+  updatedRows += allCells.size();
+  allCells.clear();
 }
 //---------------------------------------------------------------------------
 void __fastcall FileOpenThread::ShowError()
 {
   Application->MessageBox(
-      L"ƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ‚É¸”s‚µ‚Ü‚µ‚½B", CASSAVA_TITLE, 0);
+      L"ãƒ•ã‚¡ã‚¤ãƒ«ã®èª­ã¿è¾¼ã¿ã«å¤±æ•—ã—ã¾ã—ãŸã€‚", CASSAVA_TITLE, 0);
   Grid->Clear();
 }
 //---------------------------------------------------------------------------
@@ -120,10 +120,10 @@ bool __fastcall FileOpenThread::ExecuteOnce()
   int dl = Grid->DataLeft;
   CsvReader reader(Grid->TypeOption, FFileName, FEncoding);
   try {
-    allCells = new TList();
+    allCells.clear();
     maxCol = 1;
     updatedRows = 0;
-    TStringList *nextRow = new TStringList();
+    std::unique_ptr<TStringList> nextRow = std::make_unique<TStringList>();
     if (dl) { nextRow->Add(""); }
     int x = dl;
     while (true) {
@@ -132,7 +132,7 @@ bool __fastcall FileOpenThread::ExecuteOnce()
         if (nextRow->Count > dl + 1 ||
             (nextRow->Count == dl + 1 && nextRow->Strings[dl] != "")) {
           if (x - 1 > maxCol) { maxCol = x - 1; }
-          allCells->Add(nextRow);
+          allCells.push_back(std::move(nextRow));
         }
         break;
       } else if (type == NEXT_TYPE_HAS_MORE_ROW) {
@@ -140,12 +140,12 @@ bool __fastcall FileOpenThread::ExecuteOnce()
           break;
         }
         if (x - 1 > maxCol) { maxCol = x - 1; }
-        allCells->Add(nextRow);
-        nextRow = new TStringList();
+        allCells.push_back(std::move(nextRow));
+        nextRow = std::make_unique<TStringList>();
         if (dl) { nextRow->Add(""); }
         x = dl;
-        if ((updatedRows == 0 && allCells->Count == 100)
-            || allCells->Count % 1000000 == 0) {
+        if ((updatedRows == 0 && allCells.size() == 100)
+            || allCells.size() % 1000000 == 0) {
           Synchronize(&UpdateGrid);
         }
       }
@@ -153,11 +153,9 @@ bool __fastcall FileOpenThread::ExecuteOnce()
       x++;
     }
   } catch (...) {
-    delete allCells;
     return false;
   }
   Synchronize(&UpdateGrid);
-  delete allCells;
   return true;
 }
 //---------------------------------------------------------------------------

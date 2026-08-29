@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 #ifndef MainFormH
 #define MainFormH
 //---------------------------------------------------------------------------
@@ -21,15 +21,17 @@
 #include <Vcl.StdCtrls.hpp>
 #include <Vcl.VirtualImageList.hpp>
 #include <map>
+#include <set>
 #include "Compiler.h"
 #include "EncodingDetector.h"
 #include "MainGrid.h"
 #include "Preference.h"
+#include "Sort.h"
 #include "TypeList.h"
 //---------------------------------------------------------------------------
 class TfmMain : public TForm
 {
-__published:	// IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
+__published:	// IDE ç®¡ç†ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
   TMainMenu *MainMenu;
   TMenuItem *mnFile;
   TMenuItem *mnOpen;
@@ -277,7 +279,7 @@ __published:	// IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
   void __fastcall mnSortClick(TObject *Sender);
   void __fastcall sbSortClick(TObject *Sender);
   void __fastcall mnKCodeClick(TObject *Sender);
-  void __fastcall mnOpenHistorysClick(TObject *Sender);
+  void __fastcall mnOpenHistoryClick(TObject *Sender);
   void __fastcall mnOpenHistoryClearClick(TObject *Sender);
   void __fastcall mnOptionDlgClick(TObject *Sender);
   void __fastcall mnPrintClick(TObject *Sender);
@@ -347,15 +349,17 @@ __published:	// IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
   void __fastcall acFixFirstColExecute(TObject *Sender);
   void __fastcall acFixFirstColUpdate(TObject *Sender);
 
-private:    // ƒ†[ƒU[éŒ¾
+private:    // ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
+  TfmSort *fmSort = nullptr;
   bool StartupMacroDone;
   void ExecStartupMacro();
   void __fastcall ExecOpenMacro(System::TObject* Sender);
   void SaveFile(const TTypeOption *Format);
-  void GetCheckedMenus(TStringList *list);
-  void AddCheckedMenus(TStringList *list, TMenuItem* item);
-  void RestoreCheckedMenus(TStringList *list);
-  void RestoreCheckedMenus(TStringList *list, TMenuItem* item);
+  std::set<String> GetCheckedMenus();
+  void AddCheckedMenus(std::set<String>& checkedMenus, TMenuItem* item);
+  void RestoreCheckedMenus(const std::set<String>& checkedMenus);
+  void RestoreCheckedMenus(const std::set<String>& checkedMenus,
+      TMenuItem* item);
   void SearchMacro(TMenuItem *Parent);
   String GetUiFileName();
   void UpdateTitle();
@@ -370,10 +374,9 @@ private:    // ƒ†[ƒU[éŒ¾
   int FToolBarSize;
   void SetToolBarSize(int Size);
 
-public:     // ƒ†[ƒU[éŒ¾
+public:     // ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
   TMainGrid *MainGrid;
   __fastcall TfmMain(TComponent* Owner);
-  __fastcall virtual ~TfmMain();
   bool IfModifiedThenSave();
   void Clear();
   void ReadIni();
@@ -396,9 +399,9 @@ public:     // ƒ†[ƒU[éŒ¾
 
   String FileName;
   String FullPath;
-  Preference *Pref;
+  std::unique_ptr<Preference> Pref;
   TDateTime TimeStamp;
-  TStringList *History;
+  std::vector<String> History;
   void SetHistory(String S);
   void SetFilter();
   String MakeId(String prefix, String caption, int i);
@@ -439,7 +442,7 @@ public:     // ƒ†[ƒU[éŒ¾
 #define cssv_lfNone 0
 #define cssv_lfEdit 1
 #define cssv_lfOpen 2
-  TFileStream *LockingFile;
+  std::unique_ptr<TFileStream> LockingFile;
   bool CheckTimeStamp;
   int StopMacroCount;
   bool SortAll;

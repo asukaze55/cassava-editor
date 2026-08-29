@@ -1,10 +1,11 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 #include <vcl.h>
-#include <shlobj.h>
+#include "MainForm.h"
 #pragma hdrstop
 
+#include <shlobj.h>
+
 #include "Preference.h"
-#include "MainForm.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 //---------------------------------------------------------------------------
@@ -111,9 +112,9 @@ Preference::Preference(String cassavaPath)
   }
 }
 //---------------------------------------------------------------------------
-IniFile *Preference::GetInifile()
+IniFile Preference::GetInifile()
 {
-  return new IniFile(Path + "Cassava.ini");
+  return IniFile(Path + "Cassava.ini");
 }
 //---------------------------------------------------------------------------
 

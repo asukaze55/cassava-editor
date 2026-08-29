@@ -4,7 +4,7 @@
         <ProjectType>CppVCLApplication</ProjectType>
         <MainSource>Cassava.cpp</MainSource>
         <Config Condition="'$(Config)'==''">リリース</Config>
-        <ProjectVersion>20.1</ProjectVersion>
+        <ProjectVersion>20.3</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
@@ -110,7 +110,7 @@
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
         <BCC_UseClassicCompiler>false</BCC_UseClassicCompiler>
         <Icon_MainIcon>$(BDS)\bin\cbuilder_PROJECTICON.ico</Icon_MainIcon>
-        <Custom_Styles>&quot;Windows11 Modern Dark|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows11_Modern_Dark.vsf&quot;</Custom_Styles>
+        <Custom_Styles>&quot;Windows Modern Dark SE|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows_Modern_Dark_SE.vsf&quot;</Custom_Styles>
         <UWP_CppLogo44>$(BDS)\bin\Artwork\Windows\UWP\cppreg_UwpDefault_44.png</UWP_CppLogo44>
         <UWP_CppLogo150>$(BDS)\bin\Artwork\Windows\UWP\cppreg_UwpDefault_150.png</UWP_CppLogo150>
         <VerInfo_Release>1</VerInfo_Release>
@@ -124,6 +124,7 @@
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
         <ILINK_OSVersion>5.0</ILINK_OSVersion>
         <ILINK_SubSysVersion>5.0</ILINK_SubSysVersion>
+        <Icon_MainIcon>Cassava.ico</Icon_MainIcon>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
@@ -131,13 +132,17 @@
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <ILINK_ImageFlags>LARGEADDRESSAWARE</ILINK_ImageFlags>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
+        <Icon_MainIcon>Cassava.ico</Icon_MainIcon>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64x)'!=''">
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+        <BCC_EnableBatchCompilation>true</BCC_EnableBatchCompilation>
+        <IncludePath>$(BDSINCLUDE)\windows;$(BDS)\include\boost_1_89</IncludePath>
+        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
+        <Icon_MainIcon>Cassava.ico</Icon_MainIcon>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <BCC_MonitorGlobalAndStackData>true</BCC_MonitorGlobalAndStackData>
@@ -162,14 +167,12 @@
         <BCC_Defines>_DEBUG;NO_WIN32_LEAN_AND_MEAN;$(BCC_Defines);$(BCC_Defines)</BCC_Defines>
         <VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
         <DynamicRTL>true</DynamicRTL>
-        <Icon_MainIcon>Cassava.ico</Icon_MainIcon>
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <LinkPackageStatics>rtl.lib;vcl.lib;bcbsmp.lib;vclx.lib;vclwinx.lib;vclimg.lib</LinkPackageStatics>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
-        <Icon_MainIcon>Cassava.ico</Icon_MainIcon>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64x)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
@@ -186,168 +189,137 @@
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <BT_BuildType>Debug</BT_BuildType>
         <LinkPackageStatics>rtl.lib;vcl.lib;bcbsmp.lib;vclx.lib;vclwinx.lib;vclimg.lib;bindengine.lib</LinkPackageStatics>
-        <Icon_MainIcon>Cassava.ico</Icon_MainIcon>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <LinkPackageStatics>rtl.lib;vcl.lib;bcbsmp.lib;vclx.lib;vclwinx.lib;vclimg.lib;bindengine.lib</LinkPackageStatics>
-        <Icon_MainIcon>Cassava.ico</Icon_MainIcon>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64x)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
+        <LinkPackageStatics>rtl.lib;vcl.lib;bcbsmp.lib;vclx.lib;vclwinx.lib;vclimg.lib;bindengine.lib</LinkPackageStatics>
     </PropertyGroup>
     <ItemGroup>
         <CppCompile Include="AutoOpen.cpp">
-            <BuildOrder>5</BuildOrder>
             <DependentOn>AutoOpen.h</DependentOn>
-            <BuildOrder>16</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="Cassava.cpp">
-            <BuildOrder>-1</BuildOrder>
             <BuildOrder>0</BuildOrder>
         </CppCompile>
-        <ResFiles Include="Cassava.res">
-            <BuildOrder>-1</BuildOrder>
+        <CppCompile Include="Cassava.cpp">
             <BuildOrder>1</BuildOrder>
-        </ResFiles>
+        </CppCompile>
         <CppCompile Include="Compiler.cpp">
-            <BuildOrder>22</BuildOrder>
             <DependentOn>Compiler.h</DependentOn>
-            <BuildOrder>11</BuildOrder>
+            <BuildOrder>2</BuildOrder>
         </CppCompile>
         <CppCompile Include="CsvReader.cpp">
             <DependentOn>CsvReader.h</DependentOn>
-            <BuildOrder>28</BuildOrder>
+            <BuildOrder>3</BuildOrder>
         </CppCompile>
         <CppCompile Include="EncodedWriter.cpp">
-            <BuildOrder>24</BuildOrder>
             <DependentOn>EncodedWriter.h</DependentOn>
-            <BuildOrder>13</BuildOrder>
+            <BuildOrder>4</BuildOrder>
         </CppCompile>
         <CppCompile Include="EncodingDetector.cpp">
             <DependentOn>EncodingDetector.h</DependentOn>
-            <BuildOrder>33</BuildOrder>
+            <BuildOrder>5</BuildOrder>
         </CppCompile>
         <CppCompile Include="FileOpenThread.cpp">
-            <BuildOrder>7</BuildOrder>
             <DependentOn>FileOpenThread.h</DependentOn>
-            <BuildOrder>26</BuildOrder>
+            <BuildOrder>6</BuildOrder>
         </CppCompile>
         <CppCompile Include="Find.cpp">
             <Form>fmFind</Form>
             <DependentOn>Find.h</DependentOn>
-            <BuildOrder>14</BuildOrder>
+            <BuildOrder>7</BuildOrder>
         </CppCompile>
         <CppCompile Include="FormattedFileName.cpp">
-            <BuildOrder>9</BuildOrder>
             <DependentOn>FormattedFileName.h</DependentOn>
-            <BuildOrder>28</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="HTTPConnection.cpp">
-            <DependentOn>HTTPConnection.h</DependentOn>
-            <BuildOrder>30</BuildOrder>
+            <BuildOrder>8</BuildOrder>
         </CppCompile>
         <CppCompile Include="KeyCustomize.cpp">
-            <BuildOrder>6</BuildOrder>
             <Form>fmKey</Form>
             <DependentOn>KeyCustomize.h</DependentOn>
-            <BuildOrder>17</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="Letter.cpp">
-            <BuildOrder>3</BuildOrder>
-            <Form>fmLetter</Form>
-            <DependentOn>Letter.h</DependentOn>
-            <BuildOrder>18</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="Macro.cpp">
-            <BuildOrder>25</BuildOrder>
-            <DependentOn>Macro.h</DependentOn>
             <BuildOrder>10</BuildOrder>
         </CppCompile>
+        <CppCompile Include="Letter.cpp">
+            <Form>fmLetter</Form>
+            <DependentOn>Letter.h</DependentOn>
+            <BuildOrder>11</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="Macro.cpp">
+            <DependentOn>Macro.h</DependentOn>
+            <BuildOrder>12</BuildOrder>
+        </CppCompile>
         <CppCompile Include="MainForm.cpp">
-            <BuildOrder>4</BuildOrder>
             <Form>fmMain</Form>
             <DependentOn>MainForm.h</DependentOn>
-            <BuildOrder>15</BuildOrder>
+            <BuildOrder>13</BuildOrder>
         </CppCompile>
         <CppCompile Include="MainGrid.cpp">
-            <BuildOrder>21</BuildOrder>
             <DependentOn>MainGrid.h</DependentOn>
-            <BuildOrder>2</BuildOrder>
+            <BuildOrder>14</BuildOrder>
         </CppCompile>
         <CppCompile Include="MultiLineInputBox.cpp">
-            <BuildOrder>9</BuildOrder>
             <Form>fmMultiLineInputBox</Form>
             <DependentOn>MultiLineInputBox.h</DependentOn>
-            <BuildOrder>28</BuildOrder>
+            <BuildOrder>15</BuildOrder>
         </CppCompile>
         <CppCompile Include="Option.cpp">
-            <BuildOrder>6</BuildOrder>
             <Form>fmOption</Form>
             <DependentOn>Option.h</DependentOn>
-            <BuildOrder>17</BuildOrder>
+            <BuildOrder>16</BuildOrder>
         </CppCompile>
         <CppCompile Include="OptionBackUp.cpp">
-            <BuildOrder>19</BuildOrder>
             <Form>frOptionBackUp</Form>
             <DesignClass>TFrame</DesignClass>
             <DependentOn>OptionBackUp.h</DependentOn>
-            <BuildOrder>0</BuildOrder>
+            <BuildOrder>17</BuildOrder>
         </CppCompile>
         <CppCompile Include="OptionBehavior.cpp">
-            <BuildOrder>21</BuildOrder>
             <Form>frOptionBehavior</Form>
             <DesignClass>TFrame</DesignClass>
             <DependentOn>OptionBehavior.h</DependentOn>
-            <BuildOrder>2</BuildOrder>
+            <BuildOrder>18</BuildOrder>
         </CppCompile>
         <CppCompile Include="OptionColor.cpp">
-            <BuildOrder>22</BuildOrder>
             <Form>frOptionColor</Form>
             <DesignClass>TFrame</DesignClass>
             <DependentOn>OptionColor.h</DependentOn>
-            <BuildOrder>11</BuildOrder>
+            <BuildOrder>19</BuildOrder>
         </CppCompile>
         <CppCompile Include="OptionDataFormat.cpp">
-            <BuildOrder>3</BuildOrder>
             <Form>frOptionDataFormat</Form>
             <DesignClass>TFrame</DesignClass>
             <DependentOn>OptionDataFormat.h</DependentOn>
-            <BuildOrder>18</BuildOrder>
+            <BuildOrder>20</BuildOrder>
         </CppCompile>
         <CppCompile Include="OptionFile.cpp">
-            <BuildOrder>23</BuildOrder>
             <Form>frOptionFile</Form>
             <DesignClass>TFrame</DesignClass>
             <DependentOn>OptionFile.h</DependentOn>
-            <BuildOrder>12</BuildOrder>
+            <BuildOrder>21</BuildOrder>
         </CppCompile>
         <CppCompile Include="OptionLaunch.cpp">
-            <BuildOrder>20</BuildOrder>
             <Form>frOptionLaunch</Form>
             <DesignClass>TFrame</DesignClass>
             <DependentOn>OptionLaunch.h</DependentOn>
-            <BuildOrder>1</BuildOrder>
+            <BuildOrder>22</BuildOrder>
         </CppCompile>
         <CppCompile Include="OptionView.cpp">
             <Form>frOptionView</Form>
             <DesignClass>TFrame</DesignClass>
             <DependentOn>OptionView.h</DependentOn>
-            <BuildOrder>29</BuildOrder>
+            <BuildOrder>23</BuildOrder>
         </CppCompile>
         <CppCompile Include="PasteDlg.cpp">
-            <BuildOrder>4</BuildOrder>
             <Form>fmPasteDialog</Form>
             <DependentOn>PasteDlg.h</DependentOn>
-            <BuildOrder>15</BuildOrder>
+            <BuildOrder>24</BuildOrder>
         </CppCompile>
         <CppCompile Include="Preference.cpp">
-            <BuildOrder>25</BuildOrder>
             <DependentOn>Preference.h</DependentOn>
-            <BuildOrder>10</BuildOrder>
+            <BuildOrder>25</BuildOrder>
         </CppCompile>
         <CppCompile Include="Print.cpp">
-            <BuildOrder>7</BuildOrder>
             <Form>fmPrint</Form>
             <DependentOn>Print.h</DependentOn>
             <BuildOrder>26</BuildOrder>
@@ -355,37 +327,36 @@
         <CppCompile Include="Sort.cpp">
             <Form>fmSort</Form>
             <DependentOn>Sort.h</DependentOn>
-            <BuildOrder>32</BuildOrder>
+            <BuildOrder>27</BuildOrder>
         </CppCompile>
         <CppCompile Include="TypeList.cpp">
-            <BuildOrder>23</BuildOrder>
             <DependentOn>TypeList.h</DependentOn>
-            <BuildOrder>12</BuildOrder>
+            <BuildOrder>28</BuildOrder>
         </CppCompile>
         <CppCompile Include="Undo.cpp">
             <DependentOn>Undo.h</DependentOn>
-            <BuildOrder>31</BuildOrder>
+            <BuildOrder>29</BuildOrder>
         </CppCompile>
         <CppCompile Include="Version.cpp">
             <DependentOn>Version.h</DependentOn>
-            <BuildOrder>31</BuildOrder>
+            <BuildOrder>30</BuildOrder>
         </CppCompile>
-        <FormResources Include="OptionColor.dfm"/>
-        <FormResources Include="OptionDataFormat.dfm"/>
-        <FormResources Include="OptionFile.dfm"/>
-        <FormResources Include="OptionLaunch.dfm"/>
+        <FormResources Include="Find.dfm"/>
+        <FormResources Include="KeyCustomize.dfm"/>
+        <FormResources Include="Letter.dfm"/>
+        <FormResources Include="MainForm.dfm"/>
         <FormResources Include="MultiLineInputBox.dfm"/>
         <FormResources Include="Option.dfm"/>
         <FormResources Include="OptionBackUp.dfm"/>
         <FormResources Include="OptionBehavior.dfm"/>
-        <FormResources Include="Sort.dfm"/>
+        <FormResources Include="OptionColor.dfm"/>
+        <FormResources Include="OptionDataFormat.dfm"/>
+        <FormResources Include="OptionFile.dfm"/>
+        <FormResources Include="OptionLaunch.dfm"/>
         <FormResources Include="OptionView.dfm"/>
         <FormResources Include="PasteDlg.dfm"/>
         <FormResources Include="Print.dfm"/>
-        <FormResources Include="Letter.dfm"/>
-        <FormResources Include="MainForm.dfm"/>
-        <FormResources Include="Find.dfm"/>
-        <FormResources Include="KeyCustomize.dfm"/>
+        <FormResources Include="Sort.dfm"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -451,8 +422,8 @@
                     <Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
                 </Parameters>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k290.bpl">Embarcadero C++Builder Office 2000 サーバー パッケージ</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp290.bpl">Embarcadero C++Builder Office XP サーバー パッケージ</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k370.bpl">Embarcadero C++Builder Office 2000 サーバー パッケージ</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp370.bpl">Embarcadero C++Builder Office XP サーバー パッケージ</Excluded_Packages>
                 </Excluded_Packages>
                 <Source>
                     <Source Name="MainSource">Cassava.cpp</Source>

@@ -1,17 +1,16 @@
-//---------------------------------------------------------------------------
+Ôªø//---------------------------------------------------------------------------
 #include <vcl.h>
+#include "MainForm.h"
 #pragma hdrstop
 
 #include "OptionDataFormat.h"
-#include "MainForm.h"
 #include "Option.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TfrOptionDataFormat *frOptionDataFormat;
 //---------------------------------------------------------------------------
-__fastcall TfrOptionDataFormat::TfrOptionDataFormat(TComponent* Owner)
-	: TFrame(Owner)
+__fastcall TfrOptionDataFormat::TfrOptionDataFormat(TfmOption* Owner)
+    : TFrame(Owner), fmOption(Owner)
 {
 }
 //---------------------------------------------------------------------------
@@ -104,8 +103,8 @@ void TfrOptionDataFormat::UpdateOptionTree()
   }
   for (int i = 0; i < TypeList.Count + 1; i++){
     String name =
-        (i < TypeList.Count ? TypeList.Items(i)->Name : (String)L"(êVãKçÏê¨)");
-    if (i == ActiveTypeIndex) { name += L" (ÉAÉNÉeÉBÉu)"; }
+        (i < TypeList.Count ? TypeList.Items(i)->Name : (String)L"(Êñ∞Ë¶è‰ΩúÊàê)");
+    if (i == ActiveTypeIndex) { name += L" („Ç¢„ÇØ„ÉÜ„Ç£„Éñ)"; }
 
     if (fmOption->tnDataFormat->Count <= i) {
       fmOption->tvCategory->Items->AddChild(fmOption->tnDataFormat, name);

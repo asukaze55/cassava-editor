@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+Ôªø//---------------------------------------------------------------------------
 #pragma hdrstop
 #include "CsvReader.h"
 //---------------------------------------------------------------------------
@@ -89,16 +89,19 @@ String TTypeOption::GetExtsStr(int From) const
 CsvReader::CsvReader(const TTypeOption* TypeOption, String FileName,
                      TEncoding *Encoding)
   : typeOption(TypeOption),
-    reader(new TStreamReader(FileName, Encoding, /* DetectBOM= */ true,
-                             /* BufferSize= */ 4096)),
+    reader(std::make_unique<TStreamReader>(
+        FileName, Encoding, /* DetectBOM= */ true, /* BufferSize= */ 4096)),
     data(""), last(1), pos(0), delimiterType(DELIMITER_TYPE_STRONG)
 {
   IncrementPos(false);
 }
 //---------------------------------------------------------------------------
-CsvReader::~CsvReader()
+CsvReader::CsvReader(const TTypeOption* TypeOption, String CsvText)
+  : typeOption(TypeOption),
+    reader(std::make_unique<TStringReader>(CsvText)),
+    data(""), last(1), pos(0), delimiterType(DELIMITER_TYPE_STRONG)
 {
-  delete reader;
+  IncrementPos(false);
 }
 //---------------------------------------------------------------------------
 void __fastcall CsvReader::IncrementPos(bool Quoted)
@@ -143,7 +146,7 @@ String CsvReader::Next()
 {
   if (delimiterType == DELIMITER_TYPE_WEAK_PRE
       || delimiterType == DELIMITER_TYPE_WEAK_POST) {
-    // â¸çsÇÃéüÇ÷êiÇﬂÇÈÅBâ¸çsÇÃèÓïÒÇÕ GetNextType Ç≈éÊÇÈÅB
+    // ÊîπË°å„ÅÆÊ¨°„Å∏ÈÄ≤„ÇÅ„Çã„ÄÇÊîπË°å„ÅÆÊÉÖÂ†±„ÅØ GetNextType „ÅßÂèñ„Çã„ÄÇ
     if (data[pos] == L'\r') {
       IncrementPos(false);
       delimiterType = DELIMITER_TYPE_STRONG;
@@ -165,11 +168,11 @@ String CsvReader::Next()
     wchar_t ch = data[pos];
     if (!quoted) {
       if (ch == L'\r' || ch == L'\n') {
-        // â¸çs
+        // ÊîπË°å
         delimiterType = DELIMITER_TYPE_WEAK_POST;
         return data.SubString(cellstart, cellend - cellstart);
       } else if (typeOption->SepChars.Pos(ch) > 0) {
-        // ã≠ãÊêÿÇË
+        // Âº∑Âå∫Âàá„Çä
         if (delimiterType != DELIMITER_TYPE_WEAK_PRE) {
           IncrementPos(false);
           delimiterType = DELIMITER_TYPE_STRONG;
@@ -178,7 +181,7 @@ String CsvReader::Next()
         delimiterType = DELIMITER_TYPE_STRONG;
         cellstart = pos + 1;
       } else if (typeOption->WeakSepChars.Pos(ch) > 0) {
-        // é„ãÊêÿÇË
+        // Âº±Âå∫Âàá„Çä
         if (delimiterType == DELIMITER_TYPE_NONE) {
           IncrementPos(false);
           delimiterType = DELIMITER_TYPE_WEAK_PRE;
@@ -191,12 +194,12 @@ String CsvReader::Next()
       } else if (typeOption->UseQuote()
                  && typeOption->QuoteChars.Pos(ch) > 0
                  && delimiterType != DELIMITER_TYPE_NONE) {
-        // ÉNÉIÅ[Ég
+        // „ÇØ„Ç™„Éº„Éà
         quoted = true;
         delimiterType = DELIMITER_TYPE_NONE;
         cellstart = pos + 1;
       } else {
-        // ÉRÉìÉeÉìÉc
+        // „Ç≥„É≥„ÉÜ„É≥„ÉÑ
         delimiterType = DELIMITER_TYPE_NONE;
       }
     } else { // Quoted
@@ -210,7 +213,7 @@ String CsvReader::Next()
           return data.SubString(cellstart, cellend - cellstart);
         }
       } else {
-        // ÉRÉìÉeÉìÉc
+        // „Ç≥„É≥„ÉÜ„É≥„ÉÑ
         delimiterType = DELIMITER_TYPE_NONE;
         if(cellend < pos){
           data[cellend] = data[pos];
@@ -226,15 +229,15 @@ String CsvReader::Next()
   return L"";
 }
 //---------------------------------------------------------------------------
-bool CsvReader::ReadLine(TStringList *List)
+bool CsvReader::ReadLine(std::vector<String>& row)
 {
-  List->Clear();
-  if(GetNextType() == NEXT_TYPE_END_OF_FILE){
+  row.clear();
+  if (GetNextType() == NEXT_TYPE_END_OF_FILE) {
     return false;
   }
-  do{
-    List->Add(Next());
-  }while(GetNextType() == NEXT_TYPE_HAS_MORE_CELL);
+  do {
+    row.push_back(Next());
+  } while (GetNextType() == NEXT_TYPE_HAS_MORE_CELL);
   return true;
 }
 //---------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 #ifndef FindH
 #define FindH
 //---------------------------------------------------------------------------
@@ -12,7 +12,7 @@
 //---------------------------------------------------------------------------
 class TfmFind : public TForm
 {
-__published:	// IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
+__published:	// IDE ç®¡ç†ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
         TButton *btnSearchFromTop;
         TButton *btnNext;
         TButton *btnReplace;
@@ -46,9 +46,9 @@ __published:	// IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
         void __fastcall cbWordSearchClick(TObject *Sender);
         void __fastcall cbRegexClick(TObject *Sender);
 
-private:	// ƒ†[ƒU[éŒ¾
+private:	// ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
         TGridRect range;
-public:		// ƒ†[ƒU[éŒ¾
+public:		// ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
         __fastcall TfmFind(TComponent* Owner);
         TGridRect GetRange();
         bool Case();

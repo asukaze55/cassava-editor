@@ -1,13 +1,12 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 #include <vcl.h>
+#include "MainForm.h"
 #pragma hdrstop
 
 #include "OptionLaunch.h"
-#include "MainForm.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TfrOptionLaunch *frOptionLaunch;
 //---------------------------------------------------------------------------
 __fastcall TfrOptionLaunch::TfrOptionLaunch(TComponent* Owner)
 	: TFrame(Owner)
@@ -63,7 +62,7 @@ void __fastcall TfrOptionLaunch::edLaunchChange(TObject *Sender)
 
   if(Ed->Text==""){
     LName->Enabled = false;
-    LName->Text = L"–¢Ý’è";
+    LName->Text = L"æœªè¨­å®š";
   }else{
     LName->Text = ChangeFileExt(ExtractFileName(Ed->Text), "");
     LName->Enabled = true;

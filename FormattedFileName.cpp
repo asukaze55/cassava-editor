@@ -1,6 +1,8 @@
-//---------------------------------------------------------------------------
+Ôªø//---------------------------------------------------------------------------
 #include <vcl.h>
+#include "MainForm.h"
 #pragma hdrstop
+
 #include "FormattedFileName.h"
 //---------------------------------------------------------------------------
 String FormattedFileName(String Format, String BaseFileName)
@@ -52,7 +54,7 @@ String FormattedFileName(String Format, String BaseFileName)
         FileName += (char)('0' + (seconds % 10));
         break;
       case 'n':
-        FileName += "<n>"; // <> ÇÕ Windows Ç≈ÇÕÉtÉ@ÉCÉãñºÇ…égÇ¶Ç»Ç¢
+        FileName += "<n>"; // <> „ÅØ Windows „Åß„ÅØ„Éï„Ç°„Ç§„É´Âêç„Å´‰Ωø„Åà„Å™„ÅÑ
         nExists = true;
         break;
       case '%':

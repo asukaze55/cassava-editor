@@ -1,15 +1,15 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 #include <vcl.h>
-#include <Vcl.printers.hpp>
-#include <tchar.h>
+#include "MainForm.h"
 #pragma hdrstop
 
+#include <Vcl.printers.hpp>
+#include <tchar.h>
+
 #include "Letter.h"
-#include "MainForm.h"
 #include "AutoOpen.h"
 //---------------------------------------------------------------------------
 #pragma resource "*.dfm"
-TfmLetter *fmLetter;
 //---------------------------------------------------------------------------
 bool IsNumericChar(TCHAR c){
   return (c >= '0' && c <= '9');
@@ -138,7 +138,7 @@ int TfmLetter::Name2Indent(String Name1)
   bool flag = false;
   for (int i = 1; i <= Name1.Length(); i++) {
     wchar_t c = Name1[i];
-    if (c == L'@' || c == ' ' || c == '_') {
+    if (c == u'ã€€' || c == ' ' || c == '_') {
       flag = true;
     } else if (flag) {
       pos = i;
@@ -160,10 +160,10 @@ if(cbMyDataInCsv->Checked)
   edMyAddress2->Text = fmMain->MainGrid->ACells[udToAddress2->Position][MyDat];
 }
 
-String Number[2];        //ˆ¶æorŽ©•ª
+String Number[2];        //å®›å…ˆorè‡ªåˆ†
 Number[0] = fmMain->MainGrid->ACells[udToNumber->Position][Index];
 Number[1] = edMyNumber->Text;
-String Box[2][2][2];    //[ZŠ–¼‘O][ˆ¶æŽ©•ª][‰E¶]
+String Box[2][2][2];    //[ä½æ‰€åå‰][å®›å…ˆè‡ªåˆ†][å³å·¦]
 int Name2Pos[2];
 Box[0][0][0] = Tate(fmMain->MainGrid->ACells[udToAddress1->Position][Index]);
 Box[0][0][1] = Tate(fmMain->MainGrid->ACells[udToAddress2->Position][Index]);
@@ -209,7 +209,7 @@ else if(Box[1][Who][0] == "") return(false);
 
 int NengaDY = (Who==1 && cbNenga->Checked) ? -14 : 0;
 
-//—X•Ö”Ô†
+//éƒµä¾¿ç•ªå·
 Canvas->Font->Name = ZipCodeFontName;
 Canvas->Font->Height = NumberSize[Who] * mmPt;
 if (Number[Who].Pos("-")) {
@@ -221,7 +221,7 @@ for(int i=0; i<=6 && i<Number[Who].Length(); i++)
 		  (NumberTop[Who] + NengaDY + PY) * mmPt,
 		   Number[Who][i+1]);
 }
-//ZŠAˆ¶–¼
+//ä½æ‰€ã€å®›å
 Canvas->Font->Name = cbxFont->Text;
 bool verticalFont = (cbxFont->Text[1] == '@');
 for(int ibox=0; ibox<2; ibox++){
@@ -317,7 +317,7 @@ for(int ibox=0; ibox<2; ibox++){
       if(Msg == " " || Msg == "_"){
         PCY += YItv;
       }else if(verticalFont){
-        if(num || Msg == L"b"){
+        if(num || Msg == L"ï½œ"){
           Canvas->TextOut((BoxMiddle + PX)*mmPt - (Canvas->TextWidth(Msg) / 2),
                           PCY*mmPt, Msg);
           PCY += (Canvas->TextHeight(Msg) / mmPt);
@@ -336,7 +336,7 @@ for(int ibox=0; ibox<2; ibox++){
   }
 }
 
-} //Whoƒ‹[ƒv‚ÌI‚í‚è
+} //Whoãƒ«ãƒ¼ãƒ—ã®çµ‚ã‚ã‚Š
 return(true);
 }
 //---------------------------------------------------------------------------
@@ -347,10 +347,10 @@ String TfmLetter::Tate(String Str)
     wchar_t c = Str[i];
     if (c == '_') {
       Str[i] = ' ';
-    } else if (!verticalFont && (c == '-' || c == L'[' || c == L'|')) {
-      Str[i] = L'b';
-    } else if (!verticalFont && c == L'A') {
-      Str[i] = L'@';
+    } else if (!verticalFont && (c == '-' || c == u'ãƒ¼' || c == u'ï¼')) {
+      Str[i] = u'ï½œ';
+    } else if (!verticalFont && c == u'ã€') {
+      Str[i] = u'ã€€';
     } else if (IsNumericChar(c)) {
       int length = 1;
       while (i + length <= Str.Length() && IsNumericChar(Str[i + length])) {
@@ -359,7 +359,7 @@ String TfmLetter::Tate(String Str)
       if (!cbHorzNum->Checked || length == 1
           || length > udHorzNumMax->Position) {
         for (int j = 0; j < length; j++) {
-          Str[i + j] = L"‚O‚P‚Q‚R‚S‚T‚U‚V‚W‚X"[Str[i + j] - '0'];
+          Str[i + j] = L"ï¼ï¼‘ï¼’ï¼“ï¼”ï¼•ï¼–ï¼—ï¼˜ï¼™"[Str[i + j] - '0'];
         }
       }
       i += length - 1;
@@ -371,7 +371,7 @@ String TfmLetter::Tate(String Str)
 void __fastcall TfmLetter::btnPrintClick(TObject *Sender)
 {
   if (cbxFont->Text == "") {
-    Application->MessageBox(L"ƒtƒHƒ“ƒg‚ðŽw’è‚µ‚Ä‚­‚¾‚³‚¢B", CASSAVA_TITLE, 0);
+    Application->MessageBox(L"ãƒ•ã‚©ãƒ³ãƒˆã‚’æŒ‡å®šã—ã¦ãã ã•ã„ã€‚", CASSAVA_TITLE, 0);
     return;
   }
 
@@ -391,39 +391,39 @@ void __fastcall TfmLetter::btnSaveClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void TfmLetter::DataSave(String FileName)
 {
-  IniFile *Ini = new IniFile(FileName);
-  Ini->WriteString(L"·ol","Name",edMyName->Text);
-  Ini->WriteString(L"·ol","Name2",edMyName2->Text);
-  Ini->WriteString(L"·ol","Number",edMyNumber->Text);
-  Ini->WriteString(L"·ol","Address1",edMyAddress1->Text);
-  Ini->WriteString(L"·ol","Address2",edMyAddress2->Text);
-  Ini->WriteBool(L"·ol","UseDataInCsv",cbMyDataInCsv->Checked);
-  Ini->WriteString(L"·ol","DataInCsv",edMyDataInCsv->Text);
-  Ini->WriteBool(L"·ol","Nenga",cbNenga->Checked);
-  Ini->WriteString(L"ˆ¶æ","Name",edToName->Text);
-  Ini->WriteString(L"ˆ¶æ","Name2",edToName2->Text);
+  std::unique_ptr<IniFile> Ini = std::make_unique<IniFile>(FileName);
+  Ini->WriteString(L"å·®å‡ºäºº","Name",edMyName->Text);
+  Ini->WriteString(L"å·®å‡ºäºº","Name2",edMyName2->Text);
+  Ini->WriteString(L"å·®å‡ºäºº","Number",edMyNumber->Text);
+  Ini->WriteString(L"å·®å‡ºäºº","Address1",edMyAddress1->Text);
+  Ini->WriteString(L"å·®å‡ºäºº","Address2",edMyAddress2->Text);
+  Ini->WriteBool(L"å·®å‡ºäºº","UseDataInCsv",cbMyDataInCsv->Checked);
+  Ini->WriteString(L"å·®å‡ºäºº","DataInCsv",edMyDataInCsv->Text);
+  Ini->WriteBool(L"å·®å‡ºäºº","Nenga",cbNenga->Checked);
+  Ini->WriteString(L"å®›å…ˆ","Name",edToName->Text);
+  Ini->WriteString(L"å®›å…ˆ","Name2",edToName2->Text);
   if (edPrefix->Text != "" && edPrefix->Text[1] == ' ') {
     String Str = edPrefix->Text;
     Str[1] = '_';
     edPrefix->Text = Str;
   }
-  Ini->WriteString(L"ˆ¶æ","Prefix",edPrefix->Text);
-  Ini->WriteString(L"ˆ¶æ","Number",edToNumber->Text);
-  Ini->WriteString(L"ˆ¶æ","Address1",edToAddress1->Text);
-  Ini->WriteString(L"ˆ¶æ","Address2",edToAddress2->Text);
-  Ini->WriteString(L"ˆ¶æ","Note",edToNote->Text);
-  Ini->WriteBool(L"”õl","Use",cbUseNote->Checked);
-  Ini->WriteString(L"”õl","KeyWord",edUseNote->Text);
-  Ini->WriteInteger(L"”õl","How",cbxHowUseNote->ItemIndex);
-  Ini->WriteBool(L"ƒtƒHƒ“ƒg","HorzNum",cbHorzNum->Checked);
-  Ini->WriteString(L"ƒtƒHƒ“ƒg","HorzNumMax",seHorzNumMax->Text);
-  Ini->WriteInteger(L"ƒtƒHƒ“ƒg","Font",cbxFont->ItemIndex);
-  Ini->WriteString(L"ƒtƒHƒ“ƒg", "ZipCodeFontName", ZipCodeFontName);
-  Ini->WriteString(L"”÷’²®","Horz",edHorz->Text);
-  Ini->WriteString(L"”÷’²®","Vert",edVert->Text);
+  Ini->WriteString(L"å®›å…ˆ","Prefix",edPrefix->Text);
+  Ini->WriteString(L"å®›å…ˆ","Number",edToNumber->Text);
+  Ini->WriteString(L"å®›å…ˆ","Address1",edToAddress1->Text);
+  Ini->WriteString(L"å®›å…ˆ","Address2",edToAddress2->Text);
+  Ini->WriteString(L"å®›å…ˆ","Note",edToNote->Text);
+  Ini->WriteBool(L"å‚™è€ƒ","Use",cbUseNote->Checked);
+  Ini->WriteString(L"å‚™è€ƒ","KeyWord",edUseNote->Text);
+  Ini->WriteInteger(L"å‚™è€ƒ","How",cbxHowUseNote->ItemIndex);
+  Ini->WriteBool(L"ãƒ•ã‚©ãƒ³ãƒˆ","HorzNum",cbHorzNum->Checked);
+  Ini->WriteString(L"ãƒ•ã‚©ãƒ³ãƒˆ","HorzNumMax",seHorzNumMax->Text);
+  Ini->WriteInteger(L"ãƒ•ã‚©ãƒ³ãƒˆ","Font",cbxFont->ItemIndex);
+  Ini->WriteString(L"ãƒ•ã‚©ãƒ³ãƒˆ", "ZipCodeFontName", ZipCodeFontName);
+  Ini->WriteString(L"å¾®èª¿æ•´","Horz",edHorz->Text);
+  Ini->WriteString(L"å¾®èª¿æ•´","Vert",edVert->Text);
 
   for(int i=0; i<2; i++){
-    String Section = (i==0 ? L"ˆóüˆÊ’uFˆ¶æ" : L"ˆóüˆÊ’uF·ol");
+    String Section = (i==0 ? L"å°åˆ·ä½ç½®ï¼šå®›å…ˆ" : L"å°åˆ·ä½ç½®ï¼šå·®å‡ºäºº");
     Ini->WriteInteger(Section,"NumberTop",NumberTop[i]);
     for(int j=0; j<7; j++){
       Ini->WriteFloat(Section, (String)"NumberLeft" + j, NumberLeft[i][j]);
@@ -439,8 +439,6 @@ void TfmLetter::DataSave(String FileName)
     Ini->WriteInteger(Section,"NameX",NameMiddle[i]);
     Ini->WriteInteger(Section,"NameSize",NameSize[i]);
   }
-
-  delete Ini;
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmLetter::btnReadClick(TObject *Sender)
@@ -455,34 +453,34 @@ void __fastcall TfmLetter::btnReadClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void TfmLetter::DataRead(String FileName)
 {
-  IniFile *Ini = new IniFile(FileName);
-  edMyName->Text = Ini->ReadString(L"·ol","Name",edMyName->Text);
-  edMyName2->Text = Ini->ReadString(L"·ol","Name2",edMyName->Text);
-  edMyNumber->Text = Ini->ReadString(L"·ol","Number",edMyNumber->Text);
-  edMyAddress1->Text = Ini->ReadString(L"·ol","Address1",edMyAddress1->Text);
-  edMyAddress2->Text = Ini->ReadString(L"·ol","Address2",edMyAddress2->Text);
-  cbMyDataInCsv->Checked = Ini->ReadBool(L"·ol","UseDataInCsv",cbMyDataInCsv->Checked);
-  edMyDataInCsv->Text = Ini->ReadString(L"·ol","DataInCsv",edMyDataInCsv->Text);
-  cbNenga->Checked = Ini->ReadBool(L"·ol","Nenga",cbNenga->Checked);
-  edToName->Text = Ini->ReadString(L"ˆ¶æ","Name",edToName->Text);
-  edToName2->Text = Ini->ReadString(L"ˆ¶æ","Name2",edToName2->Text);
-  edPrefix->Text = Ini->ReadString(L"ˆ¶æ","Prefix",edPrefix->Text);
-  edToNumber->Text = Ini->ReadString(L"ˆ¶æ","Number",edToNumber->Text);
-  edToAddress1->Text = Ini->ReadString(L"ˆ¶æ","Address1",edToAddress1->Text);
-  edToAddress2->Text = Ini->ReadString(L"ˆ¶æ","Address2",edToAddress2->Text);
-  edToNote->Text = Ini->ReadString(L"ˆ¶æ","Note",edToNote->Text);
-  cbUseNote->Checked = Ini->ReadBool(L"”õl","Use",cbUseNote->Checked);
-  edUseNote->Text = Ini->ReadString(L"”õl","KeyWord",edUseNote->Text);
-  cbxHowUseNote->ItemIndex = Ini->ReadInteger(L"”õl","How",cbxHowUseNote->ItemIndex);
-  cbHorzNum->Checked = Ini->ReadBool(L"ƒtƒHƒ“ƒg","HorzNum",cbHorzNum->Checked);
-  seHorzNumMax->Text = Ini->ReadString(L"ƒtƒHƒ“ƒg","HorzNumMax",seHorzNumMax->Text);
-  cbxFont->ItemIndex = Ini->ReadInteger(L"ƒtƒHƒ“ƒg","Font",cbxFont->ItemIndex);
-  ZipCodeFontName = Ini->ReadString(L"ƒtƒHƒ“ƒg", "ZipCodeFontName", L"‚l‚r ‚o–¾’©");
-  edHorz->Text = Ini->ReadString(L"”÷’²®","Horz",edHorz->Text);
-  edVert->Text = Ini->ReadString(L"”÷’²®","Vert",edVert->Text);
+  std::unique_ptr<IniFile> Ini = std::make_unique<IniFile>(FileName);
+  edMyName->Text = Ini->ReadString(L"å·®å‡ºäºº","Name",edMyName->Text);
+  edMyName2->Text = Ini->ReadString(L"å·®å‡ºäºº","Name2",edMyName->Text);
+  edMyNumber->Text = Ini->ReadString(L"å·®å‡ºäºº","Number",edMyNumber->Text);
+  edMyAddress1->Text = Ini->ReadString(L"å·®å‡ºäºº","Address1",edMyAddress1->Text);
+  edMyAddress2->Text = Ini->ReadString(L"å·®å‡ºäºº","Address2",edMyAddress2->Text);
+  cbMyDataInCsv->Checked = Ini->ReadBool(L"å·®å‡ºäºº","UseDataInCsv",cbMyDataInCsv->Checked);
+  edMyDataInCsv->Text = Ini->ReadString(L"å·®å‡ºäºº","DataInCsv",edMyDataInCsv->Text);
+  cbNenga->Checked = Ini->ReadBool(L"å·®å‡ºäºº","Nenga",cbNenga->Checked);
+  edToName->Text = Ini->ReadString(L"å®›å…ˆ","Name",edToName->Text);
+  edToName2->Text = Ini->ReadString(L"å®›å…ˆ","Name2",edToName2->Text);
+  edPrefix->Text = Ini->ReadString(L"å®›å…ˆ","Prefix",edPrefix->Text);
+  edToNumber->Text = Ini->ReadString(L"å®›å…ˆ","Number",edToNumber->Text);
+  edToAddress1->Text = Ini->ReadString(L"å®›å…ˆ","Address1",edToAddress1->Text);
+  edToAddress2->Text = Ini->ReadString(L"å®›å…ˆ","Address2",edToAddress2->Text);
+  edToNote->Text = Ini->ReadString(L"å®›å…ˆ","Note",edToNote->Text);
+  cbUseNote->Checked = Ini->ReadBool(L"å‚™è€ƒ","Use",cbUseNote->Checked);
+  edUseNote->Text = Ini->ReadString(L"å‚™è€ƒ","KeyWord",edUseNote->Text);
+  cbxHowUseNote->ItemIndex = Ini->ReadInteger(L"å‚™è€ƒ","How",cbxHowUseNote->ItemIndex);
+  cbHorzNum->Checked = Ini->ReadBool(L"ãƒ•ã‚©ãƒ³ãƒˆ","HorzNum",cbHorzNum->Checked);
+  seHorzNumMax->Text = Ini->ReadString(L"ãƒ•ã‚©ãƒ³ãƒˆ","HorzNumMax",seHorzNumMax->Text);
+  cbxFont->ItemIndex = Ini->ReadInteger(L"ãƒ•ã‚©ãƒ³ãƒˆ","Font",cbxFont->ItemIndex);
+  ZipCodeFontName = Ini->ReadString(L"ãƒ•ã‚©ãƒ³ãƒˆ", "ZipCodeFontName", L"ï¼­ï¼³ ï¼°æ˜Žæœ");
+  edHorz->Text = Ini->ReadString(L"å¾®èª¿æ•´","Horz",edHorz->Text);
+  edVert->Text = Ini->ReadString(L"å¾®èª¿æ•´","Vert",edVert->Text);
 
   for(int i=0; i<2; i++){
-    String Section = (i==0 ? L"ˆóüˆÊ’uFˆ¶æ" : L"ˆóüˆÊ’uF·ol");
+    String Section = (i==0 ? L"å°åˆ·ä½ç½®ï¼šå®›å…ˆ" : L"å°åˆ·ä½ç½®ï¼šå·®å‡ºäºº");
     NumberTop[i] = Ini->ReadInteger(Section,"NumberTop",NumberTop[i]);
     for(int j=0; j<7; j++){
       NumberLeft[i][j] =
@@ -502,8 +500,6 @@ void TfmLetter::DataRead(String FileName)
     NameMiddle[i] = Ini->ReadInteger(Section,"NameX",NameMiddle[i]);
     NameSize[i] = Ini->ReadInteger(Section,"NameSize",NameSize[i]);
   }
-
-  delete Ini;
 }
 //---------------------------------------------------------------------------
 void TfmLetter::DataSetDefault()
@@ -537,17 +533,17 @@ void TfmLetter::DataSetDefault()
   NameSize[0] = 10;         NameSize[1] = 6;
 
   if (cbxFont->ItemIndex < 0) {
-    int hg = cbxFont->Items->IndexOf(L"@HG³ž²‘‘Ì-PRO");
+    int hg = cbxFont->Items->IndexOf(L"@HGæ­£æ¥·æ›¸ä½“-PRO");
     if (hg >= 0) {
       cbxFont->ItemIndex = hg;
       return;
     }
-    int bizUd = cbxFont->Items->IndexOf(L"@BIZ UDP–¾’© Medium");
+    int bizUd = cbxFont->Items->IndexOf(L"@BIZ UDPæ˜Žæœ Medium");
     if (bizUd >= 0) {
       cbxFont->ItemIndex = bizUd;
       return;
     }
-    int msp = cbxFont->Items->IndexOf(L"‚l‚r ‚o–¾’©");
+    int msp = cbxFont->Items->IndexOf(L"ï¼­ï¼³ ï¼°æ˜Žæœ");
     if (msp >= 0) {
       cbxFont->ItemIndex = msp;
       return;

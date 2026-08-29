@@ -1,14 +1,12 @@
-//---------------------------------------------------------------------------
-
+﻿//---------------------------------------------------------------------------
 #include <vcl.h>
+#include "MainForm.h"
 #pragma hdrstop
 
 #include "OptionBehavior.h"
-#include "MainForm.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TfrOptionBehavior *frOptionBehavior;
 //---------------------------------------------------------------------------
 __fastcall TfrOptionBehavior::TfrOptionBehavior(TComponent* Owner)
 	: TFrame(Owner)

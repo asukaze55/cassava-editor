@@ -1,12 +1,13 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 #include <vcl.h>
+#include "MainForm.h"
+#pragma hdrstop
+
 #include <Vcl.clipbrd.hpp>
 #include <process.h>
 #include <stdio.h>
 #include <map>
-#pragma hdrstop
 
-#include "MainForm.h"
 #include "Letter.h"
 #include "AutoOpen.h"
 #include "KeyCustomize.h"
@@ -24,12 +25,12 @@
 #pragma resource "*.dfm"
 TfmMain *fmMain;
 //---------------------------------------------------------------------------
-static String MaybeCompileMacro(String fileName, Preference *pref,
+static String MaybeCompileMacro(String fileName, const Preference &pref,
                                 TMacroContext *context)
 {
-  String cmsFile = pref->UserPath + "Macro\\" + fileName;
+  String cmsFile = pref.UserPath + "Macro\\" + fileName;
   if (!FileExists(cmsFile)) {
-    cmsFile = pref->SharedPath + "Macro\\" + fileName;
+    cmsFile = pref.SharedPath + "Macro\\" + fileName;
   }
   if (!FileExists(cmsFile)) {
     return "";
@@ -43,7 +44,7 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
 {
   FullPath = ExtractFilePath(ParamStr(0));
   if(*(FullPath.LastChar()) != '\\') FullPath += "\\";
-  Pref = new Preference(FullPath);
+  Pref = std::make_unique<Preference>(FullPath);
 
   MainGrid = new TMainGrid(this);
   MainGrid->Parent = MainPanel;
@@ -62,7 +63,6 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
   Application->OnActivate = ApplicationActivate;
   Application->OnHint = ApplicationHint;
 
-  History = new TStringList;
   ScreenDpi = Screen->PixelsPerInch;
 
   TTypeList defaultTypeList;
@@ -88,7 +88,8 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
   int ht = MainGrid->FixedRows;
   int positionShift = 0;
   int newWindowCount = 0;
-  wchar_t **newWindowArgs = new wchar_t*[ParamCount() + 3];
+  std::vector<String> newWindowArgs;
+  newWindowArgs.push_back(ParamStr(0));
 
   for (int i = 1; i <= ParamCount(); i++) {
     if (ParamStr(i)[1] == L'-') {
@@ -108,24 +109,16 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
         FileOpening = true;
       } else {
         newWindowCount++;
-        newWindowArgs[newWindowCount] = new wchar_t[ParamStr(i).Length() + 3];
-        wcscpy(newWindowArgs[newWindowCount],
-            ((String)("\"") + ParamStr(i) + "\"").c_str());
+        newWindowArgs.push_back(ParamStr(i));
       }
     }
   }
 
   if (newWindowCount > 0) {
-    newWindowArgs[0] = ParamStr(0).c_str();
-    newWindowArgs[newWindowCount + 1] = const_cast<wchar_t*>(L"-i");
-    newWindowArgs[newWindowCount + 2] =((String)(positionShift + 1)).c_str();
-    newWindowArgs[newWindowCount + 3] = nullptr;
-    _wspawnv(P_NOWAITO, ParamStr(0).c_str(), newWindowArgs);
-    for (int i = 1; i <= newWindowCount; i++) {
-      delete[] newWindowArgs[i];
-    }
+    newWindowArgs.push_back("-i");
+    newWindowArgs.push_back((String)(positionShift + 1));
+    SpawnProcess(newWindowArgs);
   }
-  delete[] newWindowArgs;
 
   if (!FileOpening) {
     FileName = "";
@@ -148,13 +141,13 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
   }
   SystemMacroContext.AddDirectory(Pref->UserPath + "Macro\\");
   SystemMacroContext.AddDirectory(Pref->SharedPath + "Macro\\");
-  FormatCmsFile = MaybeCompileMacro("!format.cms", Pref, &SystemMacroContext);
+  FormatCmsFile = MaybeCompileMacro("!format.cms", *Pref, &SystemMacroContext);
   if (FormatCmsFile != "") {
     MainGrid->OnGetFormattedCell = GetFormattedCell;
   }
 
   String statusbarCmsFile =
-      MaybeCompileMacro("!statusbar.cms", Pref, &SystemMacroContext);
+      MaybeCompileMacro("!statusbar.cms", *Pref, &SystemMacroContext);
   if (statusbarCmsFile != "") {
     String statusbarInit =
         GetMacroModuleName(statusbarCmsFile, "init", "0", false);
@@ -188,7 +181,7 @@ void TfmMain::ExecStartupMacro()
       MacroExec(ParamCmsFile, nullptr);
     } else {
       Application->MessageBox(
-          (ParamCmsFile + L"\nƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB").c_str(),
+          (ParamCmsFile + L"\nãƒ•ã‚¡ã‚¤ãƒ«ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚").c_str(),
           CASSAVA_TITLE, 0);
     }
   }
@@ -214,25 +207,17 @@ void __fastcall TfmMain::ExecOpenMacro(System::TObject* Sender)
   UpdateStatusbar();
 }
 //---------------------------------------------------------------------------
-__fastcall TfmMain::~TfmMain()
-{
-  delete MainGrid;
-  delete History;
-  delete Pref;
-  if (LockingFile) { delete LockingFile; }
-}
-//---------------------------------------------------------------------------
 void TfmMain::ReadIni()
 {
-  History->Clear();
+  History.clear();
 
-  IniFile *Ini = Pref->GetInifile();
+  IniFile ini = Pref->GetInifile();
 
-  FStyle = IsDarkMode(Ini->ReadString("Mode", "Style", ""))
+  FStyle = IsDarkMode(ini.ReadString("Mode", "Style", ""))
       ? DARK_MODE_STYLE_NAME : LIGHT_MODE_STYLE_NAME;
   TStyleManager::TrySetStyle(FStyle);
 
-  int iniScreenDpi = Ini->ReadInteger("Position", "Dpi", ScreenDpi);
+  int iniScreenDpi = ini.ReadInteger("Position", "Dpi", ScreenDpi);
   double dpiRatio = (double)ScreenDpi / iniScreenDpi;
   int screenWidth = GetSystemMetrics (SM_CXSCREEN);
   int screenHeight = GetSystemMetrics (SM_CYSCREEN);
@@ -244,16 +229,16 @@ void TfmMain::ReadIni()
       virtualScreenTop + GetSystemMetrics (SM_CYVIRTUALSCREEN);
 
   int iniWidth =
-      Ini->ReadInteger("Position", "Width", Width) * dpiRatio + 0.5;
+      ini.ReadInteger("Position", "Width", Width) * dpiRatio + 0.5;
   Width = iniWidth <= screenWidth ? iniWidth : screenWidth;
   int iniHeight =
-      Ini->ReadInteger("Position", "Height", Height) * dpiRatio + 0.5;
+      ini.ReadInteger("Position", "Height", Height) * dpiRatio + 0.5;
   Height = iniHeight <= screenHeight ? iniHeight : screenHeight;
-  int iniLeft = Ini->ReadInteger("Position", "Left", -1);
+  int iniLeft = ini.ReadInteger("Position", "Left", -1);
   int left =
       (iniLeft >= virtualScreenLeft && iniLeft <= virtualScreenRight - Width)
           ? iniLeft : (screenWidth / 2 - Width / 2);
-  int iniTop = Ini->ReadInteger("Position", "Top", -1);
+  int iniTop = ini.ReadInteger("Position", "Top", -1);
   int top =
       (iniTop >= virtualScreenTop && iniTop <= virtualScreenBottom - Height)
           ? iniTop : (screenHeight / 2 - Height / 2);
@@ -270,47 +255,47 @@ void TfmMain::ReadIni()
   Left =  left;
   Top = top;
 
-  if (Ini->ReadBool("Mode", "ShowToolbar", true) != mnShowToolbar->Checked) {
+  if (ini.ReadBool("Mode", "ShowToolbar", true) != mnShowToolbar->Checked) {
     mnShowToolbarClick(this);
   }
-  FToolBarSize = Ini->ReadInteger("Mode", "ToolbarSize", 16 * ScreenDpi / 96);
-  if (Ini->ReadBool("Mode", "ShowStatusbar", true)
+  FToolBarSize = ini.ReadInteger("Mode", "ToolbarSize", 16 * ScreenDpi / 96);
+  if (ini.ReadBool("Mode", "ShowStatusbar", true)
       != mnShowStatusbar->Checked) {
     mnShowStatusbarClick(this);
   }
 
   MainGrid->Color =
-      (TColor) Ini->ReadInteger("Font", "BgColor", MainGrid->Color);
+      (TColor) ini.ReadInteger("Font", "BgColor", MainGrid->Color);
   MainGrid->CalcBgColor =
-      (TColor) Ini->ReadInteger("Font", "CalcBgColor", clAqua);
+      (TColor) ini.ReadInteger("Font", "CalcBgColor", clAqua);
   MainGrid->CalcErrorBgColor =
-      (TColor) Ini->ReadInteger("Font", "CalcErrorBgColor", clRed);
-  MainGrid->CalcErrorFgColor = (TColor) Ini->ReadInteger(
+      (TColor) ini.ReadInteger("Font", "CalcErrorBgColor", clRed);
+  MainGrid->CalcErrorFgColor = (TColor) ini.ReadInteger(
       "Font", "CalcErrorFgColor", MainGrid->Font->Color);
   MainGrid->CalcFgColor =
-      (TColor) Ini->ReadInteger("Font", "CalcFgColor", MainGrid->Font->Color);
+      (TColor) ini.ReadInteger("Font", "CalcFgColor", MainGrid->Font->Color);
   MainGrid->CurrentRowBgColor =
-      (TColor) Ini->ReadInteger("Font", "CurrentRowBgColor", MainGrid->Color);
+      (TColor) ini.ReadInteger("Font", "CurrentRowBgColor", MainGrid->Color);
   MainGrid->CurrentColBgColor =
-      (TColor) Ini->ReadInteger("Font", "CurrentColBgColor", MainGrid->Color);
+      (TColor) ini.ReadInteger("Font", "CurrentColBgColor", MainGrid->Color);
   MainGrid->DummyBgColor =
-      (TColor) Ini->ReadInteger("Font", "DummyBgColor", clCream);
+      (TColor) ini.ReadInteger("Font", "DummyBgColor", clCream);
   MainGrid->EvenRowBgColor =
-      (TColor) Ini->ReadInteger("Font", "EvenRowBgColor", MainGrid->Color);
+      (TColor) ini.ReadInteger("Font", "EvenRowBgColor", MainGrid->Color);
   MainGrid->FixFgColor =
-      (TColor) Ini->ReadInteger("Font", "FixFgColor", MainGrid->Font->Color);
+      (TColor) ini.ReadInteger("Font", "FixFgColor", MainGrid->Font->Color);
   MainGrid->FixedColor =
-      (TColor) Ini->ReadInteger("Font", "FixedColor", MainGrid->FixedColor);
+      (TColor) ini.ReadInteger("Font", "FixedColor", MainGrid->FixedColor);
   MainGrid->FoundBgColor =
-      (TColor) Ini->ReadInteger("Font", "FoundBgColor", clYellow);
-  MainGrid->UrlColor = (TColor) Ini->ReadInteger("Font", "UrlColor", clBlue);
-  MainGrid->WordWrap = Ini->ReadBool("Font", "WordWrap", false);
+      (TColor) ini.ReadInteger("Font", "FoundBgColor", clYellow);
+  MainGrid->UrlColor = (TColor) ini.ReadInteger("Font", "UrlColor", clBlue);
+  MainGrid->WordWrap = ini.ReadBool("Font", "WordWrap", false);
   MainGrid->TextAlignment =
-      Ini->ReadInteger("Font", "TextAlign", MainGrid->TextAlignment);
-  MainGrid->NumberComma = Ini->ReadInteger("Font", "NumberComma", 0);
-  MainGrid->DecimalDigits = Ini->ReadInteger("Font", "DecimalDigits", -1);
+      ini.ReadInteger("Font", "TextAlign", MainGrid->TextAlignment);
+  MainGrid->NumberComma = ini.ReadInteger("Font", "NumberComma", 0);
+  MainGrid->DecimalDigits = ini.ReadInteger("Font", "DecimalDigits", -1);
   MainGrid->MinColWidth =
-      Ini->ReadInteger("Font", "MinColWidth", MainGrid->MinColWidth);
+      ini.ReadInteger("Font", "MinColWidth", MainGrid->MinColWidth);
 
   Show();
   SearchMacro(mnMacro);
@@ -321,184 +306,177 @@ void TfmMain::ReadIni()
   Top = top;
 
   WindowState =
-      Ini->ReadInteger("Position", "Mode", 0) == 2 ? wsMaximized : wsNormal;
-  MainGrid->Font->Name = Ini->ReadString("Font", "Name",
+      ini.ReadInteger("Position", "Mode", 0) == 2 ? wsMaximized : wsNormal;
+  MainGrid->Font->Name = ini.ReadString("Font", "Name",
       Screen->Fonts->IndexOf(L"Yu Gothic UI") >= 0 ? L"Yu Gothic UI"
-                                                   : L"‚l‚r ‚oƒSƒVƒbƒN");
-  MainGrid->Font->Size = Ini->ReadInteger("Font", "Size", 12) * dpiRatio + 0.5;
-  if (Ini->ReadBool("Font", "Bold", false)) {
+                                                   : L"ï¼­ï¼³ ï¼°ã‚´ã‚·ãƒƒã‚¯");
+  MainGrid->Font->Size = ini.ReadInteger("Font", "Size", 12) * dpiRatio + 0.5;
+  if (ini.ReadBool("Font", "Bold", false)) {
     MainGrid->Font->Style = MainGrid->Font->Style << fsBold;
   }
-  if (Ini->ReadBool("Font", "Italic", false)) {
+  if (ini.ReadBool("Font", "Italic", false)) {
     MainGrid->Font->Style = MainGrid->Font->Style << fsItalic;
   }
-  if (Ini->ReadBool("Font", "Underline", false)) {
+  if (ini.ReadBool("Font", "Underline", false)) {
     MainGrid->Font->Style = MainGrid->Font->Style << fsUnderline;
   }
-  if (Ini->ReadBool("Font", "StrikeOut", false)) {
+  if (ini.ReadBool("Font", "StrikeOut", false)) {
     MainGrid->Font->Style = MainGrid->Font->Style << fsStrikeOut;
   }
-  MainGrid->TBMargin = Ini->ReadInteger("Font", "TBMargin", 2);
-  MainGrid->LRMargin = Ini->ReadInteger("Font", "LRMargin", 4);
-  MainGrid->CellLineMargin = Ini->ReadInteger("Font", "CellLineMargin", 0);
+  MainGrid->TBMargin = ini.ReadInteger("Font", "TBMargin", 2);
+  MainGrid->LRMargin = ini.ReadInteger("Font", "LRMargin", 4);
+  MainGrid->CellLineMargin = ini.ReadInteger("Font", "CellLineMargin", 0);
   MainGrid->Font->Color =
-      (TColor) Ini->ReadInteger("Font", "FgColor", MainGrid->Font->Color);
+      (TColor) ini.ReadInteger("Font", "FgColor", MainGrid->Font->Color);
   MainGrid->Canvas->Font = MainGrid->Font;
 
-    PrintFontName = Ini->ReadString("Print","FontName",MainGrid->Font->Name);
-    PrintFontSize = Ini->ReadInteger("Print","FontSize",MainGrid->Font->Size);
-    PrintMargin[0] = Ini->ReadInteger("Print","MarginLeft",15);
-    PrintMargin[1] = Ini->ReadInteger("Print","MarginRight",15);
-    PrintMargin[2] = Ini->ReadInteger("Print","MarginTop",15);
-    PrintMargin[3] = Ini->ReadInteger("Print","MarginBottom",15);
-    PrintHeader = Ini->ReadString("Print", "Header", "%f");
-    PrintHeaderPosition = Ini->ReadInteger("Print", "HeaderPosition", 2);
-    PrintFooter = Ini->ReadString("Print", "Footer", "- %p -");
-    PrintFooterPosition = Ini->ReadInteger("Print", "FooterPosition", 2);
+  PrintFontName = ini.ReadString("Print", "FontName", MainGrid->Font->Name);
+  PrintFontSize = ini.ReadInteger("Print", "FontSize", MainGrid->Font->Size);
+  PrintMargin[0] = ini.ReadInteger("Print", "MarginLeft", 15);
+  PrintMargin[1] = ini.ReadInteger("Print", "MarginRight", 15);
+  PrintMargin[2] = ini.ReadInteger("Print", "MarginTop", 15);
+  PrintMargin[3] = ini.ReadInteger("Print", "MarginBottom", 15);
+  PrintHeader = ini.ReadString("Print", "Header", "%f");
+  PrintHeaderPosition = ini.ReadInteger("Print", "HeaderPosition", 2);
+  PrintFooter = ini.ReadString("Print", "Footer", "- %p -");
+  PrintFooterPosition = ini.ReadInteger("Print", "FooterPosition", 2);
 
-    int TypeCount = Ini->ReadInteger("DataType","Count", 0);
-    if(TypeCount > 0){
-      TTypeList newTypeList;
-      for(int i=0; i<TypeCount; i++){
-        String Section = (String)"DataType:" + i;
-        TTypeOption option;
-        option.Name = Ini->ReadString(Section, "Name", L"[V‹K]");
-        String exts = Ini->ReadString(Section, "Exts", "csv");
-        option.SetExts(exts);
-        option.ForceExt = Ini->ReadBool(Section, "ForceExt", false);
-        option.SepChars =
-            Ascii2Ctrl(Ini->ReadString(Section, "SepChars", ",\\t"));
-        option.WeakSepChars =
-            Ascii2Ctrl(Ini->ReadString(Section, "WeakSepChars", "\\_"));
-        option.QuoteChars =
-            Ascii2Ctrl(Ini->ReadString(Section, "QuoteChars", "\""));
-        option.QuoteOption =
-            (TQuoteOption) Ini->ReadInteger(Section, "Quote", QUOTE_NORMAL);
-        option.QuoteExpression =
-            Ini->ReadString(Section, "QuoteExpression", "");
-        option.OmitComma = Ini->ReadBool(Section, "OmitComma", true);
-        option.DummyEof = Ini->ReadBool(Section, "DummyEof", false);
-        option.DummyEol = Ini->ReadBool(Section, "DummyEol", false);
-        newTypeList.Add(option);
-      }
-      TypeList = newTypeList;
+  int TypeCount = ini.ReadInteger("DataType", "Count", 0);
+  if (TypeCount > 0) {
+    TTypeList newTypeList;
+    for (int i = 0; i < TypeCount; i++) {
+      String Section = (String)"DataType:" + i;
+      TTypeOption option;
+      option.Name = ini.ReadString(Section, "Name", L"[æ–°è¦]");
+      String exts = ini.ReadString(Section, "Exts", "csv");
+      option.SetExts(exts);
+      option.ForceExt = ini.ReadBool(Section, "ForceExt", false);
+      option.SepChars =
+          Ascii2Ctrl(ini.ReadString(Section, "SepChars", ",\\t"));
+      option.WeakSepChars =
+          Ascii2Ctrl(ini.ReadString(Section, "WeakSepChars", "\\_"));
+      option.QuoteChars =
+          Ascii2Ctrl(ini.ReadString(Section, "QuoteChars", "\""));
+      option.QuoteOption =
+          (TQuoteOption) ini.ReadInteger(Section, "Quote", QUOTE_NORMAL);
+      option.QuoteExpression =
+          ini.ReadString(Section, "QuoteExpression", "");
+      option.OmitComma = ini.ReadBool(Section, "OmitComma", true);
+      option.DummyEof = ini.ReadBool(Section, "DummyEof", false);
+      option.DummyEol = ini.ReadBool(Section, "DummyEol", false);
+      newTypeList.Add(option);
     }
+    TypeList = newTypeList;
+  }
 
-    BackupOnSave = Ini->ReadBool("Backup","OnSave",true);
-    BackupOnTime = Ini->ReadBool("Backup","OnTime",false);
-    BackupOnOpen = Ini->ReadBool("Backup","OnOpen",true);
-    BuFileNameS  = Ini->ReadString("Backup","FileNameS","%f.%x~");
-    BuFileNameT  = Ini->ReadString("Backup","FileNameT","#%f.%x#");
-    DelBuSSaved  = Ini->ReadBool("Backup","DeleteSSaved",
-      !(Ini->ValueExists("Backup","OnSave")));
-    DelBuSExit   = Ini->ReadBool("Backup","DeleteS",false);
-    DelBuT       = Ini->ReadBool("Backup","DeleteT",true);
-    BuInterval   = Ini->ReadInteger("Backup","Interval",5);
+  BackupOnSave = ini.ReadBool("Backup", "OnSave", true);
+  BackupOnTime = ini.ReadBool("Backup", "OnTime", false);
+  BackupOnOpen = ini.ReadBool("Backup", "OnOpen", true);
+  BuFileNameS = ini.ReadString("Backup", "FileNameS", "%f.%x~");
+  BuFileNameT = ini.ReadString("Backup", "FileNameT", "#%f.%x#");
+  DelBuSSaved = ini.ReadBool(
+      "Backup", "DeleteSSaved", !(ini.ValueExists("Backup", "OnSave")));
+  DelBuSExit = ini.ReadBool("Backup", "DeleteS", false);
+  DelBuT = ini.ReadBool("Backup", "DeleteT", true);
+  BuInterval = ini.ReadInteger("Backup", "Interval", 5);
 
-    int X = Ini->ReadInteger("Mode","Paste",-1);
-      MainGrid->PasteOption = X;
-      if(X >= 0) mnPasteNormal->Checked = false;
-      if     (X == 0) mnPasteOption0->Checked = true;
-      else if(X == 1) mnPasteOption1->Checked = true;
-      else if(X == 2) mnPasteOption2->Checked = true;
-      else if(X == 3) mnPasteOption3->Checked = true;
-      else if(X == 4) mnPasteOption4->Checked = true;
-      else if(X == 5) mnPasteOption5->Checked = true;
-    MainGrid->DragBehavior = (TDragBehavior)
-        Ini->ReadInteger("Mode", "DragCounter", dbMoveIfSelected);
-    MainGrid->EnterMove = Ini->ReadInteger("Mode","EnterMove",0);
+  int pasteOption = ini.ReadInteger("Mode", "Paste", -1);
+  MainGrid->PasteOption = pasteOption;
+  mnPasteNormal->Checked = (pasteOption < 0);
+  mnPasteOption0->Checked = (pasteOption == 0);
+  mnPasteOption1->Checked = (pasteOption == 1);
+  mnPasteOption2->Checked = (pasteOption == 2);
+  mnPasteOption3->Checked = (pasteOption == 3);
+  mnPasteOption4->Checked = (pasteOption == 4);
+  mnPasteOption5->Checked = (pasteOption == 5);
+  MainGrid->DragBehavior =
+      (TDragBehavior) ini.ReadInteger("Mode", "DragCounter", dbMoveIfSelected);
+  MainGrid->EnterMove = ini.ReadInteger("Mode", "EnterMove", 0);
 
-    int FixedRows = Ini->ReadInteger("Mode","FixTopRow",0);
-    int FixedCols = Ini->ReadInteger("Mode","FixLeftCol",0);
-    if(FixedRows + 1 >= MainGrid->RowCount){
-      MainGrid->ChangeRowCount(FixedRows + 2);
-    }
-    MainGrid->Row = FixedRows + 1;
-    if(FixedCols + 1 >= MainGrid->ColCount){
-      MainGrid->ChangeColCount(FixedCols + 2);
-    }
-    MainGrid->Col = FixedCols + 1;
-    mnFixUpLeftClick(this);
+  int FixedRows = ini.ReadInteger("Mode", "FixTopRow", 0);
+  int FixedCols = ini.ReadInteger("Mode", "FixLeftCol", 0);
+  if (FixedRows + 1 >= MainGrid->RowCount) {
+    MainGrid->ChangeRowCount(FixedRows + 2);
+  }
+  MainGrid->Row = FixedRows + 1;
+  if (FixedCols + 1 >= MainGrid->ColCount) {
+    MainGrid->ChangeColCount(FixedCols + 2);
+  }
+  MainGrid->Col = FixedCols + 1;
+  mnFixUpLeftClick(this);
 
-    MainGrid->ShowToolTipForLongCell
-      = Ini->ReadBool("Mode", "ShowToolTipForLongCell", false);
-    Application->HintPause
-      = Ini->ReadInteger("Mode","HintPause",Application->HintPause);
-    Application->HintHidePause
-      = Ini->ReadInteger("Mode","HintHidePause",Application->HintHidePause);
+  MainGrid->ShowToolTipForLongCell =
+      ini.ReadBool("Mode", "ShowToolTipForLongCell", false);
+  Application->HintPause =
+      ini.ReadInteger("Mode", "HintPause", Application->HintPause);
+  Application->HintHidePause =
+      ini.ReadInteger("Mode", "HintHidePause", Application->HintHidePause);
 
-    MainGrid->LeftArrowInCell = Ini->ReadBool("Mode","LeftArrowInCell",false);
-    MainGrid->WheelMoveCursol = Ini->ReadInteger("Mode","WheelMoveCursol",0);
-    MainGrid->WheelScrollStep = Ini->ReadInteger("Mode","WheelScrollStep",1);
-    MainGrid->AlwaysShowEditor = Ini->ReadBool("Mode","AlwaysShowEditor",true);
-    SortAll = Ini->ReadBool("Mode","SortAll",false);
-    int UseURL = Ini->ReadInteger("Mode","UseURL",1);
-      MainGrid->ShowURLBlue     = UseURL;
-      MainGrid->DblClickOpenURL = UseURL;
-    MakeNewWindow = Ini->ReadBool("Mode","NewWindow",false);
-    TitleFullPath = Ini->ReadBool("Mode","TitleFullPath",false);
-    LockFile = Ini->ReadInteger("Mode","LockFile",0);
-    LockingFile = nullptr;
-    CheckTimeStamp = Ini->ReadBool("Mode","CheckTimeStamp", true);
-    SortByNumber = Ini->ReadBool("Mode","SortByNumber",true);
-    SortIgnoreCase = Ini->ReadBool("Mode", "SortIgnoreCase", false);
-    SortIgnoreZenhan = Ini->ReadBool("Mode", "SortIgnoreZenhan", false);
-    SortDirection = Ini->ReadInteger("Mode", "SortDirection", 0);
-    EncodingDetector.Enabled = Ini->ReadBool("Mode", "CheckKanji", true);
-    EncodingDetector.DefaultEncoding =
-        ToEncoding(Ini->ReadInteger("Mode", "DefaultCharCode", CHARCODE_UTF8));
-    if (FileName == "") {
-      MainGrid->Encoding = EncodingDetector.DefaultEncoding;
-    }
-    MainGrid->CompactColWidth =
-        Ini->ReadBool("Mode","CompactColWidth", true);
-    MainGrid->CalcWidthForAllRow =
-        Ini->ReadBool("Mode","CalcWidthForAllRow", 0);
-    MainGrid->MaxRowHeightLines =
-        Ini->ReadFloat("Mode", "MaxRowHeightLines", 1.5);
-    StopMacroCount = Ini->ReadInteger("Mode","StopMacro", 0);
-    MainGrid->UndoList->MaxCount = Ini->ReadInteger("Mode", "UndoCount", 100);
+  MainGrid->LeftArrowInCell = ini.ReadBool("Mode", "LeftArrowInCell", false);
+  MainGrid->WheelMoveCursol = ini.ReadInteger("Mode", "WheelMoveCursol", 0);
+  MainGrid->WheelScrollStep = ini.ReadInteger("Mode", "WheelScrollStep", 1);
+  MainGrid->AlwaysShowEditor = ini.ReadBool("Mode", "AlwaysShowEditor", true);
+  SortAll = ini.ReadBool("Mode", "SortAll", false);
+  int useURL = ini.ReadInteger("Mode", "UseURL", 1);
+  MainGrid->ShowURLBlue = useURL;
+  MainGrid->DblClickOpenURL = useURL;
+  MakeNewWindow = ini.ReadBool("Mode", "NewWindow", false);
+  TitleFullPath = ini.ReadBool("Mode", "TitleFullPath", false);
+  LockFile = ini.ReadInteger("Mode", "LockFile", 0);
+  LockingFile = nullptr;
+  CheckTimeStamp = ini.ReadBool("Mode", "CheckTimeStamp", true);
+  SortByNumber = ini.ReadBool("Mode", "SortByNumber", true);
+  SortIgnoreCase = ini.ReadBool("Mode", "SortIgnoreCase", false);
+  SortIgnoreZenhan = ini.ReadBool("Mode", "SortIgnoreZenhan", false);
+  SortDirection = ini.ReadInteger("Mode", "SortDirection", 0);
+  EncodingDetector.Enabled = ini.ReadBool("Mode", "CheckKanji", true);
+  EncodingDetector.DefaultEncoding =
+      ToEncoding(ini.ReadInteger("Mode", "DefaultCharCode", CHARCODE_UTF8));
+  if (FileName == "") {
+    MainGrid->Encoding = EncodingDetector.DefaultEncoding;
+  }
+  MainGrid->CompactColWidth = ini.ReadBool("Mode","CompactColWidth", true);
+  MainGrid->CalcWidthForAllRow = ini.ReadBool("Mode","CalcWidthForAllRow", 0);
+  MainGrid->MaxRowHeightLines = ini.ReadFloat("Mode", "MaxRowHeightLines", 1.5);
+  StopMacroCount = ini.ReadInteger("Mode", "StopMacro", 0);
+  MainGrid->UndoList->MaxCount = ini.ReadInteger("Mode", "UndoCount", 100);
 
-    fmFind->cbCase->Checked = Ini->ReadBool("Search", "Case", false);
-    fmFind->cbWordSearch->Checked = Ini->ReadBool("Search", "Word", false);
-    fmFind->cbRegex->Checked = Ini->ReadBool("Search", "Regex", false);
-    fmFind->rgRange->ItemIndex = Ini->ReadInteger("Search", "Range", 3);
+  fmFind->cbCase->Checked = ini.ReadBool("Search", "Case", false);
+  fmFind->cbWordSearch->Checked = ini.ReadBool("Search", "Word", false);
+  fmFind->cbRegex->Checked = ini.ReadBool("Search", "Regex", false);
+  fmFind->rgRange->ItemIndex = ini.ReadInteger("Search", "Range", 3);
 
-    String LaunchName[3];
-    mnAppli0->Hint = Ini->ReadString("Application", "E0", "");
-    mnAppli0->Tag  = Ini->ReadBool("Application", "Q0", true);
-    mnAppli0->Enabled = (mnAppli0->Hint != "");
-    LaunchName[0]  = Ini->ReadString("Application", "N0", L"–¢İ’è");
-    mnAppli1->Hint = Ini->ReadString("Application", "E1", "");
-    mnAppli1->Tag  = Ini->ReadBool("Application", "Q1", true);
-    mnAppli1->Enabled = (mnAppli1->Hint != "");
-    LaunchName[1]  = Ini->ReadString("Application", "N1", L"–¢İ’è");
-    mnAppli2->Hint = Ini->ReadString("Application", "E2", "");
-    mnAppli2->Tag  = Ini->ReadBool("Application", "Q2", true);
-    mnAppli2->Enabled = (mnAppli2->Hint != "");
-    LaunchName[2]  = Ini->ReadString("Application", "N2", L"–¢İ’è");
-    MainGrid->BrowserFileName = Ini->ReadString("Application", "Browser", "");
-
-  History->Clear();
+  String LaunchName[3];
+  mnAppli0->Hint = ini.ReadString("Application", "E0", "");
+  mnAppli0->Tag = ini.ReadBool("Application", "Q0", true);
+  mnAppli0->Enabled = (mnAppli0->Hint != "");
+  LaunchName[0] = ini.ReadString("Application", "N0", L"æœªè¨­å®š");
+  mnAppli1->Hint = ini.ReadString("Application", "E1", "");
+  mnAppli1->Tag  = ini.ReadBool("Application", "Q1", true);
+  mnAppli1->Enabled = (mnAppli1->Hint != "");
+  LaunchName[1]  = ini.ReadString("Application", "N1", L"æœªè¨­å®š");
+  mnAppli2->Hint = ini.ReadString("Application", "E2", "");
+  mnAppli2->Tag  = ini.ReadBool("Application", "Q2", true);
+  mnAppli2->Enabled = (mnAppli2->Hint != "");
+  LaunchName[2]  = ini.ReadString("Application", "N2", L"æœªè¨­å®š");
+  MainGrid->BrowserFileName = ini.ReadString("Application", "Browser", "");
+  History.clear();
   for (int i = 0; i < 10; i++) {
-    String historyFile = Ini->ReadString("History", (String)i, "");
+    String historyFile = ini.ReadString("History", (String)i, "");
     if (historyFile != "") {
-      History->Add(historyFile);
+      History.push_back(historyFile);
     } else {
       break;
     }
   }
-  dlgOpenMacro->InitialDir = Ini->ReadString("History", "Macro", "");
+  dlgOpenMacro->InitialDir = ini.ReadString("History", "Macro", "");
 
-  delete Ini;
-
-  if(FileExists(Pref->Path + "AutoKey.csv"))
-  {
-    fmKey = new TfmKey(Application);
-      fmKey->MakeTree();
-      if(fmKey->LoadKey(Pref->Path + "AutoKey.csv"))
-        fmKey->MenuUpDate();
-    delete fmKey;
+  if (FileExists(Pref->Path + "AutoKey.csv")) {
+    std::unique_ptr<TfmKey> fmKey = std::make_unique<TfmKey>(nullptr);
+    fmKey->MakeTree();
+    if (fmKey->LoadKey(Pref->Path + "AutoKey.csv")) {
+      fmKey->MenuUpDate();
+    }
   }
 
   mnAppli0->Caption = (String)"&0: " + LaunchName[0];
@@ -511,156 +489,157 @@ void TfmMain::ReadIni()
 void TfmMain::WriteIni(bool PosSlide)
 {
   try {
-    IniFile *Ini = Pref->GetInifile();
+    IniFile ini = Pref->GetInifile();
     // Use the historical style names to be compatible with older versions.
-    Ini->WriteString(
+    ini.WriteString(
         "Mode", "Style", IsDarkMode(Style) ? "Windows10 Dark": "Windows");
-    Ini->WriteInteger("Position", "Mode", WindowState == wsMaximized ? 2 : 0);
-    if(WindowState == wsNormal){
+    ini.WriteInteger("Position", "Mode", WindowState == wsMaximized ? 2 : 0);
+    if (WindowState == wsNormal) {
       int Slide = PosSlide ? 32 : 0;
-      Ini->WriteInteger("Position","Left",Left+Slide);
-      Ini->WriteInteger("Position","Top",Top+Slide);
-      Ini->WriteInteger("Position","Width",Width);
-      Ini->WriteInteger("Position","Height",Height);
+      ini.WriteInteger("Position", "Left", Left+Slide);
+      ini.WriteInteger("Position", "Top", Top+Slide);
+      ini.WriteInteger("Position", "Width", Width);
+      ini.WriteInteger("Position", "Height", Height);
     }
-    Ini->WriteInteger("Position", "Dpi", ScreenDpi);
-    Ini->WriteString("Font","Name",MainGrid->Font->Name);
-    Ini->WriteInteger("Font","Size",MainGrid->Font->Size);
-    Ini->WriteInteger("Font","Bold",MainGrid->Font->Style.Contains(fsBold));
-    Ini->WriteInteger("Font","Italic",MainGrid->Font->Style.Contains(fsItalic));
-    Ini->WriteInteger("Font","Underline",MainGrid->Font->Style.Contains(fsUnderline));
-    Ini->WriteInteger("Font","StrikeOut",MainGrid->Font->Style.Contains(fsStrikeOut));
-    Ini->WriteInteger("Font","TBMargin",MainGrid->TBMargin);
-    Ini->WriteInteger("Font","LRMargin",MainGrid->LRMargin);
-    Ini->WriteInteger("Font","CellLineMargin",MainGrid->CellLineMargin);
-    Ini->WriteInteger("Font", "BgColor", MainGrid->Color);
-    Ini->WriteInteger("Font", "CalcBgColor", MainGrid->CalcBgColor);
-    Ini->WriteInteger("Font", "CalcErrorBgColor", MainGrid->CalcErrorBgColor);
-    Ini->WriteInteger("Font", "CalcErrorFgColor", MainGrid->CalcErrorFgColor);
-    Ini->WriteInteger("Font", "CalcFgColor", MainGrid->CalcFgColor);
-    Ini->WriteInteger("Font", "CurrentColBgColor", MainGrid->CurrentColBgColor);
-    Ini->WriteInteger("Font", "CurrentRowBgColor", MainGrid->CurrentRowBgColor);
-    Ini->WriteInteger("Font", "DummyBgColor", MainGrid->DummyBgColor);
-    Ini->WriteInteger("Font", "EvenRowBgColor", MainGrid->EvenRowBgColor);
-    Ini->WriteInteger("Font", "FgColor", MainGrid->Font->Color);
-    Ini->WriteInteger("Font", "FixFgColor", MainGrid->FixFgColor);
-    Ini->WriteInteger("Font", "FixedColor", MainGrid->FixedColor);
-    Ini->WriteInteger("Font", "FoundBgColor", MainGrid->FoundBgColor);
-    Ini->WriteInteger("Font", "UrlColor", MainGrid->UrlColor);
-    Ini->WriteBool("Font","WordWrap",MainGrid->WordWrap);
-    Ini->WriteInteger("Font","TextAlign", MainGrid->TextAlignment);
-    Ini->WriteInteger("Font","NumberComma", MainGrid->NumberComma);
-    Ini->WriteInteger("Font","DecimalDigits", MainGrid->DecimalDigits);
-    Ini->WriteInteger("Font","MinColWidth", MainGrid->MinColWidth);
+    ini.WriteInteger("Position", "Dpi", ScreenDpi);
+    ini.WriteString("Font", "Name", MainGrid->Font->Name);
+    ini.WriteInteger("Font", "Size", MainGrid->Font->Size);
+    ini.WriteInteger("Font", "Bold", MainGrid->Font->Style.Contains(fsBold));
+    ini.WriteInteger(
+        "Font", "Italic", MainGrid->Font->Style.Contains(fsItalic));
+    ini.WriteInteger(
+        "Font", "Underline", MainGrid->Font->Style.Contains(fsUnderline));
+    ini.WriteInteger(
+        "Font", "StrikeOut", MainGrid->Font->Style.Contains(fsStrikeOut));
+    ini.WriteInteger("Font", "TBMargin", MainGrid->TBMargin);
+    ini.WriteInteger("Font", "LRMargin", MainGrid->LRMargin);
+    ini.WriteInteger("Font", "CellLineMargin", MainGrid->CellLineMargin);
+    ini.WriteInteger("Font", "BgColor", MainGrid->Color);
+    ini.WriteInteger("Font", "CalcBgColor", MainGrid->CalcBgColor);
+    ini.WriteInteger("Font", "CalcErrorBgColor", MainGrid->CalcErrorBgColor);
+    ini.WriteInteger("Font", "CalcErrorFgColor", MainGrid->CalcErrorFgColor);
+    ini.WriteInteger("Font", "CalcFgColor", MainGrid->CalcFgColor);
+    ini.WriteInteger("Font", "CurrentColBgColor", MainGrid->CurrentColBgColor);
+    ini.WriteInteger("Font", "CurrentRowBgColor", MainGrid->CurrentRowBgColor);
+    ini.WriteInteger("Font", "DummyBgColor", MainGrid->DummyBgColor);
+    ini.WriteInteger("Font", "EvenRowBgColor", MainGrid->EvenRowBgColor);
+    ini.WriteInteger("Font", "FgColor", MainGrid->Font->Color);
+    ini.WriteInteger("Font", "FixFgColor", MainGrid->FixFgColor);
+    ini.WriteInteger("Font", "FixedColor", MainGrid->FixedColor);
+    ini.WriteInteger("Font", "FoundBgColor", MainGrid->FoundBgColor);
+    ini.WriteInteger("Font", "UrlColor", MainGrid->UrlColor);
+    ini.WriteBool("Font", "WordWrap", MainGrid->WordWrap);
+    ini.WriteInteger("Font", "TextAlign", MainGrid->TextAlignment);
+    ini.WriteInteger("Font", "NumberComma", MainGrid->NumberComma);
+    ini.WriteInteger("Font", "DecimalDigits", MainGrid->DecimalDigits);
+    ini.WriteInteger("Font", "MinColWidth", MainGrid->MinColWidth);
 
-    Ini->WriteString("Print","FontName",PrintFontName);
-    Ini->WriteInteger("Print","FontSize",PrintFontSize);
-    Ini->WriteInteger("Print","MarginLeft",PrintMargin[0]);
-    Ini->WriteInteger("Print","MarginRight",PrintMargin[1]);
-    Ini->WriteInteger("Print","MarginTop",PrintMargin[2]);
-    Ini->WriteInteger("Print","MarginBottom",PrintMargin[3]);
-    Ini->WriteString("Print", "Header", PrintHeader);
-    Ini->WriteInteger("Print", "HeaderPosition", PrintHeaderPosition);
-    Ini->WriteString("Print", "Footer", PrintFooter);
-    Ini->WriteInteger("Print", "FooterPosition", PrintFooterPosition);
+    ini.WriteString("Print", "FontName", PrintFontName);
+    ini.WriteInteger("Print", "FontSize", PrintFontSize);
+    ini.WriteInteger("Print", "MarginLeft", PrintMargin[0]);
+    ini.WriteInteger("Print", "MarginRight", PrintMargin[1]);
+    ini.WriteInteger("Print", "MarginTop", PrintMargin[2]);
+    ini.WriteInteger("Print", "MarginBottom", PrintMargin[3]);
+    ini.WriteString("Print", "Header", PrintHeader);
+    ini.WriteInteger("Print", "HeaderPosition", PrintHeaderPosition);
+    ini.WriteString("Print", "Footer", PrintFooter);
+    ini.WriteInteger("Print", "FooterPosition", PrintFooterPosition);
 
     int DataCount = TypeList.Count;
-    Ini->WriteInteger("DataType", "Count", DataCount);
-    for(int i=0; i<DataCount; i++){
+    ini.WriteInteger("DataType", "Count", DataCount);
+    for (int i = 0; i < DataCount; i++) {
       String Section = (String)"DataType:" + i;
       TTypeOption *TO = TypeList.Items(i);
-      Ini->WriteString(Section, "Name", TO->Name);
-      Ini->WriteString(Section, "Exts", TO->GetExtsStr(0));
-      Ini->WriteBool(Section, "ForceExt", TO->ForceExt);
-      Ini->WriteString(Section, "SepChars", Ctrl2Ascii(TO->SepChars));
-      Ini->WriteString(Section, "WeakSepChars", Ctrl2Ascii(TO->WeakSepChars));
-      Ini->WriteString(Section, "QuoteChars", Ctrl2Ascii(TO->QuoteChars));
-      Ini->WriteInteger(Section, "Quote", TO->QuoteOption);
-      Ini->WriteString(Section, "QuoteExpression", TO->QuoteExpression);
-      Ini->WriteBool(Section, "OmitComma", TO->OmitComma);
-      Ini->WriteBool(Section, "DummyEof", TO->DummyEof);
-      Ini->WriteBool(Section, "DummyEol", TO->DummyEol);
+      ini.WriteString(Section, "Name", TO->Name);
+      ini.WriteString(Section, "Exts", TO->GetExtsStr(0));
+      ini.WriteBool(Section, "ForceExt", TO->ForceExt);
+      ini.WriteString(Section, "SepChars", Ctrl2Ascii(TO->SepChars));
+      ini.WriteString(Section, "WeakSepChars", Ctrl2Ascii(TO->WeakSepChars));
+      ini.WriteString(Section, "QuoteChars", Ctrl2Ascii(TO->QuoteChars));
+      ini.WriteInteger(Section, "Quote", TO->QuoteOption);
+      ini.WriteString(Section, "QuoteExpression", TO->QuoteExpression);
+      ini.WriteBool(Section, "OmitComma", TO->OmitComma);
+      ini.WriteBool(Section, "DummyEof", TO->DummyEof);
+      ini.WriteBool(Section, "DummyEol", TO->DummyEol);
     }
 
-    Ini->WriteBool("Backup","OnSave",BackupOnSave);
-    Ini->WriteBool("Backup","OnTime",BackupOnTime);
-    Ini->WriteBool("Backup","OnOpen",BackupOnOpen);
-    Ini->WriteString("Backup","FileNameS",BuFileNameS);
-    Ini->WriteString("Backup","FileNameT",BuFileNameT);
-    Ini->WriteBool("Backup","DeleteSSaved",DelBuSSaved);
-    Ini->WriteBool("Backup","DeleteS",DelBuSExit);
-    Ini->WriteBool("Backup","DeleteT",DelBuT);
-    Ini->WriteInteger("Backup","Interval",BuInterval);
+    ini.WriteBool("Backup", "OnSave", BackupOnSave);
+    ini.WriteBool("Backup", "OnTime", BackupOnTime);
+    ini.WriteBool("Backup", "OnOpen", BackupOnOpen);
+    ini.WriteString("Backup", "FileNameS", BuFileNameS);
+    ini.WriteString("Backup", "FileNameT", BuFileNameT);
+    ini.WriteBool("Backup", "DeleteSSaved", DelBuSSaved);
+    ini.WriteBool("Backup", "DeleteS", DelBuSExit);
+    ini.WriteBool("Backup", "DeleteT", DelBuT);
+    ini.WriteInteger("Backup", "Interval", BuInterval);
 
-    Ini->WriteInteger("Mode","Paste",MainGrid->PasteOption);
-    Ini->WriteInteger("Mode", "DragCounter", MainGrid->DragBehavior);
-    Ini->WriteInteger("Mode","EnterMove",MainGrid->EnterMove);
-    Ini->WriteInteger("Mode","FixTopRow",
-      MainGrid->ShowColCounter ? 0 : MainGrid->FixedRows);
-    Ini->WriteInteger("Mode","FixLeftCol",
-      MainGrid->ShowRowCounter ? 0 : MainGrid->FixedCols);
-    Ini->WriteBool("Mode","ShowToolbar",mnShowToolbar->Checked);
-    Ini->WriteInteger("Mode", "ToolbarSize", ToolBarSize);
-    Ini->WriteBool("Mode","ShowStatusbar",mnShowStatusbar->Checked);
-    Ini->WriteBool("Mode", "ShowToolTipForLongCell",
-      MainGrid->ShowToolTipForLongCell);
-    Ini->WriteInteger("Mode","HintPause",Application->HintPause);
-    Ini->WriteInteger("Mode","HintHidePause",Application->HintHidePause);
-    Ini->WriteBool("Mode","LeftArrowInCell",MainGrid->LeftArrowInCell);
-    Ini->WriteInteger("Mode","WheelMoveCursol",MainGrid->WheelMoveCursol);
-    Ini->WriteInteger("Mode","WheelScrollStep",MainGrid->WheelScrollStep);
-    Ini->WriteBool("Mode","AlwaysShowEditor", MainGrid->AlwaysShowEditor);
-    Ini->WriteBool("Mode","SortAll", SortAll);
-    Ini->WriteInteger("Mode","UseURL", MainGrid->DblClickOpenURL);
+    ini.WriteInteger("Mode", "Paste", MainGrid->PasteOption);
+    ini.WriteInteger("Mode", "DragCounter", MainGrid->DragBehavior);
+    ini.WriteInteger("Mode", "EnterMove", MainGrid->EnterMove);
+    ini.WriteInteger("Mode", "FixTopRow",
+        MainGrid->ShowColCounter ? 0 : MainGrid->FixedRows);
+    ini.WriteInteger("Mode", "FixLeftCol",
+        MainGrid->ShowRowCounter ? 0 : MainGrid->FixedCols);
+    ini.WriteBool("Mode", "ShowToolbar", mnShowToolbar->Checked);
+    ini.WriteInteger("Mode", "ToolbarSize", ToolBarSize);
+    ini.WriteBool("Mode", "ShowStatusbar", mnShowStatusbar->Checked);
+    ini.WriteBool("Mode", "ShowToolTipForLongCell",
+        MainGrid->ShowToolTipForLongCell);
+    ini.WriteInteger("Mode", "HintPause", Application->HintPause);
+    ini.WriteInteger("Mode", "HintHidePause", Application->HintHidePause);
+    ini.WriteBool("Mode", "LeftArrowInCell", MainGrid->LeftArrowInCell);
+    ini.WriteInteger("Mode", "WheelMoveCursol", MainGrid->WheelMoveCursol);
+    ini.WriteInteger("Mode", "WheelScrollStep", MainGrid->WheelScrollStep);
+    ini.WriteBool("Mode", "AlwaysShowEditor", MainGrid->AlwaysShowEditor);
+    ini.WriteBool("Mode", "SortAll", SortAll);
+    ini.WriteInteger("Mode", "UseURL", MainGrid->DblClickOpenURL);
 
-    Ini->WriteBool("Mode", "NewWindow", MakeNewWindow);
-    Ini->WriteBool("Mode"," TitleFullPath", TitleFullPath);
-    Ini->WriteInteger("Mode", "LockFile", LockFile);
-    Ini->WriteBool("Mode", "CheckTimeStamp", CheckTimeStamp);
-    Ini->WriteBool("Mode", "SortByNumber", SortByNumber);
-    Ini->WriteBool("Mode", "SortIgnoreCase", SortIgnoreCase);
-    Ini->WriteBool("Mode", "SortIgnoreZenhan", SortIgnoreZenhan);
-    Ini->WriteBool("Mode", "SortDirection", SortDirection);
-    Ini->WriteBool("Mode", "CheckKanji", EncodingDetector.Enabled);
-    Ini->WriteInteger("Mode", "DefaultCharCode",
+    ini.WriteBool("Mode", "NewWindow", MakeNewWindow);
+    ini.WriteBool("Mode"," TitleFullPath", TitleFullPath);
+    ini.WriteInteger("Mode", "LockFile", LockFile);
+    ini.WriteBool("Mode", "CheckTimeStamp", CheckTimeStamp);
+    ini.WriteBool("Mode", "SortByNumber", SortByNumber);
+    ini.WriteBool("Mode", "SortIgnoreCase", SortIgnoreCase);
+    ini.WriteBool("Mode", "SortIgnoreZenhan", SortIgnoreZenhan);
+    ini.WriteBool("Mode", "SortDirection", SortDirection);
+    ini.WriteBool("Mode", "CheckKanji", EncodingDetector.Enabled);
+    ini.WriteInteger("Mode", "DefaultCharCode",
         ToCharCode(EncodingDetector.DefaultEncoding));
-    Ini->WriteBool("Mode", "CompactColWidth", MainGrid->CompactColWidth);
-    Ini->WriteBool("Mode", "CalcWidthForAllRow", MainGrid->CalcWidthForAllRow);
-    Ini->WriteFloat("Mode", "MaxRowHeightLines", MainGrid->MaxRowHeightLines);
-    Ini->WriteInteger("Mode", "StopMacro", StopMacroCount);
-    Ini->WriteInteger("Mode", "UndoCount", MainGrid->UndoList->MaxCount);
+    ini.WriteBool("Mode", "CompactColWidth", MainGrid->CompactColWidth);
+    ini.WriteBool("Mode", "CalcWidthForAllRow", MainGrid->CalcWidthForAllRow);
+    ini.WriteFloat("Mode", "MaxRowHeightLines", MainGrid->MaxRowHeightLines);
+    ini.WriteInteger("Mode", "StopMacro", StopMacroCount);
+    ini.WriteInteger("Mode", "UndoCount", MainGrid->UndoList->MaxCount);
 
-    Ini->WriteBool("Search", "Case", fmFind->cbCase->Checked);
-    Ini->WriteBool("Search", "Word", fmFind->cbWordSearch->Checked);
-    Ini->WriteBool("Search", "Regex", fmFind->cbRegex->Checked);
-    Ini->WriteInteger("Search", "Range", fmFind->rgRange->ItemIndex);
+    ini.WriteBool("Search", "Case", fmFind->cbCase->Checked);
+    ini.WriteBool("Search", "Word", fmFind->cbWordSearch->Checked);
+    ini.WriteBool("Search", "Regex", fmFind->cbRegex->Checked);
+    ini.WriteInteger("Search", "Range", fmFind->rgRange->ItemIndex);
 
-    Ini->WriteString("Application", "E0", mnAppli0->Hint);
-    Ini->WriteString("Application", "N0", mnAppli0->Caption.c_str() + 4);
-    Ini->WriteBool("Application", "Q0", mnAppli0->Tag);
-    Ini->WriteString("Application", "E1", mnAppli1->Hint);
-    Ini->WriteString("Application", "N1", mnAppli1->Caption.c_str() + 4);
-    Ini->WriteBool("Application", "Q1", mnAppli1->Tag);
-    Ini->WriteString("Application", "E2", mnAppli2->Hint);
-    Ini->WriteString("Application", "N2", mnAppli2->Caption.c_str() + 4);
-    Ini->WriteBool("Application", "Q2", mnAppli2->Tag);
-    Ini->WriteString("Application", "Browser", MainGrid->BrowserFileName);
+    ini.WriteString("Application", "E0", mnAppli0->Hint);
+    ini.WriteString("Application", "N0", mnAppli0->Caption.c_str() + 4);
+    ini.WriteBool("Application", "Q0", mnAppli0->Tag);
+    ini.WriteString("Application", "E1", mnAppli1->Hint);
+    ini.WriteString("Application", "N1", mnAppli1->Caption.c_str() + 4);
+    ini.WriteBool("Application", "Q1", mnAppli1->Tag);
+    ini.WriteString("Application", "E2", mnAppli2->Hint);
+    ini.WriteString("Application", "N2", mnAppli2->Caption.c_str() + 4);
+    ini.WriteBool("Application", "Q2", mnAppli2->Tag);
+    ini.WriteString("Application", "Browser", MainGrid->BrowserFileName);
 
-    for (int i = 0; i < History->Count; i++) {
-      Ini->WriteString("History", (String)i, History->Strings[i]);
+    for (int i = 0; i < History.size(); i++) {
+      ini.WriteString("History", (String)i, History[i]);
     }
-    for (int i = History->Count; i < 10; i++) {
-      Ini->DeleteKey("History", (String)i);
+    for (int i = History.size(); i < 10; i++) {
+      ini.DeleteKey("History", (String)i);
     }
     if (dlgOpenMacro->InitialDir != "" &&
         dlgOpenMacro->InitialDir != Pref->UserPath + "Macro") {
-      Ini->WriteString("History", "Macro", dlgOpenMacro->InitialDir);
+      ini.WriteString("History", "Macro", dlgOpenMacro->InitialDir);
     } else {
-      Ini->DeleteKey("History", "Macro");
+      ini.DeleteKey("History", "Macro");
     }
-
-    delete Ini;
-  }catch(...){}
+  } catch(...) {}
 }
 //---------------------------------------------------------------------------
 TToolButton *TfmMain::AddToolButton(String Label, String Name, String Action,
@@ -710,7 +689,7 @@ TToolButton *TfmMain::AddToolButton(String Label, String Name, String Action,
 //---------------------------------------------------------------------------
 void AddToImageCollection(TBitmap *Bitmap, TImageCollection *ImageCollection)
 {
-  TBitmap *maskBitmap = new TBitmap();
+  std::unique_ptr<TBitmap> maskBitmap = std::make_unique<TBitmap>();
   maskBitmap->Assign(Bitmap);
   maskBitmap->Mask(clSilver);
 
@@ -721,18 +700,14 @@ void AddToImageCollection(TBitmap *Bitmap, TImageCollection *ImageCollection)
   iconInfo.hbmMask = maskBitmap->Handle;
   iconInfo.hbmColor = Bitmap->Handle;
 
-  TIcon *icon = new TIcon();
+  std::unique_ptr<TIcon> icon = std::make_unique<TIcon>();
   icon->Handle = CreateIconIndirect(&iconInfo);
 
-  TMemoryStream *stream = new TMemoryStream();
-  icon->SaveToStream(stream);
+  std::unique_ptr<TMemoryStream> stream = std::make_unique<TMemoryStream>();
+  icon->SaveToStream(stream.get());
 
   ImageCollection->Images->Add()->SourceImages->Add()->Image
-      ->LoadFromStream(stream);
-
-  delete stream;
-  delete icon;
-  delete maskBitmap;
+      ->LoadFromStream(stream.get());
 }
 //---------------------------------------------------------------------------
 static inline int GetToolBarButtonSize(int ToolBarSize, int ScreenDpi)
@@ -769,17 +744,15 @@ TToolBar *TfmMain::AddToolBar(String Label, String ImageList, int Top, int Left)
       images = imlAdditional;
     }
   } else if (ImageList != "" && FileExists(imageListFileName)) {
-    TBitmap *imageListBitmap = new TBitmap();
+    std::unique_ptr<TBitmap> imageListBitmap = std::make_unique<TBitmap>();
     imageListBitmap->LoadFromFile(imageListFileName);
 
     TImageCollection *imageCollection = new TImageCollection(this);
     for (int x = 0; x < imageListBitmap->Width; x += 16) {
-      TBitmap *bitmap = new TBitmap(16, 16);
-      bitmap->Canvas->Draw(-x, 0, imageListBitmap);
-      AddToImageCollection(bitmap, imageCollection);
-      delete bitmap;
+      std::unique_ptr<TBitmap> bitmap = std::make_unique<TBitmap>(16, 16);
+      bitmap->Canvas->Draw(-x, 0, imageListBitmap.get());
+      AddToImageCollection(bitmap.get(), imageCollection);
     }
-    delete imageListBitmap;
 
     images = new TVirtualImageList(this);
     images->AutoFill = true;
@@ -796,40 +769,40 @@ TToolBar *TfmMain::AddToolBar(String Label, String ImageList, int Top, int Left)
 
   if (Label == "#1") {
     int width = 0;
-    width += AddToolButton("6", L"V‹Kì¬", "New", width, toolBar)->Width;
-    width += AddToolButton("7", L"ŠJ‚­", "OpenHistory", width, toolBar)->Width;
-    width += AddToolButton("8", L"ã‘‚«•Û‘¶", "Save", width, toolBar)->Width;
+    width += AddToolButton("6", L"æ–°è¦ä½œæˆ", "New", width, toolBar)->Width;
+    width += AddToolButton("7", L"é–‹ã", "OpenHistory", width, toolBar)->Width;
+    width += AddToolButton("8", L"ä¸Šæ›¸ãä¿å­˜", "Save", width, toolBar)->Width;
     width += AddToolButton("", "-", "", width, toolBar)->Width;
-    width += AddToolButton("0", L"Ø‚èæ‚è", "Cut", width, toolBar)->Width;
-    width += AddToolButton("1", L"ƒRƒs[", "Copy", width, toolBar)->Width;
-    width += AddToolButton("2", L"“\‚è•t‚¯", "Paste", width, toolBar)->Width;
+    width += AddToolButton("0", L"åˆ‡ã‚Šå–ã‚Š", "Cut", width, toolBar)->Width;
+    width += AddToolButton("1", L"ã‚³ãƒ”ãƒ¼", "Copy", width, toolBar)->Width;
+    width += AddToolButton("2", L"è²¼ã‚Šä»˜ã‘", "Paste", width, toolBar)->Width;
     width += AddToolButton("", "-", "", width, toolBar)->Width;
-    width += AddToolButton("3", L"Œ³‚É–ß‚·", "Undo", width, toolBar)->Width;
-    width += AddToolButton("4", L"‚â‚è’¼‚µ", "Redo", width, toolBar)->Width;
+    width += AddToolButton("3", L"å…ƒã«æˆ»ã™", "Undo", width, toolBar)->Width;
+    width += AddToolButton("4", L"ã‚„ã‚Šç›´ã—", "Redo", width, toolBar)->Width;
     toolBar->Width = width;
   } else if (Label == "#2") {
     int width = 0;
-    width += AddToolButton("0", L"ƒ\[ƒg", "Sort", width, toolBar)->Width;
+    width += AddToolButton("0", L"ã‚½ãƒ¼ãƒˆ", "Sort", width, toolBar)->Width;
     width += AddToolButton("", "-", "", width, toolBar)->Width;
-    width += AddToolButton("1", L"‚Ps‘}“ü", "InsRow", width, toolBar)->Width;
-    width += AddToolButton("2", L"‚P—ñ‘}“ü", "InsCol", width, toolBar)->Width;
-    width += AddToolButton("3", L"‚Psíœ", "CutRow", width, toolBar)->Width;
-    width += AddToolButton("4", L"‚P—ñíœ", "CutCol", width, toolBar)->Width;
+    width += AddToolButton("1", L"ï¼‘è¡ŒæŒ¿å…¥", "InsRow", width, toolBar)->Width;
+    width += AddToolButton("2", L"ï¼‘åˆ—æŒ¿å…¥", "InsCol", width, toolBar)->Width;
+    width += AddToolButton("3", L"ï¼‘è¡Œå‰Šé™¤", "CutRow", width, toolBar)->Width;
+    width += AddToolButton("4", L"ï¼‘åˆ—å‰Šé™¤", "CutCol", width, toolBar)->Width;
     width += AddToolButton("", "-", "", width, toolBar)->Width;
-    width += AddToolButton("5", L"ŒŸõE’uŠ·", "Find", width, toolBar)->Width;
+    width += AddToolButton("5", L"æ¤œç´¢ãƒ»ç½®æ›", "Find", width, toolBar)->Width;
     width += AddToolButton("", "-", "", width, toolBar)->Width;
     width +=
-        AddToolButton("6", L"•\¦‚ÌXV", "Refresh", width, toolBar)->Width;
-    width += AddToolButton("8", L"ƒtƒHƒ“ƒg", "Font", width, toolBar)->Width;
+        AddToolButton("6", L"è¡¨ç¤ºã®æ›´æ–°", "Refresh", width, toolBar)->Width;
+    width += AddToolButton("8", L"ãƒ•ã‚©ãƒ³ãƒˆ", "Font", width, toolBar)->Width;
     width += AddToolButton(
-        "12", L"ƒZƒ‹“àŒvZ®‚ğˆ—", "CalcExpression", width, toolBar)->Width;
+        "12", L"ã‚»ãƒ«å†…è¨ˆç®—å¼ã‚’å‡¦ç†", "CalcExpression", width, toolBar)->Width;
     width += AddToolButton("", "-", "", width, toolBar)->Width;
     width += AddToolButton(
-        "9", L"ƒJ[ƒ\ƒ‹ˆÊ’u‚Ü‚Å‚ğŒÅ’è", "FixUpLeft", width, toolBar)->Width;
+        "9", L"ã‚«ãƒ¼ã‚½ãƒ«ä½ç½®ã¾ã§ã‚’å›ºå®š", "FixUpLeft", width, toolBar)->Width;
     width += AddToolButton(
-        "10", L"‚Ps–Ú‚ğŒÅ’è", "FixFirstRow", width, toolBar)->Width;
+        "10", L"ï¼‘è¡Œç›®ã‚’å›ºå®š", "FixFirstRow", width, toolBar)->Width;
     width += AddToolButton(
-        "11", L"‚P—ñ–Ú‚ğŒÅ’è", "FixFirstCol", width, toolBar)->Width;
+        "11", L"ï¼‘åˆ—ç›®ã‚’å›ºå®š", "FixFirstCol", width, toolBar)->Width;
     toolBar->Width = width;
   } else {
     toolBar->Width = 0;
@@ -860,23 +833,20 @@ void TfmMain::ReadToolBar()
   TTypeOption typeOption("CSV");
   CsvReader reader(
       &typeOption, toolbarcsv, EncodingDetector.Detect(toolbarcsv));
-  TStringList *list = new TStringList();
-  reader.ReadLine(list);
-  if (list->Count == 0 || list->Strings[0] != "(Cassava-ToolBarSetting)") {
-    delete list;
+  std::vector<String> row;
+  reader.ReadLine(row);
+  if (row.size() == 0 || row[0] != "(Cassava-ToolBarSetting)") {
     return;
   }
   TToolBar *toolBar = nullptr;
   int width = 0;
   int tbarTop = 0;
   int tbarLeft = 0;
-  while (reader.ReadLine(list)) {
-    while (list->Count < 3) {
-      list->Add("");
-    }
-    String str0 = list->Strings[0];
-    String name = list->Strings[1];
-    String action = list->Strings[2];
+  while (reader.ReadLine(row)) {
+    row.resize(3);
+    String str0 = row[0];
+    String name = row[1];
+    String action = row[2];
 
     if (str0 != "" && str0[1] == '=') {
       tbarTop += CoolBar->RowSize;
@@ -900,7 +870,6 @@ void TfmMain::ReadToolBar()
   if (toolBar) {
     toolBar->Width = width;
   }
-  delete list;
   CoolBar->Visible = visible;
 }
 //---------------------------------------------------------------------------
@@ -938,10 +907,10 @@ void __fastcall TfmMain::UserToolBarAction(TObject *Sender)
       CmsFile = Pref->SharedPath + "Macro\\" + action;
     }
     if(FileExists(CmsFile)){
-      // ˆê’v‚·‚éƒtƒ@ƒCƒ‹‚ª‘¶İ‚·‚éê‡A‚»‚Ìƒtƒ@ƒCƒ‹‚ğÀs
+      // ä¸€è‡´ã™ã‚‹ãƒ•ã‚¡ã‚¤ãƒ«ãŒå­˜åœ¨ã™ã‚‹å ´åˆã€ãã®ãƒ•ã‚¡ã‚¤ãƒ«ã‚’å®Ÿè¡Œ
       MacroExec(CmsFile, nullptr);
     }else{
-      // ƒtƒ@ƒCƒ‹‚ª‘¶İ‚µ‚È‚¢ê‡AƒXƒNƒŠƒvƒg‚Æ‚µ‚ÄÀs
+      // ãƒ•ã‚¡ã‚¤ãƒ«ãŒå­˜åœ¨ã—ãªã„å ´åˆã€ã‚¹ã‚¯ãƒªãƒ—ãƒˆã¨ã—ã¦å®Ÿè¡Œ
       TCHAR c = *(action.LastChar());
       if(c != ';' && c != '}'){
         if(c != ')'){
@@ -993,30 +962,31 @@ void TfmMain::SetFilter()
   String OFilter = "";
   String SFilter = "";
   String FilterExt;
-  TStringList *AllExts = new TStringList;
+  std::vector<String> allExts;
   for (int i = 0; i < TypeList.Count; i++) {
     TTypeOption *p = TypeList.Items(i);
     FilterExt = "";
-    for(int j=0; j<p->Exts.size(); j++){
-      if(j > 0) FilterExt += ";";
+    for (int j = 0; j < p->Exts.size(); j++){
+      if (j > 0) FilterExt += ";";
       String str = p->Exts[j];
       FilterExt += "*." + str;
-      if(AllExts->IndexOf(str) < 0){ AllExts->Add(str); }
+      if (std::find(allExts.begin(), allExts.end(), str) == allExts.end()) {
+        allExts.push_back(str);
+      }
     }
-    if(i > 0){
+    if (i > 0) {
       OFilter += p->Name + " (" + FilterExt + ")|" + FilterExt + "|";
     }
     SFilter += p->Name + " (*." + p->DefExt() + ")|*." + p->DefExt() + "|";
   }
   FilterExt = "";
-  for(int i=0; i<AllExts->Count; i++){
-    if(i > 0) FilterExt += ";";
-    FilterExt += "*." + AllExts->Strings[i];
+  for (int i = 0; i < allExts.size(); i++){
+    if (i > 0) FilterExt += ";";
+    FilterExt += "*." + allExts[i];
   }
   String CFilter = (String)"Cassava (" + FilterExt + ")|" + FilterExt + "|";
-  dlgOpen->Filter = CFilter + OFilter + L"‚·‚×‚Ä‚Ìƒtƒ@ƒCƒ‹ (*.*)|*.*";
+  dlgOpen->Filter = CFilter + OFilter + L"ã™ã¹ã¦ã®ãƒ•ã‚¡ã‚¤ãƒ« (*.*)|*.*";
   dlgSave->Filter = SFilter;
-  delete AllExts;
 }
 //---------------------------------------------------------------------------
 inline TCHAR hex(int digit)
@@ -1111,7 +1081,8 @@ void __fastcall TfmMain::MainGridChangeModified(TObject *Sender)
   acSave->Enabled = modified;
   if (modified && LockFile == cssv_lfEdit && LockingFile == nullptr &&
       FileName != "") {
-    LockingFile = new TFileStream(FileName, fmOpenWrite|fmShareDenyWrite);
+    LockingFile =
+        std::make_unique<TFileStream>(FileName, fmOpenWrite|fmShareDenyWrite);
   }
   UpdateTitle();
 }
@@ -1162,8 +1133,8 @@ void __fastcall TfmMain::ApplicationActivate(System::TObject* Sender)
   if(FileAge(FileName, age)){
     if(age > TimeStamp){
       if(Application->MessageBox(
-        L"‘¼‚ÌƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚É‚æ‚Á‚Äƒtƒ@ƒCƒ‹‚ªXV‚³‚ê‚Ü‚µ‚½B\n"
-        L"Ä“Ç‚İ‚İ‚µ‚Ü‚·‚©H",
+        L"ä»–ã®ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã«ã‚ˆã£ã¦ãƒ•ã‚¡ã‚¤ãƒ«ãŒæ›´æ–°ã•ã‚Œã¾ã—ãŸã€‚\n"
+        L"å†èª­ã¿è¾¼ã¿ã—ã¾ã™ã‹ï¼Ÿ",
         FileName.c_str(), MB_YESNO + MB_ICONQUESTION) == IDYES){
         mnReloadClick(Sender);
       }
@@ -1196,7 +1167,7 @@ void __fastcall TfmMain::mnNewClick(TObject *Sender)
 {
   if (MakeNewWindow) {
     WriteIni(true);
-    _wspawnl(P_NOWAITO, ParamStr(0).c_str(), ParamStr(0).c_str(), nullptr);
+    SpawnProcess({ParamStr(0)});
   } else {
     if (IfModifiedThenSave()) {
       Clear();
@@ -1208,14 +1179,14 @@ void TfmMain::Clear()
 {
   MainGrid->Clear();
   if (mnFixFirstRow->Checked || mnFixFirstCol->Checked) {
-    // Clear() ‚Åƒtƒ@ƒCƒ‹“Ç‚İ‚İ‚ğ’†’f‚µ‚½Œã‚ÅŒÅ’è‰ğœ‚·‚é•K—v‚ª‚ ‚é
+    // Clear() ã§ãƒ•ã‚¡ã‚¤ãƒ«èª­ã¿è¾¼ã¿ã‚’ä¸­æ–­ã—ãŸå¾Œã§å›ºå®šè§£é™¤ã™ã‚‹å¿…è¦ãŒã‚ã‚‹
     if (mnFixFirstRow->Checked) {
       acFixFirstRowExecute(this);
     }
     if (mnFixFirstCol->Checked) {
       acFixFirstColExecute(this);
     }
-    // 1—ñ–ÚE1s–Ú‚Ì•‚ğ‰Šú’l‚É–ß‚·‚½‚ßAÄ“x Clear()
+    // 1åˆ—ç›®ãƒ»1è¡Œç›®ã®å¹…ã‚’åˆæœŸå€¤ã«æˆ»ã™ãŸã‚ã€å†åº¦ Clear()
     MainGrid->Clear();
   }
   FileName = "";
@@ -1227,8 +1198,7 @@ void TfmMain::Clear()
   UpdateStatusbar();
 
   if (LockingFile) {
-    delete LockingFile;
-    LockingFile = nullptr;
+    LockingFile.reset();
   }
 }
 //---------------------------------------------------------------------------
@@ -1237,13 +1207,12 @@ void TfmMain::OpenFile(String OpenFileName, int CharCode,
 {
   if(!FileExists(OpenFileName)){
     Application->MessageBox(
-      (L"ƒtƒ@ƒCƒ‹ " + OpenFileName + L" ‚Í‘¶İ‚µ‚Ü‚¹‚ñ").c_str(),
+      (L"ãƒ•ã‚¡ã‚¤ãƒ« " + OpenFileName + L" ã¯å­˜åœ¨ã—ã¾ã›ã‚“").c_str(),
       ExtractFileName(OpenFileName).c_str(), MB_ICONERROR);
     return;
   }
   if(LockingFile){
-    delete LockingFile;
-    LockingFile = nullptr;
+    LockingFile.reset();
   }
   if (Format == nullptr) {
     Format = TypeList.FindForFileName(OpenFileName);
@@ -1266,7 +1235,8 @@ void TfmMain::OpenFile(String OpenFileName, int CharCode,
 
   try{
     if(LockFile == cssv_lfOpen){
-      LockingFile = new TFileStream(FileName, fmOpenWrite|fmShareDenyWrite);
+      LockingFile =
+          std::make_unique<TFileStream>(FileName, fmOpenWrite|fmShareDenyWrite);
     }
   }catch(...){}
   try{
@@ -1289,8 +1259,7 @@ void __fastcall TfmMain::mnOpenClick(TObject *Sender)
       WriteIni(true);
       TStrings *files = dlgOpen->Files;
       for(int i=0; i<files->Count; i++){
-        _wspawnl(P_NOWAITO, ParamStr(0).c_str(), ParamStr(0).c_str(),
-            ((String)"\"" + files->Strings[i] + "\"").c_str(), nullptr);
+        SpawnProcess({ParamStr(0), files->Strings[i]});
       }
     }
     dlgOpen->Options >> ofAllowMultiSelect;
@@ -1312,8 +1281,7 @@ void __fastcall TfmMain::MainGridDropFiles(TObject *Sender, int iFiles,
   if(MakeNewWindow){
     WriteIni(true);
     for(int i=0; i<iFiles; i++){
-      _wspawnl(P_NOWAITO, ParamStr(0).c_str(), ParamStr(0).c_str(),
-          ((String)"\"" + DropFileNames[i] + "\"").c_str(), nullptr);
+      SpawnProcess({ParamStr(0), DropFileNames[i]});
     }
   }else{
     if(IfModifiedThenSave()){
@@ -1329,7 +1297,7 @@ void __fastcall TfmMain::mnReloadClick(TObject *Sender)
   String fileNameToReload = FileName;
   if (MainGrid->Modified) {
     int answer = Application->MessageBox(
-                     L"•ÒW’†‚Ì•ÏX‚ğ•Ê–¼‚Å•Û‘¶‚µ‚Ü‚·‚©H",
+                     L"ç·¨é›†ä¸­ã®å¤‰æ›´ã‚’åˆ¥åã§ä¿å­˜ã—ã¾ã™ã‹ï¼Ÿ",
                      CASSAVA_TITLE, MB_YESNOCANCEL + MB_ICONQUESTION);
     if (answer == IDYES) {
       mnSaveAsClick(Sender);
@@ -1348,7 +1316,7 @@ void __fastcall TfmMain::mnReloadCodeClick(TObject *Sender)
   String fileNameToReload = FileName;
   if (MainGrid->Modified) {
     int answer = Application->MessageBox(
-                     L"•ÒW’†‚Ì•ÏX‚ğ•Ê–¼‚Å•Û‘¶‚µ‚Ü‚·‚©H",
+                     L"ç·¨é›†ä¸­ã®å¤‰æ›´ã‚’åˆ¥åã§ä¿å­˜ã—ã¾ã™ã‹ï¼Ÿ",
                      CASSAVA_TITLE, MB_YESNOCANCEL + MB_ICONQUESTION);
     if (answer == IDYES) {
       mnSaveAsClick(Sender);
@@ -1363,7 +1331,7 @@ void __fastcall TfmMain::mnReloadCodeClick(TObject *Sender)
 String TfmMain::GetUiFileName()
 {
   if (FileName == "") {
-    return L"–³‘è";
+    return L"ç„¡é¡Œ";
   }
   return TitleFullPath ? FileName : ExtractFileName(FileName);
 }
@@ -1384,12 +1352,12 @@ bool TfmMain::IfModifiedThenSave()
 {
   if (MainGrid->Modified) {
     int a = Application->MessageBox(
-                (GetUiFileName() + L" ‚Ö‚Ì•ÏX‚ğ•Û‘¶‚µ‚Ü‚·‚©H").c_str(),
+                (GetUiFileName() + L" ã¸ã®å¤‰æ›´ã‚’ä¿å­˜ã—ã¾ã™ã‹ï¼Ÿ").c_str(),
                 CASSAVA_TITLE, MB_YESNOCANCEL + MB_ICONQUESTION);
     if (a == IDYES) {
       if (MainGrid->FileOpenThread) {
         Application->MessageBox(
-            L"ƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ‚ªŠ®—¹‚µ‚Ä‚¢‚È‚¢‚½‚ß•Û‘¶‚Å‚«‚Ü‚¹‚ñB",
+            L"ãƒ•ã‚¡ã‚¤ãƒ«ã®èª­ã¿è¾¼ã¿ãŒå®Œäº†ã—ã¦ã„ãªã„ãŸã‚ä¿å­˜ã§ãã¾ã›ã‚“ã€‚",
             CASSAVA_TITLE, MB_ICONERROR);
         return false;
       }
@@ -1419,7 +1387,7 @@ void TfmMain::SaveFile(const TTypeOption *Format)
 {
   if(MainGrid->FileOpenThread){
     Application->MessageBox(
-        L"ƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ‚ªŠ®—¹‚µ‚Ä‚¢‚È‚¢‚½‚ß•Û‘¶‚Å‚«‚Ü‚¹‚ñB",
+        L"ãƒ•ã‚¡ã‚¤ãƒ«ã®èª­ã¿è¾¼ã¿ãŒå®Œäº†ã—ã¦ã„ãªã„ãŸã‚ä¿å­˜ã§ãã¾ã›ã‚“ã€‚",
         CASSAVA_TITLE, MB_ICONERROR);
     return;
   }
@@ -1427,29 +1395,24 @@ void TfmMain::SaveFile(const TTypeOption *Format)
   if(FileName == "")
     mnSaveAsClick(this);
   else {
-    // ƒƒbƒN‚ğ‰ğœ
+    // ãƒ­ãƒƒã‚¯ã‚’è§£é™¤
     if(LockingFile){
-      delete LockingFile;
-      LockingFile = nullptr;
+      LockingFile.reset();
     }
 
-    // ƒoƒbƒNƒAƒbƒv‘O‚ÉAƒAƒNƒZƒXŒ ŒÀ‚ğŠm”F
-    if(FileExists(FileName)){
-      TFileStream *AccessTest = nullptr;
+    // ãƒãƒƒã‚¯ã‚¢ãƒƒãƒ—å‰ã«ã€ã‚¢ã‚¯ã‚»ã‚¹æ¨©é™ã‚’ç¢ºèª
+    if (FileExists(FileName)) {
+      std::unique_ptr<TFileStream> accessTest;
       try {
-        AccessTest = new TFileStream(FileName, fmOpenReadWrite|fmShareDenyWrite);
-        delete AccessTest;
-        AccessTest = nullptr;
-      }catch(Exception &ex){
-        if(AccessTest){
-          delete AccessTest;
-        }
+        accessTest = std::make_unique<TFileStream>(
+            FileName, fmOpenReadWrite|fmShareDenyWrite);
+      } catch(Exception &ex) {
         Application->ShowException(&ex);
         return;
       }
     }
 
-    // •K—v‚È‚ç‚ÎƒoƒbƒNƒAƒbƒv
+    // å¿…è¦ãªã‚‰ã°ãƒãƒƒã‚¯ã‚¢ãƒƒãƒ—
     String NewFile = "";
     try {
       if(BackupOnSave && FileExists(FileName)){
@@ -1459,12 +1422,12 @@ void TfmMain::SaveFile(const TTypeOption *Format)
       }
     }catch(...){}
 
-    // •Û‘¶
+    // ä¿å­˜
     MainGrid->SaveToFile(FileName, Format);
     SetHistory(FileName);
     FileAge(FileName, TimeStamp);
 
-    // •K—v‚È‚ç‚ÎƒoƒbƒNƒAƒbƒv‚ğíœ
+    // å¿…è¦ãªã‚‰ã°ãƒãƒƒã‚¯ã‚¢ãƒƒãƒ—ã‚’å‰Šé™¤
     try {
       if(NewFile != ""){
         if(BackupOnSave && DelBuSSaved){
@@ -1473,9 +1436,10 @@ void TfmMain::SaveFile(const TTypeOption *Format)
       }
     }catch(...){}
 
-    // •K—v‚È‚ç‚ÎÄ“xƒƒbƒN
+    // å¿…è¦ãªã‚‰ã°å†åº¦ãƒ­ãƒƒã‚¯
     if(LockFile == cssv_lfOpen){
-      LockingFile = new TFileStream(FileName, fmOpenWrite|fmShareDenyWrite);
+      LockingFile =
+          std::make_unique<TFileStream>(FileName, fmOpenWrite|fmShareDenyWrite);
     }
   }
 }
@@ -1489,7 +1453,7 @@ void __fastcall TfmMain::mnSaveAsClick(TObject *Sender)
 {
   if (FileName == "") {
     const TTypeOption *typeOption = MainGrid->TypeOption;
-    dlgSave->FileName = L"–³‘è." + typeOption->DefExt();
+    dlgSave->FileName = L"ç„¡é¡Œ." + typeOption->DefExt();
   } else {
     dlgSave->InitialDir = ExtractFilePath(FileName);
     dlgSave->FileName = ExtractFileName(FileName);
@@ -1533,64 +1497,66 @@ void __fastcall TfmMain::tmAutoSaverTimer(TObject *Sender)
   }catch(...){}
 }
 //---------------------------------------------------------------------------
-void TfmMain::GetCheckedMenus(TStringList *list)
+std::set<String> TfmMain::GetCheckedMenus()
 {
-  list->Clear();
+  std::set<String> checkedMenus;
   TMenuItem *items = MainMenu->Items;
-  for(int i=0; i<items->Count; i++){
-    AddCheckedMenus(list, items->Items[i]);
+  for (int i = 0; i < items->Count; i++) {
+    AddCheckedMenus(checkedMenus, items->Items[i]);
   }
+  return checkedMenus;
 }
 //---------------------------------------------------------------------------
-void TfmMain::AddCheckedMenus(TStringList *list, TMenuItem* item)
+void TfmMain::AddCheckedMenus(std::set<String>& checkedMenus, TMenuItem* item)
 {
    if (item == mnFile || item->Caption == "-") {
      return;
    }
 
-   if(item->Checked){
-     list->Add(item->Name);
+   if (item->Checked) {
+     checkedMenus.insert(item->Name);
    }
 
-   if(item->Count > 0){
-     for(int i=0; i<item->Count; i++){
-       AddCheckedMenus(list, item->Items[i]);
+   if (item->Count > 0) {
+     for (int i = 0; i < item->Count; i++) {
+       AddCheckedMenus(checkedMenus, item->Items[i]);
      }
    }
 }
 //---------------------------------------------------------------------------
-void TfmMain::RestoreCheckedMenus(TStringList *list)
+void TfmMain::RestoreCheckedMenus(const std::set<String>& checkedMenus)
 {
   TMenuItem *items = MainMenu->Items;
-  for(int i=0; i<items->Count; i++){
-    RestoreCheckedMenus(list, items->Items[i]);
+  for (int i = 0; i < items->Count; i++){
+    RestoreCheckedMenus(checkedMenus, items->Items[i]);
   }
 }
 //---------------------------------------------------------------------------
-void TfmMain::RestoreCheckedMenus(TStringList *list, TMenuItem* item)
+void TfmMain::RestoreCheckedMenus(const std::set<String>& checkedMenus,
+    TMenuItem* item)
 {
   if (item == mnFile || item->Caption == "-") {
     return;
   }
 
   bool isChecked = item->Checked;
-  bool toChecked = (list->IndexOf(item->Name) >= 0);
+  bool toChecked = (checkedMenus.count(item->Name) > 0);
   bool toChange;
-  if(item->GroupIndex > 0){
+  if (item->GroupIndex > 0) {
     toChange = (!isChecked && toChecked);
-  }else{
+  } else {
     toChange = (isChecked != toChecked);
   }
-  if(toChange){
-    if(item->OnClick){
+  if (toChange) {
+    if (item->OnClick) {
       item->OnClick(item);
     }
     item->Checked = toChecked;
   }
 
-  if(item->Count > 0){
-    for(int i=0; i<item->Count; i++){
-      RestoreCheckedMenus(list, item->Items[i]);
+  if (item->Count > 0) {
+    for (int i = 0; i < item->Count; i++) {
+      RestoreCheckedMenus(checkedMenus, item->Items[i]);
     }
   }
 }
@@ -1599,22 +1565,22 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
 {
   if(MainGrid->FileOpenThread){
     Application->MessageBox(
-      L"ƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ‚ªŠ®—¹‚µ‚Ä‚¢‚È‚¢‚½‚ßƒGƒNƒXƒ|[ƒg‚Å‚«‚Ü‚¹‚ñB",
+      L"ãƒ•ã‚¡ã‚¤ãƒ«ã®èª­ã¿è¾¼ã¿ãŒå®Œäº†ã—ã¦ã„ãªã„ãŸã‚ã‚¨ã‚¯ã‚¹ãƒãƒ¼ãƒˆã§ãã¾ã›ã‚“ã€‚",
       CASSAVA_TITLE, MB_ICONERROR);
     return;
   }
 
   String strFilter = "";
   String strOrgFilter = dlgSave->Filter;
-  TStringList *types = new TStringList;
+  std::vector<String> types;
   TSearchRec sr;
   if(FindFirst(Pref->UserPath+"Export\\*.cms", faAnyFile, sr) == 0){
     do{
       String type = ChangeFileExt(sr.Name,"");
       String ext = ExtractFileExt(type);
       if(ext == ""){ ext = (String)"." + type; }
-      strFilter += type.UpperCase() + L" Œ`® (*" + ext + ")|*" + ext + "|";
-      types->Add(type);
+      strFilter += type.UpperCase() + L" å½¢å¼ (*" + ext + ")|*" + ext + "|";
+      types.push_back(type);
     }while (FindNext(sr) == 0);
     FindClose(sr);
   }
@@ -1623,15 +1589,14 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
       String type = ChangeFileExt(sr.Name,"");
       String ext = ExtractFileExt(type);
       if(ext == ""){ ext = (String)"." + type; }
-      strFilter += type.UpperCase() + L" Œ`® (*" + ext + ")|*" + ext + "|";
-      types->Add(type);
+      strFilter += type.UpperCase() + L" å½¢å¼ (*" + ext + ")|*" + ext + "|";
+      types.push_back(type);
     }while (FindNext(sr) == 0);
     FindClose(sr);
   }
   if(strFilter == ""){
     Application->MessageBox(
-        L"ƒGƒNƒXƒ|[ƒg‰Â”\‚ÈŒ`®‚Í‚ ‚è‚Ü‚¹‚ñB", L"Cassava Export", 0);
-    delete types;
+        L"ã‚¨ã‚¯ã‚¹ãƒãƒ¼ãƒˆå¯èƒ½ãªå½¢å¼ã¯ã‚ã‚Šã¾ã›ã‚“ã€‚", L"Cassava Export", 0);
     return;
   }
   dlgSave->Filter = strFilter;
@@ -1639,7 +1604,7 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
   dlgSave->FileName = ChangeFileExt(ExtractFileName(dlgSave->FileName), "");
   if(dlgSave->Execute()){
     dlgSave->Filter = strOrgFilter;
-    String type = types->Strings[dlgSave->FilterIndex - 1];
+    String type = types[dlgSave->FilterIndex - 1];
     if(ExtractFileExt(dlgSave->FileName) == ""){
       String ext = ExtractFileExt(type);
       if(ext == ""){ ext = (String)"." + type; }
@@ -1648,7 +1613,6 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
     Export(dlgSave->FileName, type);
   }
   dlgSave->Filter = strOrgFilter;
-  delete types;
 }
 //---------------------------------------------------------------------------
 void TfmMain::Export(String filename, String type)
@@ -1659,50 +1623,42 @@ void TfmMain::Export(String filename, String type)
     }
     if(!FileExists(CmsFile)){
       Application->MessageBox(
-          (type + L" Œ`®‚Å‚ÍƒGƒNƒXƒ|[ƒg‚Å‚«‚Ü‚¹‚ñB").c_str(),
+          (type + L" å½¢å¼ã§ã¯ã‚¨ã‚¯ã‚¹ãƒãƒ¼ãƒˆã§ãã¾ã›ã‚“ã€‚").c_str(),
           L"Cassava Export", 0);
       return;
     }
 
-    TStream *out = nullptr;
-    EncodedWriter *ew = nullptr;
-    TStringList *checkedMenus = nullptr;
-    try{
-      out = new TFileStream(filename, fmCreate | fmShareDenyWrite);
+    try {
+      std::unique_ptr<TStream> out =
+          std::make_unique<TFileStream>(filename, fmCreate | fmShareDenyWrite);
       TEncoding *encoding = MainGrid->Encoding;
       TReturnCode returnCode = MainGrid->ReturnCode;
       TReturnCode inCellReturnCode = MainGrid->InCellReturnCode;
       bool addBom = MainGrid->AddBom;
-      ew = new EncodedWriter(out, encoding, addBom);
-      checkedMenus = new TStringList();
-      GetCheckedMenus(checkedMenus);
+      EncodedWriter encodedWriter(out.get(), encoding, addBom);
+      std::set<String> checkedMenus = GetCheckedMenus();
 
-      MacroExec(CmsFile, ew);
+      MacroExec(CmsFile, &encodedWriter);
 
       RestoreCheckedMenus(checkedMenus);
       MainGrid->Encoding = encoding;
       MainGrid->ReturnCode = returnCode;
       MainGrid->InCellReturnCode = inCellReturnCode;
       MainGrid->AddBom = addBom;
-    }catch(Exception *e){
+    } catch(Exception *e) {
       Application->MessageBox(e->Message.c_str(),
                               L"Cassava Macro Interpreter", 0);
     }
-    if(checkedMenus) { delete checkedMenus; }
-    if(ew) { delete ew; }
-    if(out) { delete out; }
 }
 //---------------------------------------------------------------------------
 void TfmMain::SetHistory(String S)
 {
-  if(S != ""){
-    for(int i=History->Count-1; i>=0; i--){
-      if(History->Strings[i] == S) History->Delete(i);
-    }
-    History->Insert(0,S);
+  if (S != "") {
+    std::erase_if(History, [S](String value) { return value == S; });
+    History.insert(History.begin(), S);
   }
-  for(int i=History->Count-1; i>=10; i--){
-    History->Delete(i);
+  if (History.size() > 10) {
+    History.resize(10);
   }
 
   TMenuItem *MnHist[10] = {
@@ -1710,40 +1666,39 @@ void TfmMain::SetHistory(String S)
     mnOpenHistory4, mnOpenHistory5, mnOpenHistory6, mnOpenHistory7,
     mnOpenHistory8, mnOpenHistory9 };
 
-  for(int i=0; i<10; i++){
-    if(i < History->Count){
-      MnHist[i]->Caption = (String)"&" + i + ": " + History->Strings[i];
+  for (int i = 0; i < 10; i++) {
+    if (i < History.size()){
+      MnHist[i]->Caption = (String)"&" + i + ": " + History[i];
       MnHist[i]->Enabled = true;
       MnHist[i]->Visible = true;
     } else {
       MnHist[i]->Visible = false;
-      MnHist[i]->Caption = (String)"&" + i + L": (‚È‚µ)";
+      MnHist[i]->Caption = (String)"&" + i + L": (ãªã—)";
     }
   }
-  if(History->Count == 0){
+  if (History.size() == 0) {
     mnOpenHistory0->Enabled = false;
     mnOpenHistory0->Visible = true;
   }
 }
 //---------------------------------------------------------------------------
-void __fastcall TfmMain::mnOpenHistorysClick(TObject *Sender)
+void __fastcall TfmMain::mnOpenHistoryClick(TObject *Sender)
 {
   int Num = static_cast<TMenuItem *>(Sender)->Tag;
-  String FN = History->Strings[Num];
+  String FN = History[Num];
 
-  if(!FileExists(FN)){
-    History->Delete(Num);
+  if (!FileExists(FN)) {
+    History.erase(History.begin() + Num);
     SetHistory("");
     Application->MessageBox(
-      (L"ƒtƒ@ƒCƒ‹ " + FN + L" ‚Í‘¶İ‚µ‚Ü‚¹‚ñ").c_str(),
+      (L"ãƒ•ã‚¡ã‚¤ãƒ« " + FN + L" ã¯å­˜åœ¨ã—ã¾ã›ã‚“").c_str(),
       ExtractFileName(FN).c_str(), MB_ICONERROR);
     return;
   }
 
   if(MakeNewWindow){
     WriteIni(true);
-    _wspawnl(P_NOWAITO, ParamStr(0).c_str(), ParamStr(0).c_str(),
-        ((String)"\"" + FN + "\"").c_str(), nullptr);
+    SpawnProcess({ParamStr(0), FN});
   }else{
     if(IfModifiedThenSave()) {
       OpenFile(FN);
@@ -1760,18 +1715,18 @@ void __fastcall TfmMain::PopMenuOpenPopup(TObject *Sender)
     delete OldItem;
   }
 
-  for(int i=0; i<History->Count; i++){
+  for (int i = 0; i < History.size(); i++) {
     TMenuItem *NewItem = new TMenuItem(mi->Owner);
-    NewItem->Caption = (String)"&" + i + ": " + History->Strings[i];
+    NewItem->Caption = (String)"&" + i + ": " + History[i];
     NewItem->Tag = i;
-    NewItem->OnClick = mnOpenHistorysClick;
+    NewItem->OnClick = mnOpenHistoryClick;
     mi->Add(NewItem);
   }
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnOpenHistoryClearClick(TObject *Sender)
 {
-  History->Clear();
+  History.clear();
   SetHistory("");
 }
 //---------------------------------------------------------------------------
@@ -1787,16 +1742,14 @@ void __fastcall TfmMain::mnOpenCellFileClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnPrintClick(TObject *Sender)
 {
-  fmPrint = new TfmPrint(Application);
-    fmPrint->ShowModal();
-  delete fmPrint;
+  std::unique_ptr<TfmPrint> fmPrint = std::make_unique<TfmPrint>(nullptr);
+  fmPrint->ShowModal();
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnLetterPrintClick(TObject *Sender)
 {
-  fmLetter = new TfmLetter(Application);
-    fmLetter->ShowModal();
-  delete fmLetter;
+  std::unique_ptr<TfmLetter> fmLetter = std::make_unique<TfmLetter>(nullptr);
+  fmLetter->ShowModal();
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnEndClick(TObject *Sender)
@@ -2291,7 +2244,7 @@ void __fastcall TfmMain::StatusBarContextPopup(TObject *Sender,
   }
 
   PopMenuStatusBar->Items->Clear();
-  TStringList *items = new TStringList;
+  std::unique_ptr<TStringList> items = std::make_unique<TStringList>();
   items->Text = StatusBarPopUp[panelIndex].Label;
   for (int i = 0; i < items->Count; i++) {
     TMenuItem *newItem = new TMenuItem(PopMenuStatusBar);
@@ -2300,7 +2253,6 @@ void __fastcall TfmMain::StatusBarContextPopup(TObject *Sender,
     newItem->OnClick = StatusBarPopUpClick;
     PopMenuStatusBar->Items->Add(newItem);
   }
-  delete items;
   PopMenuStatusBar->AutoPopup = true;
 }
 //---------------------------------------------------------------------------
@@ -2311,15 +2263,14 @@ void __fastcall TfmMain::StatusBarPopUpClick(TObject *Sender)
   if (StatusBarPopUp.count(panelIndex) == 0) {
     return;
   }
-  TStringList *arguments = new TStringList;
+  std::unique_ptr<TStringList> arguments = std::make_unique<TStringList>();
   arguments->Text = StatusBarPopUp[panelIndex].Label;
   String label = arguments->Strings[tag & 0xffff];
   arguments->Clear();
   arguments->Add(label);
   RunMacro(StatusBarPopUp[panelIndex].Handler, StopMacroCount,
       SystemMacroContext, -1, -1, /* ReadOnly= */ false, /* IO= */ nullptr,
-      arguments);
-  delete arguments;
+      arguments.get());
   UpdateStatusbar();
 }
 //---------------------------------------------------------------------------
@@ -2328,7 +2279,7 @@ void __fastcall TfmMain::acFixFirstRowExecute(TObject *Sender)
   if(MainGrid->FileOpenThread){
     mnFixFirstRow->Checked = !MainGrid->ShowColCounter;
     Application->MessageBox(
-        L"ƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ’†‚ÍŒÅ’èƒZƒ‹‚ğ•ÏX‚Å‚«‚Ü‚¹‚ñB",
+        L"ãƒ•ã‚¡ã‚¤ãƒ«ã®èª­ã¿è¾¼ã¿ä¸­ã¯å›ºå®šã‚»ãƒ«ã‚’å¤‰æ›´ã§ãã¾ã›ã‚“ã€‚",
         CASSAVA_TITLE, MB_ICONERROR);
     return;
   }
@@ -2347,7 +2298,7 @@ void __fastcall TfmMain::acFixFirstColExecute(TObject *Sender)
 {
   if(MainGrid->FileOpenThread){
     Application->MessageBox(
-        L"ƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ’†‚ÍŒÅ’èƒZƒ‹‚ğ•ÏX‚Å‚«‚Ü‚¹‚ñB",
+        L"ãƒ•ã‚¡ã‚¤ãƒ«ã®èª­ã¿è¾¼ã¿ä¸­ã¯å›ºå®šã‚»ãƒ«ã‚’å¤‰æ›´ã§ãã¾ã›ã‚“ã€‚",
         CASSAVA_TITLE, MB_ICONERROR);
     return;
   }
@@ -2366,7 +2317,7 @@ void __fastcall TfmMain::mnFixUpLeftClick(TObject *Sender)
 {
   if(MainGrid->FileOpenThread){
     Application->MessageBox(
-        L"ƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ’†‚ÍŒÅ’èƒZƒ‹‚ğ•ÏX‚Å‚«‚Ü‚¹‚ñB",
+        L"ãƒ•ã‚¡ã‚¤ãƒ«ã®èª­ã¿è¾¼ã¿ä¸­ã¯å›ºå®šã‚»ãƒ«ã‚’å¤‰æ›´ã§ãã¾ã›ã‚“ã€‚",
         CASSAVA_TITLE, MB_ICONERROR);
     return;
   }
@@ -2411,7 +2362,7 @@ void __fastcall TfmMain::mnUnFixClick(TObject *Sender)
 {
   if(MainGrid->FileOpenThread){
     Application->MessageBox(
-        L"ƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ’†‚ÍŒÅ’èƒZƒ‹‚ğ•ÏX‚Å‚«‚Ü‚¹‚ñB",
+        L"ãƒ•ã‚¡ã‚¤ãƒ«ã®èª­ã¿è¾¼ã¿ä¸­ã¯å›ºå®šã‚»ãƒ«ã‚’å¤‰æ›´ã§ãã¾ã›ã‚“ã€‚",
         CASSAVA_TITLE, MB_ICONERROR);
     return;
   }
@@ -2428,10 +2379,9 @@ void __fastcall TfmMain::mnUnFixClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnOptionDlgClick(TObject *Sender)
 {
-  fmOption = new TfmOption(Application);
+  std::unique_ptr<TfmOption> fmOption = std::make_unique<TfmOption>(nullptr);
   fmOption->ShowModal();
   UpdateTitle();
-  delete fmOption;
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnAppliClick(TObject *Sender)
@@ -2440,12 +2390,10 @@ void __fastcall TfmMain::mnAppliClick(TObject *Sender)
     if(MainGrid->Modified) return;
     TMenuItem *menuItem = static_cast<TMenuItem*>(Sender);
     String exe = menuItem->Hint;
-    String arg0 = (String)("\"") + exe + "\"";
     if(FileName == ""){
-      _wspawnl(P_NOWAITO, exe.c_str(), arg0.c_str(), nullptr);
+      SpawnProcess({exe});
     }else{
-      String arg1 = (String)("\"") + FileName + "\"";
-      _wspawnl(P_NOWAITO, exe.c_str(), arg0.c_str(), arg1.c_str(), nullptr);
+      SpawnProcess({exe, FileName});
     }
     if(menuItem->Tag){
       Close();
@@ -2549,13 +2497,12 @@ void __fastcall TfmMain::mnMacroOpenUserFolderClick(TObject *Sender)
   if(!DirectoryExists(path)){
     ForceDirectories(path);
   }
-  _wspawnlp(P_NOWAITO, L"Explorer.exe", L"/idlist", path.c_str(), nullptr);
+  ShellOpen({L"Explorer.exe", path});
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnMacroOpenFolderClick(TObject *Sender)
 {
-  _wspawnlp(P_NOWAITO, L"Explorer.exe", L"/idlist",
-            (Pref->SharedPath + "Macro").c_str(), nullptr);
+  ShellOpen({L"Explorer.exe", Pref->SharedPath + "Macro"});
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnMacroExecuteClick(TObject *Sender)
@@ -2602,7 +2549,7 @@ void __fastcall TfmMain::acMacroTerminateUpdate(TObject *Sender)
 void TfmMain::MacroExec(String CmsFile, EncodedWriter *io)
 {
   MainGrid->Cursor = crAppStart;
-  MainGrid->Hint = L"ƒ}ƒNƒ‚ğÀs’†‚Å‚·B";
+  MainGrid->Hint = L"ãƒã‚¯ãƒ­ã‚’å®Ÿè¡Œä¸­ã§ã™ã€‚";
   MainGrid->ShowHint = true;
   Application->Hint = MainGrid->Hint;
   ApplicationHint(nullptr);
@@ -2675,7 +2622,7 @@ TCalculatedCell TfmMain::GetCalculatedCell(String Str, int ACol, int ARow)
       result = TCalculatedCell(macroResult.string, ctOk);
     }
   }catch(...){
-    // ƒGƒ‰[—p‚ÌResultCell•¶š—ñ‚Íİ’èÏ‚İ
+    // ã‚¨ãƒ©ãƒ¼ç”¨ã®ResultCellæ–‡å­—åˆ—ã¯è¨­å®šæ¸ˆã¿
   }
   return result;
 }
@@ -2862,6 +2809,9 @@ void __fastcall TfmMain::mnSortClick(TObject *Sender)
     sortcol = MainGrid->Col;
   }
 
+  if (!fmSort) {
+    fmSort = new TfmSort(this);
+  }
   fmSort->udSortLeft->Position   = R.Left;
   fmSort->udSortTop->Position    = R.Top;
   fmSort->udSortRight->Position  = R.Right;
@@ -2875,6 +2825,9 @@ void __fastcall TfmMain::mnSortClick(TObject *Sender)
 void __fastcall TfmMain::mnpSortClick(TObject *Sender)
 {
   int sortcol = MainGrid->Selection.Left;
+  if (!fmSort) {
+    fmSort = new TfmSort(this);
+  }
   fmSort->udSortLeft->Position   = MainGrid->DataLeft;
   fmSort->udSortTop->Position    = MainGrid->DataTop;
   fmSort->udSortRight->Position  = MainGrid->DataRight;
@@ -2894,9 +2847,8 @@ void __fastcall TfmMain::sbSortClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnKeyClick(TObject *Sender)
 {
-  fmKey = new TfmKey(Application);
-    fmKey->ShowModal();
-  delete fmKey;
+  std::unique_ptr<TfmKey> fmKey = std::make_unique<TfmKey>(nullptr);
+  fmKey->ShowModal();
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnCharCodeClick(TObject *Sender)
@@ -3013,8 +2965,8 @@ void __fastcall TfmMain::mnCheckUpdateClick(TObject *Sender)
 void __fastcall TfmMain::mnAboutClick(TObject *Sender)
 {
   String message = "Cassava Editor\n   Ver. " + Version::CurrentText()
-    + L"\n   by ‚ ‚·‚©‚º\n                " + Version::CurrentDate();
-  Application->MessageBox(message.c_str(), L"ƒo[ƒWƒ‡ƒ“î•ñ", 0);
+    + L"\n   by ã‚ã™ã‹ãœ\n                " + Version::CurrentDate();
+  Application->MessageBox(message.c_str(), L"ãƒãƒ¼ã‚¸ãƒ§ãƒ³æƒ…å ±", 0);
 }
 //---------------------------------------------------------------------------
 

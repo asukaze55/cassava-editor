@@ -1,12 +1,11 @@
-//---------------------------------------------------------------------
+﻿//---------------------------------------------------------------------
 #include <vcl.h>
+#include "MainForm.h"
 #pragma hdrstop
 
 #include "MultiLineInputBox.h"
-#include "MainForm.h"
 //---------------------------------------------------------------------
 #pragma resource "*.dfm"
-TfmMultiLineInputBox *fmMultiLineInputBox;
 //--------------------------------------------------------------------- 
 __fastcall TfmMultiLineInputBox::TfmMultiLineInputBox(TComponent* AOwner)
   : TForm(AOwner)
@@ -16,20 +15,16 @@ __fastcall TfmMultiLineInputBox::TfmMultiLineInputBox(TComponent* AOwner)
 bool InputBoxMultiLine(
     const String ACaption, const String APrompt, String& AValue)
 {
-  TfmMultiLineInputBox *dialog = new TfmMultiLineInputBox(fmMain);
+  std::unique_ptr<TfmMultiLineInputBox> dialog =
+      std::make_unique<TfmMultiLineInputBox>(nullptr);
   dialog->Caption = ACaption;
   dialog->Label1->Caption = APrompt;
   dialog->Memo1->Lines->Text = AValue;
-  int result = dialog->ShowModal();
-  bool isOk;
-  if (result == mrOk) {
-    AValue = dialog->Memo1->Lines->Text;
-    isOk = true;
-  } else {
-    isOk = false;
+  if (dialog->ShowModal() != mrOk) {
+    return false;
   }
-  delete dialog;
-  return isOk;
+  AValue = dialog->Memo1->Lines->Text;
+  return true;
 }
 //---------------------------------------------------------------------
 

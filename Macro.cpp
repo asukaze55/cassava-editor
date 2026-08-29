@@ -1,15 +1,18 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
+#include <vcl.h>
+#include "MainForm.h"
+#pragma hdrstop
+
 #include <boost\regex.hpp>
 #include <cmath>
 #include <dialogs.hpp>
 #include <map>
 #include <process.h>
 #include <vector>
-#pragma hdrstop
+
 #include "Find.h"
 #include "Macro.h"
 #include "MacroOpeCode.h"
-#include "MainForm.h"
 #include "MultiLineInputBox.h"
 #include "AutoOpen.h"
 //---------------------------------------------------------------------------
@@ -18,7 +21,8 @@ using namespace std;
 //---------------------------------------------------------------------------
 enum ElementType {
   etErr,
-  etAtom,
+  etString,
+  etNumber,
   etVar,
   etCell,
   etSystem,
@@ -250,32 +254,25 @@ class TEnvironment;
 //---------------------------------------------------------------------------
 class Element {
 private:
-  String st;
-  double vl;
-  bool Num;
-  TEnvironment *env;
+  String st = "";
+  union {
+    double vl;
+    struct { int x; int y; } cell;
+  };
+  TEnvironment *env = nullptr;
   Element &GetVar() const;
 public:
   ElementType Type;
   bool isNum() const;
-  int X, Y;
-  Element() : Type(etErr), Num(true), vl(0), st(""), env(nullptr) {};
-  Element(double d) :
-      Type(etAtom), Num(true), vl(d), env(nullptr) {};
+
+  Element() : Type(etErr) {}
+  Element(double d) : Type(etNumber), vl(d) {}
   Element(double d, String s, ElementType t, TEnvironment *e) :
-      Type(t), Num(true), st(s), vl(d), env(e) {};
-  Element(String s) :
-      Type(etAtom), Num(false), st(s), env(nullptr) {};
-  Element(String s, ElementType t, TEnvironment *e) :
-      Type(t), Num(false), st(s), env(e) {};
-  Element(String s, ElementType t, bool nm, TEnvironment *e) :
-      Type(t), Num(nm), st(s), env(e) {};
-  Element(int cl, int rw, TEnvironment *e);
-  Element(int cl, int rw, bool nm, TEnvironment *e) :
-      Type(etCell), Num(nm), X(cl), Y(rw), env(e) {};
-  Element(const Element &e) :
-      st(e.st), vl(e.vl), Type(e.Type), Num(e.Num), X(e.X), Y(e.Y),
-      env(e.env) {};
+      Type(t), st(s), vl(d), env(e) {}
+  Element(String s) : Type(etString), st(s) {}
+  Element(String s, ElementType t, TEnvironment *e) : Type(t), st(s), env(e) {}
+  Element(int x, int y, TEnvironment *e) : Type(etCell), cell({x, y}), env(e) {}
+
   double Val() const;
   String Str() const;
   String Name() const { return st; }
@@ -289,54 +286,41 @@ public:
 class TEnvironment {
 private:
   TEnvironment *global;
-  std::vector<TEnvironment*> *objects;
+  std::vector<std::unique_ptr<TEnvironment>> objects;
 public:
   std::map<String, Element> Vars;
   bool ReadOnly;
   GridProxy *Grid;
 
   TEnvironment(bool readOnly, GridProxy *grid,  TEnvironment *gl) :
-      Vars(), ReadOnly(readOnly), Grid(grid), global(gl), objects(nullptr) {}
-  ~TEnvironment() {
-    if (objects) {
-      for (size_t i = 0; i < objects->size(); i++) {
-        delete objects->at(i);
-      }
-      delete objects;
-    }
-  }
+      Vars(), ReadOnly(readOnly), Grid(grid), global(gl) {}
+  TEnvironment(TEnvironment&& env) = default;
+
   TEnvironment *GetGlobal() { return global ? global : this; }
   TEnvironment CreateSubEnvironment() {
     return TEnvironment(ReadOnly, Grid, GetGlobal());
   }
-  TEnvironment *NewObject() {
-    return new TEnvironment(ReadOnly, Grid, GetGlobal());
+  std::unique_ptr<TEnvironment> NewObject() {
+    return std::make_unique<TEnvironment>(ReadOnly, Grid, GetGlobal());
   }
-  std::vector<TEnvironment*> *GetObjects() {
-    TEnvironment *gl = GetGlobal();
-    if (!gl->objects) {
-      gl->objects = new std::vector<TEnvironment*>();
-    }
-    return gl->objects;
+  std::vector<std::unique_ptr<TEnvironment>>& GetObjects() {
+    return GetGlobal()->objects;
   }
   TEnvironment *GetObject(int id) {
-    return GetObjects()->at(id);
+    return GetObjects()[id].get();
   }
 };
 //---------------------------------------------------------------------------
 class TMacro{
 private:
-  TStream *fs;
-  String ReadString(TStream *fs);
-  TStream *GetStreamFor(String FileName);
-  void ExecOpe(char c);
+  const TByteVector& GetByteVector(String FileName);
+  void ExecOpe(char c, size_t &p);
   void ExecMethod(String name, int H, const std::vector<Element>& ope,
                   bool isLambda);
   void ExecPrimitiveMethod(String s, int H, const std::vector<Element>& ope);
   void ExecFnc(String s);
   std::vector<Element> Stack;
   int LoopCount;
-  String FileName;
   bool canWriteFile;
   EncodedWriter *fs_io;
   const TMacroContext &Context;
@@ -347,8 +331,9 @@ public:
              int x = -1, int y = -1, Element *thisPtr = nullptr);
 
   TMacro(EncodedWriter *io, int ml, const TMacroContext &context,
-          TEnvironment e) :
-      fs_io(io), canWriteFile(io), MaxLoop(ml), Context(context), env(e) {}
+          TEnvironment&& e) :
+      fs_io(io), canWriteFile(io), MaxLoop(ml), Context(context),
+      env(std::move(e)) {}
 };
 //---------------------------------------------------------------------------
 static int RunningCount = 0;
@@ -369,12 +354,6 @@ double ToDouble(String str, double def)
   }
 }
 //---------------------------------------------------------------------------
-Element::Element(int cl, int rw, TEnvironment *e)
-    : Type(etCell), X(cl), Y(rw), env(e)
-{
-  Num = env->Grid->IsNumberAtACell(cl, rw);
-}
-//---------------------------------------------------------------------------
 Element &Element::GetVar() const
 {
   return env->Vars[st];
@@ -385,12 +364,12 @@ double Element::Val() const
   if (Type == etErr && st != "") {
     throw MacroException(st);
   } else if (Type == etCell) {
-    return ToDouble(env->Grid->GetCell(X, Y), 0);
+    return ToDouble(env->Grid->GetCell(cell.x, cell.y), 0);
   } else if(Type == etVar) {
     Element &e = GetVar();
     if (e.Type == etErr) {
       if (e.st != "") { throw MacroException(e.st); }
-      throw MacroException(L"’l‚ª‘ã“ü‚³‚ê‚Ä‚¢‚È‚¢•Ï”EƒtƒB[ƒ‹ƒh‚Å‚·F" + st);
+      throw MacroException(L"å€¤ãŒä»£å…¥ã•ã‚Œã¦ã„ãªã„å¤‰æ•°ãƒ»ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã§ã™ï¼š" + st);
     }
     return e.Val();
   } else if (Type == etSystem) {
@@ -402,7 +381,7 @@ double Element::Val() const
     else if(st == "SelTop")    { return env->Grid->GetSelTop(); }
     else if(st == "SelRight")  { return env->Grid->GetSelRight(); }
     else if(st == "SelBottom") { return env->Grid->GetSelBottom(); }
-  } else if (Num) {
+  } else if (Type == etNumber || Type == etObject) {
     return vl;
   }
   return ToDouble(st, 0);
@@ -413,12 +392,12 @@ String Element::Str() const
   if (Type == etErr && st != "") {
     throw MacroException(st);
   } else if (Type == etCell){
-    return env->Grid->GetCell(X, Y);
+    return env->Grid->GetCell(cell.x, cell.y);
   } else if (Type == etVar) {
     Element &e = GetVar();
     if (e.Type == etErr) {
       if (e.st != "") { throw MacroException(e.st); }
-      throw MacroException(L"’l‚ª‘ã“ü‚³‚ê‚Ä‚¢‚È‚¢•Ï”EƒtƒB[ƒ‹ƒh‚Å‚·F" + st);
+      throw MacroException(L"å€¤ãŒä»£å…¥ã•ã‚Œã¦ã„ãªã„å¤‰æ•°ãƒ»ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã§ã™ï¼š" + st);
     }
     return e.Str();
   } else if (Type == etSystem) {
@@ -437,7 +416,7 @@ String Element::Str() const
       s += it->first + ": ";
       if (it->second.Type == etObject) {
         s += "{...}";
-      } else if (it->second.Num) {
+      } else if (it->second.isNum()) {
         s += it->second.Str();
       } else if (it->second.Str().Pos("\n") > 0) {
         s += "...";
@@ -448,7 +427,7 @@ String Element::Str() const
     return s + "}";
   } else if (st != "") {
     return st;
-  } else if (Num) {
+  } else if (Type == etNumber) {
     return String(vl);
   }
   return st;
@@ -460,12 +439,12 @@ Element Element::Value() const
     Element& e = GetVar();
     if (e.Type == etErr) {
       if (e.st != "") { throw MacroException(e.st); }
-      throw MacroException(L"’l‚ª‘ã“ü‚³‚ê‚Ä‚¢‚È‚¢•Ï”EƒtƒB[ƒ‹ƒh‚Å‚·F" + st);
+      throw MacroException(L"å€¤ãŒä»£å…¥ã•ã‚Œã¦ã„ãªã„å¤‰æ•°ãƒ»ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã§ã™ï¼š" + st);
     }
     return e;
   } else if (Type == etCell) {
-    if (Num) {
-      return Element(Val(), Str(), etAtom, nullptr);
+    if (isNum()) {
+      return Element(Val(), Str(), etNumber, nullptr);
     }
     return Element(Str());
   } else if (Type == etSystem) {
@@ -479,9 +458,9 @@ bool Element::isNum() const
   if(Type == etVar){
     return GetVar().isNum();
   }else if(Type == etCell){
-    return env->Grid->IsNumberAtACell(X,Y);
+    return env->Grid->IsNumberAtACell(cell.x, cell.y);
   }
-  return Num;
+  return Type == etNumber || Type == etSystem;
 }
 //---------------------------------------------------------------------------
 void Element::Sbst(const Element &e)
@@ -537,9 +516,9 @@ void Element::Sbst(const Element &e)
       g->Select(Sel.Left, Sel.Top, Sel.Right, Sel.Bottom);
     }
   } else if (Type == etCell) {
-    env->Grid->SetCell(X, Y, e.Value().Str());
+    env->Grid->SetCell(cell.x, cell.y, e.Value().Str());
   } else {
-    throw MacroException(L"‘ã“üæ‚ª¶•Ó’l‚Å‚Í‚ ‚è‚Ü‚¹‚ñF" + Str());
+    throw MacroException(L"ä»£å…¥å…ˆãŒå·¦è¾ºå€¤ã§ã¯ã‚ã‚Šã¾ã›ã‚“ï¼š" + Str());
   }
 }
 //---------------------------------------------------------------------------
@@ -562,22 +541,6 @@ bool Element::HasMember(String name) const
     return false;
   }
   return env->GetObject(vl)->Vars.count(name) > 0;
-}
-//---------------------------------------------------------------------------
-String TMacro::ReadString(TStream *fs)
-{
-  int length;
-  if (fs->Read(&length, (int) sizeof(int)) == 0) {
-    return "";
-  }
-  if (length == 0) {
-    return "";
-  }
-  wchar_t *buffer = new wchar_t[length];
-  fs->Read(buffer, length * (int) sizeof(wchar_t));
-  String value = String(buffer, length);
-  delete[] buffer;
-  return value;
 }
 //---------------------------------------------------------------------------
 String NormalizeNewLine(String Val)
@@ -624,23 +587,23 @@ void TMacro::ExecMethod(String name, int H, const std::vector<Element>& ope,
   }
   String funcName = funcPtr.Str();
   try {
-    GetStreamFor(funcPtr.Str());
+    GetByteVector(funcPtr.Str());
   } catch (...) {
     throw MacroException(isLambda
-        ? L"ŠÖ”ƒIƒuƒWƒFƒNƒg‚Å‚Í‚ ‚è‚Ü‚¹‚ñF" + objName
-        : L"ƒƒ\ƒbƒh‚Å‚Í‚ ‚è‚Ü‚¹‚ñF" + objName + "." + name);
+        ? L"é–¢æ•°ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã§ã¯ã‚ã‚Šã¾ã›ã‚“ï¼š" + objName
+        : L"ãƒ¡ã‚½ãƒƒãƒ‰ã§ã¯ã‚ã‚Šã¾ã›ã‚“ï¼š" + objName + "." + name);
   }
   int slash = funcName.LastDelimiter("/");
   bool isVarArg = (funcName[slash + 1] == '+');
   int funcArity = funcName.SubString(slash + 1, funcName.Length()).ToIntDef(0);
   if (!isVarArg && funcArity != H - 1) {
-    throw MacroException(L"ˆø”‚Ì”‚ªˆê’v‚µ‚Ü‚¹‚ñB\n"
-        + (isLambda ? objName : name) + "/" + funcArity + L" ‚Éˆø”‚ª "
-        + (H - 1) + L" ŒÂ“n‚³‚ê‚Ä‚¢‚Ü‚·B");
+    throw MacroException(L"å¼•æ•°ã®æ•°ãŒä¸€è‡´ã—ã¾ã›ã‚“ã€‚\n"
+        + (isLambda ? objName : name) + "/" + funcArity + L" ã«å¼•æ•°ãŒ "
+        + (H - 1) + L" å€‹æ¸¡ã•ã‚Œã¦ã„ã¾ã™ã€‚");
   } else if (isVarArg && funcArity > H - 1) {
-    throw MacroException(L"ˆø”‚Ì”‚ªˆê’v‚µ‚Ü‚¹‚ñB\n"
-        + (isLambda ? objName : name) + L" ‚É‚Íˆø”‚ª " + funcArity
-        + L" ŒÂˆÈã•K—v‚Å‚·B");
+    throw MacroException(L"å¼•æ•°ã®æ•°ãŒä¸€è‡´ã—ã¾ã›ã‚“ã€‚\n"
+        + (isLambda ? objName : name) + L" ã«ã¯å¼•æ•°ãŒ " + funcArity
+        + L" å€‹ä»¥ä¸Šå¿…è¦ã§ã™ã€‚");
   }
 
   std::vector<Element> argStack;
@@ -654,8 +617,8 @@ void TMacro::ExecMethod(String name, int H, const std::vector<Element>& ope,
     Stack.push_back(r);
   } else {
     Stack.push_back(Element(isLambda
-        ? L"ŠÖ”ƒIƒuƒWƒFƒNƒg‚ª’l‚ğ•Ô‚µ‚Ü‚¹‚ñF" + objName
-        : L"ƒƒ\ƒbƒh‚Í’l‚ğ•Ô‚µ‚Ü‚¹‚ñF" + name + "/" + (H - 1), etErr, nullptr));
+        ? L"é–¢æ•°ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒå€¤ã‚’è¿”ã—ã¾ã›ã‚“ï¼š" + objName
+        : L"ãƒ¡ã‚½ãƒƒãƒ‰ã¯å€¤ã‚’è¿”ã—ã¾ã›ã‚“ï¼š" + name + "/" + (H - 1), etErr, nullptr));
   }
 }
 //---------------------------------------------------------------------------
@@ -815,7 +778,7 @@ void TMacro::ExecPrimitiveMethod(String s, int H,
     RegExp regExp = ParseRegExp(ope[1]);
     if (regExp.isRegExp && !regExp.isReplaceAll) {
       throw MacroException(
-          L"replaceAll ‚Åg—p‚·‚é³‹K•\Œ»‚É‚Í g ƒtƒ‰ƒO‚ª•K—v‚Å‚·F" + STR1);
+          L"replaceAll ã§ä½¿ç”¨ã™ã‚‹æ­£è¦è¡¨ç¾ã«ã¯ g ãƒ•ãƒ©ã‚°ãŒå¿…è¦ã§ã™ï¼š" + STR1);
     }
     regExp.isReplaceAll = true;
     Stack.push_back(Element(regExp.Replace(STR0, STR2)));
@@ -858,7 +821,7 @@ void TMacro::ExecPrimitiveMethod(String s, int H,
   } else if (s == "trimStart" && H == 1) {
     Stack.push_back(Element(STR0.TrimLeft()));
   } else {
-    throw MacroException(L"’è‹`‚³‚ê‚Ä‚¢‚È‚¢ƒƒ\ƒbƒh‚Å‚·F" + s + "/" + (H - 1));
+    throw MacroException(L"å®šç¾©ã•ã‚Œã¦ã„ãªã„ãƒ¡ã‚½ãƒƒãƒ‰ã§ã™ï¼š" + s + "/" + (H - 1));
   }
 }
 //---------------------------------------------------------------------------
@@ -871,7 +834,7 @@ void CallOnClick(TMenuItem *menuItem)
 //---------------------------------------------------------------------------
 class UserDialog {
  private:
-  TForm *Form;
+  std::unique_ptr<TForm> Form;
   std::map<TObject *, Element> ElementMap;
 
   TControl *ConvertDialogControl(
@@ -882,9 +845,6 @@ class UserDialog {
   String ReturnValue;
 
   UserDialog(const Element& element, String caption);
-  ~UserDialog() {
-    delete Form;
-  }
   void ShowModal() {
     Form->ShowModal();
   }
@@ -892,12 +852,13 @@ class UserDialog {
 //---------------------------------------------------------------------------
 UserDialog::UserDialog(const Element& element, String caption)
 {
-  Form = new TForm(fmMain);
+  Form = std::make_unique<TForm>(static_cast<TComponent*>(nullptr));
   Form->BorderStyle = bsDialog;
   Form->Caption = caption;
   Form->Position = poMainFormCenter;
   bool hasDefault = false;
-  TControl *control = ConvertDialogControl(element.Value(), Form, &hasDefault);
+  TControl *control =
+      ConvertDialogControl(element.Value(), Form.get(), &hasDefault);
   control->Left = 8;
   control->Top = 8;
   Form->ClientHeight = control->Height + 16;
@@ -909,7 +870,7 @@ TControl *UserDialog::ConvertDialogControl(
     const Element& element, TWinControl *parent, bool *hasDefault)
 {
   if (!element.HasMember("tagName")) {
-    TLabel *label = new TLabel(Form);
+    TLabel *label = new TLabel(Form.get());
     label->Parent = parent;
     label->Caption = element.Str();
     label->Height = Form->Canvas->TextHeight(label->Caption) + 12;
@@ -920,7 +881,7 @@ TControl *UserDialog::ConvertDialogControl(
   String tagName = element.GetMember("tagName").Str().UpperCase();
   Element childNodes = element.GetMember("childNodes").Value();
   if (tagName == "BUTTON") {
-    TButton *button = new TButton(Form);
+    TButton *button = new TButton(Form.get());
     button->Parent = parent;
     button->Caption =  childNodes.HasMember("0")
         ? childNodes.GetMember("0").Str(): (String)" ";
@@ -934,7 +895,7 @@ TControl *UserDialog::ConvertDialogControl(
     ElementMap[button] = element;
     return button;
   } else if (tagName == "INPUT") {
-    TEdit *edit = new TEdit(Form);
+    TEdit *edit = new TEdit(Form.get());
     edit->Parent = parent;
     int size = element.HasMember("size") ? element.GetMember("size").Val() : 20;
     edit->Width = 16 * size;
@@ -947,7 +908,7 @@ TControl *UserDialog::ConvertDialogControl(
     ElementMap[edit] = element;
     return edit;
   } else if (tagName == "TEXTAREA") {
-    TMemo *memo = new TMemo(Form);
+    TMemo *memo = new TMemo(Form.get());
     memo->Parent = parent;
     int cols = element.HasMember("cols") ? element.GetMember("cols").Val() : 20;
     memo->Width = 16 * cols;
@@ -968,7 +929,7 @@ TControl *UserDialog::ConvertDialogControl(
     ElementMap[memo] = element;
     return memo;
   } else {
-    TPanel *panel = new TPanel(Form);
+    TPanel *panel = new TPanel(Form.get());
     panel->BevelOuter = bvNone;
     panel->Parent = parent;
     int height = 0;
@@ -1025,7 +986,7 @@ void TMacro::ExecFnc(String s)
   ope.assign(Stack.end() - H, Stack.end());
   Stack.erase(Stack.end() - H, Stack.end());
 
-  String notFoundMessage = L"’è‹`‚³‚ê‚Ä‚¢‚È‚¢ŠÖ”‚Å‚·:" + s + "/" + H;
+  String notFoundMessage = L"å®šç¾©ã•ã‚Œã¦ã„ãªã„é–¢æ•°ã§ã™:" + s + "/" + H;
   if (s[1] == '.' || s[1] == '>') {
     bool isLambda = (s[1] == '>');
     s.Delete(1,1);
@@ -1041,7 +1002,7 @@ void TMacro::ExecFnc(String s)
       if (!isLambda) {
         throw;
       }
-      notFoundMessage = L"ŠÖ”ƒIƒuƒWƒFƒNƒg‚Å‚Í‚ ‚è‚Ü‚¹‚ñF" + ope[0].Name();
+      notFoundMessage = L"é–¢æ•°ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã§ã¯ã‚ã‚Šã¾ã›ã‚“ï¼š" + ope[0].Name();
     }
     H--;
     ope.erase(ope.begin());
@@ -1063,7 +1024,7 @@ void TMacro::ExecFnc(String s)
         }
       }
       if (minArgs < 0) {
-        throw MacroException(s + "/" + H + L"\nƒ†[ƒU[ŠÖ”‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB");
+        throw MacroException(s + "/" + H + L"\nãƒ¦ãƒ¼ã‚¶ãƒ¼é–¢æ•°ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚");
       }
     }
     std::vector<Element> argStack;
@@ -1075,12 +1036,12 @@ void TMacro::ExecFnc(String s)
       Stack.push_back(r);
     } else {
       Stack.push_back(
-          Element(L"ŠÖ”‚Í’l‚ğ•Ô‚µ‚Ü‚¹‚ñF" + s + "/" + H, etErr, nullptr));
+          Element(L"é–¢æ•°ã¯å€¤ã‚’è¿”ã—ã¾ã›ã‚“ï¼š" + s + "/" + H, etErr, nullptr));
     }
   }else if(s == "{}") {
-      std::vector<TEnvironment*> *objects = env.GetObjects();
-      Stack.push_back(Element(objects->size(), "", etObject, env.GetGlobal()));
-      objects->push_back(env.NewObject());
+      std::vector<std::unique_ptr<TEnvironment>>& objects = env.GetObjects();
+      Stack.push_back(Element(objects.size(), "", etObject, env.GetGlobal()));
+      objects.push_back(env.NewObject());
     }else if(s == "(constructor)") {
       Element obj = Stack.back();
       Element funcPtr = obj.GetMember("constructor");
@@ -1104,7 +1065,7 @@ void TMacro::ExecFnc(String s)
         throw MacroException("Can't show dialogs.", ME_SECURITY);
       }
       env.Grid->ApplyPendingChanges();
-      String text = (H >= 1 ? STR0 : L"ƒuƒŒ[ƒNƒ|ƒCƒ“ƒg‚Å‚·");
+      String text = (H >= 1 ? STR0 : L"ãƒ–ãƒ¬ãƒ¼ã‚¯ãƒã‚¤ãƒ³ãƒˆã§ã™");
       int flag = (H >= 2 ? ope[H - 1].Val() : MB_OK);
       String caption = (H >= 3 ? STR1 : L"Cassava Macro");
       Stack.push_back(Element(
@@ -1121,7 +1082,7 @@ void TMacro::ExecFnc(String s)
       if (isOk) {
         Stack.push_back(Element(Value));
       } else {
-        throw MacroException(L"ƒLƒƒƒ“ƒZƒ‹‚³‚ê‚Ü‚µ‚½B", ME_CANCELED);
+        throw MacroException(L"ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã•ã‚Œã¾ã—ãŸã€‚", ME_CANCELED);
       }
     }else if(s == "InputBoxMultiLine"){
       if (env.ReadOnly) {
@@ -1135,7 +1096,7 @@ void TMacro::ExecFnc(String s)
       if (isOk) {
         Stack.push_back(Element(NormalizeNewLine(Value)));
       } else {
-        throw MacroException(L"ƒLƒƒƒ“ƒZƒ‹‚³‚ê‚Ü‚µ‚½B", ME_CANCELED);
+        throw MacroException(L"ã‚­ãƒ£ãƒ³ã‚»ãƒ«ã•ã‚Œã¾ã—ãŸã€‚", ME_CANCELED);
       }
     }else if(s == "GetRowHeight" && H == 0){
       Stack.push_back(Element(env.Grid->Raw()->DefaultRowHeight));
@@ -1229,7 +1190,7 @@ void TMacro::ExecFnc(String s)
       const Element &value2 = ope[2].Value();
       if (value2.Type == etObject) {
         throw MacroException(
-            s + L" ‚Ì‘æ 3 ˆø”‚É‚ÍƒLƒƒƒvƒ`ƒƒ‚ğg—p‚µ‚È‚¢ƒ‰ƒ€ƒ_®‚ª•K—v‚Å‚·B");
+            s + L" ã®ç¬¬ 3 å¼•æ•°ã«ã¯ã‚­ãƒ£ãƒ—ãƒãƒ£ã‚’ä½¿ç”¨ã—ãªã„ãƒ©ãƒ ãƒ€å¼ãŒå¿…è¦ã§ã™ã€‚");
       }
       fmMain->StatusBarPopUp[VAL0] = {STR1, value2.Str()};
     }else if(s == "LoadIniSetting" && H == 0){
@@ -1237,13 +1198,11 @@ void TMacro::ExecFnc(String s)
     }else if(s == "SaveIniSetting" && H == 0){
       fmMain->WriteIni(false);
     }else if(s == "GetIniSetting" && H ==  2){
-      IniFile *Ini = fmMain->Pref->GetInifile();
-      Stack.push_back(Element(Ini->ReadString(STR0, STR1, "")));
-      delete Ini;
+      IniFile ini = fmMain->Pref->GetInifile();
+      Stack.push_back(Element(ini.ReadString(STR0, STR1, "")));
     }else if(s == "SetIniSetting" && H == 3){
-      IniFile *Ini = fmMain->Pref->GetInifile();
-      Ini->WriteString(STR0, STR1, STR2);
-      delete Ini;
+      IniFile ini = fmMain->Pref->GetInifile();
+      ini.WriteString(STR0, STR1, STR2);
     }else if(s == "GetFontName" && H == 0){
       Stack.push_back(Element(env.Grid->Raw()->Font->Name));
     }else if(s == "SetFontName" && H == 1){
@@ -1281,7 +1240,7 @@ void TMacro::ExecFnc(String s)
       } else if (encoding == "UTF-16BE") {
         CallOnClick(fmMain->mnUtf16be);
       } else {
-        throw MacroException(L"•¶šƒR[ƒh‚ª•s³‚Å‚·F" + STR0);
+        throw MacroException(L"æ–‡å­—ã‚³ãƒ¼ãƒ‰ãŒä¸æ­£ã§ã™ï¼š" + STR0);
       }
     } else if (s == "GetDataTypes" && H == 0) {
       TTypeList &typeList = fmMain->TypeList;
@@ -1298,7 +1257,7 @@ void TMacro::ExecFnc(String s)
     } else if (s == "SetActiveDataType" && H == 1) {
       int index = fmMain->TypeList.IndexOf(STR0, -1);
       if (index == -1) {
-        throw MacroException(L"ƒf[ƒ^Œ`®–¼‚ª•s³‚Å‚·F" + STR0);
+        throw MacroException(L"ãƒ‡ãƒ¼ã‚¿å½¢å¼åãŒä¸æ­£ã§ã™ï¼š" + STR0);
       }
       fmMain->MainGrid->TypeOption = fmMain->TypeList.Items(index);
     }else if(s == "write" || s == "writeln"){
@@ -1330,12 +1289,12 @@ void TMacro::ExecFnc(String s)
     }else if(s == "GetRecordedMacro" && H == 0) {
       Stack.push_back(Element(env.Grid->Raw()->UndoList->GetRecordedMacro()));
     }else if(s == "MacroTerminate" && H == 0) {
-      throw MacroException(L"’†’f‚³‚ê‚Ü‚µ‚½B", ME_CANCELED);
+      throw MacroException(L"ä¸­æ–­ã•ã‚Œã¾ã—ãŸã€‚", ME_CANCELED);
     }else if(s == "Clear" && H == 0) {
       fmMain->Clear();
     }else if(s == "End" && H == 0) {
       fmMain->Close();
-      throw MacroException(L"’†’f‚³‚ê‚Ü‚µ‚½B", ME_CANCELED);
+      throw MacroException(L"ä¸­æ–­ã•ã‚Œã¾ã—ãŸã€‚", ME_CANCELED);
     }else if(H == 0){
       env.Grid->ApplyPendingChanges();
       TMenuItem *menu = nullptr;
@@ -1426,7 +1385,7 @@ void TMacro::ExecFnc(String s)
     }else if(s == "Paste" && H == 1) {
       env.Grid->Raw()->PasteFromClipboard(VAL0);
     }else if(s == "random" && H == 1){
-      Stack.push_back(Element(random(VAL0)));
+      Stack.push_back(Element(Random(VAL0)));
     }else if(s == "cell" && H == 2){
       Stack.push_back(Element(VAL0, VAL1, &env));
     }else if(s == "left" && H == 2){
@@ -1519,19 +1478,18 @@ void TMacro::ExecFnc(String s)
         AutoOpen(FileName, ExtractFilePath(fmMain->FileName));
       }
     }else if(s == "ShellOpen" && H > 1){
-      wchar_t **argv = new wchar_t*[H+1];
-      for(int i=0; i<H; i++){
-        argv[i] = ope[i].Str().c_str();
+      std::vector<String> params;
+      params.reserve(H);
+      for (const Element& e : ope) {
+        params.push_back(e.Str());
       }
-      argv[H] = nullptr;
-      int result = _wspawnvp(P_NOWAITO, argv[0], argv);
-      delete[] argv;
+      int result = ShellOpen(params);
 
       if(result == -1){
         if(errno == ENOENT){
-          throw MacroException(ope[0].Str() + L"\nƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB");
+          throw MacroException(ope[0].Str() + L"\nãƒ•ã‚¡ã‚¤ãƒ«ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚");
         }else{
-          throw MacroException(ope[0].Str() + L"\nÀs‚É¸”s‚µ‚Ü‚µ‚½B");
+          throw MacroException(ope[0].Str() + L"\nå®Ÿè¡Œã«å¤±æ•—ã—ã¾ã—ãŸã€‚");
         }
       }
     }else if(s == "Open" && (H == 1 || H == 2)){
@@ -1543,7 +1501,7 @@ void TMacro::ExecFnc(String s)
       if (H > 1) {
         int index = fmMain->TypeList.IndexOf(STR1, -1);
         if (index == -1) {
-          throw MacroException(L"ƒf[ƒ^Œ`®–¼‚ª•s³‚Å‚·F" + STR1);
+          throw MacroException(L"ãƒ‡ãƒ¼ã‚¿å½¢å¼åãŒä¸æ­£ã§ã™ï¼š" + STR1);
         }
         typeOption = fmMain->TypeList.Items(index);
       }
@@ -1563,7 +1521,7 @@ void TMacro::ExecFnc(String s)
       } else {
         int index = fmMain->TypeList.IndexOf(STR1, -1);
         if (index == -1) {
-          throw MacroException(L"•Û‘¶Œ`®‚ª•s–¾‚Å‚·F" + STR1);
+          throw MacroException(L"ä¿å­˜å½¢å¼ãŒä¸æ˜ã§ã™ï¼š" + STR1);
         }
         typeOption = fmMain->TypeList.Items(index);
       }
@@ -1585,10 +1543,10 @@ void TMacro::ExecFnc(String s)
       if(!DirectoryExists(dirName)){
         ForceDirectories(dirName);
       }
-      TFileStream *fs = new TFileStream(fileName, fmCreate | fmShareDenyWrite);
-      DynamicArray<System::Byte> array = TEncoding::UTF8->GetBytes(STR0);
-      fs->Write(&(array[0]), array.Length);
-      delete fs;
+      std::unique_ptr<TFileStream> fs =
+          std::make_unique<TFileStream>(fileName, fmCreate | fmShareDenyWrite);
+      TBytes bytes = TEncoding::UTF8->GetBytes(STR0);
+      fs->Write(bytes, bytes.Length);
     }else if(s == "Sort" && H >= 1 && H <= 9) {
       int left = VAL0;
       int top = (H > 1 ? VAL1 : 1);
@@ -1640,39 +1598,39 @@ void TMacro::ExecFnc(String s)
     }
 }
 //---------------------------------------------------------------------------
-void TMacro::ExecOpe(char c){
+void TMacro::ExecOpe(char c, size_t &p){
   if (c == CMO_Goto || c == CMO_Jump || c == CMO_Minus || c == CMO_Inc ||
       c == CMO_Dec || c == '!' || c == CMO_VarArg) {
     if (Stack.size() < 1) { throw MacroException(c, ME_HIKISU); }
     Element ope = Stack.back();
     Stack.pop_back();
     if (c == CMO_Goto) {
-      fs->Position = ope.Val();
+      p = ope.Val();
       Stack.clear();
       LoopCount++;
       Application->ProcessMessages();
       if (MaxLoop > 0 && LoopCount > MaxLoop) {
-        throw MacroException((String)L"ƒ‹[ƒv‰ñ”‚ª" + MaxLoop +
-            L"‚É’B‚µ‚Ü‚µ‚½Bˆ—‚ğ’†’f‚µ‚Ü‚·B");
+        throw MacroException((String)L"ãƒ«ãƒ¼ãƒ—å›æ•°ãŒ" + MaxLoop +
+            L"ã«é”ã—ã¾ã—ãŸã€‚å‡¦ç†ã‚’ä¸­æ–­ã—ã¾ã™ã€‚");
       }
-      if (!RunningOk) { throw MacroException(L"’†’f‚µ‚Ü‚µ‚½"); }
+      if (!RunningOk) { throw MacroException(L"ä¸­æ–­ã—ã¾ã—ãŸ"); }
     }
-    else if (c == CMO_Jump) { fs->Position = ope.Val(); }
+    else if (c == CMO_Jump) { p = ope.Val(); }
     else if (c == CMO_Minus) { Stack.push_back(Element(-(ope.Val()))); }
     else if (c == CMO_Inc) { ope.Sbst(Element(ope.Val() + 1)); }
     else if (c == CMO_Dec) { ope.Sbst(Element(ope.Val() - 1)); }
     else if (c == '!') { Stack.push_back(Element(((ope.Val() == 0) ? 1 : 0))); }
     else if (c == CMO_VarArg) {
-      TEnvironment *varArg = env.NewObject();
+      std::unique_ptr<TEnvironment> varArg = env.NewObject();
       int fromIndex = ope.Val();
       for (int i = fromIndex; i < Stack.size(); i++) {
         varArg->Vars[(String)(i - fromIndex)] = Element(Stack[i].Value());
       }
       varArg->Vars["length"] = Element(Stack.size() - fromIndex);
-      std::vector<TEnvironment*> *objects = env.GetObjects();
+      std::vector<std::unique_ptr<TEnvironment>>& objects = env.GetObjects();
       Stack.erase(Stack.begin() + fromIndex, Stack.end());
-      Stack.push_back(Element(objects->size(), "", etObject, env.GetGlobal()));
-      objects->push_back(varArg);
+      Stack.push_back(Element(objects.size(), "", etObject, env.GetGlobal()));
+      objects.push_back(std::move(varArg));
     }
   } else if (c == CMO_ObjKey) {
     if (Stack.size() < 3) { throw MacroException(c, ME_HIKISU); }
@@ -1732,13 +1690,13 @@ void TMacro::ExecOpe(char c){
     } else if (c == '&') {
       if (ope1.Val() == 0) {
         Stack.push_back(ope1);
-        fs->Position = ope2.Val();
+        p = ope2.Val();
         return;
       }
     } else if (c == '|') {
       if (ope1.Val() != 0) {
         Stack.push_back(ope1);
-        fs->Position = ope2.Val();
+        p = ope2.Val();
         return;
       }
     } else if (c == '.') {
@@ -1756,26 +1714,26 @@ void TMacro::ExecOpe(char c){
           }
           return;
         }
-        throw MacroException(L"u.v‚Ì¶‚ªƒIƒuƒWƒFƒNƒg‚Å‚Í‚ ‚è‚Ü‚¹‚ñF"
+        throw MacroException(L"ã€Œ.ã€ã®å·¦ãŒã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã§ã¯ã‚ã‚Šã¾ã›ã‚“ï¼š"
             + (ope1.Type == etVar ? ope1.Name() : ope1.Str()));
       }
       Stack.push_back(ope1.GetMember(ope2.Str()));
     } else if (c == CMO_In) {
       if (ope2.Value().Type != etObject) {
-        throw MacroException(L"in ‚Ì‰E‚ªƒIƒuƒWƒFƒNƒg‚Å‚Í‚ ‚è‚Ü‚¹‚ñF"
+        throw MacroException(L"in ã®å³ãŒã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã§ã¯ã‚ã‚Šã¾ã›ã‚“ï¼š"
             + (ope2.Type == etVar ? ope2.Name() : ope2.Str()));
       }
       map<String, Element>& vars = env.GetObject(ope2.Val())->Vars;
       Stack.push_back(Element((vars.find(ope1.Str()) != vars.end()) ? 1 : 0));
     } else if (c == CMO_IfThen) {
       if (ope1.Val() == 0) {
-        fs->Position = ope2.Val();
+        p = ope2.Val();
       }
     } else if (c == CMO_Cell) {
       Stack.push_back(Element(ope1.Val(), ope2.Val(), &env));
     } else if (c == CMO_DefParam) {
       if (Stack.size() >= ope1.Val()) {
-        fs->Position = ope2.Val();
+        p = ope2.Val();
       }
     } else {
       throw MacroException((String)"Invalid operator: " + c);
@@ -1783,82 +1741,57 @@ void TMacro::ExecOpe(char c){
   }
 }
 //---------------------------------------------------------------------------
-TStream *TMacro::GetStreamFor(String funcName){
+const TByteVector& TMacro::GetByteVector(String funcName){
   try {
     return Context.Modules.at(funcName);
   } catch (...) {
-    throw MacroException(funcName + L"\nƒ†[ƒU[ŠÖ”‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB");
+    throw MacroException(funcName + L"\nãƒ¦ãƒ¼ã‚¶ãƒ¼é–¢æ•°ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚");
   }
 }
 //---------------------------------------------------------------------------
 Element TMacro::Do(String FileName, const std::vector<Element> &AStack,
                    int x, int y, Element *thisPtr) {
   Element ReturnValue;
-  // Ä‹AŒÄ‚Ño‚µ‘Î‰‚Ì‚½‚ßAƒƒ\ƒbƒhI—¹‚ÉStream‚ÌPosition‚ğŒ³‚É–ß‚·
-  long oldpc = 0L;
   Stack = AStack;
-  fs = nullptr;
-  try{
-    fs = GetStreamFor(FileName);
-    oldpc = fs->Position;
-    fs->Position = 0;
 
-    env.Vars.clear();
-    env.Vars["x"] = Element(((x >= 0) ? x : env.Grid->GetCol()));
-    env.Vars["y"] = Element(((y >= 0) ? y : env.Grid->GetRow()));
-    env.Vars["Left"] = Element(env.Grid->GetLeft());
-    env.Vars["Top"] = Element(env.Grid->GetTop());
-    if (thisPtr) {
-      env.Vars["this"] = *thisPtr;
-    }
-    char Type;
-    LoopCount = 0;
-    while(fs->Read(&Type, 1) > 0) {
-      if(Type == '$'){
-        Stack.push_back(Element(ReadString(fs)));
-      }else if(Type == '*'){
-        ExecFnc(ReadString(fs));
-      }else if(Type == '~'){
-        String name = ReadString(fs);
-        Stack.push_back(Element(name, etVar, &env));
-      }else if(Type == '!'){
-        Stack.push_back(Element(ReadString(fs), etSystem, true, &env));
-      }else if(Type == '-'){
-        char c;
-        fs->Read(&c, 1);
-        if(c == CMO_Return){
-          if (Stack.size() > 0) {
-            ReturnValue = Stack.back().Value();
-          }
-          break;
-        }else{
-          ExecOpe(c);
-        }
-      }else if(Type == 'i'){
-        int i;
-        fs->Read(&i, (int) sizeof(int));
-        Stack.push_back(Element(i));
-      }else if(Type == 'd' || Type == 'I'){
-        double d;
-        fs->Read(&d, (int) sizeof(double));
-        Stack.push_back(Element(d));
-      }
-    }
+  const TByteVector& bytes = GetByteVector(FileName);
+  size_t p = 0;
 
-  } catch (MacroException e) {
-    if(fs){
-      fs->Position = oldpc;
-    }
-    throw e;
-  } catch(Exception *e) {
-    if(fs){
-      fs->Position = oldpc;
-    }
-    throw e;
+  env.Vars.clear();
+  env.Vars["x"] = Element(((x >= 0) ? x : env.Grid->GetCol()));
+  env.Vars["y"] = Element(((y >= 0) ? y : env.Grid->GetRow()));
+  env.Vars["Left"] = Element(env.Grid->GetLeft());
+  env.Vars["Top"] = Element(env.Grid->GetTop());
+  if (thisPtr) {
+    env.Vars["this"] = *thisPtr;
   }
-
-  if(fs){
-    fs->Position = oldpc;
+  LoopCount = 0;
+  while (p < bytes.Size()) {
+    char Type = bytes.ReadChar(p);
+    if (Type == '$') {
+      Stack.push_back(Element(bytes.ReadString(p)));
+    } else if (Type == '*') {
+      ExecFnc(bytes.ReadString(p));
+    } else if (Type == '~') {
+      String name = bytes.ReadString(p);
+      Stack.push_back(Element(name, etVar, &env));
+    } else if (Type == '!') {
+      Stack.push_back(Element(bytes.ReadString(p), etSystem, &env));
+    } else if (Type == '-') {
+      char c = bytes.ReadChar(p);
+      if (c == CMO_Return) {
+        if (Stack.size() > 0) {
+          ReturnValue = Stack.back().Value();
+        }
+        break;
+      } else {
+        ExecOpe(c, p);
+      }
+    } else if (Type == 'i') {
+      Stack.push_back(Element(bytes.ReadInteger(p)));
+    } else if (Type == 'd') {
+      Stack.push_back(Element(bytes.ReadDouble(p)));
+    }
   }
   return ReturnValue;
 }
@@ -1869,7 +1802,7 @@ TMacroValue RunMacro(String FileName, int MaxLoop, const TMacroContext &Context,
 {
   if(!RunningOk){ return TMacroValue(); }
   if(!ReadOnly){ RunningCount++; }
-  randomize();
+  Randomize();
   GridProxy grid(fmMain->MainGrid, ReadOnly);
   TMacro mcr(IO, MaxLoop, Context, TEnvironment(ReadOnly, &grid, nullptr));
   Element r;
@@ -1887,7 +1820,7 @@ TMacroValue RunMacro(String FileName, int MaxLoop, const TMacroContext &Context,
       throw e;
     } else if (e.Type != ME_CANCELED) {
       if (e.Type == ME_HIKISU) {
-        e.Message = L"ˆø”‚Ì”‚ª‘«‚è‚Ü‚¹‚ñ:" + e.Message;
+        e.Message = L"å¼•æ•°ã®æ•°ãŒè¶³ã‚Šã¾ã›ã‚“:" + e.Message;
       }
       Application->MessageBox((FileName + "\n" + e.Message).c_str(),
                               L"Cassava Macro Interpreter", 0);
