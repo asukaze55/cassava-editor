@@ -260,10 +260,10 @@ void TfmMain::ReadIni()
 
   for (int i = 1; i <= ParamCount(); i++) {
     if (ParamStr(i) == "-i") {
-      int ps =
-          ParamStr(i + 1).ToIntDef(0) * (GetSystemMetrics(SM_CYCAPTION) + 8);
-      left += ps;
-      top += ps;
+      int positionShift = ParamStr(i + 1).ToIntDef(0)
+          * (GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYSIZEFRAME));
+      left += positionShift;
+      top += positionShift;
       break;
     }
   }
