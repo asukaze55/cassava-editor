@@ -1276,15 +1276,14 @@ void __fastcall TfmMain::mnOpenClick(TObject *Sender)
   }
 }
 //---------------------------------------------------------------------------
-void __fastcall TfmMain::MainGridDropFiles(TObject *Sender, int iFiles,
-                                      String *DropFileNames){
-  if(MakeNewWindow){
+void TfmMain::MainGridDropFiles(const std::vector<String>& DropFileNames) {
+  if (MakeNewWindow) {
     WriteIni(true);
-    for(int i=0; i<iFiles; i++){
-      SpawnProcess({ParamStr(0), DropFileNames[i]});
+    for (String fileName : DropFileNames) {
+      SpawnProcess({ParamStr(0), fileName});
     }
-  }else{
-    if(IfModifiedThenSave()){
+  } else {
+    if (IfModifiedThenSave()) {
       OpenFile(DropFileNames[0]);
     }
   }

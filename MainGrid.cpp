@@ -961,16 +961,16 @@ void TMainGrid::SetDragAcceptFiles(bool Accept)
 void __fastcall TMainGrid::DropCsvFiles(TWMDropFiles inMsg)
 {
   int count = DragQueryFile((HDROP)inMsg.Drop, 0xffffffff, nullptr, 255);
-  String *fileNames = new String[count];
+  std::vector<String> fileNames;
+  fileNames.reserve(count);
   TCHAR fileName[255];
   for (int i = 0; i < count; i++) {
-    ::DragQueryFile((HDROP)inMsg.Drop, i, fileName, 255);
-    fileNames[i] = fileName;
+    DragQueryFile((HDROP)inMsg.Drop, i, fileName, 255);
+    fileNames.push_back(fileName);
   }
   if (FOnDropFiles != nullptr) {
-    FOnDropFiles(this, count, fileNames);
+    FOnDropFiles(fileNames);
   }
-  delete[] fileNames;
 }
 //---------------------------------------------------------------------------
 static bool HasBom(TBytes bytes, TEncoding *encoding)

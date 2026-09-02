@@ -13,8 +13,8 @@
 //---------------------------------------------------------------------------
 #define CASSAVA_TITLE L"Cassava Editor"
 //---------------------------------------------------------------------------
-typedef void __fastcall (__closure *TDropCsvFiles)
-    (System::TObject *Sender, int iFiles, System::String *DropFileNames);
+using TDropCsvFiles =
+    void (__closure *)(const std::vector<String>& DropFileNames);
 //---------------------------------------------------------------------------
 enum TReturnCode {
   CRLF, LF, CR

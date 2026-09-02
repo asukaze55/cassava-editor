@@ -383,8 +383,7 @@ public:     // ユーザー宣言
   void WriteIni(bool PosSlide = false);
   void __fastcall UserToolBarAction(TObject *Sender);
   void __fastcall MainGridChangeModified(TObject *Sender);
-  void __fastcall MainGridDropFiles(TObject *Sender, int iFiles,
-									String *DropFileNames);
+  void MainGridDropFiles(const std::vector<String>& DropFileNames);
   void __fastcall MainGridKeyDown(System::TObject* Sender,
 						Word &Key, Classes::TShiftState Shift);
   void __fastcall MainGridKeyUp(System::TObject* Sender,
