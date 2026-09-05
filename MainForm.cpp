@@ -2027,13 +2027,6 @@ void __fastcall TfmMain::mnTransCharClick(TObject *Sender)
   MainGrid->Repaint();
 }
 //---------------------------------------------------------------------------
-void __fastcall TfmMain::mnTransKanaClick(TObject *Sender)
-{
-  MainGrid->Invalidate();
-  MainGrid->TransKana(static_cast<TMenuItem*>(Sender)->Tag);
-  MainGrid->Repaint();
-}
-//---------------------------------------------------------------------------
 void __fastcall TfmMain::mnSequenceClick(TObject *Sender)
 {
   bool ea = ((MainGrid->Selection.Bottom - MainGrid->Selection.Top) > 0);

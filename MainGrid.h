@@ -283,8 +283,6 @@ public:
     void DeleteCell_Up();
     void TransChar(int Type);
     String TransChar(String Str, int Type);
-    void TransKana(int Type);
-    String TransKana(String Str, int Type);
     void Sequence(bool Inc);
 
     TCalculatedCell GetCalculatedCell(int AX, int AY);

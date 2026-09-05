@@ -594,12 +594,12 @@ object fmMain: TfmMain
         object mnTransChar4: TMenuItem
           Tag = 4
           Caption = #12459#12490#12434#21322#35282#12395#22793#25563'(&H)'
-          OnClick = mnTransKanaClick
+          OnClick = mnTransCharClick
         end
         object mnTransChar5: TMenuItem
           Tag = 5
           Caption = #12459#12490#12434#20840#35282#12395#22793#25563'(&F)'
-          OnClick = mnTransKanaClick
+          OnClick = mnTransCharClick
         end
       end
       object mnSequence: TMenuItem

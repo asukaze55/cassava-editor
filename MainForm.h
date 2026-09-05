@@ -300,7 +300,6 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall mnMacroExecuteClick(TObject *Sender);
   void __fastcall mnStayOnTopClick(TObject *Sender);
   void __fastcall mnExportClick(TObject *Sender);
-  void __fastcall mnTransKanaClick(TObject *Sender);
   void __fastcall mnReloadCodeClick(TObject *Sender);
   void __fastcall mnNewLineClick(TObject *Sender);
   void __fastcall PopMenuOpenPopup(TObject *Sender);

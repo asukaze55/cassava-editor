@@ -1476,7 +1476,7 @@ void TMainGrid::Sort(int SLeft, int STop, int SRight, int SBottom, int SCol,
         str = str.UpperCase();
       }
       if (IgnoreZenhan) {
-        str = TransChar(TransKana(str, 5), 1);
+        str = TransChar(TransChar(str, 5), 1);
       }
       stringList.push_back({.Str = str, .Data = std::move(data)});
     }
@@ -1697,85 +1697,79 @@ void TMainGrid::TransChar(int Type)
 //---------------------------------------------------------------------------
 String TMainGrid::TransChar(String Str, int Type)
 {
-  if(Type==2)      Str = Str.UpperCase();
-  else if(Type==3) Str = Str.LowerCase();
-  else{
-    int size = Str.Length();
-    wchar_t *wcfr = Str.c_str();
-    wchar_t *wcto = new wchar_t[size+1];
-    wchar_t *p=wcfr;
-    wchar_t *q=wcto;
-    wchar_t *r=wcfr + size;
-    for(; p < r; p++){
-      if(Type==0){
-        if(*p == u'　')      *q = L' ';
-        else if(*p == u'’') *q = L'\'';
-        else if(*p == u'”') *q = L'\"';
-        else if(*p == u'￥') *q = L'\\';
-        else if(*p >= u'！' && *p <= u'～') *q = *p - (u'Ａ' - L'A');
-        else                 *q = *p;
-      }else{
-        if(*p == L' ')       *q = u'　';
-        else if(*p == L'\'') *q = u'’';
-        else if(*p == L'\"') *q = u'”';
-        else if(*p == L'\\') *q = u'￥';
-        else if(*p >= L'!' && *p <= L'~') *q = *p + (u'Ａ' - L'A');
-        else                 *q = *p;
-      }
-      q++;
-    }
-    *q = L'\0';
-    Str = String(wcto, q - wcto);
-    delete[] wcto;
+  if (Str == "") {
+    return Str;
   }
-  return Str;
-}
-//---------------------------------------------------------------------------
-void TMainGrid::TransKana(int Type)
-{
-  UndoList->Push();
-  for (int i = Selection.Left; i <= Selection.Right; i++) {
-    for (int j = Selection.Top; j <= Selection.Bottom; j++) {
-      SetCell(i, j, TransKana(Cells[i][j], Type));
-    }
-  }
-  UndoList->Pop((String)"Select(" + RXtoAX(Selection.Left) + ", " +
-      RYtoAY(Selection.Top) + ", " + RXtoAX(Selection.Right) + ", " +
-      RYtoAY(Selection.Bottom) + ");\nTransChar" + Type + "();");
-  Modified = true;
-}
-//---------------------------------------------------------------------------
-String TMainGrid::TransKana(String Str, int Type)
-{
-  if(Str == "") return Str;
   int size = Str.Length();
-  wchar_t *wcfr = Str.c_str();
-  wchar_t *wcto = new wchar_t[size * 2];
-  wchar_t *p=wcfr;
-  wchar_t *q=wcto;
-  wchar_t *r=wcfr + size;
-  for(; p < r; p++){
-    if(Type==4){
-      q += Zenkaku2Hankaku(*p, q);
-    }else if(Type==5){
-      *q = Hankaku2Zenkaku(*p);
-      if(*(p+1) == u'ﾞ' &&
-          ((*p >= u'ｶ' && *p <= u'ﾄ') || (*p >= u'ﾊ' && *p <= u'ﾎ'))) {
-        (*q)++;
-        p++;
-      }else if(*(p+1) == u'ﾟ' && *p >= u'ﾊ' && *p <= u'ﾎ') {
-        (*q) += 2;
-        p++;
-      }else if(*(p+1) == u'ﾞ' && *p == u'ｳ') {
-        (*q) = u'ヴ';
-        p++;
+  switch (Type) {
+    case 0:
+      for (int i = 1; i <= size; i++) {
+        wchar_t c = Str[i];
+        if (c == u'　') {
+          Str[i] = L' ';
+        } else if (c == u'’') {
+          Str[i] = L'\'';
+        } else if (c == u'”') {
+          Str[i] = L'\"';
+        } else if (c == u'￥') {
+          Str[i] = L'\\';
+        } else if (c >= u'！' && c <= u'～') {
+          Str[i] = c - (u'Ａ' - L'A');
+        }
       }
-      q++;
+      return Str;
+    case 1:
+      for (int i = 1; i <= size; i++) {
+        wchar_t c = Str[i];
+        if (c == L' ') {
+          Str[i] = u'　';
+        } else if (c == L'\'') {
+          Str[i] = u'’';
+        } else if(c == L'\"') {
+          Str[i] = u'”';
+        } else if(c == L'\\') {
+          Str[i] = u'￥';
+        } else if (c >= L'!' && c <= L'~') {
+          Str[i] = c + (u'Ａ' - L'A');
+        }
+      }
+      return Str;
+    case 2:
+      return Str.UpperCase();
+    case 3:
+      return Str.LowerCase();
+    case 4: {
+      std::vector<wchar_t> transformed(size * 2);
+      wchar_t *p = transformed.data();
+      for (int i = 1; i <= size; i++) {
+        p += Zenkaku2Hankaku(Str[i], p);
+      }
+      return String(transformed.data(), p - transformed.data());
+    }
+    case 5: {
+      int transformedLength = 0;
+      for (int i = 1; i <= size; i++) {
+        wchar_t wc = Hankaku2Zenkaku(Str[i]);
+        if (i < size) {
+          wchar_t next = Str[i + 1];
+          if (next == u'ﾞ' &&
+              ((wc >= u'カ' && wc <= u'ト') || (wc >= u'ハ' && wc <= u'ホ'))) {
+            wc++;
+            i++;
+          } else if (next == u'ﾟ' && wc >= u'ハ' && wc <= u'ホ') {
+            wc += 2;
+            i++;
+          } else if (next == u'ﾞ' && wc == u'ウ') {
+            wc = u'ヴ';
+            i++;
+          }
+        }
+        Str[++transformedLength] = wc;
+      }
+      Str.SetLength(transformedLength);
+      return Str;
     }
   }
-  *q = L'\0';
-  Str = String(wcto, q - wcto);
-  delete[] wcto;
   return Str;
 }
 //---------------------------------------------------------------------------
