@@ -475,7 +475,7 @@ void TfmMain::ReadIni()
     std::unique_ptr<TfmKey> fmKey = std::make_unique<TfmKey>(nullptr);
     fmKey->MakeTree();
     if (fmKey->LoadKey(Pref->Path + "AutoKey.csv")) {
-      fmKey->MenuUpDate();
+      fmKey->UpdateMenu();
     }
   }
 
