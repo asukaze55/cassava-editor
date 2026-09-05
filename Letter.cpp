@@ -95,16 +95,19 @@ void __fastcall TfmLetter::UpdatePreviewImage(TObject *Sender)
 {
   if (cbxFont->Text == "") { return; }
 
-  Graphics::TBitmap *Bmp = new Graphics::TBitmap;
-  const float mmPt = Bmp->Canvas->Font->PixelsPerInch / 25.4;
-  Bmp->Width = 100 * mmPt;
-  Bmp->Height = 148 * mmPt;
-  Print(Bmp->Canvas, udTop->Position);
+  std::unique_ptr<Graphics::TBitmap> bitmap =
+      std::make_unique<Graphics::TBitmap>();
+  double mmPt = bitmap->Canvas->Font->PixelsPerInch / 25.4;
+  bitmap->Width = 100 * mmPt;
+  bitmap->Height = 148 * mmPt;
+  Print(bitmap->Canvas, udTop->Position);
 
-  TRect Rect;
-  Rect.Left = 0; Rect.Top = 0;
-  Rect.Right = imPreview->Width; Rect.Bottom = imPreview->Height;
-  imPreview->Canvas->StretchDraw(Rect, Bmp);
+  TRect rect;
+  rect.Left = 0;
+  rect.Top = 0;
+  rect.Right = imPreview->Width;
+  rect.Bottom = imPreview->Height;
+  imPreview->Canvas->StretchDraw(rect, bitmap.get());
 }
 //---------------------------------------------------------------------------
 int TfmLetter::TateBytes(String Str)
