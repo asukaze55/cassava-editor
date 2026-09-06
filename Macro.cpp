@@ -405,23 +405,25 @@ String Element::Str() const
   } else if (Type == etObject) {
     String s = "{";
     std::map<String, Element>& vars = env->GetObject(vl)->Vars;
-    for (std::map<String, Element>::iterator it = vars.begin();
-         it != vars.end(); it++) {
-      if (it->second.Type == etErr) {
+    bool first = true;
+    for (const auto& [key, value] : vars) {
+      if (value.Type == etErr) {
         continue;
       }
-      if (it != vars.begin()) {
+      if (first) {
+        first = false;
+      } else {
         s += ", ";
       }
-      s += it->first + ": ";
-      if (it->second.Type == etObject) {
+      s += key + ": ";
+      if (value.Type == etObject) {
         s += "{...}";
-      } else if (it->second.isNum()) {
-        s += it->second.Str();
-      } else if (it->second.Str().Pos("\n") > 0) {
+      } else if (value.isNum()) {
+        s += value.Str();
+      } else if (value.Str().Pos("\n") > 0) {
         s += "...";
       } else {
-        s += "\"" + it->second.Str() + "\"";
+        s += "\"" + value.Str() + "\"";
       }
     }
     return s + "}";

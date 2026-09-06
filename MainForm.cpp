@@ -2477,9 +2477,8 @@ void TfmMain::SearchMacro(TMenuItem *Parent)
 
   Parent->Items[0]->Visible = Parent == mnMacro || Parent->Count == 1;
 
-  for(std::map<String, TMenuItem *>::iterator it = oldItems.begin();
-      it != oldItems.end(); ++it){
-    delete it->second;
+  for (auto& [id, oldItem] : oldItems) {
+    delete oldItem;
   }
 }
 //---------------------------------------------------------------------------

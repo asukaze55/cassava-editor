@@ -1056,9 +1056,8 @@ void TCompiler::GetImport()
   if (std::find(import.begin(), import.end(), libName) == import.end()) {
     import.push_back(libName);
   }
-  for (std::map<String, String>::iterator p = nameMap.begin();
-       p != nameMap.end(); ++p) {
-    ImportedFunctions[p->first] = libName + "\n" + p->second;
+  for (const auto& [aliasName, originalName] : nameMap) {
+    ImportedFunctions[aliasName] = libName + "\n" + originalName;
   }
   e = lex->Get();
   if (e.str != ";") {
