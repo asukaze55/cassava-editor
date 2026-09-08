@@ -3,8 +3,7 @@
 #include "MainForm.h"
 #pragma hdrstop
 
-#include <shlobj.h>
-
+#include <System.IOUtils.hpp>
 #include "Preference.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
@@ -89,19 +88,10 @@ bool IniFile::ValueExists(const String section, const String key)
   return file->ValueExists(section, key);
 }
 //---------------------------------------------------------------------------
-#define MAX_PATH 260
-//---------------------------------------------------------------------------
-String GetSpecialFolderPath(int type)
-{
-  TCHAR szPath[MAX_PATH];
-  SHGetSpecialFolderPath(nullptr, szPath, type, false);
-  return String(szPath);
-}
-//---------------------------------------------------------------------------
 Preference::Preference(String cassavaPath)
 {
   SharedPath = cassavaPath;
-  UserPath = GetSpecialFolderPath(CSIDL_APPDATA) + "\\Asukaze\\Cassava\\";
+  UserPath = TPath::GetHomePath() + "\\Asukaze\\Cassava\\";
   if(FileExists(SharedPath + "Cassava.ini")){
     Path = SharedPath;
   }else{
