@@ -958,19 +958,26 @@ void TMainGrid::SetDragAcceptFiles(bool Accept)
   ::DragAcceptFiles(Handle, Accept);
 }
 //---------------------------------------------------------------------------
-void __fastcall TMainGrid::DropCsvFiles(TWMDropFiles inMsg)
+void __fastcall TMainGrid::DropFiles(TWMDropFiles& Message)
 {
-  int count = DragQueryFile((HDROP)inMsg.Drop, 0xffffffff, nullptr, 255);
+  if (FOnDropFiles == nullptr) {
+    return;
+  }
+  HDROP hDrop = reinterpret_cast<HDROP>(Message.Drop);
+  int count = DragQueryFile(hDrop, 0xffffffff, nullptr, 0);
   std::vector<String> fileNames;
   fileNames.reserve(count);
-  TCHAR fileName[255];
   for (int i = 0; i < count; i++) {
-    DragQueryFile((HDROP)inMsg.Drop, i, fileName, 255);
-    fileNames.push_back(fileName);
+    int length = DragQueryFile(hDrop, i, nullptr, 0);
+    if (length > 0) {
+      String& fileName = fileNames.emplace_back();
+      fileName.SetLength(length);
+      DragQueryFile(hDrop, i, fileName.c_str(), length + 1);
+    }
   }
-  if (FOnDropFiles != nullptr) {
-    FOnDropFiles(fileNames);
-  }
+  FOnDropFiles(fileNames);
+  DragFinish(hDrop);
+  Message.Result = 0;
 }
 //---------------------------------------------------------------------------
 static bool HasBom(TBytes bytes, TEncoding *encoding)
