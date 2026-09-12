@@ -1277,16 +1277,24 @@ void __fastcall TfmMain::mnOpenClick(TObject *Sender)
 }
 //---------------------------------------------------------------------------
 void TfmMain::MainGridDropFiles(const std::vector<String>& DropFileNames) {
-  if (MakeNewWindow) {
-    WriteIni(true);
-    for (String fileName : DropFileNames) {
-      SpawnProcess({ParamStr(0), fileName});
+  if (!MakeNewWindow) {
+    if (!IfModifiedThenSave()) {
+      return;
     }
-  } else {
-    if (IfModifiedThenSave()) {
-      OpenFile(DropFileNames[0]);
+    OpenFile(DropFileNames[0]);
+    if (DropFileNames.size() == 1) {
+      return;
     }
   }
+  WriteIni(true);
+  std::vector<String> params;
+  params.reserve(DropFileNames.size() + (MakeNewWindow ? 3 : 2));
+  params.push_back(ParamStr(0));
+  params.push_back("-i");
+  params.push_back("1");
+  params.insert(params.end(), DropFileNames.begin() + (MakeNewWindow ? 0 : 1),
+      DropFileNames.end());
+  SpawnProcess(params);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnReloadClick(TObject *Sender)
