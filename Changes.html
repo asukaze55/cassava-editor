@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta name="viewport" content="width=device-width" />
+  <meta charset="UTF-8" />
+  <meta http-equiv="content-language" content="ja" />
+  <title>更新履歴 - Cassava Editor</title>
+  <style type="text/css">
+    h1 {
+      color: #0066ff;
+      font-size: 130%;
+      font-weight: bold;
+    }
+    h2 { 
+      border-bottom: 3px solid #99ff66;
+      color: #006600;
+      font-size: 110%;
+      font-weight: bold;
+    }
+    h3 { 
+      border-left: 10px solid #ffcc66;
+      padding-left: 10px;
+      color: #993300;
+      font-size: 110%;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Cassava Editor</h1>
+<h2 id="HISTORY">更新履歴</h2>
+
+<h3>Unreleased</h3>
+<ul>
+  <li>開発環境を C++Builder 13 Community Edition に更新。</li>
+</ul>
+
+<h3>2.8.1 <small>(2026/08/29)</small></h3>
+<ul>
+  <li>複数ファイルをまとめて Cassava.exe に渡して起動した場合にウィンドウ位置をずらして表示する機能が動作しなくなっていたのを修正。</li>
+</ul>
+
+<h3>2.8.0 <small>(2026/07/05)</small></h3>
+<ul>
+  <li>
+    <a href="https://www.asukaze.net/soft/cassava/bbs/index.cgi?t=936">[936]</a>
+    ダークモードのスタイルを Windows 11 風のものに差し替え。
+  </li>
+  <li>
+    <a href="https://www.asukaze.net/soft/cassava/bbs/index.cgi?t=939">[939]</a>
+    簡易検索パネルに、検索履歴のドロップダウンと
+    「大文字と小文字を区別」「セル内容が完全に同一であるものを検索」「正規表現検索」のボタンを追加。
+  </li>
+  <li>
+    <a href="https://www.asukaze.net/soft/cassava/bbs/index.cgi?t=922">[922]</a>
+    <a href="https://www.asukaze.net/soft/cassava/bbs/index.cgi?t=930">[930]</a>
+    データ形式のクオート設定に「"" で囲む条件のマクロ式」を追加。
+    「y >= 2」とすれば 2 行目以降が、「x >= 2」とすれば 2 列目以降が "" で囲まれる。
+  </li>
+  <li>
+    <a href="https://www.asukaze.net/soft/cassava/bbs/index.cgi?t=715">[715]</a>
+    マウスの横スクロール操作が動作するようにした。
+  </li>
+  <li>
+    <a href="https://www.asukaze.net/soft/cassava/bbs/index.cgi?t=934">[934]</a>
+    ソート時に空白セルを一番下に移動するように変更。
+  </li>
+  <li>
+    <a href="https://www.asukaze.net/soft/cassava/bbs/index.cgi?t=941">[941]</a>
+    !format.cms で指定された文字色を「URL 文字色」よりも優先して使うように変更。
+  </li>
+  <li>「大文字と小文字を区別」の初期設定をオフにした。</li>
+  <li>
+    主なダイアログボックスの表示位置を固定位置やスクリーン中央ではなく
+    Cassava Editor のウィンドウ中央とするように変更。
+  </li>
+  <li>マクロの組み込み関数に QuickFind(str, ignoreCase, wholeCell, regex) を追加。</li>
+  <li>メニューの [ファイル(F)]-[新規作成(N)] やマクロの Clear() 実行時に簡易検索パネルを閉じるようにした。</li>
+</ul>
+<ul>
+  <li><a href="https://www.asukaze.net/soft/cassava/history/2_8dev.html">2.8 βの更新履歴</a></li>
+</ul>
+
+<h3>2.7.3 <small>(2026/06/13)</small></h3>
+<ul>
+  <li>
+    <a href="https://www.asukaze.net/soft/cassava/bbs/index.cgi?t=943">[943]</a>
+    正規表現検索の逆方向検索で「^」が正しく動作しない問題を修正。
+  </li>
+  <li>
+    <a href="https://www.asukaze.net/soft/cassava/bbs/index.cgi?t=938">[938]</a>
+    「更新の確認」のダイアログにダークモードのスタイルが適用されない問題を修正。
+  </li>
+</ul>
+
+<h3>2.7.2 <small>(2025/12/07)</small></h3>
+<ul>
+  <li>
+    <a href="https://www.asukaze.net/soft/cassava/bbs/index.cgi?t=924">[924]</a>
+    「次を検索」時に検索対象が見つからなかった場合、
+    ステータスバーに「(検索文字列) は見つかりません」のようなメッセージを表示するようにした。
+  </li>
+</ul>
+
+<h3>2.7.1 <small>(2025/09/20)</small></h3>
+<ul>
+  <li>
+    <a href="https://www.asukaze.net/soft/cassava/bbs/index.cgi?t=915">[915]</a>
+    貼り付けオプションで「テキストとして 1 セル内に貼り付け」を選んでいる場合でも、
+    複数セル選択時には貼り付けオプションダイアログを表示するようにした。
+  </li>
+  <li>
+    <a href="https://www.asukaze.net/soft/cassava/bbs/index.cgi?t=913">[913]</a>
+    ヘルプ内のマクロリファレンスをアルファベット順でソートし、標準ライブラリの情報を追加。
+  </li>
+</ul>
+
+<h3>2.7.0 <small>(2025/07/05)</small></h3>
+<ul>
+  <li>
+    <a href="https://www.asukaze.net/soft/cassava/bbs/index.cgi?t=873">[873]</a>
+    「開く」ダイアログ内でファイル形式を選択した場合、その形式でファイルを開くようにした。
+  </li>
+  <li>
+    <a href="https://www.asukaze.net/soft/cassava/bbs/index.cgi?t=889">[889]</a>
+    ファイルの後半部分に非 ASCII 文字があってファイル読み込みに失敗した場合、
+    自動的に Shift-JIS で再読み込みするようにした。
+  </li>
+  <li>
+    <a href="https://www.asukaze.net/soft/cassava/bbs/index.cgi?t=890">[890]</a>
+    ToolBar.csv の文字コードをオプション設定に従って判別するようにした。
+  </li>
+  <li>
+    <a href="https://www.asukaze.net/soft/cassava/bbs/index.cgi?t=901">[901]</a>
+    ツールバーのサイズをオプションダイアログの「表示」ページ内で設定できるようにした。
+  </li>
+  <li>
+    <a href="https://github.com/asukaze55/cassava-editor/issues/5">[#5]</a>
+    Ctrl + スクロールでフォントサイズを変更できるようにした。
+  </li>
+  <li>マクロの機能追加・動作変更。
+    <ul>
+      <li>
+        <a href="https://www.asukaze.net/soft/cassava/bbs/index.cgi?t=17">[17]</a>
+        <a href="https://www.asukaze.net/soft/cassava/bbs/index.cgi?t=562">[562]</a>
+        マクロで内容を指定してダイアログボックスを表示できるようにした。
+        <ul>
+          <li>マクロの組み込み関数に ShowDialog() を追加。</li>
+          <li>同梱マクロに "lib/Dialog.cms" "カード編集.cms" を追加。</li>
+          <li>同梱マクロの "列数・行数を変更.cms" を ShowDialog() を使って更新。</li>
+        </ul>
+      </li>
+      <li>
+        <a href="https://www.asukaze.net/soft/cassava/bbs/index.cgi?t=877">[877]</a>
+        マクロの組み込み関数に QuickFind(str) を追加。検索文字列を指定して簡易検索パネルを開けるようにした。
+      </li>
+      <li>
+        <a href="https://www.asukaze.net/soft/cassava/bbs/index.cgi?t=903">[903]</a>
+        マクロで End(); の後に else や return などが続く場合に「中断しました」というダイアログが表示される問題を改善。
+      </li>
+      <li>
+        <a href="https://www.asukaze.net/soft/cassava/bbs/index.cgi?t=903">[903]</a>
+        マクロの組み込み関数に Clear() を追加。
+      </li>
+      <li>マクロの組み込み関数に Open(filename, type) を追加。</li>
+      <li>マクロで ReplaceAll() の第一引数に正規表現オブジェクト（/.../g）を使えるようにした。</li>
+      <li>LoadIniSetting() 実行時に検索・置換ダイアログのチェック状態が反映されない問題を修正。</li>
+    </ul>
+  </li>
+</ul>
+<ul>
+  <li><a href="https://www.asukaze.net/soft/cassava/history/2_7dev.html">2.7 βの更新履歴</a></li>
+</ul>
+
+<h3>～ 2.6.5 <small>(2025/06/21)</small></h3>
+<ul>
+  <li><a href="https://www.asukaze.net/soft/cassava/history/2_6.html">過去の更新履歴は、こちらをご覧ください。</a></li>
+</ul>
+</body>
+</html>
