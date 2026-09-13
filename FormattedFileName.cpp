@@ -22,7 +22,7 @@ String FormattedFileName(String Format, String BaseFileName)
   for(int i=1; i<=Format.Length(); i++){
     if(Format[i] == '%' && i < Format.Length()){
       i++;
-      TCHAR ch = Format[i];
+      wchar_t ch = Format[i];
       switch(ch){
       case 'f':
         FileName += Body2;

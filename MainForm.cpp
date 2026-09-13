@@ -911,7 +911,7 @@ void __fastcall TfmMain::UserToolBarAction(TObject *Sender)
       MacroExec(CmsFile, nullptr);
     }else{
       // ファイルが存在しない場合、スクリプトとして実行
-      TCHAR c = *(action.LastChar());
+      wchar_t c = *(action.LastChar());
       if(c != ';' && c != '}'){
         if(c != ')'){
           action += "();";
@@ -989,12 +989,12 @@ void TfmMain::SetFilter()
   dlgSave->Filter = SFilter;
 }
 //---------------------------------------------------------------------------
-inline TCHAR hex(int digit)
+inline wchar_t hex(int digit)
 {
   return ((digit < 10) ? ('0' + digit) : ('A' + digit - 10));
 }
 //---------------------------------------------------------------------------
-inline String ToHex(TCHAR ch)
+inline String ToHex(wchar_t ch)
 {
   String result = "";
   result += hex(ch / 4096); ch %= 4096;

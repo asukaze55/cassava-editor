@@ -3074,7 +3074,7 @@ static String GetStringForReplace(
     return ReplaceText;
   }
   for (int i = 1; i < ReplaceText.Length(); i++) {
-    TCHAR nextChar = ReplaceText[i + 1];
+    wchar_t nextChar = ReplaceText[i + 1];
     if (ReplaceText[i] == '$' && nextChar >= '0' && nextChar <= '9') {
       int group = nextChar - '0';
       if (Match.size() > group) {

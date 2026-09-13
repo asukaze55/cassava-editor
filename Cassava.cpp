@@ -1,6 +1,5 @@
 ﻿//---------------------------------------------------------------------------
 #include <vcl.h>
-#include <tchar.h>
 #include <Vcl.Styles.hpp>
 #include <Vcl.Themes.hpp>
 
@@ -21,7 +20,7 @@ USEFORM("MainForm.cpp", fmMain);
 USEFORM("Find.cpp", fmFind);
 USEFORM("KeyCustomize.cpp", fmKey);
 //---------------------------------------------------------------------------
-int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int)
+int WINAPI wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int)
 {
   try
   {

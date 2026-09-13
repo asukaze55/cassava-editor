@@ -4,14 +4,12 @@
 #pragma hdrstop
 
 #include <Vcl.printers.hpp>
-#include <tchar.h>
-
 #include "Letter.h"
 #include "AutoOpen.h"
 //---------------------------------------------------------------------------
 #pragma resource "*.dfm"
 //---------------------------------------------------------------------------
-bool IsNumericChar(TCHAR c){
+bool IsNumericChar(wchar_t c){
   return (c >= '0' && c <= '9');
 }
 //---------------------------------------------------------------------------
@@ -115,7 +113,7 @@ int TfmLetter::TateBytes(String Str)
   int Count = 0;
   bool num = false;
   for (int i = 1; i <= Str.Length(); i++) {
-    TCHAR c = Str[i];
+    wchar_t c = Str[i];
     if (c == ' ' || c == '_') {
       Count++;
       num = false;
@@ -264,12 +262,14 @@ for(int ibox=0; ibox<2; ibox++){
     VerticalLogFont.lfEscapement = -90 * 10;
     VerticalLogFont.lfOrientation = -90 * 10;
     VerticalLogFont.lfCharSet = DEFAULT_CHARSET;
-    _tcscpy(VerticalLogFont.lfFaceName, Canvas->Font->Name.c_str());
+    wcscpy_s(
+        VerticalLogFont.lfFaceName, LF_FACESIZE, Canvas->Font->Name.c_str());
 
     ZeroMemory(&NonVerticalLogFont, sizeof(LOGFONT));
     NonVerticalLogFont.lfHeight = Canvas->Font->Height;
     NonVerticalLogFont.lfCharSet = DEFAULT_CHARSET;
-    _tcscpy(NonVerticalLogFont.lfFaceName, Canvas->Font->Name.c_str());
+    wcscpy_s(
+        NonVerticalLogFont.lfFaceName, LF_FACESIZE, Canvas->Font->Name.c_str());
   }
 
   for(int i=0; i<=1; i++)
@@ -299,7 +299,7 @@ for(int ibox=0; ibox<2; ibox++){
     for(int j=1; j <= FE; j++)
     {
       String Msg;
-      TCHAR c = Box[ibox][Who][i][j];
+      wchar_t c = Box[ibox][Who][i][j];
       bool num = false;
       if(j == Name2Pos[Who]) Name2Top = PCY;
       if(Box[ibox][Who][i].IsLeadSurrogate(j)){
