@@ -747,14 +747,14 @@ TToolBar *TfmMain::AddToolBar(String Label, String ImageList, int Top, int Left)
     std::unique_ptr<TBitmap> imageListBitmap = std::make_unique<TBitmap>();
     imageListBitmap->LoadFromFile(imageListFileName);
 
-    TImageCollection *imageCollection = new TImageCollection(this);
+    TImageCollection *imageCollection = new TImageCollection(toolBar);
     for (int x = 0; x < imageListBitmap->Width; x += 16) {
       std::unique_ptr<TBitmap> bitmap = std::make_unique<TBitmap>(16, 16);
       bitmap->Canvas->Draw(-x, 0, imageListBitmap.get());
       AddToImageCollection(bitmap.get(), imageCollection);
     }
 
-    images = new TVirtualImageList(this);
+    images = new TVirtualImageList(toolBar);
     images->AutoFill = true;
     images->ImageCollection = imageCollection;
   }
