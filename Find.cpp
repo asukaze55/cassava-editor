@@ -104,7 +104,7 @@ void __fastcall TfmFind::btnAllReplaceClick(TObject *Sender)
       edReplaceText->Text, range.Left, range.Top, range.Right, range.Bottom,
       cbCase->Checked, cbRegex->Checked, cbWordSearch->Checked);
   Application->MessageBox(
-      ((String)count + L" 個のセルを置換しました。").c_str(), L"すべて置換", 0);
+      (String(count) + L" 個のセルを置換しました。").c_str(), L"すべて置換", 0);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmFind::btnCancelClick(TObject *Sender)

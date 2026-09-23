@@ -198,7 +198,7 @@ wchar_t TTokenizer::ReadHex()
   } else if (c >= 'a' && c <= 'f') {
     return (c - 'a') + 10;
   }
-  throw CMCException((String)L"エスケープシーケンス が不正です：" + c);
+  throw CMCException(String(L"エスケープシーケンス が不正です：") + c);
 }
 //---------------------------------------------------------------------------
 wchar_t TTokenizer::Peek() const
@@ -295,7 +295,7 @@ CMCElement TTokenizer::GetR()
   } while (c <= ' ' || c == u'　' || c == L'\ufeff');
 
   if (c == '$' || c == '#' || c == '@' || c >= '~') {
-    throw CMCException((String)L"不正な文字です：" + c);
+    throw CMCException(String(L"不正な文字です：") + c);
   }
 
   if (c == DBLQUOTE || c == QUOTE) {
@@ -760,7 +760,7 @@ String TCompiler::GetFunction(FunctionType functionType,
   }
 
   wchar_t H = parameters.size() * 2;
-  Output((String)H + "func=", tpFunc);
+  Output(String(H) + "func=", tpFunc);
 
   if (functionType != LAMBDA) {
     // Ok to use these pre-defined variables.
@@ -793,7 +793,7 @@ void TCompiler::GetReturn(char EOS)
   } else if(H == 1) {
     Output(CMO_Return, tpOpe);
   } else {
-    throw CMCException((String)L"return 文に引数が" + (int)H + L"個あります。");
+    throw CMCException(String(L"return 文に引数が") + (int)H + L"個あります。");
   }
 }
 //---------------------------------------------------------------------------
@@ -808,7 +808,7 @@ void TCompiler::GetLambda(const String& paramName)
   if (CapturedVariables.empty()) {
     Output(functionName, tpString);
   } else {
-    Output((String)'\0' + "{}", tpFunc);
+    Output(String(L'\0') + L"{}", tpFunc);
     Output("", tpString);
     Output(functionName, tpString);
     Output(CMO_ObjKey, tpOpe);
@@ -838,7 +838,7 @@ void TCompiler::GetCell()
   if (H == 2) {
     Output(CMO_Cell, tpOpe);
   } else {
-    throw CMCException((String)L"[x,y] 形式に , が"
+    throw CMCException(String(L"[x,y] 形式に , が")
                      + (int)(H-1) + L"個あります。");
   }
 }
@@ -945,7 +945,7 @@ void TCompiler::PushAll(std::deque<CMCElement> *L)
 String TCompiler::GetObject()
 {
   String constructor = "";
-  Output((String)'\0' + "{}", tpFunc);
+  Output(String(L'\0') + L"{}", tpFunc);
   while (true) {
     CMCElement key = lex->Get();
     if (key.type == tpVar || key.type == tpString || key.type == tpInteger ||
@@ -1006,7 +1006,7 @@ void TCompiler::GetClass()
   if (p > 0) {
     outName = InName + "\n" + name
         + constructor.SubString(p, constructor.Length());
-    Output((String)'\0' + "(constructor)", tpFunc);
+    Output(String(L'\0') + L"(constructor)", tpFunc);
   } else {
     outName = GetMacroModuleName(InName, name, 0, false);
   }
@@ -1237,10 +1237,10 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
           return true;
         }
         if (ls.size() > 0 && ls.back().str == ".") {
-          e.str = (String)(++H)  + "." + e.str;
+          e.str = String(++H)  + "." + e.str;
           ls.pop_back();
         } else {
-          String prefix = isLambdaCall ? (String)(++H) + ">" : (String) H;
+          String prefix = isLambdaCall ? String(++H) + ">" : String(H);
           String funcName = ImportedFunctions.count(e.str) > 0
                           ? "$" + ImportedFunctions[e.str] : e.str;
           e = CMCElement(prefix + funcName, prElement, tpFunc);
@@ -1264,7 +1264,7 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         if (std::find(import.begin(), import.end(), libName) == import.end()) {
           import.push_back(libName);
         }
-        String internalName = (String)H + "$" + libName + "\n" + f.str;
+        String internalName = String(H) + "$" + libName + "\n" + f.str;
         Push(CMCElement(internalName, prElement, tpFunc), &ls);
       } else if (IsVarDeclaration(e, lex->GetNext())) {
         bool isConst = (e.str == "const");
@@ -1345,7 +1345,7 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         lex->Get(); // "("
         char H;
         GetValues(')', &H);
-        Push(CMCElement((String)H + f.str, prElement, tpFunc), &ls);
+        Push(CMCElement(String(H) + f.str, prElement, tpFunc), &ls);
       } else if (e.str == "&&" || e.str == "||" || e.str == "&" ||
                  e.str == "|") {
         Push(CMCElement("", e.pri, tpStructure), &ls);

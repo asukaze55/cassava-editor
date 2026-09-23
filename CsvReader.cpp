@@ -46,7 +46,7 @@ void TTypeOption::init()
 //---------------------------------------------------------------------------
 String TTypeOption::DefExt() const
 {
-  return Exts.size() > 0 ? Exts[0] : (String)"";
+  return Exts.size() > 0 ? Exts[0] : L"";
 }
 //---------------------------------------------------------------------------
 wchar_t TTypeOption::DefSepChar() const

@@ -31,7 +31,7 @@ String FormattedFileName(const String& Format, const String& BaseFileName)
         FileName += Ext2;
         break;
       case 'y':
-        FileName += (String)year;
+        FileName += year;
         break;
       case 'M':
         FileName += (char)('0' + (month / 10));
@@ -79,7 +79,7 @@ String FormattedFileName(const String& Format, const String& BaseFileName)
       int p;
       while((p = FileNameTest.Pos("<n>")) > 0){
         FileNameTest.Delete(p, 3);
-        FileNameTest.Insert((String)n, p);
+        FileNameTest.Insert(String(n), p);
       }
       if(! FileExists(FileNameTest)){
         return FileNameTest;

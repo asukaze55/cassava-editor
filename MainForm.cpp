@@ -36,7 +36,7 @@ static String MaybeCompileMacro(const String& fileName, const Preference &pref,
     return "";
   }
   bool compiled = CompileMacro(cmsFile, context, true);
-  return compiled ? cmsFile : (String)"";
+  return compiled ? cmsFile : L"";
 }
 //---------------------------------------------------------------------------
 __fastcall TfmMain::TfmMain(TComponent* Owner)
@@ -116,7 +116,7 @@ __fastcall TfmMain::TfmMain(TComponent* Owner)
 
   if (newWindowCount > 0) {
     newWindowArgs.push_back("-i");
-    newWindowArgs.push_back((String)(positionShift + 1));
+    newWindowArgs.push_back(String(positionShift + 1));
     SpawnProcess(newWindowArgs);
   }
 
@@ -345,7 +345,7 @@ void TfmMain::ReadIni()
   if (TypeCount > 0) {
     TTypeList newTypeList;
     for (int i = 0; i < TypeCount; i++) {
-      String Section = (String)"DataType:" + i;
+      String Section = String(L"DataType:") + i;
       TTypeOption option;
       option.Name = ini.ReadString(Section, "Name", L"[新規]");
       String exts = ini.ReadString(Section, "Exts", "csv");
@@ -462,7 +462,7 @@ void TfmMain::ReadIni()
   MainGrid->BrowserFileName = ini.ReadString("Application", "Browser", "");
   History.clear();
   for (int i = 0; i < 10; i++) {
-    String historyFile = ini.ReadString("History", (String)i, "");
+    String historyFile = ini.ReadString(L"History", String(i), L"");
     if (historyFile != "") {
       History.push_back(historyFile);
     } else {
@@ -479,9 +479,9 @@ void TfmMain::ReadIni()
     }
   }
 
-  mnAppli0->Caption = (String)"&0: " + LaunchName[0];
-  mnAppli1->Caption = (String)"&1: " + LaunchName[1];
-  mnAppli2->Caption = (String)"&2: " + LaunchName[2];
+  mnAppli0->Caption = L"&0: " + LaunchName[0];
+  mnAppli1->Caption = L"&1: " + LaunchName[1];
+  mnAppli2->Caption = L"&2: " + LaunchName[2];
 
   SetHistory("");
 }
@@ -548,7 +548,7 @@ void TfmMain::WriteIni(bool PosSlide)
     int DataCount = TypeList.Count;
     ini.WriteInteger("DataType", "Count", DataCount);
     for (int i = 0; i < DataCount; i++) {
-      String Section = (String)"DataType:" + i;
+      String Section = String(L"DataType:") + i;
       TTypeOption *TO = TypeList.Items(i);
       ini.WriteString(Section, "Name", TO->Name);
       ini.WriteString(Section, "Exts", TO->GetExtsStr(0));
@@ -628,10 +628,10 @@ void TfmMain::WriteIni(bool PosSlide)
     ini.WriteString("Application", "Browser", MainGrid->BrowserFileName);
 
     for (int i = 0; i < History.size(); i++) {
-      ini.WriteString("History", (String)i, History[i]);
+      ini.WriteString("History", String(i), History[i]);
     }
     for (int i = History.size(); i < 10; i++) {
-      ini.DeleteKey("History", (String)i);
+      ini.DeleteKey("History", String(i));
     }
     if (dlgOpenMacro->InitialDir != "" &&
         dlgOpenMacro->InitialDir != Pref->UserPath + "Macro") {
@@ -891,7 +891,7 @@ TMenuItem *FindMenuItemInternal(TMenuItem *root, const String& name)
 //---------------------------------------------------------------------------
 TMenuItem *TfmMain::FindMenuItem(const String& name)
 {
-  return FindMenuItemInternal(MainMenu->Items, (String)"mn" + name);
+  return FindMenuItemInternal(MainMenu->Items, L"mn" + name);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::UserToolBarAction(TObject *Sender)
@@ -985,7 +985,7 @@ void TfmMain::SetFilter()
     if (i > 0) FilterExt += ";";
     FilterExt += "*." + allExts[i];
   }
-  String CFilter = (String)"Cassava (" + FilterExt + ")|" + FilterExt + "|";
+  String CFilter = L"Cassava (" + FilterExt + L")|" + FilterExt + L"|";
   dlgOpen->Filter = CFilter + OFilter + L"すべてのファイル (*.*)|*.*";
   dlgSave->Filter = SFilter;
 }
@@ -1586,7 +1586,9 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
     do{
       String type = ChangeFileExt(sr.Name,"");
       String ext = ExtractFileExt(type);
-      if(ext == ""){ ext = (String)"." + type; }
+      if (ext == L"") {
+        ext = L"." + type;
+      }
       strFilter += type.UpperCase() + L" 形式 (*" + ext + ")|*" + ext + "|";
       types.push_back(type);
     }while (FindNext(sr) == 0);
@@ -1596,7 +1598,9 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
     do{
       String type = ChangeFileExt(sr.Name,"");
       String ext = ExtractFileExt(type);
-      if(ext == ""){ ext = (String)"." + type; }
+      if (ext == L"") {
+        ext = L"." + type;
+      }
       strFilter += type.UpperCase() + L" 形式 (*" + ext + ")|*" + ext + "|";
       types.push_back(type);
     }while (FindNext(sr) == 0);
@@ -1615,7 +1619,9 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
     String type = types[dlgSave->FilterIndex - 1];
     if(ExtractFileExt(dlgSave->FileName) == ""){
       String ext = ExtractFileExt(type);
-      if(ext == ""){ ext = (String)"." + type; }
+      if (ext == "") {
+        ext = L"." + type;
+      }
       dlgSave->FileName = dlgSave->FileName + ext;
     }
     Export(dlgSave->FileName, type);
@@ -1676,12 +1682,12 @@ void TfmMain::SetHistory(const String& S)
 
   for (int i = 0; i < 10; i++) {
     if (i < History.size()){
-      MnHist[i]->Caption = (String)"&" + i + ": " + History[i];
+      MnHist[i]->Caption = String(L"&") + i + L": " + History[i];
       MnHist[i]->Enabled = true;
       MnHist[i]->Visible = true;
     } else {
       MnHist[i]->Visible = false;
-      MnHist[i]->Caption = (String)"&" + i + L": (なし)";
+      MnHist[i]->Caption = String(L"&") + i + L": (なし)";
     }
   }
   if (History.size() == 0) {
@@ -1725,7 +1731,7 @@ void __fastcall TfmMain::PopMenuOpenPopup(TObject *Sender)
 
   for (int i = 0; i < History.size(); i++) {
     TMenuItem *NewItem = new TMenuItem(mi->Owner);
-    NewItem->Caption = (String)"&" + i + ": " + History[i];
+    NewItem->Caption = String(L"&") + i + L": " + History[i];
     NewItem->Tag = i;
     NewItem->OnClick = mnOpenHistoryClick;
     mi->Add(NewItem);
@@ -2612,7 +2618,7 @@ TCalculatedCell TfmMain::GetCalculatedCell(String Str, int ACol, int ARow)
   TMacroContext macroContext;
   macroContext.AddDirectory(Pref->UserPath + "Macro\\");
   macroContext.AddDirectory(Pref->SharedPath + "Macro\\");
-  String cmsName = (String)"$@cell_" + ACol + "_" + ARow;
+  String cmsName = String(L"$@cell_") + ACol + "_" + ARow;
   try {
     String formula = "return " + Str + ";";
     bool ok = CompileMacro(&formula, cmsName, &macroContext, false);

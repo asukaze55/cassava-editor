@@ -31,15 +31,15 @@ void TfrOptionLaunch::RestoreFromMainForm()
 //---------------------------------------------------------------------------
 void TfrOptionLaunch::StoreToMainForm()
 {
-  fmMain->mnAppli0->Caption = (String)"&0: " + edLaunchName0->Text;
+  fmMain->mnAppli0->Caption = L"&0: " + edLaunchName0->Text;
   fmMain->mnAppli0->Hint    = edLaunch0->Text;
   fmMain->mnAppli0->Tag     = cbClose0->Checked;
   fmMain->mnAppli0->Enabled = (edLaunch0->Text != "");
-  fmMain->mnAppli1->Caption = (String)"&1: " + edLaunchName1->Text;
+  fmMain->mnAppli1->Caption = L"&1: " + edLaunchName1->Text;
   fmMain->mnAppli1->Hint    = edLaunch1->Text;
   fmMain->mnAppli1->Tag     = cbClose1->Checked;
   fmMain->mnAppli1->Enabled = (edLaunch1->Text != "");
-  fmMain->mnAppli2->Caption = (String)"&2: " + edLaunchName2->Text;
+  fmMain->mnAppli2->Caption = L"&2: " + edLaunchName2->Text;
   fmMain->mnAppli2->Hint    = edLaunch2->Text;
   fmMain->mnAppli2->Tag     = cbClose2->Checked;
   fmMain->mnAppli2->Enabled = (edLaunch2->Text != "");

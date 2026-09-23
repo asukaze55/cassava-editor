@@ -429,7 +429,7 @@ void TfmLetter::DataSave(const String& FileName)
     String Section = (i==0 ? L"印刷位置：宛先" : L"印刷位置：差出人");
     Ini->WriteInteger(Section,"NumberTop",NumberTop[i]);
     for(int j=0; j<7; j++){
-      Ini->WriteFloat(Section, (String)"NumberLeft" + j, NumberLeft[i][j]);
+      Ini->WriteFloat(Section, String(L"NumberLeft") + j, NumberLeft[i][j]);
     }
     Ini->WriteInteger(Section,"NumberSize", NumberSize[i]);
     Ini->WriteInteger(Section,"AddressTop", AddressTop[i]);
@@ -487,7 +487,7 @@ void TfmLetter::DataRead(const String& FileName)
     NumberTop[i] = Ini->ReadInteger(Section,"NumberTop",NumberTop[i]);
     for(int j=0; j<7; j++){
       NumberLeft[i][j] =
-          Ini->ReadFloat(Section, (String)"NumberLeft" + j, NumberLeft[i][j]);
+          Ini->ReadFloat(Section, String(L"NumberLeft") + j, NumberLeft[i][j]);
     }
     NumberSize[i] = Ini->ReadInteger(Section,"NumberSize", NumberSize[i]);
     AddressTop[i] = Ini->ReadInteger(Section,"AddressTop", AddressTop[i]);

@@ -743,7 +743,7 @@ void TMacro::ExecPrimitiveMethod(const String& s, int H,
   } else if (s == "padEnd" && (H == 2 || H == 3)) {
     String target = STR0;
     int length = VAL1;
-    String pad = (H > 2 ? STR2 : (String)" ");
+    String pad = (H > 2 ? STR2 : L" ");
     if (target.Length() >= length) {
       Stack.push_back(Element(target));
       return;
@@ -755,7 +755,7 @@ void TMacro::ExecPrimitiveMethod(const String& s, int H,
   } else if (s == "padStart" && (H == 2 || H == 3)) {
     String target = STR0;
     int length = VAL1;
-    String pad = (H > 2 ? STR2 : (String)" ");
+    String pad = (H > 2 ? STR2 : L" ");
     if (target.Length() >= length) {
       Stack.push_back(Element(target));
       return;
@@ -887,7 +887,7 @@ TControl *UserDialog::ConvertDialogControl(
     TButton *button = new TButton(Form.get());
     button->Parent = parent;
     button->Caption =  childNodes.HasMember("0")
-        ? childNodes.GetMember("0").Str(): (String)" ";
+        ? childNodes.GetMember("0").Str(): L" ";
     button->ClientHeight = Form->Canvas->TextHeight(button->Caption) + 16;
     button->ClientWidth = Form->Canvas->TextWidth(button->Caption) + 32;
     if (!*hasDefault) {
@@ -940,7 +940,7 @@ TControl *UserDialog::ConvertDialogControl(
     int top = 0;
     int width = 0;
     for (int i = 0; i < childNodes.GetMember("length").Val(); i++) {
-      const Element &childNode = childNodes.GetMember((String)i).Value();
+      const Element &childNode = childNodes.GetMember(String(i)).Value();
       bool isBlock = childNode.HasMember("tagName") &&
           childNode.GetMember("tagName").Str().UpperCase() == "DIV";
       TControl *child = ConvertDialogControl(childNode, panel, hasDefault);
@@ -994,7 +994,7 @@ void TMacro::ExecFnc(String s)
     bool isLambda = (s[1] == '>');
     s.Delete(1,1);
     try {
-      ExecMethod(isLambda ? (String)"" : s, H, ope, isLambda);
+      ExecMethod(isLambda ? L"" : s, H, ope, isLambda);
       return;
     } catch (MacroException e) {
       if (!isLambda) {
@@ -1078,9 +1078,9 @@ void TMacro::ExecFnc(String s)
         throw MacroException("Can't show dialogs.", ME_SECURITY);
       }
       env.Grid->ApplyPendingChanges();
-      String Text = (H >= 1) ? STR0 : (String)"";
-      String Value = (H >= 2) ? (ope[H-1].Str()) : (String)"";
-      String Caption = (H >= 3) ? STR1 : (String)"Cassava Macro";
+      String Text = (H >= 1) ? STR0 : L"";
+      String Value = (H >= 2) ? (ope[H-1].Str()) : L"";
+      String Caption = (H >= 3) ? STR1 : L"Cassava Macro";
       bool isOk = InputQuery(Caption, Text, Value);
       if (isOk) {
         Stack.push_back(Element(Value));
@@ -1092,9 +1092,9 @@ void TMacro::ExecFnc(String s)
         throw MacroException("Can't show dialogs.", ME_SECURITY);
       }
       env.Grid->ApplyPendingChanges();
-      String Text = (H >= 1) ? STR0 : (String)"";
-      String Value = (H >= 2) ? (ope[H-1].Str()) : (String)"";
-      String Caption = (H >= 3) ? STR1 : (String)"Cassava Macro";
+      String Text = (H >= 1) ? STR0 : L"";
+      String Value = (H >= 2) ? (ope[H-1].Str()) : L"";
+      String Caption = (H >= 3) ? STR1 : L"Cassava Macro";
       bool isOk = InputBoxMultiLine(Caption, Text, Value);
       if (isOk) {
         Stack.push_back(Element(NormalizeNewLine(Value)));
@@ -1364,7 +1364,7 @@ void TMacro::ExecFnc(String s)
     }else if(s == "len" && H == 1){
       Stack.push_back(Element(STR0.Length()));
     }else if(s == "lenB" && H == 1){
-      Stack.push_back(Element(((AnsiString)STR0).Length()));
+      Stack.push_back(Element(AnsiString(STR0).Length()));
     }else if(s == "InsertRow" && (H == 1 || H == 2)){
       int top = VAL0;
       int bottom = (H > 1 ? VAL1 : top);
@@ -1400,7 +1400,7 @@ void TMacro::ExecFnc(String s)
     }else if(s == "pos" && H == 2){
       Stack.push_back(Element(STR0.Pos(STR1)));
     }else if(s == "posB" && H == 2){
-      Stack.push_back(Element(((AnsiString)STR0).AnsiPos(STR1)));
+      Stack.push_back(Element(AnsiString(STR0).AnsiPos(STR1)));
     }else if(s == "asc" && H == 1){
       AnsiString str = STR0;
       if(str == ""){
@@ -1419,22 +1419,22 @@ void TMacro::ExecFnc(String s)
         Stack.push_back(Element(str[1]));
       }
     }else if(s == "chr" && H == 1){
+      AnsiString result;
       int val = VAL0;
-      char buf[3];
-      if(val < 256){
-        buf[0] = val;
-        buf[1] = '\0';
-      }else{
-        buf[0] = val / 256;
-        buf[1] = val % 256;
-        buf[2] = '\0';
+      if (val < 256) {
+        result.SetLength(1);
+        result[1] = val;
+      } else {
+        result.SetLength(2);
+        result[1] = val / 256;
+        result[2] = val % 256;
       }
-      Stack.push_back(Element((AnsiString)buf));
+      Stack.push_back(Element(result));
     }else if(s == "chrW" && H == 1){
-      wchar_t buf[2];
-      buf[0] = VAL0;
-      buf[1] = '\0';
-      Stack.push_back(Element((String)buf));
+      String result;
+      result.SetLength(1);
+      result[1] = VAL0;
+      Stack.push_back(Element(result));
     }else if((s == "move" || s == "moveto") && H == 2){
       int c = VAL0;
       int r = VAL1;
@@ -1447,7 +1447,7 @@ void TMacro::ExecFnc(String s)
       String st = STR0;
       Stack.push_back(Element(st.SubString(VAL1, st.Length()-VAL1+1)));
     }else if(s == "mid" && H == 3){
-      Stack.push_back(Element(((String)STR0).SubString(VAL1, VAL2)));
+      Stack.push_back(Element(STR0.SubString(VAL1, VAL2)));
     }else if(s == "mid=" && H == 4){
       String st = STR0;
       int r = VAL1 + VAL2;
@@ -1613,7 +1613,7 @@ void TMacro::ExecOpe(char c, size_t &p){
       LoopCount++;
       Application->ProcessMessages();
       if (MaxLoop > 0 && LoopCount > MaxLoop) {
-        throw MacroException((String)L"ループ回数が" + MaxLoop +
+        throw MacroException(String(L"ループ回数が") + MaxLoop +
             L"に達しました。処理を中断します。");
       }
       if (!RunningOk) { throw MacroException(L"中断しました"); }
@@ -1627,7 +1627,7 @@ void TMacro::ExecOpe(char c, size_t &p){
       std::unique_ptr<TEnvironment> varArg = env.NewObject();
       int fromIndex = ope.Val();
       for (int i = fromIndex; i < Stack.size(); i++) {
-        varArg->Vars[(String)(i - fromIndex)] = Element(Stack[i].Value());
+        varArg->Vars[String(i - fromIndex)] = Element(Stack[i].Value());
       }
       varArg->Vars["length"] = Element(Stack.size() - fromIndex);
       std::vector<std::unique_ptr<TEnvironment>>& objects = env.GetObjects();
@@ -1739,7 +1739,7 @@ void TMacro::ExecOpe(char c, size_t &p){
         p = ope2.Val();
       }
     } else {
-      throw MacroException((String)"Invalid operator: " + c);
+      throw MacroException(String(L"Invalid operator: ") + c);
     }
   }
 }

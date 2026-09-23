@@ -103,7 +103,7 @@ void TfrOptionDataFormat::UpdateOptionTree()
   }
   for (int i = 0; i < TypeList.Count + 1; i++){
     String name =
-        (i < TypeList.Count ? TypeList.Items(i)->Name : (String)L"(新規作成)");
+        (i < TypeList.Count ? TypeList.Items(i)->Name : L"(新規作成)");
     if (i == ActiveTypeIndex) { name += L" (アクティブ)"; }
 
     if (fmOption->tnDataFormat->Count <= i) {

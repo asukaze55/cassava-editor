@@ -34,7 +34,7 @@ String EscapeMacroString(const String& str)
     } else if (c == '\t') {
       escaped += "\\t";
     } else if (c < 32) {
-      escaped += (String)"\\x" + toHex(c / 16) + toHex(c % 16);
+      escaped += String(L"\\x") + toHex(c / 16) + toHex(c % 16);
     } else {
       escaped += c;
     }
@@ -55,10 +55,10 @@ String TUndoCommand::GetUndoMacro() const
     return undoData;
   }
   if (right < x || bottom < y) {
-    return (String)"Right = " + right + ";\nBottom = " + bottom + ";\n";
+    return String(L"Right = ") + right + L";\nBottom = " + bottom + L";\n";
   }
-  return (String)"[" + x + "," + y + "] = \"" + EscapeMacroString(undoData)
-      + "\";";
+  return String(L"[") + x + L"," + y + L"] = \"" + EscapeMacroString(undoData)
+      + L"\";";
 }
 //---------------------------------------------------------------------------
 String TUndoCommand::GetRedoMacro() const
@@ -66,8 +66,8 @@ String TUndoCommand::GetRedoMacro() const
   if (type == UNDO_MACRO) {
     return redoData;
   }
-  return (String)"[" + x + "," + y + "] = \"" + EscapeMacroString(redoData)
-      + "\";";
+  return String(L"[") + x + L"," + y + L"] = \"" + EscapeMacroString(redoData)
+      + L"\";";
 }
 //---------------------------------------------------------------------------
 String TUndoCommand::GetRecordedMacro() const
@@ -86,7 +86,7 @@ void TUndoList::AddMacro(const String& undoMacro, const String& redoMacro,
   }
   SetCount(list, current);
   list.emplace_back(UNDO_MACRO, undoMacro, redoMacro,
-      (recording < INT_MAX) ? recordedMacro : (String)"");
+      (recording < INT_MAX) ? recordedMacro : L"");
   if (group.empty() && current >= MaxCount && recording > 0) {
     list.erase(list.begin());
     if (recording < INT_MAX) {
