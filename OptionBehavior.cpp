@@ -63,9 +63,8 @@ void __fastcall TfrOptionBehavior::cbStopMacroKeyUpDown(TObject *Sender,
   seStopMacroCount->Enabled = cbStopMacro->Checked;
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TfrOptionBehavior::cbStopMacroKeyPress(TObject *Sender,
-      char &Key)
+    wchar_t &Key)
 {
   seStopMacroCount->Enabled = cbStopMacro->Checked;
 }

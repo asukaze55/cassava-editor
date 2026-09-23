@@ -68,7 +68,7 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall tvMenuChange(TObject *Sender, TTreeNode *Node);
   void __fastcall rgSCKeyClick(TObject *Sender);
   void __fastcall btnOKClick(TObject *Sender);
-  void __fastcall edSCKeyKeyPress(TObject *Sender, char &Key);
+  void __fastcall edSCKeyKeyPress(TObject *Sender, wchar_t &Key);
   void __fastcall btnSaveClick(TObject *Sender);
   void __fastcall btnOpenClick(TObject *Sender);
   void __fastcall tvMenuChanging(TObject *Sender, TTreeNode *Node,

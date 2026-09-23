@@ -213,11 +213,12 @@ void TfmKey::UpdateMenu()
   }
 }
 //---------------------------------------------------------------------------
-void __fastcall TfmKey::edSCKeyKeyPress(TObject *Sender, char &Key)
+void __fastcall TfmKey::edSCKeyKeyPress(TObject *Sender, wchar_t &Key)
 {
   edSCKey->Text = "";
-  if(Key >= 'a' && Key <= 'z')
-    Key -= (char)32u; // toupper
+  if (Key >= L'a' && Key <= L'z') {
+    Key -= 32;  // toupper
+  }
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmKey::edSelectedChange(TObject *Sender)

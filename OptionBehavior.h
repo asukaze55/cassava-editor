@@ -38,7 +38,7 @@ __published:	// IDE 管理のコンポーネント
   void __fastcall cbStopMacroClick(TObject *Sender);
   void __fastcall cbStopMacroKeyUpDown(TObject *Sender, WORD &Key,
           TShiftState Shift);
-  void __fastcall cbStopMacroKeyPress(TObject *Sender, char &Key);
+  void __fastcall cbStopMacroKeyPress(TObject *Sender, wchar_t &Key);
 private:	// ユーザー宣言
 public:		// ユーザー宣言
 	__fastcall TfrOptionBehavior(TComponent* Owner);
