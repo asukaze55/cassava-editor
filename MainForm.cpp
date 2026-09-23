@@ -264,31 +264,26 @@ void TfmMain::ReadIni()
     mnShowStatusbarClick(this);
   }
 
-  MainGrid->Color =
-      (TColor) ini.ReadInteger("Font", "BgColor", MainGrid->Color);
-  MainGrid->CalcBgColor =
-      (TColor) ini.ReadInteger("Font", "CalcBgColor", clAqua);
-  MainGrid->CalcErrorBgColor =
-      (TColor) ini.ReadInteger("Font", "CalcErrorBgColor", clRed);
-  MainGrid->CalcErrorFgColor = (TColor) ini.ReadInteger(
-      "Font", "CalcErrorFgColor", MainGrid->Font->Color);
+  MainGrid->Color = ini.ReadEnum("Font", "BgColor", MainGrid->Color);
+  MainGrid->CalcBgColor = ini.ReadEnum("Font", "CalcBgColor", clAqua);
+  MainGrid->CalcErrorBgColor = ini.ReadEnum("Font", "CalcErrorBgColor", clRed);
+  MainGrid->CalcErrorFgColor =
+      ini.ReadEnum("Font", "CalcErrorFgColor", MainGrid->Font->Color);
   MainGrid->CalcFgColor =
-      (TColor) ini.ReadInteger("Font", "CalcFgColor", MainGrid->Font->Color);
+      ini.ReadEnum("Font", "CalcFgColor", MainGrid->Font->Color);
   MainGrid->CurrentRowBgColor =
-      (TColor) ini.ReadInteger("Font", "CurrentRowBgColor", MainGrid->Color);
+      ini.ReadEnum("Font", "CurrentRowBgColor", MainGrid->Color);
   MainGrid->CurrentColBgColor =
-      (TColor) ini.ReadInteger("Font", "CurrentColBgColor", MainGrid->Color);
-  MainGrid->DummyBgColor =
-      (TColor) ini.ReadInteger("Font", "DummyBgColor", clCream);
+      ini.ReadEnum("Font", "CurrentColBgColor", MainGrid->Color);
+  MainGrid->DummyBgColor = ini.ReadEnum("Font", "DummyBgColor", clCream);
   MainGrid->EvenRowBgColor =
-      (TColor) ini.ReadInteger("Font", "EvenRowBgColor", MainGrid->Color);
+      ini.ReadEnum("Font", "EvenRowBgColor", MainGrid->Color);
   MainGrid->FixFgColor =
-      (TColor) ini.ReadInteger("Font", "FixFgColor", MainGrid->Font->Color);
+      ini.ReadEnum("Font", "FixFgColor", MainGrid->Font->Color);
   MainGrid->FixedColor =
-      (TColor) ini.ReadInteger("Font", "FixedColor", MainGrid->FixedColor);
-  MainGrid->FoundBgColor =
-      (TColor) ini.ReadInteger("Font", "FoundBgColor", clYellow);
-  MainGrid->UrlColor = (TColor) ini.ReadInteger("Font", "UrlColor", clBlue);
+      ini.ReadEnum("Font", "FixedColor", MainGrid->FixedColor);
+  MainGrid->FoundBgColor = ini.ReadEnum("Font", "FoundBgColor", clYellow);
+  MainGrid->UrlColor = ini.ReadEnum("Font", "UrlColor", clBlue);
   MainGrid->WordWrap = ini.ReadBool("Font", "WordWrap", false);
   MainGrid->TextAlignment =
       ini.ReadInteger("Font", "TextAlign", MainGrid->TextAlignment);
@@ -327,7 +322,7 @@ void TfmMain::ReadIni()
   MainGrid->LRMargin = ini.ReadInteger("Font", "LRMargin", 4);
   MainGrid->CellLineMargin = ini.ReadInteger("Font", "CellLineMargin", 0);
   MainGrid->Font->Color =
-      (TColor) ini.ReadInteger("Font", "FgColor", MainGrid->Font->Color);
+      ini.ReadEnum("Font", "FgColor", MainGrid->Font->Color);
   MainGrid->Canvas->Font = MainGrid->Font;
 
   PrintFontName = ini.ReadString("Print", "FontName", MainGrid->Font->Name);
@@ -358,7 +353,7 @@ void TfmMain::ReadIni()
       option.QuoteChars =
           Ascii2Ctrl(ini.ReadString(Section, "QuoteChars", "\""));
       option.QuoteOption =
-          (TQuoteOption) ini.ReadInteger(Section, "Quote", QUOTE_NORMAL);
+          ini.ReadEnum<TQuoteOption>(Section, "Quote", QUOTE_NORMAL);
       option.QuoteExpression =
           ini.ReadString(Section, "QuoteExpression", "");
       option.OmitComma = ini.ReadBool(Section, "OmitComma", true);
@@ -390,7 +385,7 @@ void TfmMain::ReadIni()
   mnPasteOption4->Checked = (pasteOption == 4);
   mnPasteOption5->Checked = (pasteOption == 5);
   MainGrid->DragBehavior =
-      (TDragBehavior) ini.ReadInteger("Mode", "DragCounter", dbMoveIfSelected);
+      ini.ReadEnum<TDragBehavior>("Mode", "DragCounter", dbMoveIfSelected);
   MainGrid->EnterMove = ini.ReadInteger("Mode", "EnterMove", 0);
 
   int FixedRows = ini.ReadInteger("Mode", "FixTopRow", 0);
@@ -514,20 +509,20 @@ void TfmMain::WriteIni(bool PosSlide)
     ini.WriteInteger("Font", "TBMargin", MainGrid->TBMargin);
     ini.WriteInteger("Font", "LRMargin", MainGrid->LRMargin);
     ini.WriteInteger("Font", "CellLineMargin", MainGrid->CellLineMargin);
-    ini.WriteInteger("Font", "BgColor", MainGrid->Color);
-    ini.WriteInteger("Font", "CalcBgColor", MainGrid->CalcBgColor);
-    ini.WriteInteger("Font", "CalcErrorBgColor", MainGrid->CalcErrorBgColor);
-    ini.WriteInteger("Font", "CalcErrorFgColor", MainGrid->CalcErrorFgColor);
-    ini.WriteInteger("Font", "CalcFgColor", MainGrid->CalcFgColor);
-    ini.WriteInteger("Font", "CurrentColBgColor", MainGrid->CurrentColBgColor);
-    ini.WriteInteger("Font", "CurrentRowBgColor", MainGrid->CurrentRowBgColor);
-    ini.WriteInteger("Font", "DummyBgColor", MainGrid->DummyBgColor);
-    ini.WriteInteger("Font", "EvenRowBgColor", MainGrid->EvenRowBgColor);
-    ini.WriteInteger("Font", "FgColor", MainGrid->Font->Color);
-    ini.WriteInteger("Font", "FixFgColor", MainGrid->FixFgColor);
-    ini.WriteInteger("Font", "FixedColor", MainGrid->FixedColor);
-    ini.WriteInteger("Font", "FoundBgColor", MainGrid->FoundBgColor);
-    ini.WriteInteger("Font", "UrlColor", MainGrid->UrlColor);
+    ini.WriteEnum("Font", "BgColor", MainGrid->Color);
+    ini.WriteEnum("Font", "CalcBgColor", MainGrid->CalcBgColor);
+    ini.WriteEnum("Font", "CalcErrorBgColor", MainGrid->CalcErrorBgColor);
+    ini.WriteEnum("Font", "CalcErrorFgColor", MainGrid->CalcErrorFgColor);
+    ini.WriteEnum("Font", "CalcFgColor", MainGrid->CalcFgColor);
+    ini.WriteEnum("Font", "CurrentColBgColor", MainGrid->CurrentColBgColor);
+    ini.WriteEnum("Font", "CurrentRowBgColor", MainGrid->CurrentRowBgColor);
+    ini.WriteEnum("Font", "DummyBgColor", MainGrid->DummyBgColor);
+    ini.WriteEnum("Font", "EvenRowBgColor", MainGrid->EvenRowBgColor);
+    ini.WriteEnum("Font", "FgColor", MainGrid->Font->Color);
+    ini.WriteEnum("Font", "FixFgColor", MainGrid->FixFgColor);
+    ini.WriteEnum("Font", "FixedColor", MainGrid->FixedColor);
+    ini.WriteEnum("Font", "FoundBgColor", MainGrid->FoundBgColor);
+    ini.WriteEnum("Font", "UrlColor", MainGrid->UrlColor);
     ini.WriteBool("Font", "WordWrap", MainGrid->WordWrap);
     ini.WriteInteger("Font", "TextAlign", MainGrid->TextAlignment);
     ini.WriteInteger("Font", "NumberComma", MainGrid->NumberComma);
@@ -556,7 +551,7 @@ void TfmMain::WriteIni(bool PosSlide)
       ini.WriteString(Section, "SepChars", Ctrl2Ascii(TO->SepChars));
       ini.WriteString(Section, "WeakSepChars", Ctrl2Ascii(TO->WeakSepChars));
       ini.WriteString(Section, "QuoteChars", Ctrl2Ascii(TO->QuoteChars));
-      ini.WriteInteger(Section, "Quote", TO->QuoteOption);
+      ini.WriteEnum(Section, "Quote", TO->QuoteOption);
       ini.WriteString(Section, "QuoteExpression", TO->QuoteExpression);
       ini.WriteBool(Section, "OmitComma", TO->OmitComma);
       ini.WriteBool(Section, "DummyEof", TO->DummyEof);
@@ -574,7 +569,7 @@ void TfmMain::WriteIni(bool PosSlide)
     ini.WriteInteger("Backup", "Interval", BuInterval);
 
     ini.WriteInteger("Mode", "Paste", MainGrid->PasteOption);
-    ini.WriteInteger("Mode", "DragCounter", MainGrid->DragBehavior);
+    ini.WriteEnum("Mode", "DragCounter", MainGrid->DragBehavior);
     ini.WriteInteger("Mode", "EnterMove", MainGrid->EnterMove);
     ini.WriteInteger("Mode", "FixTopRow",
         MainGrid->ShowColCounter ? 0 : MainGrid->FixedRows);

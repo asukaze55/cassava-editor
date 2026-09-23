@@ -26,6 +26,17 @@ public:
 
   void DeleteKey(const String& section, const String& key);
   bool ValueExists(const String& section, const String& key);
+
+  template <typename T, typename = std::enable_if_t<std::is_enum_v<T>>>
+  T ReadEnum(const String& section, const String& key, T def) {
+    return static_cast<T>(
+        file->ReadInteger(section, key, static_cast<int>(def)));
+  }
+
+  template <typename T, typename = std::enable_if_t<std::is_enum_v<T>>>
+  void WriteEnum(const String& section, const String& key, T value) {
+    file->WriteInteger(section, key, static_cast<int>(value));
+  }
 };
 //---------------------------------------------------------------------------
 class Preference

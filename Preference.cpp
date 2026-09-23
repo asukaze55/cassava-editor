@@ -40,7 +40,7 @@ String IniFile::ReadString(const String& section, const String& key,
     while (i < raw.Length() && raw[i + 1] >= '0' && raw[i + 1] <= '9') {
       code = code * 10 + (raw[++i] - '0');
     }
-    result += (wchar_t)code;
+    result += static_cast<wchar_t>(code);
     if (i < raw.Length() && raw[i + 1] == ';') {
       i++;
     }
@@ -69,10 +69,10 @@ void IniFile::WriteString(const String& section, const String& key,
   AnsiString ansiStr = "";
   for (int i = 1; i <= value.Length(); i++) {
     wchar_t c = value[i];
-    if ((AnsiString)c != "?") {
+    if (AnsiString(c) != "?") {
       ansiStr += c;
     } else {
-      ansiStr += (AnsiString)"?#" + (int)c + ";";
+      ansiStr += AnsiString("?#") + static_cast<int>(c) + ";";
     }
   }
   file->WriteString(section, key, ansiStr);
