@@ -17,7 +17,6 @@
 #include "AutoOpen.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
-using namespace std;
 //---------------------------------------------------------------------------
 enum ElementType {
   etErr,
@@ -245,8 +244,8 @@ public:
 
   void Select(int left, int top, int right, int bottom) {
     ApplyPendingChanges();
-    grid->SetSelection(rx(min(left, right)), rx(max(left, right)),
-                       ry(min(top, bottom)), ry(max(top, bottom)));
+    grid->SetSelection(rx(std::min(left, right)), rx(std::max(left, right)),
+                       ry(std::min(top, bottom)), ry(std::max(top, bottom)));
   }
 };
 //---------------------------------------------------------------------------
@@ -709,7 +708,7 @@ void TMacro::ExecPrimitiveMethod(String s, int H,
       from = 0;
     }
     if (search == "") {
-      Stack.push_back(Element(min(from, target.Length())));
+      Stack.push_back(Element(std::min(from, target.Length())));
       return;
     }
     int pos = target.SubString(from + 1, target.Length() - from).Pos(search);
@@ -726,7 +725,7 @@ void TMacro::ExecPrimitiveMethod(String s, int H,
       from = 0;
     }
     if (search == "") {
-      Stack.push_back(Element(min(from, target.Length())));
+      Stack.push_back(Element(std::min(from, target.Length())));
       return;
     }
     int lastPos = 0;
@@ -795,14 +794,14 @@ void TMacro::ExecPrimitiveMethod(String s, int H,
     String target = STR0;
     int arg1 = VAL1;
     int arg2 = (H > 2 ? VAL2 : target.Length());
-    int start = min(arg1, arg2);
+    int start = std::min(arg1, arg2);
     if (start < 0) {
       start = 0;
     }
     if (start > target.Length()) {
       start = target.Length();
     }
-    int end = max(arg1, arg2);
+    int end = std::max(arg1, arg2);
     if (end < 0) {
       end = 0;
     }
@@ -1725,7 +1724,7 @@ void TMacro::ExecOpe(char c, size_t &p){
         throw MacroException(L"in の右がオブジェクトではありません："
             + (ope2.Type == etVar ? ope2.Name() : ope2.Str()));
       }
-      map<String, Element>& vars = env.GetObject(ope2.Val())->Vars;
+      std::map<String, Element>& vars = env.GetObject(ope2.Val())->Vars;
       Stack.push_back(Element((vars.find(ope1.Str()) != vars.end()) ? 1 : 0));
     } else if (c == CMO_IfThen) {
       if (ope1.Val() == 0) {
