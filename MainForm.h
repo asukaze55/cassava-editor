@@ -363,13 +363,14 @@ private:    // ユーザー宣言
   String GetUiFileName();
   void UpdateTitle();
   String FStyle;
-  void SetStyle(String Value);
+  void SetStyle(const String& Value);
   TTypeList FTypeList;
   void SetTypeList(const TTypeList &TypeList);
   void ReadToolBar();
-  TToolButton *AddToolButton(String Label, String Name, String Action,
-      int Left, TToolBar *ToolBar);
-  TToolBar *AddToolBar(String Label, String ImageList, int Top, int Left);
+  TToolButton *AddToolButton(const String& Label, const String& Name,
+      const String& Action, int Left, TToolBar *ToolBar);
+  TToolBar *AddToolBar(const String& Label, const String& ImageList,
+      int Top, int Left);
   int FToolBarSize;
   void SetToolBarSize(int Size);
 
@@ -400,24 +401,24 @@ public:     // ユーザー宣言
   std::unique_ptr<Preference> Pref;
   TDateTime TimeStamp;
   std::vector<String> History;
-  void SetHistory(String S);
+  void SetHistory(const String& S);
   void SetFilter();
-  String MakeId(String prefix, String caption, int i);
+  String MakeId(const String& prefix, const String& caption, int i);
   void SetCutMenu(TMenuItem *Item);
   void SetCopyMenu(TMenuItem *Item);
   void SetPasteMenu(TMenuItem *Item);
   void SetGridFont(TFont *AFont);
   void UpdateQuickFindPanel();
 
-  void MacroExec(String CmsFile, EncodedWriter *io);
-  void MacroScriptExec(String cmsname, String script);
+  void MacroExec(const String& CmsFile, EncodedWriter *io);
+  void MacroScriptExec(const String& cmsname, const String& script);
   TCalculatedCell GetCalculatedCell(String Str, int ACol, int ARow);
   TFormattedCell GetFormattedCell(TCalculatedCell Cell, int AX, int AY);
-  void OpenFile(String OpenFileName, int CharCode = CHARCODE_AUTO,
+  void OpenFile(const String& OpenFileName, int CharCode = CHARCODE_AUTO,
       const TTypeOption *Format = nullptr);
-  void SaveAs(String AFileName, const TTypeOption *Format);
-  void Export(String filename, String type);
-  TMenuItem *FindMenuItem(String name);
+  void SaveAs(const String& AFileName, const TTypeOption *Format);
+  void Export(const String& filename, const String& type);
+  TMenuItem *FindMenuItem(const String& name);
 
   TEncodingDetector EncodingDetector;
   bool MakeNewWindow;

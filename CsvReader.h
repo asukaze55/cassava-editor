@@ -30,7 +30,7 @@ public:
   bool DummyEol;
 
   TTypeOption();
-  TTypeOption(String str);
+  TTypeOption(const String& str);
 
   void init();
   String DefExt() const;
@@ -58,9 +58,9 @@ private:
   int delimiterType;
   void __fastcall IncrementPos(bool Quoted);
 public:
-  CsvReader(const TTypeOption* TypeOption, String FileName,
+  CsvReader(const TTypeOption* TypeOption, const String& FileName,
       TEncoding *Encoding);
-  CsvReader(const TTypeOption* TypeOption, String CsvText);
+  CsvReader(const TTypeOption* TypeOption, const String& CsvText);
   CsvReaderState GetNextType();
   String Next();
   bool ReadLine(std::vector<String>& row);

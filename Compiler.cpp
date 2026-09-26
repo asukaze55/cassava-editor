@@ -39,8 +39,8 @@ public:
   int jump;
 
   CMCElement() : str(""), pri(prEOF), type(tpStructure), jump(0) {}
-  CMCElement(String s);
-  CMCElement(String s, int p, char t, int j = 0) :
+  CMCElement(const String& s);
+  CMCElement(const String& s, int p, char t, int j = 0) :
       str(s), pri(p), type(t), jump(j) {}
 
   bool iseof() const { return(pri == prEOF); }
@@ -53,7 +53,7 @@ public:
 //---------------------------------------------------------------------------
 static const CMCElement CMCEOF = CMCElement("", prEOF, tpStructure, 0);
 //---------------------------------------------------------------------------
-CMCElement::CMCElement(String s){
+CMCElement::CMCElement(const String& s){
   str = s; pri = 100; type = tpVar; jump = 0;
   if (s == ";") {
     pri = 0; type = tpStructure;
@@ -137,7 +137,7 @@ void TByteVector::WriteInteger(int Value) {
   std::memcpy(Data.data() + p, &Value, sizeof(int));
 }
 //---------------------------------------------------------------------------
-void TByteVector::WriteString(String Value) {
+void TByteVector::WriteString(const String& Value) {
   int length = Value.Length();
   int size = length * sizeof(wchar_t);
   int p = Data.size();
@@ -149,7 +149,7 @@ void TByteVector::WriteString(String Value) {
 class CMCException{
 public:
   String Message;
-  CMCException(String Mes) : Message(Mes) {}
+  CMCException(const String& Mes) : Message(Mes) {}
 };
 //---------------------------------------------------------------------------
 class TTokenizer {
@@ -163,7 +163,7 @@ class TTokenizer {
   CMCElement GetR();
 public:
   int x, y;
-  TTokenizer(String src) :
+  TTokenizer(const String& src) :
       source(src), pos(0), last(CMCEOF), elements(), x(0), y(1) {}
   String GetString(wchar_t EOS);
   String GetRegExp();
@@ -454,7 +454,7 @@ private:
   int DummyIdentifier;
 
   void Output(CMCElement e);
-  void Output(String str, char type);
+  void Output(const String& str, char type);
   void OutputInteger(int value);
   int OutputPositionPlaceholder();
   void FillPositionPlaceholder(int placeholder);
@@ -466,9 +466,9 @@ private:
   void GetWhile();
   void GetFor();
   void GetLegacyFor();
-  String GetFunction(FunctionType functionType, String paramName = "");
+  String GetFunction(FunctionType functionType, const String& paramName = "");
   void GetReturn(char EOS);
-  void GetLambda(String paramName = "");
+  void GetLambda(const String& paramName = "");
   void GetCell();
   String GetObject();
   void GetObjectKey();
@@ -477,7 +477,7 @@ private:
   bool GetValues(char EOS, char *nHikisu = nullptr);
   bool GetSentence(char EOS, bool allowBlock = true, char *nHikisu = nullptr);
   void GetBlock();
-  String MaybeAddLibToLibName(String libName);
+  String MaybeAddLibToLibName(const String& libName);
 
   bool IsKnownVariable(const CMCElement& e) const {
     return e.type == tpVar
@@ -488,8 +488,8 @@ private:
 public:
   std::vector<String> import;
 
-  bool Compile(String source, String filePath, String libName,
-               bool showMessage);
+  bool Compile(const String& source, const String& filePath,
+      const String& libName, bool showMessage);
   TCompiler(TMacroContext *context) : Context(context), Breaks(nullptr),
       Continues(nullptr), DummyIdentifier(0) {}
 };
@@ -658,7 +658,8 @@ void TCompiler::GetLegacyFor()
 //---------------------------------------------------------------------------
 constexpr char LAMBDA_EOS = 'L';
 //---------------------------------------------------------------------------
-String TCompiler::GetFunction(FunctionType functionType, String paramName)
+String TCompiler::GetFunction(FunctionType functionType,
+    const String& paramName)
 {
   std::set<String> orgVariables = std::move(Variables);
   std::set<String> orgConstants = std::move(Constants);
@@ -796,7 +797,7 @@ void TCompiler::GetReturn(char EOS)
   }
 }
 //---------------------------------------------------------------------------
-void TCompiler::GetLambda(String paramName)
+void TCompiler::GetLambda(const String& paramName)
 {
   std::set<String> orgCapturableVariables = CapturableVariables;
   CapturableVariables.insert(Variables.begin(), Variables.end());
@@ -812,7 +813,7 @@ void TCompiler::GetLambda(String paramName)
     Output(functionName, tpString);
     Output(CMO_ObjKey, tpOpe);
 
-    for (String name : CapturedVariables) {
+    for (const String& name : CapturedVariables) {
       Output(name, tpString);
       if (Variables.count(name) == 0) {
         Output("this", tpVar);
@@ -851,7 +852,7 @@ void TCompiler::Output(CMCElement e)
   }
 }
 //---------------------------------------------------------------------------
-void TCompiler::Output(String str, char type) {
+void TCompiler::Output(const String& str, char type) {
   if (type == tpRegExp) {
     int p = str.LastDelimiter("/");
     Output(str.SubString(2, p - 2), tpString);
@@ -1385,14 +1386,14 @@ void TCompiler::GetBlock()
   while(GetSentence(';'));
 }
 //---------------------------------------------------------------------------
-String TCompiler::MaybeAddLibToLibName(String libName)
+String TCompiler::MaybeAddLibToLibName(const String& libName)
 {
-  for (String dir : Context->Dirs) {
+  for (const String& dir : Context->Dirs) {
     if (FileExists(dir + libName)) {
       return libName;
     }
   }
-  for (String dir : Context->Dirs) {
+  for (const String& dir : Context->Dirs) {
     if (FileExists(dir + "lib/" + libName)) {
       return "lib/" + libName;
     }
@@ -1400,8 +1401,8 @@ String TCompiler::MaybeAddLibToLibName(String libName)
   throw CMCException(libName + L"\nファイルが見つかりません。");
 }
 //---------------------------------------------------------------------------
-bool TCompiler::Compile(String string, String filePath, String libName,
-                        bool showMessage)
+bool TCompiler::Compile(const String& string, const String& filePath,
+    const String& libName, bool showMessage)
 {
   InName = libName;
   Fail = false;
@@ -1440,8 +1441,8 @@ bool TCompiler::Compile(String string, String filePath, String libName,
   return !Fail;
 }
 //---------------------------------------------------------------------------
-bool CompileMacro(String *source, String name, TMacroContext *context,
-    bool showMessage)
+bool CompileMacro(const String* source, const String& name,
+    TMacroContext *context, bool showMessage)
 {
   TCompiler compiler(context);
   compiler.import.push_back(name);
@@ -1468,7 +1469,7 @@ bool CompileMacro(String *source, String name, TMacroContext *context,
       if (libName.Pos(":") > 0 || libName.SubString(1, 1) == "\\") {
         libFileName = libName;
       } else {
-        for (String dir : context->Dirs) {
+        for (const String& dir : context->Dirs) {
           String pathName = dir + libName;
           if (FileExists(pathName)) {
             libFileName = pathName;
@@ -1509,13 +1510,14 @@ bool CompileMacro(String *source, String name, TMacroContext *context,
   return true;
 }
 //---------------------------------------------------------------------------
-bool CompileMacro(String fileName, TMacroContext *context, bool showMessage)
+bool CompileMacro(const String& fileName, TMacroContext *context,
+    bool showMessage)
 {
   return CompileMacro(nullptr, fileName, context, showMessage);
 }
 //---------------------------------------------------------------------------
-String GetMacroModuleName(String fileName, String funcName, String argCount,
-                          bool varArg)
+String GetMacroModuleName(const String& fileName, const String& funcName,
+    const String& argCount, bool varArg)
 {
   return fileName + "\n" + funcName + (varArg ? "/+" : "/") + argCount;
 }

@@ -92,7 +92,7 @@ void TMainGrid::UpdateDefaultRowHeight()
   ::ReleaseDC(Handle, hdc);
 }
 //---------------------------------------------------------------------------
-String FormatOmitDecimal(String str, int count)
+String FormatOmitDecimal(const String& str, int count)
 {
   if(str == "" || count < 0) return str;
   int pos = str.Pos(".");
@@ -123,7 +123,7 @@ String FormatNumComma(String Str, int Count)
 }
 //---------------------------------------------------------------------------
 TRect TMainGrid::DrawTextRect(TCanvas *Canvas, TRect Rect,
-  String Str, bool Wrap, bool MeasureOnly)
+  const String& Str, bool Wrap, bool MeasureOnly)
 {
   int textHeight = Canvas->TextHeight(Str);
   int yint = textHeight + CellLineMargin;
@@ -178,7 +178,7 @@ TRect TMainGrid::DrawTextRect(TCanvas *Canvas, TRect Rect,
   return TRect(0, 0, maxWidth, min(y, Rect.Bottom) - Rect.Top);
 }
 //---------------------------------------------------------------------------
-static bool FindHit(String CellText, int x, int y);
+static bool FindHit(const String& CellText, int x, int y);
 //---------------------------------------------------------------------------
 void __fastcall TMainGrid::DrawCell(int ACol, int ARow,
   const TRect &ARect, TGridDrawState AState)
@@ -441,7 +441,7 @@ void TMainGrid::SetACells(int ACol, int ARow, String Val){
   UpdateDataRightBottom(rx, ry);
 }
 //---------------------------------------------------------------------------
-void TMainGrid::SetCell(int X, int Y, String Value)
+void TMainGrid::SetCell(int X, int Y, const String& Value)
 {
   UndoList->ChangeCell(RXtoAX(X), RYtoAY(Y), Cells[X][Y], Value,
                        RXtoAX(DataRight), RYtoAY(DataBottom));
@@ -995,7 +995,7 @@ static bool HasBom(TBytes bytes, TEncoding *encoding)
   }
 }
 //---------------------------------------------------------------------------
-void TMainGrid::LoadFromFile(String FileName, TEncoding *encoding,
+void TMainGrid::LoadFromFile(const String& FileName, TEncoding *encoding,
     bool isDetectedEncoding, const TTypeOption *Format,
     TNotifyEvent OnTerminate)
 {
@@ -1162,7 +1162,7 @@ void TMainGrid::PasteCSV(const std::vector<std::vector<String>>& Row, int Left,
   Modified = true;
 }
 //---------------------------------------------------------------------------
-void TMainGrid::SaveToFile(String FileName, const TTypeOption *Format,
+void TMainGrid::SaveToFile(const String& FileName, const TTypeOption *Format,
     bool SetModifiedFalse)
 {
   std::unique_ptr<TFileStream> fileStream =
@@ -1266,7 +1266,7 @@ String TMainGrid::StringsToCSV(TStrings* Data, const TTypeOption *Format,
   return Text;
 }
 //---------------------------------------------------------------------------
-static void SetClipboard(String text) {
+static void SetClipboard(const String& text) {
   std::unique_ptr<TClipboard> clip = std::make_unique<TClipboard>();
   for (int i = 0;; i++) {
     try {
@@ -1428,7 +1428,7 @@ void TMainGrid::PasteFromClipboard(int Way, const TTypeOption *Format)
   Invalidate();
 }
 //---------------------------------------------------------------------------
-bool TMainGrid::IsNumber(String Str)
+bool TMainGrid::IsNumber(const String& Str)
 {
   try {
     // In Win32, ToDouble() fails if the number is too big.
@@ -2732,7 +2732,7 @@ void __fastcall TMainGrid::DblClick(void)
   }
 }
 //---------------------------------------------------------------------------
-void TMainGrid::OpenURL(String FileName)
+void TMainGrid::OpenURL(const String& FileName)
 {
   if (BrowserFileName == "") {
     AutoOpen(FileName, "");
@@ -2824,11 +2824,11 @@ void TMainGrid::ScrollCols(int Delta)
 //---------------------------------------------------------------------------
 //  検索
 //
-inline static String AddCr(String str) {
+inline static String AddCr(const String& str) {
   return StringReplace(str, "\n", "\r\n", TReplaceFlags() << rfReplaceAll);
 }
 //---------------------------------------------------------------------------
-inline static String StripCr(String str) {
+inline static String StripCr(const String& str) {
   return StringReplace(str, "\r\n", "\n", TReplaceFlags() << rfReplaceAll);
 }
 //---------------------------------------------------------------------------
@@ -2906,7 +2906,7 @@ static int FindHit(String CellText, String FindText, bool Case, bool Regex,
   return 0;
 }
 //---------------------------------------------------------------------------
-static bool FindHit(String CellText, int x, int y)
+static bool FindHit(const String& CellText, int x, int y)
 {
   if (CellText == "") {
     return false;
@@ -2951,8 +2951,8 @@ void ShowRegexErrorMessage(const boost::regex_error& e) {
      CASSAVA_TITLE, 0);
 }
 //---------------------------------------------------------------------------
-bool TMainGrid::Find(String FindText, TGridRect Range, bool Case, bool Regex,
-                     bool Word, bool Back)
+bool TMainGrid::Find(const String& FindText, TGridRect Range, bool Case,
+    bool Regex, bool Word, bool Back)
 {
   LastMatch.clear();
 
@@ -3099,8 +3099,8 @@ static String GetStringForReplace(
   return ReplaceText;
 }
 //---------------------------------------------------------------------------
-bool TMainGrid::Replace(String FindText , String ReplaceText, TGridRect Range,
-                        bool Case, bool Regex, bool Word, bool Back)
+bool TMainGrid::Replace(const String& FindText , const String& ReplaceText,
+    TGridRect Range, bool Case, bool Regex, bool Word, bool Back)
 {
   TInplaceEdit *ipEd = InplaceEditor;
   if ((Regex || ReplaceText != FindText) && ipEd) {
@@ -3340,7 +3340,7 @@ void __fastcall TMainGrid::KeyUp(Word &Key, Classes::TShiftState Shift)
   UpdateDataRightBottom(Col, Row);
 }
 //---------------------------------------------------------------------------
-int calcMoveUp(String Text, int FromPos)
+int calcMoveUp(const String& Text, int FromPos)
 {
   int previousLineStart = -1;
   int currentLineStart = 0;
@@ -3365,7 +3365,7 @@ int calcMoveUp(String Text, int FromPos)
   return toPos;
 }
 //---------------------------------------------------------------------------
-int calcMoveDown(String Text, int FromPos)
+int calcMoveDown(const String& Text, int FromPos)
 {
   int currentLineStart = 0;
   for (int i = 1; i <= FromPos; i++) {
@@ -3586,7 +3586,7 @@ void __fastcall TMainGrid::SetEditText(int ACol, int ARow, String Value)
 //---------------------------------------------------------------------------
 //  Undo 処理
 //
-static void MacroScriptExec(String script)
+static void MacroScriptExec(const String& script)
 {
   String cmsname = "$undo";
   TMacroContext macroContext;

@@ -5,7 +5,7 @@
 
 #include "FormattedFileName.h"
 //---------------------------------------------------------------------------
-String FormattedFileName(String Format, String BaseFileName)
+String FormattedFileName(const String& Format, const String& BaseFileName)
 {
   String Path2 = ExtractFilePath(BaseFileName);
   String FileName2 = ExtractFileName(BaseFileName);

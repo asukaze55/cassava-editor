@@ -18,7 +18,7 @@ wchar_t toHex(int value)
 //---------------------------------------------------------------------------
 } // namespace
 //---------------------------------------------------------------------------
-String EscapeMacroString(String str)
+String EscapeMacroString(const String& str)
 {
   String escaped = "";
   for (int i = 1; i <= str.Length(); i++) {
@@ -42,9 +42,9 @@ String EscapeMacroString(String str)
   return escaped;
 }
 //---------------------------------------------------------------------------
-TUndoCommand::TUndoCommand(TUndoCommandType _type, String _undoData,
-    String _redoData, String _recordedData, int _x, int _y, int _right,
-    int _bottom)
+TUndoCommand::TUndoCommand(TUndoCommandType _type, const String& _undoData,
+    const String& _redoData, const String& _recordedData, int _x, int _y,
+    int _right, int _bottom)
     : type(_type), undoData(_undoData), redoData(_redoData),
       recordedData(_recordedData), x(_x), y(_y), right(_right), bottom(_bottom)
 {}
@@ -78,8 +78,8 @@ String TUndoCommand::GetRecordedMacro() const
 TUndoList::TUndoList()
     : current(0), lock(0), recording(INT_MAX), MaxCount(100) {}
 //---------------------------------------------------------------------------
-void TUndoList::AddMacro(String undoMacro, String redoMacro,
-                         String recordedMacro)
+void TUndoList::AddMacro(const String& undoMacro, const String& redoMacro,
+    const String& recordedMacro)
 {
   if (lock > 0) {
     return;
@@ -97,8 +97,8 @@ void TUndoList::AddMacro(String undoMacro, String redoMacro,
   }
 }
 //---------------------------------------------------------------------------
-void TUndoList::ChangeCell(int x, int y, String from, String to, int right,
-                           int bottom)
+void TUndoList::ChangeCell(int x, int y, const String& from, const String& to,
+    int right, int bottom)
 {
   if (lock > 0 || from == to) {
     return;
@@ -235,12 +235,12 @@ void TUndoList::Pop()
       GetRecordedMacro(recording > prev ? recording : prev));
 }
 //---------------------------------------------------------------------------
-void TUndoList::Pop(String redoAndRecordedMacro)
+void TUndoList::Pop(const String& redoAndRecordedMacro)
 {
   Pop(redoAndRecordedMacro, redoAndRecordedMacro);
 }
 //---------------------------------------------------------------------------
-void TUndoList::Pop(String redoMacro, String recordedMacro)
+void TUndoList::Pop(const String& redoMacro, const String& recordedMacro)
 {
   int prev = group.back();
   group.pop_back();
@@ -256,7 +256,7 @@ void TUndoList::Pop(String redoMacro, String recordedMacro)
   AddMacro(undoMacro, redoMacro, recordedMacro);
 }
 //---------------------------------------------------------------------------
-void TUndoList::PopWithRecordedMacro(String recordedMacro)
+void TUndoList::PopWithRecordedMacro(const String& recordedMacro)
 {
   Pop(GetRedoMacro(group.back()), recordedMacro);
 }

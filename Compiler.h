@@ -28,7 +28,7 @@ public:
   void WriteInteger(int Value, size_t Index) {
     std::memcpy(Data.data() + Index, &Value, sizeof(int));
   }
-  void WriteString(String Value);
+  void WriteString(const String& Value);
 };
 //---------------------------------------------------------------------------
 class TMacroContext {
@@ -36,21 +36,22 @@ public:
   std::vector<String> Dirs;
   std::map<String, TByteVector> Modules;
 
-  void AddDirectory(String Directory) {
+  void AddDirectory(const String& Directory) {
     Dirs.push_back(Directory);
   }
 
-  bool HasModule(String Name) const {
+  bool HasModule(const String& Name) const {
     return Modules.count(Name) > 0;
   }
 };
 //---------------------------------------------------------------------------
-bool CompileMacro(String *source, String fileName, TMacroContext *context,
-                  bool showMessage);
+bool CompileMacro(const String* source, const String& fileName,
+    TMacroContext *context, bool showMessage);
 
-bool CompileMacro(String fileName, TMacroContext *context, bool showMessage);
+bool CompileMacro(const String& fileName, TMacroContext *context,
+    bool showMessage);
 
-String GetMacroModuleName(String fileName, String funcName, String argCount,
-                          bool varArg);
+String GetMacroModuleName(const String& fileName, const String& funcName,
+    const String& argCount, bool varArg);
 //---------------------------------------------------------------------------
 #endif

@@ -5,7 +5,7 @@
 EncodedWriter::EncodedWriter(TStream *s, TEncoding *encoding, bool bom)
   : Stream(s), Encoding(encoding), Bom(bom) {}
 //---------------------------------------------------------------------------
-void EncodedWriter::Write(String data)
+void EncodedWriter::Write(const String& data)
 {
   if (data.Length() > 0) {
     if (Bom) {

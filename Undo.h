@@ -5,7 +5,7 @@
 #include <vcl\vcl.h>
 #include <vector>
 //---------------------------------------------------------------------------
-String EscapeMacroString(String str);
+String EscapeMacroString(const String& str);
 //---------------------------------------------------------------------------
 enum TUndoCommandType
 {
@@ -25,9 +25,9 @@ public:
   int right;
   int bottom;
 
-  TUndoCommand(TUndoCommandType _type, String _undoData, String _redoData,
-      String _recordedData, int _x = 0, int _y = 0, int _right = 0,
-      int _bottom = 0);
+  TUndoCommand(TUndoCommandType _type, const String& _undoData,
+      const String& _redoData, const String& _recordedData, int _x = 0,
+      int _y = 0, int _right = 0, int _bottom = 0);
   String GetUndoMacro() const;
   String GetRedoMacro() const;
   String GetRecordedMacro() const;
@@ -50,8 +50,10 @@ public:
   int MaxCount;
 
   TUndoList();
-  void AddMacro(String undoMacro, String redoMacro, String recordedMacro = "");
-  void ChangeCell(int x, int y, String from, String to, int right, int bottom);
+  void AddMacro(const String& undoMacro, const String& redoMacro,
+      const String& recordedMacro = "");
+  void ChangeCell(int x, int y, const String& from, const String& to, int right,
+      int bottom);
   bool CanUndo();
   TUndoCommand* Undo();
   bool CanRedo();
@@ -64,9 +66,9 @@ public:
   void Unlock();
   void Push();
   void Pop();
-  void Pop(String redoAndRecordedMacro);
-  void Pop(String redoMacro, String recordedMacro);
-  void PopWithRecordedMacro(String recordedMacro);
+  void Pop(const String& redoAndRecordedMacro);
+  void Pop(const String& redoMacro, const String& recordedMacro);
+  void PopWithRecordedMacro(const String& recordedMacro);
 };
 //---------------------------------------------------------------------------
 #endif

@@ -60,7 +60,7 @@ public:		// ユーザー宣言
 static constexpr wchar_t LIGHT_MODE_STYLE_NAME[] = L"Windows";
 static constexpr wchar_t DARK_MODE_STYLE_NAME[] = L"Windows Modern Dark SE";
 //---------------------------------------------------------------------------
-static inline bool IsDarkMode(String Style)
+static inline bool IsDarkMode(const String& Style)
 {
   return Style.Pos("Dark") > 0;
 }

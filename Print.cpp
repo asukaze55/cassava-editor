@@ -106,7 +106,8 @@ static TRect rectToDraw(int position, const TRect& page, const TRect& size,
   return rect;
 }
 //---------------------------------------------------------------------------
-static String formatHeaderFooter(String format, String fileName, int page)
+static String formatHeaderFooter(const String& format, const String& fileName,
+    int page)
 {
   String result = "";
   for (int i = 1; i <= format.Length(); i++) {

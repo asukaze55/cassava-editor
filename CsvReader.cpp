@@ -17,7 +17,7 @@ TTypeOption::TTypeOption()
   Exts.push_back(L"txt");
 }
 //---------------------------------------------------------------------------
-TTypeOption::TTypeOption(String str)
+TTypeOption::TTypeOption(const String& str)
 {
   init();
   Name = str;
@@ -86,7 +86,7 @@ String TTypeOption::GetExtsStr(int From) const
   return Temp;
 }
 //---------------------------------------------------------------------------
-CsvReader::CsvReader(const TTypeOption* TypeOption, String FileName,
+CsvReader::CsvReader(const TTypeOption* TypeOption, const String& FileName,
                      TEncoding *Encoding)
   : typeOption(TypeOption),
     reader(std::make_unique<TStreamReader>(
@@ -96,7 +96,7 @@ CsvReader::CsvReader(const TTypeOption* TypeOption, String FileName,
   IncrementPos(false);
 }
 //---------------------------------------------------------------------------
-CsvReader::CsvReader(const TTypeOption* TypeOption, String CsvText)
+CsvReader::CsvReader(const TTypeOption* TypeOption, const String& CsvText)
   : typeOption(TypeOption),
     reader(std::make_unique<TStringReader>(CsvText)),
     data(""), last(1), pos(0), delimiterType(DELIMITER_TYPE_STRONG)

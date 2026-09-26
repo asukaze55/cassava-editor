@@ -108,7 +108,7 @@ void __fastcall TfmLetter::UpdatePreviewImage(TObject *Sender)
   imPreview->Canvas->StretchDraw(rect, bitmap.get());
 }
 //---------------------------------------------------------------------------
-int TfmLetter::TateBytes(String Str)
+int TfmLetter::TateBytes(const String& Str)
 {
   int Count = 0;
   bool num = false;
@@ -133,7 +133,7 @@ int TfmLetter::TateBytes(String Str)
   return Count;
 }
 //---------------------------------------------------------------------------
-int TfmLetter::Name2Indent(String Name1)
+int TfmLetter::Name2Indent(const String& Name1)
 {
   int pos = 1;
   bool flag = false;
@@ -392,7 +392,7 @@ void __fastcall TfmLetter::btnSaveClick(TObject *Sender)
   }
 }
 //---------------------------------------------------------------------------
-void TfmLetter::DataSave(String FileName)
+void TfmLetter::DataSave(const String& FileName)
 {
   std::unique_ptr<IniFile> Ini = std::make_unique<IniFile>(FileName);
   Ini->WriteString(L"差出人","Name",edMyName->Text);
@@ -454,7 +454,7 @@ void __fastcall TfmLetter::btnReadClick(TObject *Sender)
   }
 }
 //---------------------------------------------------------------------------
-void TfmLetter::DataRead(String FileName)
+void TfmLetter::DataRead(const String& FileName)
 {
   std::unique_ptr<IniFile> Ini = std::make_unique<IniFile>(FileName);
   edMyName->Text = Ini->ReadString(L"差出人","Name",edMyName->Text);

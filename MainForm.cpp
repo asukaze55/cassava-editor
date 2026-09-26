@@ -25,7 +25,7 @@
 #pragma resource "*.dfm"
 TfmMain *fmMain;
 //---------------------------------------------------------------------------
-static String MaybeCompileMacro(String fileName, const Preference &pref,
+static String MaybeCompileMacro(const String& fileName, const Preference &pref,
                                 TMacroContext *context)
 {
   String cmsFile = pref.UserPath + "Macro\\" + fileName;
@@ -642,8 +642,8 @@ void TfmMain::WriteIni(bool PosSlide)
   } catch(...) {}
 }
 //---------------------------------------------------------------------------
-TToolButton *TfmMain::AddToolButton(String Label, String Name, String Action,
-    int Left, TToolBar *ToolBar)
+TToolButton *TfmMain::AddToolButton(const String& Label, const String& Name,
+    const String& Action, int Left, TToolBar *ToolBar)
 {
   TToolButton *button = new TToolButton(ToolBar);
   button->Left = Left;
@@ -716,7 +716,8 @@ static inline int GetToolBarButtonSize(int ToolBarSize, int ScreenDpi)
   return ToolBarSize < minSize ? minSize : ToolBarSize;
 }
 //---------------------------------------------------------------------------
-TToolBar *TfmMain::AddToolBar(String Label, String ImageList, int Top, int Left)
+TToolBar *TfmMain::AddToolBar(const String& Label, const String& ImageList,
+    int Top, int Left)
 {
   TToolBar *toolBar = new TToolBar(CoolBar);
   toolBar->Parent = CoolBar;
@@ -873,7 +874,7 @@ void TfmMain::ReadToolBar()
   CoolBar->Visible = visible;
 }
 //---------------------------------------------------------------------------
-TMenuItem *FindMenuItemInternal(TMenuItem *root, String name)
+TMenuItem *FindMenuItemInternal(TMenuItem *root, const String& name)
 {
   for (int i = 0; i < root->Count; i++) {
     if (root->Items[i]->Name == name) {
@@ -888,7 +889,7 @@ TMenuItem *FindMenuItemInternal(TMenuItem *root, String name)
   return nullptr;
 }
 //---------------------------------------------------------------------------
-TMenuItem *TfmMain::FindMenuItem(String name)
+TMenuItem *TfmMain::FindMenuItem(const String& name)
 {
   return FindMenuItemInternal(MainMenu->Items, (String)"mn" + name);
 }
@@ -1004,7 +1005,7 @@ inline String ToHex(wchar_t ch)
   return result;
 }
 //---------------------------------------------------------------------------
-String TfmMain::MakeId(String prefix, String caption, int i)
+String TfmMain::MakeId(const String& prefix, const String& caption, int i)
 {
   String id = prefix + "_";
   for(int i=1; i<=caption.Length(); i++){
@@ -1064,7 +1065,7 @@ void TfmMain::SetPasteMenu(TMenuItem *Item)
   }
 }
 //---------------------------------------------------------------------------
-void TfmMain::SetStyle(String Value)
+void TfmMain::SetStyle(const String& Value)
 {
   if (Value == FStyle) {
     return;
@@ -1202,7 +1203,7 @@ void TfmMain::Clear()
   }
 }
 //---------------------------------------------------------------------------
-void TfmMain::OpenFile(String OpenFileName, int CharCode,
+void TfmMain::OpenFile(const String& OpenFileName, int CharCode,
     const TTypeOption *Format)
 {
   if(!FileExists(OpenFileName)){
@@ -1481,7 +1482,7 @@ void __fastcall TfmMain::mnSaveAsClick(TObject *Sender)
   }
 }
 //---------------------------------------------------------------------------
-void TfmMain::SaveAs(String AFileName, const TTypeOption *Format)
+void TfmMain::SaveAs(const String& AFileName, const TTypeOption *Format)
 {
   FileName = AFileName;
   MainGrid->TypeOption = Format;
@@ -1622,7 +1623,7 @@ void __fastcall TfmMain::mnExportClick(TObject *Sender)
   dlgSave->Filter = strOrgFilter;
 }
 //---------------------------------------------------------------------------
-void TfmMain::Export(String filename, String type)
+void TfmMain::Export(const String& filename, const String& type)
 {
     String CmsFile = Pref->SharedPath + "Export\\" + type + ".cms";
     if(FileExists(Pref->UserPath + "Export\\" + type + ".cms")){
@@ -1658,10 +1659,10 @@ void TfmMain::Export(String filename, String type)
     }
 }
 //---------------------------------------------------------------------------
-void TfmMain::SetHistory(String S)
+void TfmMain::SetHistory(const String& S)
 {
   if (S != "") {
-    std::erase_if(History, [S](String value) { return value == S; });
+    std::erase_if(History, [&](const String& value) { return value == S; });
     History.insert(History.begin(), S);
   }
   if (History.size() > 10) {
@@ -2545,7 +2546,7 @@ void __fastcall TfmMain::acMacroTerminateUpdate(TObject *Sender)
   acMacroTerminate->Enabled = (GetRunningMacroCount() > 0);
 }
 //---------------------------------------------------------------------------
-void TfmMain::MacroExec(String CmsFile, EncodedWriter *io)
+void TfmMain::MacroExec(const String& CmsFile, EncodedWriter *io)
 {
   MainGrid->Cursor = crAppStart;
   MainGrid->Hint = L"マクロを実行中です。";
@@ -2589,7 +2590,7 @@ void TfmMain::UpdateStatusbar()
   }
 }
 //---------------------------------------------------------------------------
-void TfmMain::MacroScriptExec(String cmsname, String script)
+void TfmMain::MacroScriptExec(const String& cmsname, const String& script)
 {
   TMacroContext macroContext;
   macroContext.AddDirectory(Pref->UserPath + "Macro\\");
@@ -2638,7 +2639,7 @@ static int HexToInt(wchar_t c)
   return 0;
 }
 //---------------------------------------------------------------------------
-static TColor ParseColor(String Value, TColor defaultColor)
+static TColor ParseColor(const String& Value, TColor defaultColor)
 {
   if (Value.Length() == 7 && Value[1] == '#') {
     return TColor(

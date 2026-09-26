@@ -41,7 +41,7 @@ class MacroException{
 public:
   String Message;
   MacroExceptionType Type;
-  MacroException(String Mes, MacroExceptionType t = ME_GENERIC)
+  MacroException(const String& Mes, MacroExceptionType t = ME_GENERIC)
       : Message(Mes), Type(t) {}
 };
 //---------------------------------------------------------------------------
@@ -87,7 +87,7 @@ public:
     return grid->ACells[ax(x)][ay(y)];
   }
 
-  void SetCell(int x, int y, String value) {
+  void SetCell(int x, int y, const String& value) {
     if (readOnly) {
       throw MacroException("Can't Update Cells.", ME_SECURITY);
     }
@@ -235,8 +235,8 @@ public:
                !direction, numSort, ignoreCase, ignoreZenhan);
   }
 
-  int ReplaceAll(String find, String replace, int left, int top, int right,
-                 int bottom, bool ignoreCase, bool regex, bool word) {
+  int ReplaceAll(const String& find, const String& replace, int left, int top,
+      int right, int bottom, bool ignoreCase, bool regex, bool word) {
     ApplyPendingChanges();
     return grid->ReplaceAll(find, replace, rx(left), ry(top), rx(right),
                             ry(bottom), !ignoreCase, regex, word);
@@ -266,10 +266,11 @@ public:
 
   Element() : Type(etErr) {}
   Element(double d) : Type(etNumber), vl(d) {}
-  Element(double d, String s, ElementType t, TEnvironment *e) :
-      Type(t), st(s), vl(d), env(e) {}
-  Element(String s) : Type(etString), st(s) {}
-  Element(String s, ElementType t, TEnvironment *e) : Type(t), st(s), env(e) {}
+  Element(double d, const String& s, ElementType t, TEnvironment *e)
+      : Type(t), st(s), vl(d), env(e) {}
+  Element(const String& s) : Type(etString), st(s) {}
+  Element(const String& s, ElementType t, TEnvironment *e)
+      : Type(t), st(s), env(e) {}
   Element(int x, int y, TEnvironment *e) : Type(etCell), cell({x, y}), env(e) {}
 
   double Val() const;
@@ -277,9 +278,9 @@ public:
   String Name() const { return st; }
   Element Value() const;
   void Sbst(const Element &e);
-  Element GetMember(String name) const;
+  Element GetMember(const String& name) const;
   std::map<String, Element> GetMembers() const;
-  bool HasMember(String name) const;
+  bool HasMember(const String& name) const;
 };
 //---------------------------------------------------------------------------
 class TEnvironment {
@@ -312,11 +313,12 @@ public:
 //---------------------------------------------------------------------------
 class TMacro{
 private:
-  const TByteVector& GetByteVector(String FileName);
+  const TByteVector& GetByteVector(const String& FileName);
   void ExecOpe(char c, size_t &p);
-  void ExecMethod(String name, int H, const std::vector<Element>& ope,
-                  bool isLambda);
-  void ExecPrimitiveMethod(String s, int H, const std::vector<Element>& ope);
+  void ExecMethod(const String& name, int H, const std::vector<Element>& ope,
+      bool isLambda);
+  void ExecPrimitiveMethod(const String& s, int H,
+      const std::vector<Element>& ope);
   void ExecFnc(String s);
   std::vector<Element> Stack;
   int LoopCount;
@@ -326,7 +328,7 @@ private:
   TEnvironment env;
 public:
   int MaxLoop;
-  Element Do(String FileName, const std::vector<Element> &AStack,
+  Element Do(const String& FileName, const std::vector<Element>& AStack,
              int x = -1, int y = -1, Element *thisPtr = nullptr);
 
   TMacro(EncodedWriter *io, int ml, const TMacroContext &context,
@@ -338,7 +340,7 @@ public:
 static int RunningCount = 0;
 static bool RunningOk = true;
 //---------------------------------------------------------------------------
-double ToDouble(String str, double def)
+static double ToDouble(const String& str, double def)
 {
   try{
     String temp = str;
@@ -523,7 +525,7 @@ void Element::Sbst(const Element &e)
   }
 }
 //---------------------------------------------------------------------------
-Element Element::GetMember(String name) const
+Element Element::GetMember(const String& name) const
 {
   return Element(name, etVar, env->GetObject(Val()));
 }
@@ -536,7 +538,7 @@ std::map<String, Element> Element::GetMembers() const
   return env->GetObject(vl)->Vars;
 }
 //---------------------------------------------------------------------------
-bool Element::HasMember(String name) const
+bool Element::HasMember(const String& name) const
 {
   if (Type != etObject) {
     return false;
@@ -544,7 +546,7 @@ bool Element::HasMember(String name) const
   return env->GetObject(vl)->Vars.count(name) > 0;
 }
 //---------------------------------------------------------------------------
-String NormalizeNewLine(String Val)
+String NormalizeNewLine(const String& Val)
 {
   TReplaceFlags replaceAll = TReplaceFlags() << rfReplaceAll;
   return StringReplace(Val, "\r\n", "\n", replaceAll);
@@ -564,8 +566,8 @@ String NormalizeNewLine(String Val)
 #define VAL7 ope[7].Val()
 #define VAL8 ope[8].Val()
 //---------------------------------------------------------------------------
-void TMacro::ExecMethod(String name, int H, const std::vector<Element>& ope,
-                        bool isLambda)
+void TMacro::ExecMethod(const String& name, int H,
+    const std::vector<Element>& ope, bool isLambda)
 {
   Element obj = ope[0].Value();
   String objName = (ope[0].Type == etVar ? ope[0].Name() : ope[0].Str());
@@ -631,11 +633,11 @@ class RegExp {
   bool isReplaceAll;
   bool isIgnoreCase;
 
-  RegExp(String Pattern, String Flags, bool IsRegExp)
+  RegExp(const String& Pattern, const String& Flags, bool IsRegExp)
       : pattern(Pattern), flags(Flags), isRegExp(IsRegExp),
         isReplaceAll(flags.Pos("g") > 0), isIgnoreCase(flags.Pos("i") > 0) {}
 
-  String Replace(String Target, String ReplaceText) {
+  String Replace(const String& Target, const String& ReplaceText) {
     if (!isRegExp) {
       TReplaceFlags replaceFlags;
       if (isReplaceAll) { replaceFlags << rfReplaceAll; }
@@ -651,7 +653,7 @@ class RegExp {
         std::wstring(ReplaceText.c_str()), boostFlags).c_str();
   }
 
-  int Search(String Target) {
+  int Search(const String& Target) {
     wchar_t *target = Target.c_str();
     boost::wregex regex = BoostRegEx();
     boost::wcmatch match;
@@ -681,7 +683,7 @@ static RegExp ParseRegExp(const Element& e)
   return RegExp(pattern, flags, true);
 }
 //---------------------------------------------------------------------------
-void TMacro::ExecPrimitiveMethod(String s, int H,
+void TMacro::ExecPrimitiveMethod(const String& s, int H,
                                  const std::vector<Element>& ope)
 {
   if (s == "endsWith" && (H == 2 || H == 3)) {
@@ -845,13 +847,13 @@ class UserDialog {
  public:
   String ReturnValue;
 
-  UserDialog(const Element& element, String caption);
+  UserDialog(const Element& element, const String& caption);
   void ShowModal() {
     Form->ShowModal();
   }
 };
 //---------------------------------------------------------------------------
-UserDialog::UserDialog(const Element& element, String caption)
+UserDialog::UserDialog(const Element& element, const String& caption)
 {
   Form = std::make_unique<TForm>(static_cast<TComponent*>(nullptr));
   Form->BorderStyle = bsDialog;
@@ -1742,7 +1744,7 @@ void TMacro::ExecOpe(char c, size_t &p){
   }
 }
 //---------------------------------------------------------------------------
-const TByteVector& TMacro::GetByteVector(String funcName){
+const TByteVector& TMacro::GetByteVector(const String& funcName){
   try {
     return Context.Modules.at(funcName);
   } catch (...) {
@@ -1750,7 +1752,7 @@ const TByteVector& TMacro::GetByteVector(String funcName){
   }
 }
 //---------------------------------------------------------------------------
-Element TMacro::Do(String FileName, const std::vector<Element> &AStack,
+Element TMacro::Do(const String& FileName, const std::vector<Element> &AStack,
                    int x, int y, Element *thisPtr) {
   Element ReturnValue;
   Stack = AStack;
@@ -1797,9 +1799,9 @@ Element TMacro::Do(String FileName, const std::vector<Element> &AStack,
   return ReturnValue;
 }
 //---------------------------------------------------------------------------
-TMacroValue RunMacro(String FileName, int MaxLoop, const TMacroContext &Context,
-    int x, int y, bool ReadOnly, EncodedWriter *IO,
-    TStringList *StringArguments)
+TMacroValue RunMacro(const String& FileName, int MaxLoop,
+    const TMacroContext &Context, int x, int y, bool ReadOnly,
+    EncodedWriter *IO, TStringList *StringArguments)
 {
   if(!RunningOk){ return TMacroValue(); }
   if(!ReadOnly){ RunningCount++; }

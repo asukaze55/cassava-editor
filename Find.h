@@ -54,7 +54,7 @@ public:		// ユーザー宣言
         bool Case();
         bool Regex();
         bool Word();
-        bool HitNum(String Value);
+        bool HitNum(const String& Value);
 };
 //---------------------------------------------------------------------------
 extern PACKAGE TfmFind *fmFind;

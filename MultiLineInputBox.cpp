@@ -13,7 +13,7 @@ __fastcall TfmMultiLineInputBox::TfmMultiLineInputBox(TComponent* AOwner)
 }
 //---------------------------------------------------------------------
 bool InputBoxMultiLine(
-    const String ACaption, const String APrompt, String& AValue)
+    const String& ACaption, const String& APrompt, String& AValue)
 {
   std::unique_ptr<TfmMultiLineInputBox> dialog =
       std::make_unique<TfmMultiLineInputBox>(nullptr);

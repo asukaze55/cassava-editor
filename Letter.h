@@ -105,12 +105,12 @@ private:	// ユーザー宣言
 
 public:		// ユーザー宣言
     __fastcall TfmLetter(TComponent* Owner);
-    int TateBytes(String Str);
-    int Name2Indent(String Name1);
+    int TateBytes(const String& Str);
+    int Name2Indent(const String& Name1);
     bool Print(TCanvas *Canvas, int Index);
     void PrintOut();
-    void DataSave(String FileName);
-    void DataRead(String FileName);
+    void DataSave(const String& FileName);
+    void DataRead(const String& FileName);
     String Tate(String Str);
 };
 //---------------------------------------------------------------------------

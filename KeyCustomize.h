@@ -83,8 +83,8 @@ public:		// ユーザー宣言
   __fastcall TfmKey(TComponent* Owner);
   void MakeTree();
   void UpdateMenu();
-  bool SaveKey(String FileName);
-  bool LoadKey(String FileName);
+  bool SaveKey(const String& FileName);
+  bool LoadKey(const String& FileName);
 };
 //---------------------------------------------------------------------------
 #endif

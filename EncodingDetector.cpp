@@ -159,7 +159,7 @@ int DetectCharCode(byte *buf, int len, int def)
   return result;
 }
 //---------------------------------------------------------------------------
-TEncoding *TEncodingDetector::Detect(String fileName)
+TEncoding *TEncodingDetector::Detect(const String& fileName)
 {
   if (!Enabled) {
     return DefaultEncoding;

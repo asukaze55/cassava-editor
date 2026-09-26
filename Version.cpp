@@ -39,7 +39,7 @@ String Version::CurrentText()
   return text;
 }
 //---------------------------------------------------------------------------
-int Version::Compare(String ver1, String ver2)
+int Version::Compare(const String& ver1, const String& ver2)
 {
   TReplaceFlags replaceAll = TReplaceFlags() << rfReplaceAll;
   int num1 = StringReplace(ver1, "/", "", replaceAll).ToIntDef(0);

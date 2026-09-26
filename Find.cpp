@@ -195,7 +195,7 @@ bool TfmFind::Word()
   return cbWordSearch->Checked;
 }
 //---------------------------------------------------------------------------
-bool TfmFind::HitNum(String Value)
+bool TfmFind::HitNum(const String& Value)
 {
   try {
     if (PageControl->TabIndex == 0) {

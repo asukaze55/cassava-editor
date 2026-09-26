@@ -9,13 +9,13 @@
 
 #include "AutoOpen.h"
 //---------------------------------------------------------------------------
-bool isUrl(String FileName)
+bool isUrl(const String& FileName)
 {
   return (FileName.SubString(1,7) == "http://" ||
           FileName.SubString(1,8) == "https://");
 }
 //---------------------------------------------------------------------------
-bool AutoOpen(String FileName, String BasePath)
+bool AutoOpen(const String& FileName, const String& BasePath)
 {
   String FullName;
   if(isUrl(FileName)){

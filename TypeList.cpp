@@ -2,7 +2,7 @@
 #pragma hdrstop
 #include "TypeList.h"
 //---------------------------------------------------------------------------
-String Ascii2Ctrl(String str){
+ String Ascii2Ctrl(const String& str){
   String r;
   for (int i = 1; i <= str.Length(); i++) {
     if (str[i] == '\\' && i < str.Length()) {
@@ -20,7 +20,7 @@ String Ascii2Ctrl(String str){
   return r;
 }
 //---------------------------------------------------------------------------
-String Ctrl2Ascii(String str){
+String Ctrl2Ascii(const String& str){
   String r;
   for (int i = 1; i <= str.Length(); i++){
     switch (str[i]) {

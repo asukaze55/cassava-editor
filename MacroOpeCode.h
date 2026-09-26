@@ -23,7 +23,7 @@
 #define CMO_DefParam 'p' /* Jump if the stack size >= specified size */
 #define CMO_VarArg   'v' /* Converts stack to an ArrayLike object */
 //---------------------------------------------------------------------------
-static char CMOCode(String str){
+static char CMOCode(const String& str){
   if(str == "++") return CMO_Inc;
   else if(str == "--") return CMO_Dec;
   else if(str == "==") return CMO_Eq;

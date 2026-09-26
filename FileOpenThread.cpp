@@ -45,20 +45,20 @@ private:
 protected:
   void __fastcall Execute();
 public:
-  __fastcall FileOpenThread(TMainGrid *AGrid, String AFileName,
+  __fastcall FileOpenThread(TMainGrid *AGrid, const String& AFileName,
       TEncoding *AEncoding, bool AIsDetectedEncoding);
   __property TMainGrid *Grid = { read=FGrid, write=FGrid };
   __property String FileName = { read=FFileName, write=FFileName };
 };
 //---------------------------------------------------------------------------
-TThread *ThreadFileOpen(TMainGrid *Grid, String FileName, TEncoding *Encoding,
-    bool IsDetectedEncoding)
+TThread *ThreadFileOpen(TMainGrid *Grid, const String& FileName,
+    TEncoding *Encoding, bool IsDetectedEncoding)
 {
   return new FileOpenThread(Grid, FileName, Encoding, IsDetectedEncoding);
 }
 //---------------------------------------------------------------------------
-__fastcall FileOpenThread::FileOpenThread(TMainGrid *AGrid, String AFileName,
-    TEncoding *AEncoding, bool AIsDetectedEncoding)
+__fastcall FileOpenThread::FileOpenThread(TMainGrid *AGrid, const String&
+    AFileName, TEncoding *AEncoding, bool AIsDetectedEncoding)
   : TThread(true), FGrid(AGrid), FFileName(AFileName), FEncoding(AEncoding),
     FIsDetectedEncoding(AIsDetectedEncoding)
 {

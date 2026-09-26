@@ -264,7 +264,7 @@ void __fastcall TfmKey::btnOpenClick(TObject *Sender)
   }
 }
 //---------------------------------------------------------------------------
-bool TfmKey::SaveKey(String FileName)
+bool TfmKey::SaveKey(const String& FileName)
 {
   std::unique_ptr<TStringList> File = std::make_unique<TStringList>();
   std::unique_ptr<TStringList> OneRow = std::make_unique<TStringList>();
@@ -290,7 +290,7 @@ bool TfmKey::SaveKey(String FileName)
   return true;
 }
 //---------------------------------------------------------------------------
-bool TfmKey::LoadKey(String FileName)
+bool TfmKey::LoadKey(const String& FileName)
 {
   std::unique_ptr<TStringList> File = std::make_unique<TStringList>();
   std::unique_ptr<TStringList> OneRow = std::make_unique<TStringList>();

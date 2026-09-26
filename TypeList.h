@@ -26,7 +26,7 @@ public:
     }
     return &v[i];
   }
-  const TTypeOption *FindForFileName(String FileName) const {
+  const TTypeOption *FindForFileName(const String& FileName) const {
     String Ext = ExtractFileExt(FileName).LowerCase();
     if (Ext.Length() > 1 && Ext[1]=='.') { Ext.Delete(1,1); }
     for (size_t i = 1; i < v.size(); i++) {
@@ -40,7 +40,7 @@ public:
   int IndexOf(const TTypeOption *Format) const {
     return IndexOf(Format->Name);
   }
-  int IndexOf(String Name, int notFoundIndex = 0) const {
+  int IndexOf(const String& Name, int notFoundIndex = 0) const {
     for (size_t i = 0; i < v.size(); i++) {
       if (v[i].Name == Name) {
         return i;
@@ -53,7 +53,7 @@ public:
   }
 };
 //---------------------------------------------------------------------------
-String Ascii2Ctrl(String str);
-String Ctrl2Ascii(String str);
+String Ascii2Ctrl(const String& str);
+String Ctrl2Ascii(const String& str);
 //---------------------------------------------------------------------------
 #endif

@@ -42,7 +42,7 @@ struct TCalculatedCell {
   TCalcType calcType;
 
   TCalculatedCell() : text(""), calcType(ctNotExpr) {}
-  TCalculatedCell(String t, TCalcType c) : text(t), calcType(c) {}
+  TCalculatedCell(const String& t, TCalcType c) : text(t), calcType(c) {}
 };
 //---------------------------------------------------------------------------
 struct TFormattedCell {
@@ -53,7 +53,8 @@ struct TFormattedCell {
   TFontStyles styles;
 
   TFormattedCell() {}
-  TFormattedCell(String t, TColor f, TColor b, TAlignment a, TFontStyles s)
+  TFormattedCell(const String& t, TColor f, TColor b, TAlignment a,
+      TFontStyles s)
       : text(t), fgColor(f), bgColor(b), alignment(a), styles(s) {}
 };
 //---------------------------------------------------------------------------
@@ -201,7 +202,7 @@ public:
     void SetDataRightBottom(int rx, int by, bool updateTableSize=true);
     int GetRowDataRight(int Row);
     void SetRowDataRight(int Row, int Right, bool ExpandOnly = false);
-    void SaveToFile(String FileName, const TTypeOption *Format,
+    void SaveToFile(const String& FileName, const TTypeOption *Format,
                     bool SetModifiedFals = true);
     String SingleCellCopiedText;
     void CopyToClipboard(const TTypeOption *Format = nullptr, bool Cut = false);
@@ -239,7 +240,7 @@ public:
     bool ShowURLBlue;
     bool WordWrap;
 	String BrowserFileName;
-    void OpenURL(String FileName);
+    void OpenURL(const String& FileName);
 
     int NumberComma;
     int DecimalDigits;
@@ -252,7 +253,7 @@ public:
     __property bool ExecCellMacro
         = {read=FExecCellMacro, write=SetExecCellMacro};
 
-    bool IsNumber(String Str);
+    bool IsNumber(const String& Str);
     bool IsNumberAtACell(int X, int Y){ return IsNumber(GetACells(X,Y)); };
     void Sort(int SLeft, int STop, int SRight, int SBottom, int SCol,
               bool Ascending, bool NumSort, bool IgnoreCase, bool IgnoreZenhan);
@@ -261,7 +262,7 @@ public:
     void CopySum();
     void CopyAvr();
 
-    void SetCell(int X, int Y, String Value);
+    void SetCell(int X, int Y, const String& Value);
     void ChangeRowCount(int Count);
     void ChangeColCount(int Count);
     void InsertRow(int Top, int Bottom);
@@ -296,7 +297,7 @@ public:
     TFormattedCell GetStyledCell(TCalculatedCell Cell, int AX, int AY);
     TFormattedCell GetCellToDraw(int RX, int RY);
 
-    TRect DrawTextRect(TCanvas *Canvas, TRect Rect, String Str,
+    TRect DrawTextRect(TCanvas *Canvas, TRect Rect, const String& Str,
                        bool Wrap, bool MeasureOnly=false);
 
     void SelectRow(long Index){
@@ -335,10 +336,10 @@ public:
           ACol >= Selection.Left && ACol <= Selection.Right;
     }
 
-    bool Find(String FindText, TGridRect Range, bool Case, bool Regex,
-              bool Word, bool Back);
-    bool Replace(String FindText , String ReplaceText, TGridRect Range,
-                 bool Case, bool Regex, bool Word, bool Back);
+    bool Find(const String& FindText, TGridRect Range, bool Case, bool Regex,
+        bool Word, bool Back);
+    bool Replace(const String& FindText , const String& ReplaceText,
+        TGridRect Range, bool Case, bool Regex, bool Word, bool Back);
     int ReplaceAll(String FindText, String ReplaceText, int SLeft, int STop,
                    int SRight, int SBottom, bool Case, bool Regex, bool Word);
     String ReplaceAll(String OriginalText, String FindText, String ReplaceText,
@@ -370,7 +371,7 @@ public:
     void ScrollRows(int Delta);
     void ScrollCols(int Delta);
 
-    void LoadFromFile(String FileName, TEncoding *encoding,
+    void LoadFromFile(const String& FileName, TEncoding *encoding,
         bool isDetectedEncoding, const TTypeOption *Format,
         TNotifyEvent OnTerminate);
     TThread *FileOpenThread;
