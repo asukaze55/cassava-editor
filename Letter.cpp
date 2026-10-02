@@ -74,8 +74,10 @@ void TfmLetter::PrintOut()
     printer->Copies = udCopies->Position;
     printer->BeginDoc();
     bool newPage = false;
-    for(int i = udTop->Position; i<=udBottom->Position; i++) {
-      if(newPage) Printer()->NewPage();
+    for (int i = udTop->Position; i<=udBottom->Position; i++) {
+      if (newPage) {
+        Printer()->NewPage();
+      }
       newPage = Print(Printer()->Canvas,i);
     }
     printer->EndDoc();
@@ -188,7 +190,7 @@ String Note = fmMain->MainGrid->ACells[udToNote->Position][Index];
 const int PX = udHorz->Position;
 const int PY = udVert->Position;
 
-const double mmPt = ((double) Canvas->Font->PixelsPerInch) / 25.4;
+const double mmPt = static_cast<double>(Canvas->Font->PixelsPerInch) / 25.4;
 
 if(cbUseNote->Checked)
 {
@@ -216,11 +218,9 @@ Canvas->Font->Height = NumberSize[Who] * mmPt;
 if (Number[Who].Pos("-")) {
   Number[Who].Delete(Number[Who].Pos("-"), 1);
 }
-for(int i=0; i<=6 && i<Number[Who].Length(); i++)
-{
-  Canvas->TextOut(((double)(NumberLeft[Who][i]) / 10 + PX) * mmPt,
-		  (NumberTop[Who] + NengaDY + PY) * mmPt,
-		   Number[Who][i+1]);
+for (int i = 0; i <= 6 && i < Number[Who].Length(); i++) {
+  Canvas->TextOut((static_cast<double>(NumberLeft[Who][i]) / 10.0 + PX) * mmPt,
+      (NumberTop[Who] + NengaDY + PY) * mmPt, Number[Who][i+1]);
 }
 //住所、宛名
 Canvas->Font->Name = cbxFont->Text;
@@ -236,12 +236,12 @@ for(int ibox=0; ibox<2; ibox++){
   double BoxTop, BoxBottom, BoxMiddle, Name2Top;
   switch(ibox){
     case 0:
-      YItv = (double)AddressSize[Who] / 2;
+      YItv = static_cast<double>(AddressSize[Who]) / 2.0;
       BoxTop = AddressTop[Who];
       BoxBottom = AddressBottom[Who];
       break;
     case 1:
-      YItv = (double)NameSize[Who] / 2;
+      YItv = static_cast<double>(NameSize[Who]) / 2.0;
       BoxTop = NameTop[Who];
       BoxBottom = NameBottom[Who];
       break;

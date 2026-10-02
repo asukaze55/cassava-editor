@@ -60,7 +60,7 @@ void TfmPrint::PrintOut()
   int pageHeight = printer->PageHeight;
 
   TMainGrid *mg = fmMain->MainGrid;
-  double multiplier = (double)printer->Canvas->TextWidth(L"あ") /
+  double multiplier = static_cast<double>(printer->Canvas->TextWidth(L"あ")) /
       mg->Canvas->TextWidth(L"あ");
   int cellLRMargin = mg->LRMargin * multiplier;
   int cellTBMargin = mg->TBMargin * multiplier;

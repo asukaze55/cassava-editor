@@ -90,9 +90,11 @@ void __fastcall TfrOptionColor::cbStyleChange(TObject *Sender)
   MaybeUpdateSelected(cbCalcFgColor, clWindowText, clWhite, isDarkMode);
   MaybeUpdateSelected(cbCurrentColBgColor, clWindow, clBlack, isDarkMode);
   MaybeUpdateSelected(cbCurrentRowBgColor, clWindow, clBlack, isDarkMode);
-  MaybeUpdateSelected(cbDummyBgColor, clCream, (TColor) 0x202020, isDarkMode);
+  MaybeUpdateSelected(
+      cbDummyBgColor, clCream, static_cast<TColor>(0x202020), isDarkMode);
   MaybeUpdateSelected(cbEvenRowBgColor, clWindow, clBlack, isDarkMode);
-  MaybeUpdateSelected(cbFixBgColor, clBtnFace, (TColor) 0x404040, isDarkMode);
+  MaybeUpdateSelected(
+      cbFixBgColor, clBtnFace, static_cast<TColor>(0x404040), isDarkMode);
   MaybeUpdateSelected(cbFixFgColor, clWindowText, clWhite, isDarkMode);
   MaybeUpdateSelected(cbFoundBgColor, clYellow, clOlive, isDarkMode);
   MaybeUpdateSelected(cbUrlColor, clBlue, clAqua, isDarkMode);

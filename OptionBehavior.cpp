@@ -33,7 +33,8 @@ void TfrOptionBehavior::RestoreFromMainForm()
 //---------------------------------------------------------------------------
 void TfrOptionBehavior::StoreToMainForm()
 {
-  fmMain->MainGrid->DragBehavior = (TDragBehavior) cbDragMove->ItemIndex;
+  fmMain->MainGrid->DragBehavior =
+      static_cast<TDragBehavior>(cbDragMove->ItemIndex);
   fmMain->MainGrid->EnterMove = cbEnterMove->ItemIndex;
   fmMain->MainGrid->LeftArrowInCell = cbLeftArrowInCell->Checked;
   fmMain->MainGrid->AlwaysShowEditor = cbAlwaysShowEditor->Checked;

@@ -84,7 +84,7 @@ void TfrOptionDataFormat::StoreDataPage()
 
   p->SepChars = Ascii2Ctrl(edDefSepChar->Text) + Ascii2Ctrl(edSepChars->Text);
   p->WeakSepChars = Ascii2Ctrl(edWeakSepChars->Text);
-  p->QuoteOption = (TQuoteOption) rgSaveQuote->ItemIndex;
+  p->QuoteOption = static_cast<TQuoteOption>(rgSaveQuote->ItemIndex);
   p->QuoteExpression = edQuoteExpression->Text;
   p->OmitComma = !(cbCommaRect->Checked);
   p->DummyEof = cbCommaRect->Checked && cbDummyEOF->Checked;

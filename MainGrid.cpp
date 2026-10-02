@@ -2620,10 +2620,11 @@ void __fastcall TMainGrid::MouseUp(Controls::TMouseButton Button,
         OpenURL(Cells[ACol][ARow]);
       }
     }
-  }else if(MouseDownColBorder){
-    if(Selection.Left <= ColToResize && Selection.Right >= ColToResize &&
-      Selection.Top == FixedRows && Selection.Bottom == FDataBottom){
-      double scale = (double) ColWidths[ColToResize] / (double) OldWidthHeight;
+  } else if (MouseDownColBorder) {
+    if (Selection.Left <= ColToResize && Selection.Right >= ColToResize &&
+        Selection.Top == FixedRows && Selection.Bottom == FDataBottom) {
+      double scale = static_cast<double>(ColWidths[ColToResize]) /
+          static_cast<double>(OldWidthHeight);
       for(int i=Selection.Left; i<=Selection.Right; i++){
         if(i != ColToResize){
           int newWidth = ColWidths[i] * scale;
@@ -2635,10 +2636,11 @@ void __fastcall TMainGrid::MouseUp(Controls::TMouseButton Button,
         }
       }
     }
-  }else if(MouseDownRowBorder){
-    if(Selection.Top <= RowToResize && Selection.Bottom >= RowToResize &&
-       Selection.Left == FixedCols && Selection.Right == FDataRight){
-      double scale = (double) RowHeights[RowToResize] / (double) OldWidthHeight;
+  } else if (MouseDownRowBorder) {
+    if (Selection.Top <= RowToResize && Selection.Bottom >= RowToResize &&
+        Selection.Left == FixedCols && Selection.Right == FDataRight) {
+      double scale = static_cast<double>(RowHeights[RowToResize]) /
+          static_cast<double>(OldWidthHeight);
       int maxRowHeight = ((ClientHeight - RowHeights[0]) / 4 - 1);
       for (int j = Selection.Top; j <= Selection.Bottom; j++) {
         if (j != RowToResize) {

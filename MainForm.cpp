@@ -218,7 +218,7 @@ void TfmMain::ReadIni()
   TStyleManager::TrySetStyle(FStyle);
 
   int iniScreenDpi = ini.ReadInteger("Position", "Dpi", ScreenDpi);
-  double dpiRatio = (double)ScreenDpi / iniScreenDpi;
+  double dpiRatio = static_cast<double>(ScreenDpi) / iniScreenDpi;
   int screenWidth = GetSystemMetrics (SM_CXSCREEN);
   int screenHeight = GetSystemMetrics (SM_CYSCREEN);
   int virtualScreenLeft = GetSystemMetrics (SM_XVIRTUALSCREEN);
@@ -294,7 +294,7 @@ void TfmMain::ReadIni()
 
   Show();
   SearchMacro(mnMacro);
-  dpiRatio = (double)ScreenDpi / iniScreenDpi;
+  dpiRatio = static_cast<double>(ScreenDpi) / iniScreenDpi;
 
   // Show() may reset the Left and Top in dark mode.
   Left = left;

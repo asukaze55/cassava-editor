@@ -34,24 +34,24 @@ String FormattedFileName(const String& Format, const String& BaseFileName)
         FileName += year;
         break;
       case 'M':
-        FileName += (char)('0' + (month / 10));
-        FileName += (char)('0' + (month % 10));
+        FileName += static_cast<wchar_t>(L'0' + (month / 10));
+        FileName += static_cast<wchar_t>(L'0' + (month % 10));
         break;
       case 'd':
-        FileName += (char)('0' + (day / 10));
-        FileName += (char)('0' + (day % 10));
+        FileName += static_cast<wchar_t>(L'0' + (day / 10));
+        FileName += static_cast<wchar_t>(L'0' + (day % 10));
         break;
       case 'H':
-        FileName += (char)('0' + (hours / 10));
-        FileName += (char)('0' + (hours % 10));
+        FileName += static_cast<wchar_t>(L'0' + (hours / 10));
+        FileName += static_cast<wchar_t>(L'0' + (hours % 10));
         break;
       case 'm':
-        FileName += (char)('0' + (minutes / 10));
-        FileName += (char)('0' + (minutes % 10));
+        FileName += static_cast<wchar_t>(L'0' + (minutes / 10));
+        FileName += static_cast<wchar_t>(L'0' + (minutes % 10));
         break;
       case 's':
-        FileName += (char)('0' + (seconds / 10));
-        FileName += (char)('0' + (seconds % 10));
+        FileName += static_cast<wchar_t>(L'0' + (seconds / 10));
+        FileName += static_cast<wchar_t>(L'0' + (seconds % 10));
         break;
       case 'n':
         FileName += "<n>"; // <> は Windows ではファイル名に使えない
