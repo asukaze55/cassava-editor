@@ -1181,7 +1181,7 @@ constexpr wchar_t QUOTE_MACRO_NAME[] = L"$quote";
 static inline void MaybeCompileQuoteScript(const TTypeOption *Format,
     TMacroContext *MacroContext)
 {
-  if (Format->QuoteOption == QUOTE_EXPRESSION) {
+  if (Format->QuoteOption == TQuoteOption::Expression) {
     String script = L"return " + Format->QuoteExpression + L";";
     CompileMacro(&script, QUOTE_MACRO_NAME, MacroContext,
         /* showMessage= */ false);
@@ -1229,20 +1229,20 @@ String TMainGrid::StringsToCSV(TStrings* Data, const TTypeOption *Format,
     String Str = Data->Strings[i];
 
     TQuoteOption quoteOption = Format->QuoteOption;
-    if (quoteOption == QUOTE_EXPRESSION) {
-      quoteOption = QUOTE_NORMAL;
+    if (quoteOption == TQuoteOption::Expression) {
+      quoteOption = TQuoteOption::Normal;
       if (MacroContext.HasModule(QUOTE_MACRO_NAME)) {
         try {
           TMacroValue value = RunMacro(QUOTE_MACRO_NAME, 0, MacroContext, X + i,
               Y, /* ReadOnly= */ true);
           if (value.string != "" && value.string != "0") {
-            quoteOption = QUOTE_ALL;
+            quoteOption = TQuoteOption::All;
           }
         } catch (...) {}
       }
     }
 
-    if (quoteOption != QUOTE_NONE) {
+    if (quoteOption != TQuoteOption::None) {
       for (int j = Str.Length(); j > 0; j--) {
         if (Str[j] == L'\"') {
           Str.Insert(L"\"", j);
@@ -1254,9 +1254,9 @@ String TMainGrid::StringsToCSV(TStrings* Data, const TTypeOption *Format,
       }
     }
 
-    if (quoteOption == QUOTE_NONE ||
-        (quoteOption == QUOTE_STRING && IsNumber(Str)) ||
-        (quoteOption == QUOTE_NORMAL && Str.LastDelimiter(Delim) == 0)) {
+    if (quoteOption == TQuoteOption::None ||
+        (quoteOption == TQuoteOption::String && IsNumber(Str)) ||
+        (quoteOption == TQuoteOption::Normal && Str.LastDelimiter(Delim) == 0)) {
       Text += Str;
     } else {
       Text += L"\"" + Str + L"\"";
@@ -1369,7 +1369,7 @@ void TMainGrid::PasteFromClipboard(int Way, const TTypeOption *Format)
   int ClipColCount = 0;
   std::vector<String> row;
   while (reader.ReadLine(row)) {
-    if (reader.GetNextType() == NEXT_TYPE_END_OF_FILE && row.size() == 1 &&
+    if (reader.GetState() == TCsvReaderState::EndOfFile && row.size() == 1 &&
         row[0] == "") {
       break;
     }

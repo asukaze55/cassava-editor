@@ -5,13 +5,13 @@
 #include <vcl.h>
 #include <vector>
 //---------------------------------------------------------------------------
-enum TQuoteOption : int
+enum class TQuoteOption : int
 {
-  QUOTE_NONE = 0,
-  QUOTE_NORMAL = 1,
-  QUOTE_STRING = 2,
-  QUOTE_ALL = 3,
-  QUOTE_EXPRESSION = 4
+  None = 0,
+  Normal = 1,
+  String = 2,
+  All = 3,
+  Expression = 4
 };
 //---------------------------------------------------------------------------
 class TTypeOption
@@ -40,12 +40,9 @@ public:
   String GetExtsStr(int From) const;
 };
 //---------------------------------------------------------------------------
-enum CsvReaderState
-{
-  NEXT_TYPE_HAS_MORE_CELL,
-  NEXT_TYPE_HAS_MORE_ROW,
-  NEXT_TYPE_END_OF_FILE
-};
+enum class TCsvReaderState { HasMoreCell, HasMoreRow, EndOfFile };
+//---------------------------------------------------------------------------
+enum class TDelimiterType { None, WeakPre, WeakPost, Strong };
 //---------------------------------------------------------------------------
 class CsvReader
 {
@@ -55,13 +52,13 @@ private:
   String data;
   int last;
   int pos;
-  int delimiterType;
+  TDelimiterType delimiterType;
   void __fastcall IncrementPos(bool Quoted);
 public:
   CsvReader(const TTypeOption* TypeOption, const String& FileName,
       TEncoding *Encoding);
   CsvReader(const TTypeOption* TypeOption, const String& CsvText);
-  CsvReaderState GetNextType();
+  TCsvReaderState GetState();
   String Next();
   bool ReadLine(std::vector<String>& row);
 };

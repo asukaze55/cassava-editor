@@ -127,15 +127,15 @@ bool __fastcall FileOpenThread::ExecuteOnce()
     if (dl) { nextRow->Add(""); }
     int x = dl;
     while (true) {
-      int type = reader.GetNextType();
-      if (type == NEXT_TYPE_END_OF_FILE) {
+      TCsvReaderState type = reader.GetState();
+      if (type == TCsvReaderState::EndOfFile) {
         if (nextRow->Count > dl + 1 ||
             (nextRow->Count == dl + 1 && nextRow->Strings[dl] != "")) {
           if (x - 1 > maxCol) { maxCol = x - 1; }
           allCells.push_back(std::move(nextRow));
         }
         break;
-      } else if (type == NEXT_TYPE_HAS_MORE_ROW) {
+      } else if (type == TCsvReaderState::HasMoreRow) {
         if (Terminated) {
           break;
         }

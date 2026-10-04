@@ -353,7 +353,7 @@ void TfmMain::ReadIni()
       option.QuoteChars =
           Ascii2Ctrl(ini.ReadString(Section, "QuoteChars", "\""));
       option.QuoteOption =
-          ini.ReadEnum<TQuoteOption>(Section, "Quote", QUOTE_NORMAL);
+          ini.ReadEnum<TQuoteOption>(Section, "Quote", TQuoteOption::Normal);
       option.QuoteExpression =
           ini.ReadString(Section, "QuoteExpression", "");
       option.OmitComma = ini.ReadBool(Section, "OmitComma", true);

@@ -4,11 +4,6 @@
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 //---------------------------------------------------------------------------
-#define DELIMITER_TYPE_NONE      0x00
-#define DELIMITER_TYPE_WEAK_PRE  0x01
-#define DELIMITER_TYPE_WEAK_POST 0x02
-#define DELIMITER_TYPE_STRONG    0x03
-//---------------------------------------------------------------------------
 TTypeOption::TTypeOption()
 {
   init();
@@ -28,7 +23,7 @@ TTypeOption::TTypeOption(const String& str)
   } else if (str == L"TSV") {
     SepChars = L"\t";
     WeakSepChars = L"";
-    QuoteOption = QUOTE_NONE;
+    QuoteOption = TQuoteOption::None;
   }
 }
 //---------------------------------------------------------------------------
@@ -38,7 +33,7 @@ void TTypeOption::init()
   SepChars = L",\t";
   WeakSepChars = L" ";
   QuoteChars = L"\"";
-  QuoteOption = QUOTE_NORMAL;
+  QuoteOption = TQuoteOption::Normal;
   OmitComma = false;
   DummyEof = true;
   DummyEol = false;
@@ -56,7 +51,7 @@ wchar_t TTypeOption::DefSepChar() const
 //---------------------------------------------------------------------------
 bool TTypeOption::UseQuote() const
 {
-  return (QuoteOption > 0);
+  return QuoteOption != TQuoteOption::None;
 }
 //---------------------------------------------------------------------------
 void TTypeOption::SetExts(String ExtString)
@@ -91,7 +86,7 @@ CsvReader::CsvReader(const TTypeOption* TypeOption, const String& FileName,
   : typeOption(TypeOption),
     reader(std::make_unique<TStreamReader>(
         FileName, Encoding, /* DetectBOM= */ true, /* BufferSize= */ 4096)),
-    data(""), last(1), pos(0), delimiterType(DELIMITER_TYPE_STRONG)
+    data(""), last(1), pos(0), delimiterType(TDelimiterType::Strong)
 {
   IncrementPos(false);
 }
@@ -99,7 +94,7 @@ CsvReader::CsvReader(const TTypeOption* TypeOption, const String& FileName,
 CsvReader::CsvReader(const TTypeOption* TypeOption, const String& CsvText)
   : typeOption(TypeOption),
     reader(std::make_unique<TStringReader>(CsvText)),
-    data(""), last(1), pos(0), delimiterType(DELIMITER_TYPE_STRONG)
+    data(""), last(1), pos(0), delimiterType(TDelimiterType::Strong)
 {
   IncrementPos(false);
 }
@@ -120,40 +115,40 @@ void __fastcall CsvReader::IncrementPos(bool Quoted)
   }
 }
 //---------------------------------------------------------------------------
-CsvReaderState CsvReader::GetNextType()
+TCsvReaderState CsvReader::GetState()
 {
-  if (delimiterType == DELIMITER_TYPE_STRONG) {
+  if (delimiterType == TDelimiterType::Strong) {
     // Always create a cell after a strong delimiter.
-    return NEXT_TYPE_HAS_MORE_CELL;
+    return TCsvReaderState::HasMoreCell;
   }
-  if (delimiterType == DELIMITER_TYPE_WEAK_PRE
-      || delimiterType == DELIMITER_TYPE_WEAK_POST) {
+  if (delimiterType == TDelimiterType::WeakPre ||
+      delimiterType == TDelimiterType::WeakPost) {
     // Ignore consecutive weak delimiters.
     while (pos < last && typeOption->WeakSepChars.Pos(data[pos]) > 0) {
       IncrementPos(false);
     }
   }
   if (pos >= last) {
-    return NEXT_TYPE_END_OF_FILE;
+    return TCsvReaderState::EndOfFile;
   } else if (data[pos] == L'\r' || data[pos] == L'\n') {
-    return NEXT_TYPE_HAS_MORE_ROW;
+    return TCsvReaderState::HasMoreRow;
   } else {
-    return NEXT_TYPE_HAS_MORE_CELL;
+    return TCsvReaderState::HasMoreCell;
   }
 }
 //---------------------------------------------------------------------------
 String CsvReader::Next()
 {
-  if (delimiterType == DELIMITER_TYPE_WEAK_PRE
-      || delimiterType == DELIMITER_TYPE_WEAK_POST) {
-    // 改行の次へ進める。改行の情報は GetNextType で取る。
+  if (delimiterType == TDelimiterType::WeakPre ||
+      delimiterType == TDelimiterType::WeakPost) {
+    // 改行の次へ進める。改行の情報は GetState で取る。
     if (data[pos] == L'\r') {
       IncrementPos(false);
-      delimiterType = DELIMITER_TYPE_STRONG;
+      delimiterType = TDelimiterType::Strong;
     }
     if (data[pos] == L'\n') {
       IncrementPos(false);
-      delimiterType = DELIMITER_TYPE_STRONG;
+      delimiterType = TDelimiterType::Strong;
     }
   }
 
@@ -169,38 +164,38 @@ String CsvReader::Next()
     if (!quoted) {
       if (ch == L'\r' || ch == L'\n') {
         // 改行
-        delimiterType = DELIMITER_TYPE_WEAK_POST;
+        delimiterType = TDelimiterType::WeakPost;
         return data.SubString(cellstart, cellend - cellstart);
       } else if (typeOption->SepChars.Pos(ch) > 0) {
         // 強区切り
-        if (delimiterType != DELIMITER_TYPE_WEAK_PRE) {
+        if (delimiterType != TDelimiterType::WeakPre) {
           IncrementPos(false);
-          delimiterType = DELIMITER_TYPE_STRONG;
+          delimiterType = TDelimiterType::Strong;
           return data.SubString(cellstart, cellend - cellstart);
         }
-        delimiterType = DELIMITER_TYPE_STRONG;
+        delimiterType = TDelimiterType::Strong;
         cellstart = pos + 1;
       } else if (typeOption->WeakSepChars.Pos(ch) > 0) {
         // 弱区切り
-        if (delimiterType == DELIMITER_TYPE_NONE) {
+        if (delimiterType == TDelimiterType::None) {
           IncrementPos(false);
-          delimiterType = DELIMITER_TYPE_WEAK_PRE;
+          delimiterType = TDelimiterType::WeakPre;
           return data.SubString(cellstart, cellend - cellstart);
         }
-        if (delimiterType == DELIMITER_TYPE_STRONG) {
-          delimiterType = DELIMITER_TYPE_WEAK_POST;
+        if (delimiterType == TDelimiterType::Strong) {
+          delimiterType = TDelimiterType::WeakPost;
         }
         cellstart = pos + 1;
       } else if (typeOption->UseQuote()
                  && typeOption->QuoteChars.Pos(ch) > 0
-                 && delimiterType != DELIMITER_TYPE_NONE) {
+                 && delimiterType != TDelimiterType::None) {
         // クオート
         quoted = true;
-        delimiterType = DELIMITER_TYPE_NONE;
+        delimiterType = TDelimiterType::None;
         cellstart = pos + 1;
       } else {
         // コンテンツ
-        delimiterType = DELIMITER_TYPE_NONE;
+        delimiterType = TDelimiterType::None;
       }
     } else { // Quoted
       if (typeOption->UseQuote() && typeOption->QuoteChars.Pos(ch) > 0) {
@@ -209,12 +204,12 @@ String CsvReader::Next()
           data[cellend] = data[pos];
         } else {
           IncrementPos(true);
-          delimiterType = DELIMITER_TYPE_WEAK_PRE;
+          delimiterType = TDelimiterType::WeakPre;
           return data.SubString(cellstart, cellend - cellstart);
         }
       } else {
         // コンテンツ
-        delimiterType = DELIMITER_TYPE_NONE;
+        delimiterType = TDelimiterType::None;
         if(cellend < pos){
           data[cellend] = data[pos];
         }
@@ -222,7 +217,7 @@ String CsvReader::Next()
     }
   }
 
-  delimiterType = DELIMITER_TYPE_NONE;
+  delimiterType = TDelimiterType::None;
   if (cellstart < cellend) {
     return data.SubString(cellstart, cellend - cellstart);
   }
@@ -232,12 +227,12 @@ String CsvReader::Next()
 bool CsvReader::ReadLine(std::vector<String>& row)
 {
   row.clear();
-  if (GetNextType() == NEXT_TYPE_END_OF_FILE) {
+  if (GetState() == TCsvReaderState::EndOfFile) {
     return false;
   }
   do {
     row.push_back(Next());
-  } while (GetNextType() == NEXT_TYPE_HAS_MORE_CELL);
+  } while (GetState() == TCsvReaderState::HasMoreCell);
   return true;
 }
 //---------------------------------------------------------------------------
