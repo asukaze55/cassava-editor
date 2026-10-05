@@ -18,14 +18,6 @@
 #include "Macro.h"
 #include "MainGrid.h"
 #include "PasteDlg.h"
-
-#define DataLeft (ShowRowCounter ? 1 : 0)
-#define DataTop  (ShowColCounter ? 1 : 0)
-
-#define RXtoAX(x) ((x) - DataLeft + 1)
-#define RYtoAY(y) ((y) - DataTop  + 1)
-#define AXtoRX(x) ((x) + DataLeft - 1)
-#define AYtoRY(y) ((y) + DataTop  - 1)
 //---------------------------------------------------------------------------
 static inline int min(int a, int b)
 {

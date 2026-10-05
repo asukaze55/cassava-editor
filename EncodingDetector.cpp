@@ -107,7 +107,7 @@ void UTF16BE_Next(byte b, int i, int &error, int &hit, int &flag)
 //---------------------------------------------------------------------------
 int DetectCharCode(byte *buf, int len, int def)
 {
-#define CHARCODE_COUNT 6
+  static constexpr int CHARCODE_COUNT = 6;
   funcNext *next[CHARCODE_COUNT];
   next[CHARCODE_SJIS] = SJIS_Next;
   next[CHARCODE_EUC] = EUC_Next;

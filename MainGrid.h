@@ -11,7 +11,7 @@
 #include "EncodedWriter.h"
 #include "Undo.h"
 //---------------------------------------------------------------------------
-#define CASSAVA_TITLE L"Cassava Editor"
+constexpr wchar_t CASSAVA_TITLE[] = L"Cassava Editor";
 //---------------------------------------------------------------------------
 using TDropCsvFiles =
     void (__closure *)(const std::vector<String>& DropFileNames);
@@ -105,8 +105,12 @@ private:
       return (ARow>=Selection.Top  && ARow<=Selection.Bottom &&
           ACol>=Selection.Left && ACol<=Selection.Right);
     }
-    int GetDataLeft(){ return (ShowRowCounter ? 1 : 0); }
+    int GetDataLeft() { return (ShowRowCounter ? 1 : 0); }
     int GetDataTop() { return (ShowColCounter ? 1 : 0); }
+    int RXtoAX(int x) { return x - DataLeft + 1; }
+    int RYtoAY(int y) { return y - DataTop  + 1; }
+    int AXtoRX(int x) { return x + DataLeft - 1; }
+    int AYtoRY(int y) { return y + DataTop  - 1; }
     int FDataRight, FDataBottom;
     std::unique_ptr<TObject> FEOFMarker = std::make_unique<TObject>();
     TObject *EOFMarker = FEOFMarker.get();
