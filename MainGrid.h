@@ -37,6 +37,18 @@ enum TCalcType {
   ctNotExpr, ctOk, ctError
 };
 //---------------------------------------------------------------------------
+enum class TPasteOption : int {
+  Unknown = -1,
+  Crop = 0,
+  Repeat = 1,
+  Overwrite = 2,
+  InsertRight = 3,
+  InsertDown = 4,
+  Editor = 5,
+  InsertRow = 11,
+  InsertCol = 12
+};
+//---------------------------------------------------------------------------
 struct TCalculatedCell {
   String text;
   TCalcType calcType;
@@ -105,6 +117,12 @@ private:
     void SetShowRowCounter(bool Value);
     void SetShowColCounter(bool Value);
 
+    void PasteCSV(const std::vector<std::vector<String>>& Row, int Left,
+        int Top, TPasteOption PasteOption, int ClipCols, int ClipRows);
+    String StringsToCSV(TStrings* Data, const TTypeOption *Format,
+        const TMacroContext &MacroContext, int X, int Y);
+    void WriteGrid(EncodedWriter &Writer, const TTypeOption *Format);
+
     bool FExecCellMacro;
     std::map<String, TCalculatedCell> CalculatedCellCache;
     std::map<String, TFormattedCell> FormattedCellCache;
@@ -123,12 +141,6 @@ private:
     std::vector<String> LastMatch;
 
 protected:
-    void PasteCSV(const std::vector<std::vector<String>>& Row, int Left,
-        int Top, int Way, int ClipCols, int ClipRows);
-    String StringsToCSV(TStrings* Data, const TTypeOption *Format,
-        const TMacroContext &MacroContext, int X, int Y);
-    void WriteGrid(EncodedWriter &Writer, const TTypeOption *Format);
-
     virtual bool __fastcall SelectCell(int ACol, int ARow);
     DYNAMIC void __fastcall MouseDown(Controls::TMouseButton Button,
         Classes::TShiftState Shift, int X, int Y);
@@ -207,15 +219,11 @@ public:
     String SingleCellCopiedText;
     void CopyToClipboard(const TTypeOption *Format = nullptr, bool Cut = false);
     void CutToClipboard(const TTypeOption *Format = nullptr);
-#define PASTE_OPTION_UNKNOWN -1
-#define PASTE_OPTION_OVERWRITE 2
-#define PASTE_OPTION_EDITOR 5
-#define PASTE_OPTION_INSERT_ROW 11
-#define PASTE_OPTION_INSERT_COL 12
-    void PasteFromClipboard(int Way, const TTypeOption *Format = nullptr);
+    void PasteFromClipboard(TPasteOption Option,
+        const TTypeOption* Format = nullptr);
     const TTypeOption *TypeOption;
-    int PasteOption;
-    int DefWay;
+    TPasteOption PasteOption;
+    TPasteOption PreviousPasteOption;
     TEncoding *Encoding;
     bool AddBom;
     TReturnCode ReturnCode;

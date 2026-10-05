@@ -54,8 +54,8 @@ __fastcall TMainGrid::TMainGrid(TComponent* Owner)  //デフォルトの設定
   Dragging = false;
   EditorMode = true;
   DragBehavior = dbMoveIfSelected;
-  PasteOption = -1;
-  DefWay = 2;
+  PasteOption = TPasteOption::Unknown;
+  PreviousPasteOption = TPasteOption::Overwrite;
   FShowRowCounter = true;
   FShowColCounter = true;
   ReturnCode = CRLF;
@@ -1088,16 +1088,9 @@ static String GetClipboardText()
 }
 //---------------------------------------------------------------------------
 void TMainGrid::PasteCSV(const std::vector<std::vector<String>>& Row, int Left,
-    int Top, int Way, int ClipCols, int ClipRows)
+    int Top, TPasteOption PasteOption, int ClipCols, int ClipRows)
 {
-  // Way
-  //  0: 重なった部分のみ
-  //  1: くり返し処理
-  //  2: データサイズ上書き
-  //  3: 右挿入
-  //  4: 下挿入
-  //  5: テキストとしてセル内に
-  if (Way == 5) {
+  if (PasteOption == TPasteOption::Editor) {
     ShowEditor();
     InplaceEditor->SelText = GetClipboardText();
     InplaceEditor->Text = TrimRight(InplaceEditor->Text);
@@ -1107,7 +1100,7 @@ void TMainGrid::PasteCSV(const std::vector<std::vector<String>>& Row, int Left,
   int selBottom = Selection.Bottom;
   int selRight = Selection.Right;
   int iEnd = ClipRows;
-  if (Way == 0) {
+  if (PasteOption == TPasteOption::Crop) {
     int bottom = min(selBottom, Top + ClipRows - 1);
     if (DataBottom < bottom) {
       InsertRow(DataBottom + 1, bottom);
@@ -1117,7 +1110,7 @@ void TMainGrid::PasteCSV(const std::vector<std::vector<String>>& Row, int Left,
       InsertColumn(DataRight + 1, right);
     }
     iEnd = bottom - Top + 1;
-  } else if (Way == 1) {
+  } else if (PasteOption == TPasteOption::Repeat) {
     if (DataBottom < selBottom) {
       InsertRow(DataBottom + 1, selBottom);
     }
@@ -1125,34 +1118,36 @@ void TMainGrid::PasteCSV(const std::vector<std::vector<String>>& Row, int Left,
       InsertColumn(DataRight + 1, selRight);
     }
     iEnd = selBottom - Top + 1;
-  } else if (Way == 2) {
+  } else if (PasteOption == TPasteOption::Overwrite) {
     if (DataBottom < Top + ClipRows - 1) {
       InsertRow(DataBottom + 1, Top + ClipRows - 1);
     }
     if (DataRight < Left + ClipCols - 1) {
       InsertColumn(DataRight + 1, Left + ClipCols - 1);
     }
-  } else if (Way == 3) {
+  } else if (PasteOption == TPasteOption::InsertRight) {
     if (DataBottom < Top + ClipRows - 1) {
       InsertRow(DataBottom + 1, ClipRows + Top - 1);
     }
     InsertCells_Right(Left, Left + ClipCols - 1, Top, Top + ClipRows - 1);
-  } else if (Way == 4) {
+  } else if (PasteOption == TPasteOption::InsertDown) {
     if (DataRight < Left + ClipCols - 1) {
       InsertColumn(DataRight + 1, Left + ClipCols - 1);
     }
     InsertCells_Down(Left, Left + ClipCols - 1, Top, Top + ClipRows - 1);
   }
   for (int i = 0; i < iEnd; i++) {
-    int ii = (Way == 1 && ClipRows > 0) ? i % ClipRows : i;
+    int ii = (PasteOption == TPasteOption::Repeat && ClipRows > 0)
+        ? i % ClipRows : i;
     int jEnd = Row[ii].size();
-    if (Way == 0) {
+    if (PasteOption == TPasteOption::Crop) {
       jEnd = min(selRight - Left + 1, jEnd);
-    } else if (Way == 1) {
+    } else if (PasteOption == TPasteOption::Repeat) {
       jEnd = selRight - Left + 1;
     }
     for (int j = 0; j < jEnd; j++) {
-      int jj = (Way == 1 && ClipCols > 0) ? j % ClipCols : j;
+      int jj = (PasteOption == TPasteOption::Repeat && ClipCols > 0)
+          ? j % ClipCols : j;
       if (jj < Row[ii].size()) {
         SetCell(j + Left, i + Top, Row[ii][jj]);
       }
@@ -1339,7 +1334,8 @@ void TMainGrid::CutToClipboard(const TTypeOption *Format)
   CopyToClipboard(Format, true);
 }
 //---------------------------------------------------------------------------
-void TMainGrid::PasteFromClipboard(int Way, const TTypeOption *Format)
+void TMainGrid::PasteFromClipboard(TPasteOption Option,
+    const TTypeOption *Format)
 {
   if (Format == nullptr) {
     Format = TypeOption;
@@ -1378,48 +1374,54 @@ void TMainGrid::PasteFromClipboard(int Way, const TTypeOption *Format)
   }
   int ClipRowCount = data.size();
 
-  if (Way < 0) {
-    if (PasteOption >= 0 && PasteOption != PASTE_OPTION_EDITOR) {
-      Way = PasteOption;
-    } else if (PasteOption == PASTE_OPTION_EDITOR && SelectRowCount == 1 &&
+  TPasteOption resolvedOption = Option;
+  if (resolvedOption == TPasteOption::Unknown) {
+    if (PasteOption != TPasteOption::Unknown &&
+        PasteOption != TPasteOption::Editor) {
+      resolvedOption = PasteOption;
+    } else if (PasteOption == TPasteOption::Editor && SelectRowCount == 1 &&
         SelectColCount == 1) {
-      Way = PASTE_OPTION_EDITOR;
+      resolvedOption = TPasteOption::Editor;
     } else if (ClipRowCount == SelectRowCount &&
                ClipColCount == SelectColCount) {
-      Way = EditorMode ? PASTE_OPTION_EDITOR : PASTE_OPTION_OVERWRITE;
+      resolvedOption =
+          EditorMode ? TPasteOption::Editor : TPasteOption::Overwrite;
     } else {
-      std::unique_ptr<TfmPasteDialog> PstDlg =
+      std::unique_ptr<TfmPasteDialog> pasteDialog =
           std::make_unique<TfmPasteDialog>(nullptr);
-      PstDlg->Way->ItemIndex = DefWay;
-      PstDlg->lbMessage->Caption =
+      pasteDialog->Way->ItemIndex = static_cast<int>(PreviousPasteOption);
+      pasteDialog->lbMessage->Caption =
           String(L"選択サイズ： ") + SelectColCount + L" × " + SelectRowCount +
           L"　クリップボードサイズ： " + ClipColCount + L" × " + ClipRowCount;
-      if (PstDlg->ShowModal() != IDOK) {
+      if (pasteDialog->ShowModal() != IDOK) {
         return;
       }
-      Way = DefWay = PstDlg->Way->ItemIndex;
+      resolvedOption =
+          static_cast<TPasteOption>(pasteDialog->Way->ItemIndex);
+      PreviousPasteOption = resolvedOption;
     }
   }
 
   UndoList->Push();
-  if (Way == PASTE_OPTION_INSERT_ROW) {
+  if (resolvedOption == TPasteOption::InsertRow) {
     InsertRow(STop, STop + ClipRowCount - 1);
-    Way = PASTE_OPTION_OVERWRITE;
-  } else if (Way == PASTE_OPTION_INSERT_COL) {
+    resolvedOption = TPasteOption::Overwrite;
+  } else if (resolvedOption == TPasteOption::InsertCol) {
     InsertColumn(SLeft, SLeft + ClipColCount - 1);
-    Way = PASTE_OPTION_OVERWRITE;
+    resolvedOption = TPasteOption::Overwrite;
   }
   UndoList->Push();
-  PasteCSV(data, SLeft, STop, Way, ClipColCount, ClipRowCount);
+  PasteCSV(data, SLeft, STop, resolvedOption, ClipColCount, ClipRowCount);
   UndoList->PopWithRecordedMacro(String(L"Select(") + RXtoAX(SLeft) + L", " +
       RYtoAY(STop) + L", " + RXtoAX(SRight) + L", " + RYtoAY(SBottom) +
-      L");\nPaste(" + Way + L");");
+      L");\nPaste(" + static_cast<int>(resolvedOption) + L");");
   UndoList->Pop();
 
-  if (Way <= 1) {
+  if (resolvedOption == TPasteOption::Crop ||
+      resolvedOption == TPasteOption::Repeat) {
     SetSelection(SLeft, SLeft + SelectColCount - 1,
                  STop, STop + SelectRowCount - 1);
-  } else if (Way <= 4) {
+  } else if (resolvedOption != TPasteOption::Editor) {
     SetSelection(SLeft, SLeft + ClipColCount - 1,
                  STop, STop + ClipRowCount - 1);
   }
@@ -3555,7 +3557,7 @@ public:
   }
 
   void __fastcall WmPaste(TWMPaste inMsg) {
-    static_cast<TMainGrid*>(Owner)->PasteFromClipboard(PASTE_OPTION_UNKNOWN);
+    static_cast<TMainGrid*>(Owner)->PasteFromClipboard(TPasteOption::Unknown);
   }
 
   BEGIN_MESSAGE_MAP

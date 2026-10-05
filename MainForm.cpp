@@ -375,15 +375,20 @@ void TfmMain::ReadIni()
   DelBuT = ini.ReadBool("Backup", "DeleteT", true);
   BuInterval = ini.ReadInteger("Backup", "Interval", 5);
 
-  int pasteOption = ini.ReadInteger("Mode", "Paste", -1);
+  TPasteOption pasteOption =
+      ini.ReadEnum("Mode", "Paste", TPasteOption::Unknown);
+  if (static_cast<int>(pasteOption) < static_cast<int>(TPasteOption::Unknown) ||
+      static_cast<int>(pasteOption) > static_cast<int>(TPasteOption::Editor)) {
+    pasteOption = TPasteOption::Unknown;
+  }
   MainGrid->PasteOption = pasteOption;
-  mnPasteNormal->Checked = (pasteOption < 0);
-  mnPasteOption0->Checked = (pasteOption == 0);
-  mnPasteOption1->Checked = (pasteOption == 1);
-  mnPasteOption2->Checked = (pasteOption == 2);
-  mnPasteOption3->Checked = (pasteOption == 3);
-  mnPasteOption4->Checked = (pasteOption == 4);
-  mnPasteOption5->Checked = (pasteOption == 5);
+  mnPasteNormal->Checked = (pasteOption == TPasteOption::Unknown);
+  mnPasteOption0->Checked = (pasteOption == TPasteOption::Crop);
+  mnPasteOption1->Checked = (pasteOption == TPasteOption::Repeat);
+  mnPasteOption2->Checked = (pasteOption == TPasteOption::Overwrite);
+  mnPasteOption3->Checked = (pasteOption == TPasteOption::InsertRight);
+  mnPasteOption4->Checked = (pasteOption == TPasteOption::InsertDown);
+  mnPasteOption5->Checked = (pasteOption == TPasteOption::Editor);
   MainGrid->DragBehavior =
       ini.ReadEnum<TDragBehavior>("Mode", "DragCounter", dbMoveIfSelected);
   MainGrid->EnterMove = ini.ReadInteger("Mode", "EnterMove", 0);
@@ -568,7 +573,7 @@ void TfmMain::WriteIni(bool PosSlide)
     ini.WriteBool("Backup", "DeleteT", DelBuT);
     ini.WriteInteger("Backup", "Interval", BuInterval);
 
-    ini.WriteInteger("Mode", "Paste", MainGrid->PasteOption);
+    ini.WriteEnum("Mode", "Paste", MainGrid->PasteOption);
     ini.WriteEnum("Mode", "DragCounter", MainGrid->DragBehavior);
     ini.WriteInteger("Mode", "EnterMove", MainGrid->EnterMove);
     ini.WriteInteger("Mode", "FixTopRow",
@@ -1943,7 +1948,7 @@ void __fastcall TfmMain::acPasteExecute(TObject *Sender)
   } else if(fmFind->edMax->Focused()) {
     fmFind->edMax->PasteFromClipboard();
   } else {
-    MainGrid->PasteFromClipboard(PASTE_OPTION_UNKNOWN);
+    MainGrid->PasteFromClipboard(TPasteOption::Unknown);
   }
 }
 //---------------------------------------------------------------------------
@@ -1959,9 +1964,9 @@ void __fastcall TfmMain::acPasteUpdate(TObject *Sender)
 void __fastcall TfmMain::mnpPasteInsertClick(TObject *Sender)
 {
   if (MainGrid->IsColHeaderSelected()) {
-    MainGrid->PasteFromClipboard(PASTE_OPTION_INSERT_COL);
+    MainGrid->PasteFromClipboard(TPasteOption::InsertCol);
   } else {
-    MainGrid->PasteFromClipboard(PASTE_OPTION_INSERT_ROW);
+    MainGrid->PasteFromClipboard(TPasteOption::InsertRow);
   }
 }
 //---------------------------------------------------------------------------
@@ -1983,7 +1988,7 @@ void __fastcall TfmMain::mnPasteFormatDefaultClick(TObject *Sender)
 {
   const TTypeOption *Format =
       TypeList.Items(static_cast<TMenuItem *>(Sender)->Tag);
-  MainGrid->PasteFromClipboard(PASTE_OPTION_UNKNOWN, Format);
+  MainGrid->PasteFromClipboard(TPasteOption::Unknown, Format);
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnSelectAllClick(TObject *Sender)
@@ -2015,9 +2020,9 @@ void __fastcall TfmMain::mnSelectColClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnPasteOptionsClick(TObject *Sender)
 {
-  TMenuItem *Sdr = static_cast<TMenuItem*>(Sender);
-  MainGrid->PasteOption = Sdr->Tag;
-  Sdr->Checked = true;
+  TMenuItem *menuItem = static_cast<TMenuItem*>(Sender);
+  MainGrid->PasteOption = static_cast<TPasteOption>(menuItem->Tag);
+  menuItem->Checked = true;
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmMain::mnCopySumClick(TObject *Sender)

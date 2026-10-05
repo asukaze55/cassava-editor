@@ -1400,7 +1400,7 @@ void TMacro::ExecFnc(String s)
   } else if (s == "MoveCol" && paramCount == 2) {
     env.Grid->MoveCol(VAL0, VAL1);
   } else if (s == "Paste" && paramCount == 1) {
-    env.Grid->Raw()->PasteFromClipboard(VAL0);
+    env.Grid->Raw()->PasteFromClipboard(static_cast<TPasteOption>(VAL0));
   } else if (s == "random" && paramCount == 1) {
     Stack.push_back(Element(Random(VAL0)));
   } else if (s == "cell" && paramCount == 2) {
