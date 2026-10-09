@@ -286,7 +286,7 @@ void TfmMain::ReadIni()
   MainGrid->UrlColor = ini.ReadEnum("Font", "UrlColor", clBlue);
   MainGrid->WordWrap = ini.ReadBool("Font", "WordWrap", false);
   MainGrid->TextAlignment =
-      ini.ReadInteger("Font", "TextAlign", MainGrid->TextAlignment);
+      ini.ReadEnum("Font", "TextAlign", MainGrid->TextAlignment);
   MainGrid->NumberComma = ini.ReadInteger("Font", "NumberComma", 0);
   MainGrid->DecimalDigits = ini.ReadInteger("Font", "DecimalDigits", -1);
   MainGrid->MinColWidth =
@@ -391,7 +391,7 @@ void TfmMain::ReadIni()
   mnPasteOption5->Checked = (pasteOption == TPasteOption::Editor);
   MainGrid->DragBehavior =
       ini.ReadEnum<TDragBehavior>("Mode", "DragCounter", dbMoveIfSelected);
-  MainGrid->EnterMove = ini.ReadInteger("Mode", "EnterMove", 0);
+  MainGrid->EnterMove = ini.ReadEnum("Mode", "EnterMove", TEnterMove::None);
 
   int FixedRows = ini.ReadInteger("Mode", "FixTopRow", 0);
   int FixedCols = ini.ReadInteger("Mode", "FixLeftCol", 0);
@@ -422,7 +422,7 @@ void TfmMain::ReadIni()
   MainGrid->DblClickOpenURL = useURL;
   MakeNewWindow = ini.ReadBool("Mode", "NewWindow", false);
   TitleFullPath = ini.ReadBool("Mode", "TitleFullPath", false);
-  LockFile = ini.ReadInteger("Mode", "LockFile", 0);
+  LockFileMode = ini.ReadEnum("Mode", "LockFile", TLockFileMode::None);
   LockingFile = nullptr;
   CheckTimeStamp = ini.ReadBool("Mode", "CheckTimeStamp", true);
   SortByNumber = ini.ReadBool("Mode", "SortByNumber", true);
@@ -529,7 +529,7 @@ void TfmMain::WriteIni(bool PosSlide)
     ini.WriteEnum("Font", "FoundBgColor", MainGrid->FoundBgColor);
     ini.WriteEnum("Font", "UrlColor", MainGrid->UrlColor);
     ini.WriteBool("Font", "WordWrap", MainGrid->WordWrap);
-    ini.WriteInteger("Font", "TextAlign", MainGrid->TextAlignment);
+    ini.WriteEnum("Font", "TextAlign", MainGrid->TextAlignment);
     ini.WriteInteger("Font", "NumberComma", MainGrid->NumberComma);
     ini.WriteInteger("Font", "DecimalDigits", MainGrid->DecimalDigits);
     ini.WriteInteger("Font", "MinColWidth", MainGrid->MinColWidth);
@@ -575,7 +575,7 @@ void TfmMain::WriteIni(bool PosSlide)
 
     ini.WriteEnum("Mode", "Paste", MainGrid->PasteOption);
     ini.WriteEnum("Mode", "DragCounter", MainGrid->DragBehavior);
-    ini.WriteInteger("Mode", "EnterMove", MainGrid->EnterMove);
+    ini.WriteEnum("Mode", "EnterMove", MainGrid->EnterMove);
     ini.WriteInteger("Mode", "FixTopRow",
         MainGrid->ShowColCounter ? 0 : MainGrid->FixedRows);
     ini.WriteInteger("Mode", "FixLeftCol",
@@ -596,7 +596,7 @@ void TfmMain::WriteIni(bool PosSlide)
 
     ini.WriteBool("Mode", "NewWindow", MakeNewWindow);
     ini.WriteBool("Mode"," TitleFullPath", TitleFullPath);
-    ini.WriteInteger("Mode", "LockFile", LockFile);
+    ini.WriteEnum("Mode", "LockFile", LockFileMode);
     ini.WriteBool("Mode", "CheckTimeStamp", CheckTimeStamp);
     ini.WriteBool("Mode", "SortByNumber", SortByNumber);
     ini.WriteBool("Mode", "SortIgnoreCase", SortIgnoreCase);
@@ -1080,8 +1080,8 @@ void __fastcall TfmMain::MainGridChangeModified(TObject *Sender)
 {
   bool modified = MainGrid->Modified;
   acSave->Enabled = modified;
-  if (modified && LockFile == cssv_lfEdit && LockingFile == nullptr &&
-      FileName != "") {
+  if (modified && LockFileMode == TLockFileMode::Edit &&
+      LockingFile == nullptr && FileName != "") {
     LockingFile =
         std::make_unique<TFileStream>(FileName, fmOpenWrite|fmShareDenyWrite);
   }
@@ -1234,12 +1234,12 @@ void TfmMain::OpenFile(const String& OpenFileName, int CharCode,
   mnReload->Enabled = true;
   mnReloadCode->Enabled = true;
 
-  try{
-    if(LockFile == cssv_lfOpen){
+  try {
+    if (LockFileMode == TLockFileMode::Open) {
       LockingFile =
           std::make_unique<TFileStream>(FileName, fmOpenWrite|fmShareDenyWrite);
     }
-  }catch(...){}
+  } catch (...) {}
   try{
     if(BackupOnTime){
       if(BackupOnOpen){
@@ -1445,7 +1445,7 @@ void TfmMain::SaveFile(const TTypeOption *Format)
     }catch(...){}
 
     // 必要ならば再度ロック
-    if(LockFile == cssv_lfOpen){
+    if (LockFileMode == TLockFileMode::Open) {
       LockingFile =
           std::make_unique<TFileStream>(FileName, fmOpenWrite|fmShareDenyWrite);
     }

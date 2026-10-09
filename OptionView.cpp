@@ -26,7 +26,7 @@ void TfrOptionView::RestoreFromMainForm()
 
   cbWordWrap->Checked = fmMain->MainGrid->WordWrap;
   cbNumAlignRight->Checked =
-      (fmMain->MainGrid->TextAlignment == cssv_taNumRight);
+      (fmMain->MainGrid->TextAlignment == TTextAlignment::NumRight);
   cbNum3->Checked = (fmMain->MainGrid->NumberComma != 0);
   int decimalDigits = fmMain->MainGrid->DecimalDigits;
   cbOmitDecimal->Checked = (decimalDigits >= 0);
@@ -52,11 +52,11 @@ void TfrOptionView::StoreToMainForm()
   fmMain->MainGrid->CellLineMargin = udCellLineMargin->Position;
 
   fmMain->MainGrid->WordWrap = cbWordWrap->Checked;
-  fmMain->MainGrid->TextAlignment = (cbNumAlignRight->Checked ?
-    cssv_taNumRight : cssv_taLeft);
+  fmMain->MainGrid->TextAlignment = (cbNumAlignRight->Checked
+      ? TTextAlignment::NumRight : TTextAlignment::Left);
   fmMain->MainGrid->NumberComma = (cbNum3->Checked ? 3 : 0);
-  fmMain->MainGrid->DecimalDigits = (cbOmitDecimal->Checked ?
-    udOmitDigits->Position : -1);
+  fmMain->MainGrid->DecimalDigits = (cbOmitDecimal->Checked
+      ? udOmitDigits->Position : -1);
 
   fmMain->MainGrid->CompactColWidth = cbCompactColWidth->Checked;
   fmMain->MainGrid->CalcWidthForAllRow = cbCalcWidthForAllRow->Checked;

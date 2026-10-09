@@ -29,6 +29,12 @@
 #include "Sort.h"
 #include "TypeList.h"
 //---------------------------------------------------------------------------
+enum class TLockFileMode : int {
+  None = 0,
+  Edit = 1,
+  Open = 2
+};
+//---------------------------------------------------------------------------
 class TfmMain : public TForm
 {
 __published:	// IDE 管理のコンポーネント
@@ -437,10 +443,7 @@ public:     // ユーザー宣言
   bool DelBuSExit;
   bool DelBuT;
   int BuInterval;
-  int LockFile;
-#define cssv_lfNone 0
-#define cssv_lfEdit 1
-#define cssv_lfOpen 2
+  TLockFileMode LockFileMode;
   std::unique_ptr<TFileStream> LockingFile;
   bool CheckTimeStamp;
   int StopMacroCount;

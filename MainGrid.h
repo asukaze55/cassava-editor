@@ -49,6 +49,19 @@ enum class TPasteOption : int {
   InsertCol = 12
 };
 //---------------------------------------------------------------------------
+enum class TTextAlignment : int {
+  Left = 0,
+  NumRight = 1
+};
+//---------------------------------------------------------------------------
+enum class TEnterMove : int {
+  None = 0,
+  Down = 1,
+  Right = 2,
+  NextRow = 3,
+  TabbedNextRow = 4
+};
+//---------------------------------------------------------------------------
 struct TCalculatedCell {
   String text;
   TCalcType calcType;
@@ -229,18 +242,11 @@ public:
     TReturnCode ReturnCode;
     TReturnCode InCellReturnCode;
     bool LeftArrowInCell;
-#define cssv_taLeft 0
-#define cssv_taNumRight 1
-    int TextAlignment;
+    TTextAlignment TextAlignment;
     bool AlwaysShowEditor;
     int WheelMoveCursol;
     int WheelScrollStep;
-    int EnterMove;
-#define cssv_EnterNone 0
-#define cssv_EnterDown 1
-#define cssv_EnterRight 2
-#define cssv_EnterNextRow 3
-#define cssv_EnterTabbedNextRow 4
+    TEnterMove EnterMove;
     int TabStartCol;
     int TabStartRow;
 

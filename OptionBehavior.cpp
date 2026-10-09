@@ -16,7 +16,7 @@ __fastcall TfrOptionBehavior::TfrOptionBehavior(TComponent* Owner)
 void TfrOptionBehavior::RestoreFromMainForm()
 {
   cbDragMove->ItemIndex = fmMain->MainGrid->DragBehavior;
-  cbEnterMove->ItemIndex = fmMain->MainGrid->EnterMove;
+  cbEnterMove->ItemIndex = static_cast<int>(fmMain->MainGrid->EnterMove);
   cbLeftArrowInCell->Checked = fmMain->MainGrid->LeftArrowInCell;
   cbAlwaysShowEditor->Checked = fmMain->MainGrid->AlwaysShowEditor;
   cbSortAll->Checked = fmMain->SortAll;
@@ -35,7 +35,7 @@ void TfrOptionBehavior::StoreToMainForm()
 {
   fmMain->MainGrid->DragBehavior =
       static_cast<TDragBehavior>(cbDragMove->ItemIndex);
-  fmMain->MainGrid->EnterMove = cbEnterMove->ItemIndex;
+  fmMain->MainGrid->EnterMove = static_cast<TEnterMove>(cbEnterMove->ItemIndex);
   fmMain->MainGrid->LeftArrowInCell = cbLeftArrowInCell->Checked;
   fmMain->MainGrid->AlwaysShowEditor = cbAlwaysShowEditor->Checked;
   fmMain->SortAll = cbSortAll->Checked;

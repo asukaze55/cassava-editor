@@ -60,7 +60,7 @@ __fastcall TMainGrid::TMainGrid(TComponent* Owner)  //デフォルトの設定
   FShowColCounter = true;
   ReturnCode = CRLF;
   InCellReturnCode = CRLF;
-  TextAlignment = cssv_taLeft;
+  TextAlignment = TTextAlignment::Left;
   WheelMoveCursol = 0;
   SameCellClicking = false;
   ExecCellMacro = false;
@@ -349,9 +349,8 @@ TFormattedCell TMainGrid::GetStyledCell(TCalculatedCell Cell, int AX, int AY)
   if (isNum && NumberComma > 0) {
     str = FormatNumComma(str, NumberComma);
   }
-  TAlignment alignment =
-      (isNum && TextAlignment == cssv_taNumRight) ? taRightJustify
-                                                  : taLeftJustify;
+  TAlignment alignment = (isNum && TextAlignment == TTextAlignment::NumRight)
+      ? taRightJustify : taLeftJustify;
   TColor fgColor;
   TColor bgColor;
   TFontStyles styles = Font->Style;
@@ -3419,27 +3418,24 @@ void __fastcall TMainGrid::KeyDownSub(System::TObject* Sender,
    * OnKeyDown にこの関数をつっこんで処理します^^;
    */
 
-  if(Key == VK_DELETE && EditorMode)
-  {
+  if (Key == VK_DELETE && EditorMode) {
     Modified = true;
-  }
-  else if(Key == VK_RETURN && EditorMode)
-  {
-    switch(EnterMove){
-      case cssv_EnterDown:
+  } else if (Key == VK_RETURN && EditorMode) {
+    switch (EnterMove) {
+      case TEnterMove::Down:
         if(Row == RowCount-1){ ChangeRowCount(RowCount+1); }
         Row++;
         break;
-      case cssv_EnterRight:
+      case TEnterMove::Right:
         if(Col == ColCount-1){ ChangeColCount(ColCount+1); }
         Col++;
         break;
-      case cssv_EnterNextRow:
+      case TEnterMove::NextRow:
         if(Row == RowCount-1){ ChangeRowCount(RowCount+1); }
         Row++;
         Col = FixedCols;
         break;
-      case cssv_EnterTabbedNextRow:
+      case TEnterMove::TabbedNextRow:
         if(Row == RowCount-1){ ChangeRowCount(RowCount+1); }
         if(TabStartRow == Row){
           Col = TabStartCol;
