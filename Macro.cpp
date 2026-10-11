@@ -265,19 +265,20 @@ public:
   bool isNum() const;
 
   Element() : Type(etErr) {}
-  Element(double d) : Type(etNumber), vl(d) {}
-  Element(double d, const String& s, ElementType t, TEnvironment *e)
-      : Type(t), st(s), vl(d), env(e) {}
-  Element(const String& s) : Type(etString), st(s) {}
-  Element(const String& s, ElementType t, TEnvironment *e)
-      : Type(t), st(s), env(e) {}
-  Element(int x, int y, TEnvironment *e) : Type(etCell), cell({x, y}), env(e) {}
+  explicit Element(double d) : vl(d), Type(etNumber) {}
+  explicit Element(double d, const String& s, ElementType t, TEnvironment *e)
+      : st(s), vl(d), env(e), Type(t) {}
+  explicit Element(const String& s) : st(s), Type(etString) {}
+  explicit Element(const String& s, ElementType t, TEnvironment *e)
+      : st(s), env(e), Type(t) {}
+  explicit Element(int x, int y, TEnvironment *e)
+      : cell({x, y}), env(e), Type(etCell) {}
 
   double Val() const;
   String Str() const;
   String Name() const { return st; }
   Element Value() const;
-  void Sbst(const Element &e);
+  void Assign(const Element &e);
   Element GetMember(const String& name) const;
   std::map<String, Element> GetMembers() const;
   bool HasMember(const String& name) const;
@@ -292,8 +293,8 @@ public:
   bool ReadOnly;
   GridProxy *Grid;
 
-  TEnvironment(bool readOnly, GridProxy *grid,  TEnvironment *gl) :
-      Vars(), ReadOnly(readOnly), Grid(grid), global(gl) {}
+  TEnvironment(bool readOnly, GridProxy *grid,  TEnvironment *gl)
+      : global(gl), Vars(), ReadOnly(readOnly), Grid(grid) {}
   TEnvironment(TEnvironment&& env) = default;
 
   TEnvironment *GetGlobal() { return global ? global : this; }
@@ -316,9 +317,9 @@ private:
   const TByteVector& GetByteVector(const String& FileName);
   void ExecOpe(char c, size_t &p);
   void ExecMethod(const String& name, int paramCount,
-      const std::vector<Element>& ope, bool isLambda);
+      const std::vector<Element>& params, bool isLambda);
   void ExecPrimitiveMethod(const String& s, int paramCount,
-      const std::vector<Element>& ope);
+      const std::vector<Element>& params);
   void ExecFnc(String s);
   std::vector<Element> Stack;
   int LoopCount;
@@ -332,9 +333,9 @@ public:
              int x = -1, int y = -1, Element *thisPtr = nullptr);
 
   TMacro(EncodedWriter *io, int ml, const TMacroContext &context,
-          TEnvironment&& e) :
-      fs_io(io), canWriteFile(io), MaxLoop(ml), Context(context),
-      env(std::move(e)) {}
+          TEnvironment&& e)
+      : canWriteFile(io), fs_io(io), Context(context), env(std::move(e)),
+        MaxLoop(ml) {}
 };
 //---------------------------------------------------------------------------
 static int RunningCount = 0;
@@ -475,7 +476,7 @@ bool Element::isNum() const
   return Type == etNumber || Type == etSystem;
 }
 //---------------------------------------------------------------------------
-void Element::Sbst(const Element &e)
+void Element::Assign(const Element &e)
 {
   if (Type == etVar) {
     GetVar() = e.Value();
@@ -561,27 +562,14 @@ String NormalizeNewLine(const String& Val)
   return StringReplace(Val, "\r\n", "\n", replaceAll);
 }
 //---------------------------------------------------------------------------
-#define STR0 ope[0].Str()
-#define VAL0 ope[0].Val()
-#define STR1 ope[1].Str()
-#define VAL1 ope[1].Val()
-#define STR2 ope[2].Str()
-#define VAL2 ope[2].Val()
-#define STR3 ope[3].Str()
-#define VAL3 ope[3].Val()
-#define VAL4 ope[4].Val()
-#define VAL5 ope[5].Val()
-#define VAL6 ope[6].Val()
-#define VAL7 ope[7].Val()
-#define VAL8 ope[8].Val()
-//---------------------------------------------------------------------------
 void TMacro::ExecMethod(const String& name, int paramCount,
-    const std::vector<Element>& ope, bool isLambda)
+    const std::vector<Element>& params, bool isLambda)
 {
-  Element obj = ope[0].Value();
-  String objName = (ope[0].Type == etVar ? ope[0].Name() : ope[0].Str());
+  Element obj = params[0].Value();
+  String objName =
+      (params[0].Type == etVar ? params[0].Name() : params[0].Str());
   if (!isLambda && obj.Type != etObject) {
-    ExecPrimitiveMethod(name, paramCount, ope);
+    ExecPrimitiveMethod(name, paramCount, params);
     return;
   }
   Element funcPtr = obj.Type != etObject ? obj : obj.GetMember(name);
@@ -592,7 +580,7 @@ void TMacro::ExecMethod(const String& name, int paramCount,
     }
   } catch (...) {
     if (name == "toString") {
-      Stack.push_back(Element(obj.Str()));
+      Stack.emplace_back(obj.Str());
       return;
     }
     throw;
@@ -620,7 +608,7 @@ void TMacro::ExecMethod(const String& name, int paramCount,
 
   std::vector<Element> argStack;
   for (int i = 1; i < paramCount; i++) {
-    argStack.push_back(Element(ope[i].Value()));
+    argStack.emplace_back(params[i].Value());
   }
   int ml = (MaxLoop > 0) ? MaxLoop-LoopCount : 0;
   TMacro mcr(fs_io, ml, Context, env.CreateSubEnvironment());
@@ -628,10 +616,10 @@ void TMacro::ExecMethod(const String& name, int paramCount,
   if (r.Type != etErr) {
     Stack.push_back(r);
   } else {
-    Stack.push_back(Element(isLambda
+    Stack.emplace_back(isLambda
             ? L"関数オブジェクトが値を返しません：" + objName
             : L"メソッドは値を返しません：" + name + "/" + (paramCount - 1),
-        etErr, nullptr));
+        etErr, nullptr);
   }
 }
 //---------------------------------------------------------------------------
@@ -694,50 +682,50 @@ static RegExp ParseRegExp(const Element& e)
 }
 //---------------------------------------------------------------------------
 void TMacro::ExecPrimitiveMethod(const String& s, int paramCount,
-                                 const std::vector<Element>& ope)
+                                 const std::vector<Element>& params)
 {
   if (s == "endsWith" && (paramCount == 2 || paramCount == 3)) {
-    String target = STR0;
-    String search = STR1;
-    int length = (paramCount > 2 ? VAL2 : target.Length());
-    Stack.push_back(Element(target.SubString(
-        length - search.Length() + 1, search.Length()) == search ? 1 : 0));
+    String target = params[0].Str();
+    String search = params[1].Str();
+    int length = (paramCount > 2 ? params[2].Val() : target.Length());
+    Stack.emplace_back(target.SubString(
+        length - search.Length() + 1, search.Length()) == search ? 1 : 0);
   } else if (s == "includes" && (paramCount == 2 || paramCount == 3)) {
-    String target = STR0;
-    String search = STR1;
-    int from = (paramCount > 2 ? VAL2 : 0);
+    String target = params[0].Str();
+    String search = params[1].Str();
+    int from = (paramCount > 2 ? params[2].Val() : 0);
     if (search == "") {
-      Stack.push_back(Element(1));
+      Stack.emplace_back(1);
       return;
     }
     int pos = target.SubString(from + 1, target.Length() - from).Pos(search);
-    Stack.push_back(Element(pos > 0 ? 1 : 0));
+    Stack.emplace_back(pos > 0 ? 1 : 0);
   } else if (s == "indexOf" && (paramCount == 2 || paramCount == 3)) {
-    String target = STR0;
-    String search = STR1;
-    int from = (paramCount > 2 ? VAL2 : 0);
+    String target = params[0].Str();
+    String search = params[1].Str();
+    int from = (paramCount > 2 ? params[2].Val() : 0);
     if (from < 0) {
       from = 0;
     }
     if (search == "") {
-      Stack.push_back(Element(std::min(from, target.Length())));
+      Stack.emplace_back(std::min(from, target.Length()));
       return;
     }
     int pos = target.SubString(from + 1, target.Length() - from).Pos(search);
     if (pos == 0) {
-      Stack.push_back(Element(-1));
+      Stack.emplace_back(-1);
       return;
     }
-    Stack.push_back(Element(pos + from - 1));
+    Stack.emplace_back(pos + from - 1);
   } else if (s == "lastIndexOf" && (paramCount == 2 || paramCount == 3)) {
-    String target = STR0;
-    String search = STR1;
-    int from = (paramCount > 2 ? VAL2 : target.Length());
+    String target = params[0].Str();
+    String search = params[1].Str();
+    int from = (paramCount > 2 ? params[2].Val() : target.Length());
     if (from < 0) {
       from = 0;
     }
     if (search == "") {
-      Stack.push_back(Element(std::min(from, target.Length())));
+      Stack.emplace_back(std::min(from, target.Length()));
       return;
     }
     int lastPos = 0;
@@ -749,25 +737,25 @@ void TMacro::ExecPrimitiveMethod(const String& s, int paramCount,
       }
       lastPos += pos;
     }
-    Stack.push_back(Element(lastPos - 1));
+    Stack.emplace_back(lastPos - 1);
   } else if (s == "padEnd" && (paramCount == 2 || paramCount == 3)) {
-    String target = STR0;
-    int length = VAL1;
-    String pad = (paramCount > 2 ? STR2 : L" ");
+    String target = params[0].Str();
+    int length = params[1].Val();
+    String pad = (paramCount > 2 ? params[2].Str() : L" ");
     if (target.Length() >= length) {
-      Stack.push_back(Element(target));
+      Stack.emplace_back(target);
       return;
     }
     while (target.Length() < length) {
       target += pad;
     }
-    Stack.push_back(Element(target.SubString(1, length)));
+    Stack.emplace_back(target.SubString(1, length));
   } else if (s == "padStart" && (paramCount == 2 || paramCount == 3)) {
-    String target = STR0;
-    int length = VAL1;
-    String pad = (paramCount > 2 ? STR2 : L" ");
+    String target = params[0].Str();
+    int length = params[1].Val();
+    String pad = (paramCount > 2 ? params[2].Str() : L" ");
     if (target.Length() >= length) {
-      Stack.push_back(Element(target));
+      Stack.emplace_back(target);
       return;
     }
     int lengthToPad = length - target.Length();
@@ -776,36 +764,39 @@ void TMacro::ExecPrimitiveMethod(const String& s, int paramCount,
       prefix += pad;
       lengthToPad -= pad.Length();
     }
-    Stack.push_back(Element(prefix + pad.SubString(1, lengthToPad) + target));
+    Stack.emplace_back(prefix + pad.SubString(1, lengthToPad) + target);
   } else if (s == "repeat" && paramCount == 2) {
-    String target = STR0;
+    String target = params[0].Str();
     String result = "";
-    int count = VAL1;
+    int count = params[1].Val();
     for (int i = 0; i < count; i++) {
       result += target;
     }
-    Stack.push_back(Element(result));
+    Stack.emplace_back(result);
   } else if (s == "replace" && paramCount == 3) {
-    Stack.push_back(Element(ParseRegExp(ope[1]).Replace(STR0, STR2)));
+    Stack.emplace_back(
+        ParseRegExp(params[1]).Replace(params[0].Str(), params[2].Str()));
   } else if (s == "replaceAll" && paramCount == 3) {
-    RegExp regExp = ParseRegExp(ope[1]);
+    RegExp regExp = ParseRegExp(params[1]);
     if (regExp.isRegExp && !regExp.isReplaceAll) {
       throw MacroException(
-          L"replaceAll で使用する正規表現には g フラグが必要です：" + STR1);
+          L"replaceAll で使用する正規表現には g フラグが必要です：" +
+          params[1].Str());
     }
     regExp.isReplaceAll = true;
-    Stack.push_back(Element(regExp.Replace(STR0, STR2)));
+    Stack.emplace_back(regExp.Replace(params[0].Str(), params[2].Str()));
   } else if (s == "search" && paramCount == 2) {
-    Stack.push_back(Element(ParseRegExp(ope[1]).Search(STR0)));
+    Stack.emplace_back(ParseRegExp(params[1]).Search(params[0].Str()));
   } else if (s == "startsWith" && (paramCount == 2 || paramCount == 3)) {
-    String search = STR1;
-    int position = (paramCount > 2 ? VAL2 : 0);
-    Stack.push_back(Element(
-        STR0.SubString(position + 1, search.Length()) == search ? 1 : 0));
+    String search = params[1].Str();
+    int position = (paramCount > 2 ? params[2].Val() : 0);
+    Stack.emplace_back(
+        params[0].Str().SubString(position + 1, search.Length()) == search
+            ? 1 : 0);
   } else if (s == "substring" && (paramCount == 2 || paramCount == 3)) {
-    String target = STR0;
-    int arg1 = VAL1;
-    int arg2 = (paramCount > 2 ? VAL2 : target.Length());
+    String target = params[0].Str();
+    int arg1 = params[1].Val();
+    int arg2 = (paramCount > 2 ? params[2].Val() : target.Length());
     int start = std::min(arg1, arg2);
     if (start < 0) {
       start = 0;
@@ -820,19 +811,19 @@ void TMacro::ExecPrimitiveMethod(const String& s, int paramCount,
     if (end > target.Length()) {
       end = target.Length();
     }
-    Stack.push_back(Element(target.SubString(start + 1, end - start)));
+    Stack.emplace_back(target.SubString(start + 1, end - start));
   } else if (s == "toLowerCase" && paramCount == 1) {
-    Stack.push_back(Element(STR0.LowerCase()));
+    Stack.emplace_back(params[0].Str().LowerCase());
   } else if (s == "toString" && paramCount == 1) {
-    Stack.push_back(Element(STR0));
+    Stack.emplace_back(params[0].Str());
   } else if (s == "toUpperCase" && paramCount == 1) {
-    Stack.push_back(Element(STR0.UpperCase()));
+    Stack.emplace_back(params[0].Str().UpperCase());
   } else if (s == "trim" && paramCount == 1) {
-    Stack.push_back(Element(STR0.Trim()));
+    Stack.emplace_back(params[0].Str().Trim());
   } else if (s == "trimEnd" && paramCount == 1) {
-    Stack.push_back(Element(STR0.TrimRight()));
+    Stack.emplace_back(params[0].Str().TrimRight());
   } else if (s == "trimStart" && paramCount == 1) {
-    Stack.push_back(Element(STR0.TrimLeft()));
+    Stack.emplace_back(params[0].Str().TrimLeft());
   } else {
     throw MacroException(
         L"定義されていないメソッドです：" + s + "/" + (paramCount - 1));
@@ -916,7 +907,7 @@ TControl *UserDialog::ConvertDialogControl(
     if (element.HasMember("value")) {
       edit->Text = element.GetMember("value").Str();
     } else {
-      element.GetMember("value").Sbst(Element(""));
+      element.GetMember("value").Assign(Element(""));
     }
     edit->OnChange = EditChange;
     ElementMap[edit] = element;
@@ -933,9 +924,9 @@ TControl *UserDialog::ConvertDialogControl(
       text = element.GetMember("value").Str();
     } else if (childNodes.HasMember("0")) {
       text = childNodes.GetMember("0").Str();
-      element.GetMember("value").Sbst(Element(text));
+      element.GetMember("value").Assign(Element(text));
     } else {
-      element.GetMember("value").Sbst(Element(""));
+      element.GetMember("value").Assign(Element(""));
     }
     memo->Text =
         StringReplace(text, "\n", "\r\n", TReplaceFlags() << rfReplaceAll);
@@ -987,7 +978,7 @@ void __fastcall UserDialog::ButtonClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall UserDialog::EditChange(TObject *Sender)
 {
-  ElementMap[Sender].GetMember("value").Sbst(
+  ElementMap[Sender].GetMember("value").Assign(
       Element(NormalizeNewLine(static_cast<TCustomEdit *>(Sender)->Text)));
 }
 //---------------------------------------------------------------------------
@@ -996,8 +987,8 @@ void TMacro::ExecFnc(String s)
   int paramCount = s[1];
   s.Delete(1,1);
 
-  std::vector<Element> ope;
-  ope.assign(Stack.end() - paramCount, Stack.end());
+  std::vector<Element> params;
+  params.assign(Stack.end() - paramCount, Stack.end());
   Stack.erase(Stack.end() - paramCount, Stack.end());
 
   String notFoundMessage = L"定義されていない関数です:" + s + "/" + paramCount;
@@ -1005,7 +996,7 @@ void TMacro::ExecFnc(String s)
     bool isLambda = (s[1] == '>');
     s.Delete(1,1);
     try {
-      ExecMethod(isLambda ? L"" : s, paramCount, ope, isLambda);
+      ExecMethod(isLambda ? L"" : s, paramCount, params, isLambda);
       return;
     } catch (MacroException e) {
       if (!isLambda) {
@@ -1016,10 +1007,10 @@ void TMacro::ExecFnc(String s)
       if (!isLambda) {
         throw;
       }
-      notFoundMessage = L"関数オブジェクトではありません：" + ope[0].Name();
+      notFoundMessage = L"関数オブジェクトではありません：" + params[0].Name();
     }
     paramCount--;
-    ope.erase(ope.begin());
+    params.erase(params.begin());
   }
 
   if (s[1] == '$') {
@@ -1044,18 +1035,18 @@ void TMacro::ExecFnc(String s)
     }
     std::vector<Element> argStack;
     for (int i = 0; i < paramCount; i++) {
-      argStack.push_back(Element(ope[i].Value()));
+      argStack.emplace_back(params[i].Value());
     }
     const Element &r = mcr.Do(funcName, argStack);
     if (r.Type != etErr) {
       Stack.push_back(r);
     } else {
-      Stack.push_back(Element(
-          L"関数は値を返しません：" + s + "/" + paramCount, etErr, nullptr));
+      Stack.emplace_back(
+          L"関数は値を返しません：" + s + "/" + paramCount, etErr, nullptr);
     }
   } else if (s == "{}") {
     std::vector<std::unique_ptr<TEnvironment>>& objects = env.GetObjects();
-    Stack.push_back(Element(objects.size(), "", etObject, env.GetGlobal()));
+    Stack.emplace_back(objects.size(), "", etObject, env.GetGlobal());
     objects.push_back(env.NewObject());
   } else if (s == "(constructor)") {
     Element obj = Stack.back();
@@ -1068,34 +1059,34 @@ void TMacro::ExecFnc(String s)
   } else if (s == "func=") {
     int count = paramCount / 2;
     for (int i = 0; i < count; i++) {
-      ope[i+count].Sbst(ope[i]);
+      params[i+count].Assign(params[i]);
     }
   } else if (s == "swap" && paramCount == 2) {
-    Element t0 = ope[0].Value();
-    Element t1 = ope[1].Value();
-    ope[0].Sbst(t1);
-    ope[1].Sbst(t0);
+    Element t0 = params[0].Value();
+    Element t1 = params[1].Value();
+    params[0].Assign(t1);
+    params[1].Assign(t0);
   } else if (s == "MessageBox") {
     if (env.ReadOnly) {
       throw MacroException("Can't show dialogs.", ME_SECURITY);
     }
     env.Grid->ApplyPendingChanges();
-    String text = (paramCount >= 1 ? STR0 : L"ブレークポイントです");
-    int flag = (paramCount >= 2 ? ope[paramCount - 1].Val() : MB_OK);
-    String caption = (paramCount >= 3 ? STR1 : L"Cassava Macro");
-    Stack.push_back(
-        Element(Application->MessageBox(text.c_str(), caption.c_str(), flag)));
+    String text = (paramCount >= 1 ? params[0].Str() : L"ブレークポイントです");
+    int flag = (paramCount >= 2 ? params[paramCount - 1].Val() : MB_OK);
+    String caption = (paramCount >= 3 ? params[1].Str() : L"Cassava Macro");
+    Stack.emplace_back(
+        Application->MessageBox(text.c_str(), caption.c_str(), flag));
   } else if (s == "InputBox") {
     if (env.ReadOnly) {
       throw MacroException("Can't show dialogs.", ME_SECURITY);
     }
     env.Grid->ApplyPendingChanges();
-    String Text = (paramCount >= 1) ? STR0 : L"";
-    String Value = (paramCount >= 2) ? (ope[paramCount-1].Str()) : L"";
-    String Caption = (paramCount >= 3) ? STR1 : L"Cassava Macro";
+    String Text = (paramCount >= 1) ? params[0].Str() : L"";
+    String Value = (paramCount >= 2) ? (params[paramCount-1].Str()) : L"";
+    String Caption = (paramCount >= 3) ? params[1].Str() : L"Cassava Macro";
     bool isOk = InputQuery(Caption, Text, Value);
     if (isOk) {
-      Stack.push_back(Element(Value));
+      Stack.emplace_back(Value);
     } else {
       throw MacroException(L"キャンセルされました。", ME_CANCELED);
     }
@@ -1104,71 +1095,71 @@ void TMacro::ExecFnc(String s)
       throw MacroException("Can't show dialogs.", ME_SECURITY);
     }
     env.Grid->ApplyPendingChanges();
-    String Text = (paramCount >= 1) ? STR0 : L"";
-    String Value = (paramCount >= 2) ? (ope[paramCount-1].Str()) : L"";
-    String Caption = (paramCount >= 3) ? STR1 : L"Cassava Macro";
+    String Text = (paramCount >= 1) ? params[0].Str() : L"";
+    String Value = (paramCount >= 2) ? (params[paramCount-1].Str()) : L"";
+    String Caption = (paramCount >= 3) ? params[1].Str() : L"Cassava Macro";
     bool isOk = InputBoxMultiLine(Caption, Text, Value);
     if (isOk) {
-      Stack.push_back(Element(NormalizeNewLine(Value)));
+      Stack.emplace_back(NormalizeNewLine(Value));
     } else {
       throw MacroException(L"キャンセルされました。", ME_CANCELED);
     }
   } else if (s == "GetRowHeight" && paramCount == 0) {
-    Stack.push_back(Element(env.Grid->Raw()->DefaultRowHeight));
+    Stack.emplace_back(env.Grid->Raw()->DefaultRowHeight);
   } else if (s == "GetRowHeight" && paramCount == 1) {
-    Stack.push_back(Element(env.Grid->Raw()->RowHeights[VAL0]));
+    Stack.emplace_back(env.Grid->Raw()->RowHeights[params[0].Val()]);
   } else if (s == "SetRowHeight" && paramCount == 1) {
-    env.Grid->Raw()->DefaultRowHeight = VAL0;
+    env.Grid->Raw()->DefaultRowHeight = params[0].Val();
   } else if (s == "SetRowHeight" && paramCount == 2) {
-    env.Grid->Raw()->RowHeights[VAL0] = VAL1;
+    env.Grid->Raw()->RowHeights[params[0].Val()] = params[1].Val();
   } else if (s == "AdjustRowHeight" && paramCount == 1) {
-    env.Grid->Raw()->SetHeight(VAL0, false);
+    env.Grid->Raw()->SetHeight(params[0].Val(), false);
   } else if (s == "GetColWidth" && paramCount == 0) {
-    Stack.push_back(Element(env.Grid->Raw()->DefaultColWidth));
+    Stack.emplace_back(env.Grid->Raw()->DefaultColWidth);
   } else if (s == "GetColWidth" && paramCount == 1) {
-    Stack.push_back(Element(env.Grid->Raw()->ColWidths[VAL0]));
+    Stack.emplace_back(env.Grid->Raw()->ColWidths[params[0].Val()]);
   } else if (s == "SetColWidth" && paramCount == 1) {
-    env.Grid->Raw()->DefaultColWidth = VAL0;
+    env.Grid->Raw()->DefaultColWidth = params[0].Val();
   } else if (s == "SetColWidth" && paramCount == 2) {
-    env.Grid->Raw()->ColWidths[VAL0] = VAL1;
+    env.Grid->Raw()->ColWidths[params[0].Val()] = params[1].Val();
   } else if (s == "AdjustColWidth" && paramCount == 1) {
-    env.Grid->Raw()->SetWidth(VAL0);
+    env.Grid->Raw()->SetWidth(params[0].Val());
   } else if (s == "GetYear" && paramCount == 0) {
     unsigned short year, month, day;
     Date().DecodeDate(&year, &month, &day);
-    Stack.push_back(Element(year));
+    Stack.emplace_back(year);
   } else if (s == "GetMonth" && paramCount == 0) {
     unsigned short year, month, day;
     Date().DecodeDate(&year, &month, &day);
-    Stack.push_back(Element(month));
+    Stack.emplace_back(month);
   } else if (s == "GetDate" && paramCount == 0) {
     unsigned short year, month, day;
     Date().DecodeDate(&year, &month, &day);
-    Stack.push_back(Element(day));
+    Stack.emplace_back(day);
   } else if (s == "GetHours" && paramCount == 0) {
     unsigned short hours, minutes, seconds, msec;
     Time().DecodeTime(&hours, &minutes, &seconds, &msec);
-    Stack.push_back(Element(hours));
+    Stack.emplace_back(hours);
   } else if (s == "GetMinutes" && paramCount == 0) {
     unsigned short hours, minutes, seconds, msec;
     Time().DecodeTime(&hours, &minutes, &seconds, &msec);
-    Stack.push_back(Element(minutes));
+    Stack.emplace_back(minutes);
   } else if (s == "GetSeconds" && paramCount == 0) {
     unsigned short hours, minutes, seconds, msec;
     Time().DecodeTime(&hours, &minutes, &seconds, &msec);
-    Stack.push_back(Element(seconds));
+    Stack.emplace_back(seconds);
   } else if (s == "GetFilePath" && paramCount == 0) {
     String Path = ExtractFilePath(fmMain->FileName);
     if (Path != "" && (*(Path.LastChar()) != '\\')) { Path += '\\'; }
-    Stack.push_back(Element(Path));
+    Stack.emplace_back(Path);
   } else if (s == "GetFileName" && paramCount == 0) {
-    Stack.push_back(Element(ExtractFileName(fmMain->FileName)));
+    Stack.emplace_back(ExtractFileName(fmMain->FileName));
   } else if (s == "GetSettingPath" && paramCount == 0) {
-    Stack.push_back(Element(fmMain->Pref->Path));
+    Stack.emplace_back(fmMain->Pref->Path);
   } else if (s == "GetStatusBarCount" && paramCount == 0) {
-    Stack.push_back(Element(fmMain->StatusBar->Panels->Count - 1));
+    Stack.emplace_back(fmMain->StatusBar->Panels->Count - 1);
   } else if (s == "SetStatusBarCount" && paramCount == 1) {
-    int val = VAL0 + 1;
+    int val = params[0].Val() + 1;
     if (val < 1) {
       val = 1;
     }
@@ -1180,55 +1171,55 @@ void TMacro::ExecFnc(String s)
       panels->Add();
     }
   } else if (s == "GetStatusBarText" && paramCount == 1) {
-    int val = VAL0;
+    int val = params[0].Val();
     String data = "";
     if (val >= 0 && val < fmMain->StatusBar->Panels->Count) {
       data = fmMain->StatusBar->Panels->Items[val]->Text;
     }
-    Stack.push_back(Element(data));
+    Stack.emplace_back(data);
   } else if (s == "SetStatusBarText" && paramCount == 2) {
-    int val = VAL0;
+    int val = params[0].Val();
     if (val >= 0 && val < fmMain->StatusBar->Panels->Count) {
-      fmMain->StatusBar->Panels->Items[val]->Text = STR1;
+      fmMain->StatusBar->Panels->Items[val]->Text = params[1].Str();
     }
   } else if (s == "GetStatusBarWidth" && paramCount == 1) {
-    int val = VAL0;
+    int val = params[0].Val();
     int data = 0;
     if (val >= 0 && val < fmMain->StatusBar->Panels->Count) {
       data = fmMain->StatusBar->Panels->Items[val]->Width;
     }
-    Stack.push_back(Element(data));
+    Stack.emplace_back(data);
   } else if (s == "SetStatusBarWidth" && paramCount == 2) {
-    int val = VAL0;
+    int val = params[0].Val();
     if (val >= 0 && val < fmMain->StatusBar->Panels->Count) {
-      fmMain->StatusBar->Panels->Items[val]->Width = VAL1;
+      fmMain->StatusBar->Panels->Items[val]->Width = params[1].Val();
     }
   } else if (s == "SetStatusBarPopUp" && paramCount == 3) {
-    const Element &value2 = ope[2].Value();
+    const Element &value2 = params[2].Value();
     if (value2.Type == etObject) {
       throw MacroException(
           s + L" の第 3 引数にはキャプチャを使用しないラムダ式が必要です。");
     }
-    fmMain->StatusBarPopUp[VAL0] = {STR1, value2.Str()};
+    fmMain->StatusBarPopUp[params[0].Val()] = {params[1].Str(), value2.Str()};
   } else if (s == "LoadIniSetting" && paramCount == 0) {
     fmMain->ReadIni();
   } else if (s == "SaveIniSetting" && paramCount == 0) {
     fmMain->WriteIni(false);
   } else if (s == "GetIniSetting" && paramCount ==  2) {
     IniFile ini = fmMain->Pref->GetInifile();
-    Stack.push_back(Element(ini.ReadString(STR0, STR1, "")));
+    Stack.emplace_back(ini.ReadString(params[0].Str(), params[1].Str(), ""));
   } else if (s == "SetIniSetting" && paramCount == 3) {
     IniFile ini = fmMain->Pref->GetInifile();
-    ini.WriteString(STR0, STR1, STR2);
+    ini.WriteString(params[0].Str(), params[1].Str(), params[2].Str());
   } else if (s == "GetFontName" && paramCount == 0) {
-    Stack.push_back(Element(env.Grid->Raw()->Font->Name));
+    Stack.emplace_back(env.Grid->Raw()->Font->Name);
   } else if (s == "SetFontName" && paramCount == 1) {
-    env.Grid->Raw()->Font->Name = STR0;
+    env.Grid->Raw()->Font->Name = params[0].Str();
     fmMain->SetGridFont(env.Grid->Raw()->Font);
   } else if (s == "GetFontSize" && paramCount == 0) {
-    Stack.push_back(Element(env.Grid->Raw()->Font->Size));
+    Stack.emplace_back(env.Grid->Raw()->Font->Size);
   } else if (s == "SetFontSize" && paramCount == 1) {
-    env.Grid->Raw()->Font->Size = VAL0;
+    env.Grid->Raw()->Font->Size = params[0].Val();
     fmMain->SetGridFont(env.Grid->Raw()->Font);
   } else if (s == "GetCharCode" && paramCount == 0) {
     String encoding;
@@ -1241,9 +1232,9 @@ void TMacro::ExecFnc(String s)
       case CODE_PAGE_UTF16BE: encoding = "UTF-16BE"; break;
       default: encoding = ""; break;
     }
-    Stack.push_back(Element(encoding));
+    Stack.emplace_back(encoding);
   } else if (s == "SetCharCode" && paramCount == 1) {
-    String encoding = STR0;
+    String encoding = params[0].Str();
     if (encoding == "Shift-JIS") {
       CallOnClick(fmMain->mnSjis);
     } else if (encoding == "EUC") {
@@ -1257,7 +1248,7 @@ void TMacro::ExecFnc(String s)
     } else if (encoding == "UTF-16BE") {
       CallOnClick(fmMain->mnUtf16be);
     } else {
-      throw MacroException(L"文字コードが不正です：" + STR0);
+      throw MacroException(L"文字コードが不正です：" + params[0].Str());
     }
   } else if (s == "GetDataTypes" && paramCount == 0) {
     TTypeList &typeList = fmMain->TypeList;
@@ -1268,20 +1259,20 @@ void TMacro::ExecFnc(String s)
       }
       dataTypes += typeList.Items(i)->Name;
     }
-    Stack.push_back(dataTypes);
+    Stack.emplace_back(dataTypes);
   } else if (s == "GetActiveDataType" && paramCount == 0) {
-    Stack.push_back(Element(fmMain->MainGrid->TypeOption->Name));
+    Stack.emplace_back(fmMain->MainGrid->TypeOption->Name);
   } else if (s == "SetActiveDataType" && paramCount == 1) {
-    int index = fmMain->TypeList.IndexOf(STR0, -1);
+    int index = fmMain->TypeList.IndexOf(params[0].Str(), -1);
     if (index == -1) {
-      throw MacroException(L"データ形式名が不正です：" + STR0);
+      throw MacroException(L"データ形式名が不正です：" + params[0].Str());
     }
     fmMain->MainGrid->TypeOption = fmMain->TypeList.Items(index);
   } else if (s == "write" || s == "writeln") {
     if (canWriteFile) {
       fs_io->SetEncoding(env.Grid->Raw()->Encoding);
       for (int i = 0; i < paramCount; i++) {
-        fs_io->Write(ope[i].Str());
+        fs_io->Write(params[i].Str());
       }
       if (s == "writeln") {
         fs_io->Write(ReturnCodeString(env.Grid->Raw()->ReturnCode));
@@ -1290,7 +1281,7 @@ void TMacro::ExecFnc(String s)
       int wx = env.Grid->GetCol();
       int wy = env.Grid->GetRow();
       for (int i = 0; i < paramCount; i++) {
-        env.Grid->SetCell(wx, wy, ope[i].Str());
+        env.Grid->SetCell(wx, wy, params[i].Str());
         wx++;
       }
       if (s == "writeln") {
@@ -1304,7 +1295,7 @@ void TMacro::ExecFnc(String s)
   } else if (s == "StopMacroRecording" && paramCount == 0) {
     env.Grid->Raw()->UndoList->StopMacroRecording();
   } else if (s == "GetRecordedMacro" && paramCount == 0) {
-    Stack.push_back(Element(env.Grid->Raw()->UndoList->GetRecordedMacro()));
+    Stack.emplace_back(env.Grid->Raw()->UndoList->GetRecordedMacro());
   } else if (s == "MacroTerminate" && paramCount == 0) {
     throw MacroException(L"中断されました。", ME_CANCELED);
   } else if (s == "Clear" && paramCount == 0) {
@@ -1330,111 +1321,112 @@ void TMacro::ExecFnc(String s)
       throw MacroException(notFoundMessage);
     }
   } else if (s == "int" && paramCount == 1) {
-    Stack.push_back(Element(static_cast<int>(VAL0)));
+    Stack.emplace_back(static_cast<int>(params[0].Val()));
   } else if (s == "double" && paramCount == 1) {
-    Stack.push_back(Element(VAL0));
+    Stack.emplace_back(params[0].Val());
   } else if (s == "str" && paramCount == 1) {
-    Stack.push_back(Element(STR0));
+    Stack.emplace_back(params[0].Str());
   } else if (s == "max") {
-    double maxVal = ope[0].Val();
+    double maxVal = params[0].Val();
     for (int i = 1; i < paramCount; i++) {
-      if (ope[i].Val() > maxVal) {
-        maxVal = ope[i].Val();
+      if (params[i].Val() > maxVal) {
+        maxVal = params[i].Val();
       }
     }
-    Stack.push_back(Element(maxVal));
+    Stack.emplace_back(maxVal);
   } else if (s == "min") {
-    double minVal = ope[0].Val();
+    double minVal = params[0].Val();
     for (int i = 1; i < paramCount; i++) {
-      if (ope[i].Val() < minVal) {
-        minVal = ope[i].Val();
+      if (params[i].Val() < minVal) {
+        minVal = params[i].Val();
       }
     }
-    Stack.push_back(Element(minVal));
+    Stack.emplace_back(minVal);
   } else if (s == "sqrt" && paramCount == 1) {
-    Stack.push_back(Element(sqrt(VAL0)));
+    Stack.emplace_back(sqrt(params[0].Val()));
   } else if (s == "sin" && paramCount == 1) {
-    Stack.push_back(Element(sin(VAL0)));
+    Stack.emplace_back(sin(params[0].Val()));
   } else if (s == "cos" && paramCount == 1) {
-    Stack.push_back(Element(cos(VAL0)));
+    Stack.emplace_back(cos(params[0].Val()));
   } else if (s == "tan" && paramCount == 1) {
-    Stack.push_back(Element(tan(VAL0)));
+    Stack.emplace_back(tan(params[0].Val()));
   } else if (s == "asin" && paramCount == 1) {
-    Stack.push_back(Element(asin(VAL0)));
+    Stack.emplace_back(asin(params[0].Val()));
   } else if (s == "acos" && paramCount == 1) {
-    Stack.push_back(Element(acos(VAL0)));
+    Stack.emplace_back(acos(params[0].Val()));
   } else if (s == "atan" && paramCount == 1) {
-    Stack.push_back(Element(atan(VAL0)));
+    Stack.emplace_back(atan(params[0].Val()));
   } else if (s == "atan2" && paramCount == 2) {
-    double y = VAL0;
-    double x = VAL1;
+    double y = params[0].Val();
+    double x = params[1].Val();
     if (x == 0 && y == 0) {
-      Stack.push_back(Element(0));
+      Stack.emplace_back(0);
     } else {
-      Stack.push_back(Element(atan2(VAL0, VAL1)));
+      Stack.emplace_back(atan2(params[0].Val(), params[1].Val()));
     }
   } else if (s == "pow" && paramCount == 2) {
-    Stack.push_back(Element(pow(VAL0, VAL1)));
+    Stack.emplace_back(pow(params[0].Val(), params[1].Val()));
   } else if (s == "len" && paramCount == 1) {
-    Stack.push_back(Element(STR0.Length()));
+    Stack.emplace_back(params[0].Str().Length());
   } else if (s == "lenB" && paramCount == 1) {
-    Stack.push_back(Element(AnsiString(STR0).Length()));
+    Stack.emplace_back(AnsiString(params[0].Str()).Length());
   } else if (s == "InsertRow" && (paramCount == 1 || paramCount == 2)) {
-    int top = VAL0;
-    int bottom = (paramCount > 1 ? VAL1 : top);
+    int top = params[0].Val();
+    int bottom = (paramCount > 1 ? params[1].Val() : top);
     env.Grid->InsertRow(top, bottom);
   } else if (s == "DeleteRow" && (paramCount == 1 || paramCount == 2)) {
-    int top = VAL0;
-    int bottom = (paramCount > 1 ? VAL1 : top);
+    int top = params[0].Val();
+    int bottom = (paramCount > 1 ? params[1].Val() : top);
     env.Grid->DeleteRow(top, bottom);
   } else if (s == "InsertCol" && (paramCount == 1 || paramCount == 2)) {
-    int left = VAL0;
-    int right = (paramCount > 1 ? VAL1 : left);
+    int left = params[0].Val();
+    int right = (paramCount > 1 ? params[1].Val() : left);
     env.Grid->InsertCol(left, right);
   } else if (s == "DeleteCol" && (paramCount == 1 || paramCount == 2)) {
-    int left = VAL0;
-    int right = (paramCount > 1 ? VAL1 : left);
+    int left = params[0].Val();
+    int right = (paramCount > 1 ? params[1].Val() : left);
     env.Grid->DeleteCol(left, right);
   } else if (s == "MoveRow" && paramCount == 2) {
-    env.Grid->MoveRow(VAL0, VAL1);
+    env.Grid->MoveRow(params[0].Val(), params[1].Val());
   } else if (s == "MoveCol" && paramCount == 2) {
-    env.Grid->MoveCol(VAL0, VAL1);
+    env.Grid->MoveCol(params[0].Val(), params[1].Val());
   } else if (s == "Paste" && paramCount == 1) {
-    env.Grid->Raw()->PasteFromClipboard(static_cast<TPasteOption>(VAL0));
+    env.Grid->Raw()->PasteFromClipboard(
+        static_cast<TPasteOption>(params[0].Val()));
   } else if (s == "random" && paramCount == 1) {
-    Stack.push_back(Element(Random(VAL0)));
+    Stack.emplace_back(Random(params[0].Val()));
   } else if (s == "cell" && paramCount == 2) {
-    Stack.push_back(Element(VAL0, VAL1, &env));
+    Stack.emplace_back(params[0].Val(), params[1].Val(), &env);
   } else if (s == "left" && paramCount == 2) {
-    Stack.push_back(Element(STR0.SubString(1, VAL1)));
+    Stack.emplace_back(params[0].Str().SubString(1, params[1].Val()));
   } else if (s == "right" && paramCount == 2) {
-    String st = STR0;
-    int v1 = VAL1;
-    Stack.push_back(Element(st.SubString(st.Length() - v1 + 1, v1)));
+    String st = params[0].Str();
+    int v1 = params[1].Val();
+    Stack.emplace_back(st.SubString(st.Length() - v1 + 1, v1));
   } else if (s == "pos" && paramCount == 2) {
-    Stack.push_back(Element(STR0.Pos(STR1)));
+    Stack.emplace_back(params[0].Str().Pos(params[1].Str()));
   } else if (s == "posB" && paramCount == 2) {
-    Stack.push_back(Element(AnsiString(STR0).AnsiPos(STR1)));
+    Stack.emplace_back(AnsiString(params[0].Str()).AnsiPos(params[1].Str()));
   } else if (s == "asc" && paramCount == 1) {
-    AnsiString str = STR0;
+    AnsiString str = params[0].Str();
     if (str == "") {
-      Stack.push_back(Element(0));
+      Stack.emplace_back(0);
     } else if (str.IsLeadByte(1)) {
-      Stack.push_back(Element((unsigned char)(str[1]) * 256
-        + (unsigned char)(str[2])));
+      Stack.emplace_back(static_cast<unsigned char>(str[1]) * 256 +
+          static_cast<unsigned char>(str[2]));
     } else {
-      Stack.push_back(Element((unsigned char)(str[1])));
+      Stack.emplace_back(static_cast<unsigned char>(str[1]));
     }
   } else if (s == "ascW" && paramCount == 1) {
-    String str = STR0;
+    String str = params[0].Str();
     if (str == "") {
-      Stack.push_back(Element(0));
+      Stack.emplace_back(0);
     } else {
-      Stack.push_back(Element(str[1]));
+      Stack.emplace_back(str[1]);
     }
   } else if (s == "chr" && paramCount == 1) {
     AnsiString result;
-    int val = VAL0;
+    int val = params[0].Val();
     if (val < 256) {
       result.SetLength(1);
       result[1] = val;
@@ -1443,87 +1435,89 @@ void TMacro::ExecFnc(String s)
       result[1] = val / 256;
       result[2] = val % 256;
     }
-    Stack.push_back(Element(result));
+    Stack.emplace_back(result);
   } else if (s == "chrW" && paramCount == 1) {
     String result;
     result.SetLength(1);
-    result[1] = VAL0;
-    Stack.push_back(Element(result));
+    result[1] = params[0].Val();
+    Stack.emplace_back(result);
   } else if ((s == "move" || s == "moveto") && paramCount == 2) {
-    int c = VAL0;
-    int r = VAL1;
+    int c = params[0].Val();
+    int r = params[1].Val();
     if (s == "move") {
       c += env.Grid->GetCol();
       r += env.Grid->GetRow();
     }
     env.Grid->MoveTo(c, r);
   } else if (s == "mid" && paramCount == 2) {
-    String st = STR0;
-    Stack.push_back(Element(st.SubString(VAL1, st.Length()-VAL1+1)));
+    String st = params[0].Str();
+    Stack.emplace_back(
+        st.SubString(params[1].Val(), st.Length() - params[1].Val() + 1));
   } else if (s == "mid" && paramCount == 3) {
-    Stack.push_back(Element(STR0.SubString(VAL1, VAL2)));
+    Stack.emplace_back(
+        params[0].Str().SubString(params[1].Val(), params[2].Val()));
   } else if (s == "mid=" && paramCount == 4) {
-    String st = STR0;
-    int r = VAL1 + VAL2;
-    String result =
-        st.SubString(1, VAL1-1) + STR3 + st.SubString(r, st.Length() - r + 1);
-    ope[0].Sbst(Element(result));
+    String st = params[0].Str();
+    int r = params[1].Val() + params[2].Val();
+    String result = st.SubString(1, params[1].Val() - 1) + params[3].Str() +
+        st.SubString(r, st.Length() - r + 1);
+    params[0].Assign(Element(result));
   } else if (s == "replace" && (paramCount == 3 || paramCount == 5)) {
-    RegExp regExp = ParseRegExp(STR1);
+    RegExp regExp = ParseRegExp(params[1]);
     regExp.isReplaceAll = true;
-    if (paramCount > 3) { regExp.isIgnoreCase = VAL3; }
-    if (paramCount > 4) { regExp.isRegExp = VAL4; }
-    Stack.push_back(Element(regExp.Replace(STR0, STR2)));
+    if (paramCount > 3) { regExp.isIgnoreCase = params[3].Val(); }
+    if (paramCount > 4) { regExp.isRegExp = params[4].Val(); }
+    Stack.emplace_back(regExp.Replace(params[0].Str(), params[2].Str()));
   } else if (s == "sum" && paramCount == 4) {
-    int l = VAL0;
-    int t = VAL1;
-    int r = VAL2;
-    int b = VAL3;
+    int l = params[0].Val();
+    int t = params[1].Val();
+    int r = params[2].Val();
+    int b = params[3].Val();
     double result = env.Grid->Raw()->GetSum(l,t,r,b);
-    Stack.push_back(Element(result));
+    Stack.emplace_back(result);
   } else if (s == "avr" && paramCount == 4) {
-    int l = VAL0;
-    int t = VAL1;
-    int r = VAL2;
-    int b = VAL3;
+    int l = params[0].Val();
+    int t = params[1].Val();
+    int r = params[2].Val();
+    int b = params[3].Val();
     double result = env.Grid->Raw()->GetAvr(l,t,r,b);
-    Stack.push_back(Element(result));
+    Stack.emplace_back(result);
   } else if (s == "ShellOpen" && paramCount == 1) {
-    String FileName = STR0;
+    String FileName = params[0].Str();
     if (isUrl(FileName)) {
       env.Grid->Raw()->OpenURL(FileName);
     } else {
       AutoOpen(FileName, ExtractFilePath(fmMain->FileName));
     }
   } else if (s == "ShellOpen" && paramCount > 1) {
-    std::vector<String> params;
-    params.reserve(paramCount);
-    for (const Element& e : ope) {
-      params.push_back(e.Str());
+    std::vector<String> shellParams;
+    shellParams.reserve(paramCount);
+    for (const Element& e : params) {
+      shellParams.push_back(e.Str());
     }
-    int result = ShellOpen(params);
+    int result = ShellOpen(shellParams);
 
     if (result == -1) {
       if (errno == ENOENT) {
-        throw MacroException(ope[0].Str() + L"\nファイルが見つかりません。");
+        throw MacroException(shellParams[0] + L"\nファイルが見つかりません。");
       } else {
-        throw MacroException(ope[0].Str() + L"\n実行に失敗しました。");
+        throw MacroException(shellParams[0] + L"\n実行に失敗しました。");
       }
     }
   } else if (s == "Open" && (paramCount == 1 || paramCount == 2)) {
     if (env.ReadOnly) {
-      throw MacroException("Can't open files.", ME_SECURITY);
+      throw MacroException("Can't paramsn files.", ME_SECURITY);
     }
     env.Grid->ApplyPendingChanges();
     const TTypeOption *typeOption = nullptr;
     if (paramCount > 1) {
-      int index = fmMain->TypeList.IndexOf(STR1, -1);
+      int index = fmMain->TypeList.IndexOf(params[1].Str(), -1);
       if (index == -1) {
-        throw MacroException(L"データ形式名が不正です：" + STR1);
+        throw MacroException(L"データ形式名が不正です：" + params[1].Str());
       }
       typeOption = fmMain->TypeList.Items(index);
     }
-    fmMain->OpenFile(STR0, CHARCODE_AUTO, typeOption);
+    fmMain->OpenFile(params[0].Str(), CHARCODE_AUTO, typeOption);
     while (env.Grid->Raw()->FileOpenThread) {
       Sleep(100);
       Application->ProcessMessages();
@@ -1537,81 +1531,83 @@ void TMacro::ExecFnc(String s)
     if (paramCount == 1) {
       typeOption = env.Grid->Raw()->TypeOption;
     } else {
-      int index = fmMain->TypeList.IndexOf(STR1, -1);
+      int index = fmMain->TypeList.IndexOf(params[1].Str(), -1);
       if (index == -1) {
-        throw MacroException(L"保存形式が不明です：" + STR1);
+        throw MacroException(L"保存形式が不明です：" + params[1].Str());
       }
       typeOption = fmMain->TypeList.Items(index);
     }
-    fmMain->SaveAs(STR0, typeOption);
+    fmMain->SaveAs(params[0].Str(), typeOption);
   } else if (s == "Export" && paramCount == 2) {
     if (env.ReadOnly) {
       throw MacroException("Can't write to files.", ME_SECURITY);
     }
     env.Grid->ApplyPendingChanges();
-    fmMain->Export(STR0, STR1);
+    fmMain->Export(params[0].Str(), params[1].Str());
   } else if (s == "FileExists" && paramCount == 1) {
-    Stack.push_back(Element(FileExists(STR0) ? 1 : 0));
+    Stack.emplace_back(FileExists(params[0].Str()) ? 1 : 0);
   } else if (s == "WriteToFile" && paramCount == 2) {
     if (env.ReadOnly) {
       throw MacroException("Can't write to files.", ME_SECURITY);
     }
-    String fileName = STR1;
+    String fileName = params[1].Str();
     String dirName = ExtractFilePath(fileName);
     if (!DirectoryExists(dirName)) {
       ForceDirectories(dirName);
     }
     std::unique_ptr<TFileStream> fs =
         std::make_unique<TFileStream>(fileName, fmCreate | fmShareDenyWrite);
-    TBytes bytes = TEncoding::UTF8->GetBytes(STR0);
+    TBytes bytes = TEncoding::UTF8->GetBytes(params[0].Str());
     fs->Write(bytes, bytes.Length);
   } else if (s == "Sort" && paramCount >= 1 && paramCount <= 9) {
-    int left = VAL0;
-    int top = (paramCount > 1 ? VAL1 : 1);
-    int right = (paramCount > 2 ? VAL2 : env.Grid->GetRight());
-    int bottom = (paramCount > 3 ? VAL3 : env.Grid->GetBottom());
-    int col = (paramCount > 4 ? VAL4 : left);
-    bool direction = (paramCount > 5 ? VAL5 : false);
-    bool numSort = (paramCount > 6 ? VAL6 : false);
-    bool ignoreCase = (paramCount > 7 ? VAL7 : false);
-    bool ignoreZenhan = (paramCount > 8 ? VAL8 : false);
+    int left = params[0].Val();
+    int top = (paramCount > 1 ? params[1].Val() : 1);
+    int right = (paramCount > 2 ? params[2].Val() : env.Grid->GetRight());
+    int bottom = (paramCount > 3 ? params[3].Val() : env.Grid->GetBottom());
+    int col = (paramCount > 4 ? params[4].Val() : left);
+    bool direction = (paramCount > 5 ? params[5].Val() : false);
+    bool numSort = (paramCount > 6 ? params[6].Val() : false);
+    bool ignoreCase = (paramCount > 7 ? params[7].Val() : false);
+    bool ignoreZenhan = (paramCount > 8 ? params[8].Val() : false);
     env.Grid->Sort(left, top, right, bottom, col, direction, numSort,
         ignoreCase, ignoreZenhan);
   } else if (s == "ReplaceAll" &&
       (paramCount == 2 || paramCount == 5 || paramCount == 9)) {
-    RegExp regExp = ParseRegExp(ope[0]);
+    RegExp regExp = ParseRegExp(params[0]);
     String find = regExp.pattern;
-    String replace = STR1;
-    bool ignoreCase = (paramCount > 2 ? VAL2 : regExp.isIgnoreCase);
-    bool word = (paramCount > 3 ? VAL3 : false);
-    bool isRegex = (paramCount > 4 ? VAL4 : regExp.isRegExp);
-    int left = (paramCount > 5 ? VAL5 : env.Grid->GetLeft());
-    int top = (paramCount > 6 ? VAL6 : env.Grid->GetTop());
-    int right = (paramCount > 7 ? VAL7 : env.Grid->GetRight());
-    int bottom = (paramCount > 8 ? VAL8 : env.Grid->GetBottom());
+    String replace = params[1].Str();
+    bool ignoreCase = (paramCount > 2 ? params[2].Val() : regExp.isIgnoreCase);
+    bool word = (paramCount > 3 ? params[3].Val() : false);
+    bool isRegex = (paramCount > 4 ? params[4].Val() : regExp.isRegExp);
+    int left = (paramCount > 5 ? params[5].Val() : env.Grid->GetLeft());
+    int top = (paramCount > 6 ? params[6].Val() : env.Grid->GetTop());
+    int right = (paramCount > 7 ? params[7].Val() : env.Grid->GetRight());
+    int bottom = (paramCount > 8 ? params[8].Val() : env.Grid->GetBottom());
     int count = env.Grid->ReplaceAll(
         find, replace, left, top, right, bottom, ignoreCase, isRegex, word);
-    Stack.push_back(Element(count));
+    Stack.emplace_back(count);
   } else if (s == "QuickFind" && paramCount == 1) {
-    fmFind->edFindText->Text = STR0;
+    fmFind->edFindText->Text = params[0].Str();
     fmMain->mnQuickFindClick(nullptr);
   } else if (s == "QuickFind" && paramCount == 4) {
-    fmFind->edFindText->Text = STR0;
-    fmFind->cbCase->Checked = !VAL1;
-    fmFind->cbWordSearch->Checked = VAL2;
-    fmFind->cbRegex->Checked = VAL3;
+    fmFind->edFindText->Text = params[0].Str();
+    fmFind->cbCase->Checked = !params[1].Val();
+    fmFind->cbWordSearch->Checked = params[2].Val();
+    fmFind->cbRegex->Checked = params[3].Val();
     fmMain->mnQuickFindClick(nullptr);
   } else if (s == "Select" && paramCount == 4) {
-    env.Grid->Select(VAL0, VAL1, VAL2, VAL3);
+    env.Grid->Select(
+        params[0].Val(), params[1].Val(), params[2].Val(), params[3].Val());
   } else if (s == "RegExp" && (paramCount == 1 || paramCount == 2)) {
-    RegExp original = ParseRegExp(ope[0]);
-    String flags = (paramCount > 1 ? STR1 : original.flags);
-    Stack.push_back(
-        Element("/" + original.pattern  + "/" + flags, etRegExp, nullptr));
+    RegExp original = ParseRegExp(params[0]);
+    String flags = (paramCount > 1 ? params[1].Str() : original.flags);
+    Stack.emplace_back(
+        "/" + original.pattern  + "/" + flags, etRegExp, nullptr);
   } else if (s == "ShowDialog" && (paramCount == 1 || paramCount == 2)) {
-    UserDialog dialog(ope[0], paramCount > 1 ? STR1 : "Cassava Macro");
+    UserDialog dialog(
+        params[0], paramCount > 1 ? params[1].Str() : L"Cassava Macro");
     dialog.ShowModal();
-    Stack.push_back(Element(dialog.ReturnValue));
+    Stack.emplace_back(dialog.ReturnValue);
   } else {
     throw MacroException(notFoundMessage);
   }
@@ -1621,10 +1617,10 @@ void TMacro::ExecOpe(char c, size_t &p) {
   if (c == CMO_Goto || c == CMO_Jump || c == CMO_Minus || c == CMO_Inc ||
       c == CMO_Dec || c == '!' || c == CMO_VarArg) {
     if (Stack.size() < 1) { throw MacroException(c, ME_HIKISU); }
-    Element ope = Stack.back();
+    Element params = Stack.back();
     Stack.pop_back();
     if (c == CMO_Goto) {
-      p = ope.Val();
+      p = params.Val();
       Stack.clear();
       LoopCount++;
       Application->ProcessMessages();
@@ -1633,22 +1629,26 @@ void TMacro::ExecOpe(char c, size_t &p) {
             L"に達しました。処理を中断します。");
       }
       if (!RunningOk) { throw MacroException(L"中断しました"); }
-    }
-    else if (c == CMO_Jump) { p = ope.Val(); }
-    else if (c == CMO_Minus) { Stack.push_back(Element(-(ope.Val()))); }
-    else if (c == CMO_Inc) { ope.Sbst(Element(ope.Val() + 1)); }
-    else if (c == CMO_Dec) { ope.Sbst(Element(ope.Val() - 1)); }
-    else if (c == '!') { Stack.push_back(Element(((ope.Val() == 0) ? 1 : 0))); }
-    else if (c == CMO_VarArg) {
+    } else if (c == CMO_Jump) {
+      p = params.Val();
+    } else if (c == CMO_Minus) {
+      Stack.emplace_back(-(params.Val()));
+    } else if (c == CMO_Inc) {
+      params.Assign(Element(params.Val() + 1));
+    } else if (c == CMO_Dec) {
+      params.Assign(Element(params.Val() - 1));
+    } else if (c == '!') {
+      Stack.emplace_back(((params.Val() == 0) ? 1 : 0));
+    } else if (c == CMO_VarArg) {
       std::unique_ptr<TEnvironment> varArg = env.NewObject();
-      int fromIndex = ope.Val();
+      int fromIndex = params.Val();
       for (int i = fromIndex; i < Stack.size(); i++) {
         varArg->Vars[String(i - fromIndex)] = Element(Stack[i].Value());
       }
       varArg->Vars["length"] = Element(Stack.size() - fromIndex);
       std::vector<std::unique_ptr<TEnvironment>>& objects = env.GetObjects();
       Stack.erase(Stack.begin() + fromIndex, Stack.end());
-      Stack.push_back(Element(objects.size(), "", etObject, env.GetGlobal()));
+      Stack.emplace_back(objects.size(), "", etObject, env.GetGlobal());
       objects.push_back(std::move(varArg));
     }
   } else if (c == CMO_ObjKey) {
@@ -1657,103 +1657,100 @@ void TMacro::ExecOpe(char c, size_t &p) {
     Element key = Stack.back(); Stack.pop_back();
     Element obj = Stack.back();
     String keyString = (key.Type == etVar ? key.Name() : key.Str());
-    obj.GetMember(keyString).Sbst(val);
+    obj.GetMember(keyString).Assign(val);
   } else {
     if (Stack.size() < 2) { throw MacroException(c, ME_HIKISU); }
-    Element ope2 = Stack.back(); Stack.pop_back();
-    Element ope1 = Stack.back(); Stack.pop_back();
+    Element params2 = Stack.back(); Stack.pop_back();
+    Element params1 = Stack.back(); Stack.pop_back();
 
-    if (c == '=' || c == CMO_Add || c == CMO_Subtract || c == CMO_Multiply
-        || c == CMO_Divide) {
-        if (c == '=') {
-          ope1.Sbst(ope2);
-        } else if (c == CMO_Add) {
-          if (ope1.isNum() && ope2.isNum()) {
-            ope1.Sbst(ope1.Val() + ope2.Val());
-          } else {
-            ope1.Sbst(ope1.Str() + ope2.Str());
-          }
-        } else if (c == CMO_Subtract) {
-          ope1.Sbst(ope1.Val() - ope2.Val());
-        } else if (c == CMO_Multiply) {
-          ope1.Sbst(ope1.Val() * ope2.Val());
-        } else if (c == CMO_Divide) {
-          ope1.Sbst(ope1.Val() / ope2.Val());
-        }
-    } else if (c == '+') {
-      if (ope1.isNum() && ope2.isNum()) {
-        Stack.push_back(Element(ope1.Val() + ope2.Val()));
+    if (c == '=') {
+      params1.Assign(params2);
+    } else if (c == CMO_Add) {
+      if (params1.isNum() && params2.isNum()) {
+        params1.Assign(Element(params1.Val() + params2.Val()));
       } else {
-        Stack.push_back(Element(ope1.Str() + ope2.Str()));
+        params1.Assign(Element(params1.Str() + params2.Str()));
+      }
+    } else if (c == CMO_Subtract) {
+      params1.Assign(Element(params1.Val() - params2.Val()));
+    } else if (c == CMO_Multiply) {
+      params1.Assign(Element(params1.Val() * params2.Val()));
+    } else if (c == CMO_Divide) {
+      params1.Assign(Element(params1.Val() / params2.Val()));
+    } else if (c == '+') {
+      if (params1.isNum() && params2.isNum()) {
+        Stack.emplace_back(params1.Val() + params2.Val());
+      } else {
+        Stack.emplace_back(params1.Str() + params2.Str());
       }
     } else if (c == '-') {
-      Stack.push_back(Element(ope1.Val() - ope2.Val()));
+      Stack.emplace_back(params1.Val() - params2.Val());
     } else if (c == '*') {
-      Stack.push_back(Element(ope1.Val() * ope2.Val()));
+      Stack.emplace_back(params1.Val() * params2.Val());
     } else if (c == '/') {
-      Stack.push_back(Element(ope1.Val() / ope2.Val()));
+      Stack.emplace_back(params1.Val() / params2.Val());
     } else if (c == '%') {
-      Stack.push_back(
-          Element(static_cast<int>(ope1.Val()) % static_cast<int>(ope2.Val())));
+      Stack.emplace_back(
+          static_cast<int>(params1.Val()) % static_cast<int>(params2.Val()));
     } else if (c == CMO_Eq) {
-      Stack.push_back(Element(((ope1.Str() == ope2.Str()) ? 1 : 0)));
+      Stack.emplace_back(((params1.Str() == params2.Str()) ? 1 : 0));
     } else if (c == CMO_NEq) {
-      Stack.push_back(Element(((ope1.Str() != ope2.Str()) ? 1 : 0)));
+      Stack.emplace_back(((params1.Str() != params2.Str()) ? 1 : 0));
     } else if (c == '<') {
-      Stack.push_back(Element(((ope1.Val() < ope2.Val()) ? 1 : 0)));
+      Stack.emplace_back(((params1.Val() < params2.Val()) ? 1 : 0));
     } else if (c == '>') {
-      Stack.push_back(Element(((ope1.Val() > ope2.Val()) ? 1 : 0)));
+      Stack.emplace_back(((params1.Val() > params2.Val()) ? 1 : 0));
     } else if (c == CMO_LEq) {
-      Stack.push_back(Element(((ope1.Val() <= ope2.Val()) ? 1 : 0)));
+      Stack.emplace_back(((params1.Val() <= params2.Val()) ? 1 : 0));
     } else if (c == CMO_GEq) {
-      Stack.push_back(Element(((ope1.Val() >= ope2.Val()) ? 1 : 0)));
+      Stack.emplace_back(((params1.Val() >= params2.Val()) ? 1 : 0));
     } else if (c == '&') {
-      if (ope1.Val() == 0) {
-        Stack.push_back(ope1);
-        p = ope2.Val();
+      if (params1.Val() == 0) {
+        Stack.push_back(params1);
+        p = params2.Val();
         return;
       }
     } else if (c == '|') {
-      if (ope1.Val() != 0) {
-        Stack.push_back(ope1);
-        p = ope2.Val();
+      if (params1.Val() != 0) {
+        Stack.push_back(params1);
+        p = params2.Val();
         return;
       }
     } else if (c == '.') {
-      if (ope1.Value().Type != etObject) {
-        if (ope2.Str() == "length") {
-          Stack.push_back(Element(ope1.Str().Length()));
+      if (params1.Value().Type != etObject) {
+        if (params2.Str() == "length") {
+          Stack.emplace_back(params1.Str().Length());
           return;
-        } else if (ope2.isNum()) {
-          String target = ope1.Str();
-          int index = ope2.Val();
+        } else if (params2.isNum()) {
+          String target = params1.Str();
+          int index = params2.Val();
           if (index >= 0 && index < target.Length()) {
-            Stack.push_back(Element(target.SubString(ope2.Val() + 1, 1)));
+            Stack.emplace_back(target.SubString(params2.Val() + 1, 1));
           } else {
-            Stack.push_back(Element(""));
+            Stack.emplace_back("");
           }
           return;
         }
         throw MacroException(L"「.」の左がオブジェクトではありません："
-            + (ope1.Type == etVar ? ope1.Name() : ope1.Str()));
+            + (params1.Type == etVar ? params1.Name() : params1.Str()));
       }
-      Stack.push_back(ope1.GetMember(ope2.Str()));
+      Stack.push_back(params1.GetMember(params2.Str()));
     } else if (c == CMO_In) {
-      if (ope2.Value().Type != etObject) {
+      if (params2.Value().Type != etObject) {
         throw MacroException(L"in の右がオブジェクトではありません："
-            + (ope2.Type == etVar ? ope2.Name() : ope2.Str()));
+            + (params2.Type == etVar ? params2.Name() : params2.Str()));
       }
-      std::map<String, Element>& vars = env.GetObject(ope2.Val())->Vars;
-      Stack.push_back(Element((vars.find(ope1.Str()) != vars.end()) ? 1 : 0));
+      std::map<String, Element>& vars = env.GetObject(params2.Val())->Vars;
+      Stack.emplace_back((vars.find(params1.Str()) != vars.end()) ? 1 : 0);
     } else if (c == CMO_IfThen) {
-      if (ope1.Val() == 0) {
-        p = ope2.Val();
+      if (params1.Val() == 0) {
+        p = params2.Val();
       }
     } else if (c == CMO_Cell) {
-      Stack.push_back(Element(ope1.Val(), ope2.Val(), &env));
+      Stack.emplace_back(params1.Val(), params2.Val(), &env);
     } else if (c == CMO_DefParam) {
-      if (Stack.size() >= ope1.Val()) {
-        p = ope2.Val();
+      if (Stack.size() >= params1.Val()) {
+        p = params2.Val();
       }
     } else {
       throw MacroException(String(L"Invalid operator: ") + c);
@@ -1789,14 +1786,14 @@ Element TMacro::Do(const String& FileName, const std::vector<Element> &AStack,
   while (p < bytes.Size()) {
     char Type = bytes.ReadChar(p);
     if (Type == '$') {
-      Stack.push_back(Element(bytes.ReadString(p)));
+      Stack.emplace_back(bytes.ReadString(p));
     } else if (Type == '*') {
       ExecFnc(bytes.ReadString(p));
     } else if (Type == '~') {
       String name = bytes.ReadString(p);
-      Stack.push_back(Element(name, etVar, &env));
+      Stack.emplace_back(name, etVar, &env);
     } else if (Type == '!') {
-      Stack.push_back(Element(bytes.ReadString(p), etSystem, &env));
+      Stack.emplace_back(bytes.ReadString(p), etSystem, &env);
     } else if (Type == '-') {
       char c = bytes.ReadChar(p);
       if (c == CMO_Return) {
@@ -1808,9 +1805,9 @@ Element TMacro::Do(const String& FileName, const std::vector<Element> &AStack,
         ExecOpe(c, p);
       }
     } else if (Type == 'i') {
-      Stack.push_back(Element(bytes.ReadInteger(p)));
+      Stack.emplace_back(bytes.ReadInteger(p));
     } else if (Type == 'd') {
-      Stack.push_back(Element(bytes.ReadDouble(p)));
+      Stack.emplace_back(bytes.ReadDouble(p));
     }
   }
   return ReturnValue;
@@ -1830,7 +1827,7 @@ TMacroValue RunMacro(const String& FileName, int MaxLoop,
     std::vector<Element> stack;
     if (StringArguments) {
       for (int i = 0; i < StringArguments->Count; i++) {
-        stack.push_back(Element(StringArguments->Strings[i]));
+        stack.emplace_back(StringArguments->Strings[i]);
       }
     }
     r = mcr.Do(FileName, stack, x, y);
