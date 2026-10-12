@@ -5,6 +5,31 @@
 #include <vcl.h>
 #include <vector>
 //---------------------------------------------------------------------------
+enum class TMacroOperator : char {
+  Unknown = '\0',
+  IfThen = '?',  // Used in if, while.
+  Goto = 'g',  // Clears stack. Used in if, while.
+  Jump = 'j',  // Keeps stack. Used in ?:.
+  Return = '}',  // return
+  Cell = ']',  // [x,y]
+  Not = '!',
+  Minus = 'm',  // -
+  Inc = 'i',  // ++
+  Dec = 'd',  // --
+  Eq = 'Q',  // ==
+  Add = 'A',  // +=
+  Subtract = 'S',  // -=
+  Multiply = 'M',  // *=
+  Divide = 'D',  // /=
+  NEq = 'N',   // !=
+  LEq = 'L',  // <=
+  GEq = 'G',  // >=
+  In = 'n',  // in
+  ObjKey = 'k',  // :
+  DefParam = 'p',  // Jump if the stack size >= specified size.
+  VarArg = 'v'  // Converts stack to an ArrayLike object.
+};
+//---------------------------------------------------------------------------
 class TByteVector {
 private:
   std::vector<std::byte> Data;
@@ -18,6 +43,9 @@ public:
   }
   double ReadDouble(size_t& Index) const;
   int ReadInteger(size_t& Index) const;
+  TMacroOperator ReadOperator(size_t& Index) const {
+    return static_cast<TMacroOperator>(Data[Index++]);
+  }
   String ReadString(size_t& Index) const;
   void Write(const TByteVector& Bytes);
   void WriteChar(char Value) {

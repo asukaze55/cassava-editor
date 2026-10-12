@@ -8,9 +8,10 @@
 #include <vector>
 
 #include "Compiler.h"
-#include "MacroOpeCode.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
+//---------------------------------------------------------------------------
+namespace {
 //---------------------------------------------------------------------------
 constexpr char QUOTE = '\'';
 constexpr char DBLQUOTE = '\"';
@@ -28,8 +29,37 @@ enum CMCElementType : char {
 
 constexpr int prElement = 100;
 constexpr int prEOF = -1;
-
-static const int INT_SIZE = sizeof(int);
+//---------------------------------------------------------------------------
+TMacroOperator ToOperator(const String& str) {
+  if (str == "++") {
+    return TMacroOperator::Inc;
+  } else if(str == "--") {
+    return TMacroOperator::Dec;
+  } else if(str == "==") {
+    return TMacroOperator::Eq;
+  } else if(str == "+=") {
+    return TMacroOperator::Add;
+  } else if(str == "-=") {
+    return TMacroOperator::Subtract;
+  } else if(str == "*=") {
+    return TMacroOperator::Multiply;
+  } else if(str == "/=") {
+    return TMacroOperator::Divide;
+  } else if(str == "!=") {
+    return TMacroOperator::NEq;
+  } else if(str == "<=" || str == "=<") {
+    return TMacroOperator::LEq;
+  } else if(str == ">=" || str == "=>") {
+    return TMacroOperator::GEq;
+  } else if(str == "&&") {
+    return static_cast<TMacroOperator>('&');
+  } else if(str == "||") {
+    return static_cast<TMacroOperator>('|');
+  } else if(str == "in") {
+    return TMacroOperator::In;
+  }
+  return TMacroOperator::Unknown;
+}
 //---------------------------------------------------------------------------
 class CMCElement{
 public:
@@ -39,9 +69,11 @@ public:
   int jump;
 
   CMCElement() : str(""), pri(prEOF), type(tpStructure), jump(0) {}
-  CMCElement(const String& s);
-  CMCElement(const String& s, int p, char t, int j = 0) :
-      str(s), pri(p), type(t), jump(j) {}
+  explicit CMCElement(const String& s);
+  explicit CMCElement(const String& s, int p, char t, int j = 0)
+      : str(s), pri(p), type(t), jump(j) {}
+  explicit CMCElement(TMacroOperator op, int p)
+      : str(static_cast<char>(op)), pri(p), type(tpOpe), jump(0) {}
 
   bool iseof() const { return(pri == prEOF); }
   bool isSystemVar() const {
@@ -91,6 +123,8 @@ CMCElement::CMCElement(const String& s) {
     if (s.Pos(".") > 0) { type = tpDouble; } else { type = tpInteger; }
   }
 }
+//---------------------------------------------------------------------------
+}  // namespace
 //---------------------------------------------------------------------------
 double TByteVector::ReadDouble(size_t& Index) const {
   double result;
@@ -328,7 +362,7 @@ CMCElement TTokenizer::GetR()
     if (s == "function" || s == "return") {
       return CMCElement(s, prElement, tpFunc);
     } else if (s == "in" && !isUnaryOpeExpected) {
-      return CMCElement(CMO_In, 17, tpOpe);
+      return CMCElement(TMacroOperator::In, 17);
     }
     return CMCElement(s, prElement, (Peek() == '(') ? tpFunc : tpVar);
   }
@@ -366,7 +400,7 @@ CMCElement TTokenizer::GetR()
     if (s1 == "!" || s2 == "++" || s2 == "--" || s2 == "::") {
       return elm;
     } else if (s1 == "-") {
-      return CMCElement(CMO_Minus, 50, tpOpe);
+      return CMCElement(TMacroOperator::Minus, 50);
     } else if (s1 == "+") {
       return GetR();
     } else if (s1 == "/") {
@@ -454,6 +488,7 @@ private:
   void Output(CMCElement e);
   void Output(const String& str, char type);
   void OutputInteger(int value);
+  void OutputOperator(TMacroOperator op);
   int OutputPositionPlaceholder();
   void FillPositionPlaceholder(int placeholder);
   void FillPositionPlaceholders(const std::vector<size_t>& placeholders,
@@ -498,13 +533,13 @@ void TCompiler::GetIf()
   lex->Get(); // '('
   GetValues(')');
   int bp1fr = OutputPositionPlaceholder();
-  Output(CMO_IfThen, tpOpe);
+  OutputOperator(TMacroOperator::IfThen);
   GetSentence(';');
 
   if (lex->GetNext().str == "else") {
     lex->Get(); // else
     int bp2fr = OutputPositionPlaceholder();
-    Output(CMO_Goto, tpOpe);
+    OutputOperator(TMacroOperator::Goto);
     FillPositionPlaceholder(bp1fr);
     GetSentence(';');
     FillPositionPlaceholder(bp2fr);
@@ -527,11 +562,10 @@ void TCompiler::GetWhile()
   int bp1to = fout.Size();
   GetValues(')');
   breaks.push_back(OutputPositionPlaceholder());
-  Output(CMO_IfThen, tpOpe);
+  OutputOperator(TMacroOperator::IfThen);
   GetSentence(';');
   OutputInteger(bp1to);
-  Output(CMO_Goto, tpOpe);
-  int bp2to = fout.Size();
+  OutputOperator(TMacroOperator::Goto);
 
   FillPositionPlaceholders(breaks, fout.Size());
   Breaks = originalBreaks;
@@ -582,7 +616,7 @@ void TCompiler::GetFor()
     Output(".", tpOpe);
     Output("<", tpOpe);
     breaks.push_back(OutputPositionPlaceholder());
-    Output(CMO_IfThen, tpOpe);
+    OutputOperator(TMacroOperator::IfThen);
 
     Output(var);
     Output(collection, tpVar);
@@ -593,17 +627,17 @@ void TCompiler::GetFor()
     continuePosition = fout.Size();
 
     Output(index, tpVar);
-    Output(CMO_Inc, tpOpe);
+    OutputOperator(TMacroOperator::Inc);
 
     OutputInteger(nextPosition);
-    Output(CMO_Goto, tpOpe);
+    OutputOperator(TMacroOperator::Goto);
     Variables.erase(var.str);
   } else {
     GetValues(';'); // Initialization
     int nextPosition = fout.Size();
     GetValues(';'); // Condition
     breaks.push_back(OutputPositionPlaceholder());
-    Output(CMO_IfThen, tpOpe);
+    OutputOperator(TMacroOperator::IfThen);
 
     TByteVector orgFOut = std::move(fout);
     fout = {};
@@ -616,7 +650,7 @@ void TCompiler::GetFor()
     fout.Write(finalExpression);
 
     OutputInteger(nextPosition);
-    Output(CMO_Goto, tpOpe);
+    OutputOperator(TMacroOperator::Goto);
   }
 
   FillPositionPlaceholders(breaks, fout.Size());
@@ -642,16 +676,16 @@ void TCompiler::GetLegacyFor()
 
   Output(var);
   GetValues(')'); // Max Value
-  Output(CMO_LEq, tpOpe);
+  OutputOperator(TMacroOperator::LEq);
   int breakPlaceholder = OutputPositionPlaceholder();
-  Output(CMO_IfThen, tpOpe);
+  OutputOperator(TMacroOperator::IfThen);
 
   GetSentence(';'); // Loop Body
 
   Output(var);
-  Output(CMO_Inc, tpOpe);
+  OutputOperator(TMacroOperator::Inc);
   OutputInteger(nextPosition);
-  Output(CMO_Goto, tpOpe);
+  OutputOperator(TMacroOperator::Goto);
   FillPositionPlaceholder(breakPlaceholder);
 }
 //---------------------------------------------------------------------------
@@ -714,7 +748,7 @@ String TCompiler::GetFunction(FunctionType functionType,
       if (e.str == '=') {
         OutputInteger(parameters.size());
         int placeholder = OutputPositionPlaceholder();
-        Output(CMO_DefParam, tpOpe);
+        OutputOperator(TMacroOperator::DefParam);
         GetSentence(LAMBDA_EOS, /* allowBlock= */ false);
         FillPositionPlaceholder(placeholder);
         e = lex->Get();
@@ -732,7 +766,7 @@ String TCompiler::GetFunction(FunctionType functionType,
   }
   if (varArg) {
     OutputInteger(parameters.size() - 1);
-    Output(CMO_VarArg, tpOpe);
+    OutputOperator(TMacroOperator::VarArg);
   }
   for (int i = 0; i < parameters.size(); i++) {
     Output(parameters[i], tpVar);
@@ -788,9 +822,9 @@ void TCompiler::GetReturn(char EOS)
   GetValues(EOS, &paramCount);
   if (paramCount == 0) {
     OutputInteger(0x7f7f7f7f);
-    Output(CMO_Goto, tpOpe);
+    OutputOperator(TMacroOperator::Goto);
   } else if (paramCount == 1) {
-    Output(CMO_Return, tpOpe);
+    OutputOperator(TMacroOperator::Return);
   } else {
     throw CMCException(String(L"return 文に引数が") +
         static_cast<int>(paramCount) + L"個あります。");
@@ -811,7 +845,7 @@ void TCompiler::GetLambda(const String& paramName)
     Output(String(L'\0') + L"{}", tpFunc);
     Output("", tpString);
     Output(functionName, tpString);
-    Output(CMO_ObjKey, tpOpe);
+    OutputOperator(TMacroOperator::ObjKey);
 
     for (const String& name : CapturedVariables) {
       Output(name, tpString);
@@ -823,7 +857,7 @@ void TCompiler::GetLambda(const String& paramName)
       } else {
         Output(name, tpVar);
       }
-      Output(CMO_ObjKey, tpOpe);
+      OutputOperator(TMacroOperator::ObjKey);
     }
   }
 
@@ -836,7 +870,7 @@ void TCompiler::GetCell()
   char paramCount;
   GetValues(']', &paramCount);
   if (paramCount == 2) {
-    Output(CMO_Cell, tpOpe);
+    OutputOperator(TMacroOperator::Cell);
   } else {
     throw CMCException(String(L"[x,y] 形式に , が") +
         static_cast<int>(paramCount) + L"個あります。");
@@ -872,11 +906,11 @@ void TCompiler::Output(const String& str, char type) {
       if (ansiStr.Length() == 1) {
         fout.WriteChar(ansiStr[1]);
       } else {
-        char c = CMOCode(str);
-        if (c == '\0') {
+        TMacroOperator c = ToOperator(str);
+        if (c == TMacroOperator::Unknown) {
           throw CMCException(L"サポートされていない演算子です：" + str);
         } else {
-          fout.WriteChar(c);
+          fout.WriteChar(static_cast<char>(c));
         }
       }
       break;
@@ -896,6 +930,12 @@ void TCompiler::OutputInteger(int value)
 {
   fout.WriteChar('i');
   fout.WriteInteger(value);
+}
+//---------------------------------------------------------------------------
+void TCompiler::OutputOperator(TMacroOperator op)
+{
+  fout.WriteChar('-');
+  fout.WriteChar(static_cast<char>(op));
 }
 //---------------------------------------------------------------------------
 int TCompiler::OutputPositionPlaceholder()
@@ -957,7 +997,7 @@ String TCompiler::GetObject()
       }
       Output(key);
       bool inBlock = GetValues(',');
-      Output(CMO_ObjKey, tpOpe);
+      OutputOperator(TMacroOperator::ObjKey);
       if (!inBlock) {
         return constructor;
       }
@@ -965,7 +1005,7 @@ String TCompiler::GetObject()
       Output(key.str, tpVar);
       String functionName = GetFunction(METHOD);
       Output(functionName, tpString);
-      Output(CMO_ObjKey, tpOpe);
+      OutputOperator(TMacroOperator::ObjKey);
       if (lex->GetNext().str == ",") { lex->Get(); }
       if (key.str == "constructor") { constructor = functionName; }
     } else if (key.str == "}") {
@@ -1011,7 +1051,7 @@ void TCompiler::GetClass()
     outName = GetMacroModuleName(InName, name, 0, false);
   }
 
-  Output(CMO_Return, tpOpe);
+  OutputOperator(TMacroOperator::Return);
   Context->Modules[outName] = std::move(fout);
   fout = std::move(orgFOut);
 }
@@ -1293,14 +1333,14 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *paramCount)
           throw CMCException(L"break はループ内でのみ使用できます。");
         }
         Breaks->push_back(OutputPositionPlaceholder());
-        Output(CMO_Goto, tpOpe);
+        OutputOperator(TMacroOperator::Goto);
       } else if (e.str == "continue" && firstloop
                  && lex->GetNext().str == ";") {
         if (!Continues) {
           throw CMCException(L"continue はループ内でのみ使用できます。");
         }
         Continues->push_back(OutputPositionPlaceholder());
-        Output(CMO_Goto, tpOpe);
+        OutputOperator(TMacroOperator::Goto);
       } else if (e.str == "class" && lex->GetNext().type == tpVar) {
         if (!firstloop) {
           throw CMCException(e.str + L" 宣言の前に ; が必要です。");
@@ -1366,7 +1406,7 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *paramCount)
         Output(e);
         GetValues(':');
         int jumpTrue = OutputPositionPlaceholder();
-        Output(CMO_Jump, tpOpe);
+        OutputOperator(TMacroOperator::Jump);
         FillPositionPlaceholder(jumpFalse);
         Push(CMCElement("", e.pri, tpStructure, jumpTrue), &ls);
       } else if (e.str == ":") {

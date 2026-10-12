@@ -12,7 +12,6 @@
 
 #include "Find.h"
 #include "Macro.h"
-#include "MacroOpeCode.h"
 #include "MultiLineInputBox.h"
 #include "AutoOpen.h"
 //---------------------------------------------------------------------------
@@ -315,7 +314,7 @@ public:
 class TMacro{
 private:
   const TByteVector& GetByteVector(const String& FileName);
-  void ExecOpe(char c, size_t &p);
+  void ExecOpe(TMacroOperator c, size_t &p);
   void ExecMethod(const String& name, int paramCount,
       const std::vector<Element>& params, bool isLambda);
   void ExecPrimitiveMethod(const String& s, int paramCount,
@@ -1613,13 +1612,17 @@ void TMacro::ExecFnc(String s)
   }
 }
 //---------------------------------------------------------------------------
-void TMacro::ExecOpe(char c, size_t &p) {
-  if (c == CMO_Goto || c == CMO_Jump || c == CMO_Minus || c == CMO_Inc ||
-      c == CMO_Dec || c == '!' || c == CMO_VarArg) {
-    if (Stack.size() < 1) { throw MacroException(c, ME_HIKISU); }
+void TMacro::ExecOpe(TMacroOperator c, size_t &p) {
+  if (c == TMacroOperator::Goto || c == TMacroOperator::Jump ||
+      c == TMacroOperator::Minus || c == TMacroOperator::Inc ||
+      c == TMacroOperator::Dec || c == TMacroOperator::Not ||
+      c == TMacroOperator::VarArg) {
+    if (Stack.size() < 1) {
+      throw MacroException(static_cast<char>(c), ME_HIKISU);
+    }
     Element params = Stack.back();
     Stack.pop_back();
-    if (c == CMO_Goto) {
+    if (c == TMacroOperator::Goto) {
       p = params.Val();
       Stack.clear();
       LoopCount++;
@@ -1629,17 +1632,17 @@ void TMacro::ExecOpe(char c, size_t &p) {
             L"に達しました。処理を中断します。");
       }
       if (!RunningOk) { throw MacroException(L"中断しました"); }
-    } else if (c == CMO_Jump) {
+    } else if (c == TMacroOperator::Jump) {
       p = params.Val();
-    } else if (c == CMO_Minus) {
+    } else if (c == TMacroOperator::Minus) {
       Stack.emplace_back(-(params.Val()));
-    } else if (c == CMO_Inc) {
+    } else if (c == TMacroOperator::Inc) {
       params.Assign(Element(params.Val() + 1));
-    } else if (c == CMO_Dec) {
+    } else if (c == TMacroOperator::Dec) {
       params.Assign(Element(params.Val() - 1));
-    } else if (c == '!') {
+    } else if (c == TMacroOperator::Not) {
       Stack.emplace_back(((params.Val() == 0) ? 1 : 0));
-    } else if (c == CMO_VarArg) {
+    } else if (c == TMacroOperator::VarArg) {
       std::unique_ptr<TEnvironment> varArg = env.NewObject();
       int fromIndex = params.Val();
       for (int i = fromIndex; i < Stack.size(); i++) {
@@ -1651,72 +1654,76 @@ void TMacro::ExecOpe(char c, size_t &p) {
       Stack.emplace_back(objects.size(), "", etObject, env.GetGlobal());
       objects.push_back(std::move(varArg));
     }
-  } else if (c == CMO_ObjKey) {
-    if (Stack.size() < 3) { throw MacroException(c, ME_HIKISU); }
+  } else if (c == TMacroOperator::ObjKey) {
+    if (Stack.size() < 3) {
+      throw MacroException(static_cast<char>(c), ME_HIKISU);
+    }
     Element val = Stack.back(); Stack.pop_back();
     Element key = Stack.back(); Stack.pop_back();
     Element obj = Stack.back();
     String keyString = (key.Type == etVar ? key.Name() : key.Str());
     obj.GetMember(keyString).Assign(val);
   } else {
-    if (Stack.size() < 2) { throw MacroException(c, ME_HIKISU); }
+    if (Stack.size() < 2) {
+      throw MacroException(static_cast<char>(c), ME_HIKISU);
+    }
     Element params2 = Stack.back(); Stack.pop_back();
     Element params1 = Stack.back(); Stack.pop_back();
 
-    if (c == '=') {
+    if (c == static_cast<TMacroOperator>('=')) {
       params1.Assign(params2);
-    } else if (c == CMO_Add) {
+    } else if (c == TMacroOperator::Add) {
       if (params1.isNum() && params2.isNum()) {
         params1.Assign(Element(params1.Val() + params2.Val()));
       } else {
         params1.Assign(Element(params1.Str() + params2.Str()));
       }
-    } else if (c == CMO_Subtract) {
+    } else if (c == TMacroOperator::Subtract) {
       params1.Assign(Element(params1.Val() - params2.Val()));
-    } else if (c == CMO_Multiply) {
+    } else if (c == TMacroOperator::Multiply) {
       params1.Assign(Element(params1.Val() * params2.Val()));
-    } else if (c == CMO_Divide) {
+    } else if (c == TMacroOperator::Divide) {
       params1.Assign(Element(params1.Val() / params2.Val()));
-    } else if (c == '+') {
+    } else if (c == static_cast<TMacroOperator>('+')) {
       if (params1.isNum() && params2.isNum()) {
         Stack.emplace_back(params1.Val() + params2.Val());
       } else {
         Stack.emplace_back(params1.Str() + params2.Str());
       }
-    } else if (c == '-') {
+    } else if (c == static_cast<TMacroOperator>('-')) {
       Stack.emplace_back(params1.Val() - params2.Val());
-    } else if (c == '*') {
+    } else if (c == static_cast<TMacroOperator>('*')) {
       Stack.emplace_back(params1.Val() * params2.Val());
-    } else if (c == '/') {
+    } else if (c == static_cast<TMacroOperator>('/')) {
       Stack.emplace_back(params1.Val() / params2.Val());
-    } else if (c == '%') {
+    } else if (c == static_cast<TMacroOperator>('%')) {
       Stack.emplace_back(
           static_cast<int>(params1.Val()) % static_cast<int>(params2.Val()));
-    } else if (c == CMO_Eq) {
+    } else if (c == TMacroOperator::Eq) {
       Stack.emplace_back(((params1.Str() == params2.Str()) ? 1 : 0));
-    } else if (c == CMO_NEq) {
+    } else if (c == TMacroOperator::NEq) {
       Stack.emplace_back(((params1.Str() != params2.Str()) ? 1 : 0));
-    } else if (c == '<') {
+    } else if (c == static_cast<TMacroOperator>('<')) {
       Stack.emplace_back(((params1.Val() < params2.Val()) ? 1 : 0));
-    } else if (c == '>') {
+    } else if (c == static_cast<TMacroOperator>('>')) {
       Stack.emplace_back(((params1.Val() > params2.Val()) ? 1 : 0));
-    } else if (c == CMO_LEq) {
+    } else if (c == TMacroOperator::LEq) {
       Stack.emplace_back(((params1.Val() <= params2.Val()) ? 1 : 0));
-    } else if (c == CMO_GEq) {
+    } else if (c == TMacroOperator::GEq) {
       Stack.emplace_back(((params1.Val() >= params2.Val()) ? 1 : 0));
-    } else if (c == '&') {
+    } else if (c == static_cast<TMacroOperator>('&')) {
       if (params1.Val() == 0) {
         Stack.push_back(params1);
         p = params2.Val();
         return;
       }
-    } else if (c == '|') {
+    } else if (c == static_cast<TMacroOperator>('|')) {
       if (params1.Val() != 0) {
         Stack.push_back(params1);
         p = params2.Val();
         return;
       }
-    } else if (c == '.') {
+    } else if (c == static_cast<TMacroOperator>('.')) {
       if (params1.Value().Type != etObject) {
         if (params2.Str() == "length") {
           Stack.emplace_back(params1.Str().Length());
@@ -1735,25 +1742,26 @@ void TMacro::ExecOpe(char c, size_t &p) {
             + (params1.Type == etVar ? params1.Name() : params1.Str()));
       }
       Stack.push_back(params1.GetMember(params2.Str()));
-    } else if (c == CMO_In) {
+    } else if (c == TMacroOperator::In) {
       if (params2.Value().Type != etObject) {
         throw MacroException(L"in の右がオブジェクトではありません："
             + (params2.Type == etVar ? params2.Name() : params2.Str()));
       }
       std::map<String, Element>& vars = env.GetObject(params2.Val())->Vars;
       Stack.emplace_back((vars.find(params1.Str()) != vars.end()) ? 1 : 0);
-    } else if (c == CMO_IfThen) {
+    } else if (c == TMacroOperator::IfThen) {
       if (params1.Val() == 0) {
         p = params2.Val();
       }
-    } else if (c == CMO_Cell) {
+    } else if (c == TMacroOperator::Cell) {
       Stack.emplace_back(params1.Val(), params2.Val(), &env);
-    } else if (c == CMO_DefParam) {
+    } else if (c == TMacroOperator::DefParam) {
       if (Stack.size() >= params1.Val()) {
         p = params2.Val();
       }
     } else {
-      throw MacroException(String(L"Invalid operator: ") + c);
+      throw MacroException(
+          String(L"Invalid operator: ") + static_cast<char>(c));
     }
   }
 }
@@ -1795,8 +1803,8 @@ Element TMacro::Do(const String& FileName, const std::vector<Element> &AStack,
     } else if (Type == '!') {
       Stack.emplace_back(bytes.ReadString(p), etSystem, &env);
     } else if (Type == '-') {
-      char c = bytes.ReadChar(p);
-      if (c == CMO_Return) {
+      TMacroOperator c = bytes.ReadOperator(p);
+      if (c == TMacroOperator::Return) {
         if (Stack.size() > 0) {
           ReturnValue = Stack.back().Value();
         }
