@@ -79,10 +79,13 @@
     <PropertyGroup Condition="'$(Base)'!=''">
         <_TCHARMapping>wchar_t</_TCHARMapping>
         <AllPackageLibs>rtl.lib;vcl.lib;bcbsmp.lib;vclx.lib;vclwinx.lib;vclimg.lib;bindengine.lib</AllPackageLibs>
+        <BCC_AllWarnings>true</BCC_AllWarnings>
         <BCC_GenerateMultithreaded>true</BCC_GenerateMultithreaded>
         <BCC_GenerateWindowsApp>true</BCC_GenerateWindowsApp>
         <BCC_IncludePath>$(BDS)\include;$(BCC_IncludePath)</BCC_IncludePath>
         <BCC_OptimizeForSpeed>true</BCC_OptimizeForSpeed>
+        <BCC_SelectedWarnings_v15>false</BCC_SelectedWarnings_v15>
+        <BCC_SelectedWarnings>false</BCC_SelectedWarnings>
         <BCC_UseClassicCompiler>false</BCC_UseClassicCompiler>
         <BCC_wpar>false</BCC_wpar>
         <BRCC_IncludePath>$(BDS)\Add\referbutton;..\Jis2k;$(BDS)\Projects;..\OpenFile;$(BDS)\include;$(BDS)\include\vcl;$(BRCC_IncludePath)</BRCC_IncludePath>

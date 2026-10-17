@@ -39,8 +39,9 @@ public:
   __property TShortCut ShortCut = {read=GetShortCut, write=SetShortCut};
   __property bool Modified = {read=GetModified};
 
-  TMenuShortCutChange(TMenuItem *mi)
-      : MenuItem(mi), ShortCut(mi->ShortCut), Caption(mi->Caption) {}
+  TMenuShortCutChange(TMenuItem *mi) : MenuItem(mi), Caption(mi->Caption) {
+    SetShortCut(mi->ShortCut);
+  }
 };
 //---------------------------------------------------------------------------
 class TfmKey : public TForm
