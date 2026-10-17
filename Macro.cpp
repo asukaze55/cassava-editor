@@ -1776,7 +1776,6 @@ const TByteVector& TMacro::GetByteVector(const String& funcName) {
 //---------------------------------------------------------------------------
 Element TMacro::Do(const String& FileName, const std::vector<Element> &AStack,
                    int x, int y, Element *thisPtr) {
-  Element ReturnValue;
   Stack = AStack;
 
   const TByteVector& bytes = GetByteVector(FileName);
@@ -1792,33 +1791,43 @@ Element TMacro::Do(const String& FileName, const std::vector<Element> &AStack,
   }
   LoopCount = 0;
   while (p < bytes.Size()) {
-    char Type = bytes.ReadChar(p);
-    if (Type == '$') {
-      Stack.emplace_back(bytes.ReadString(p));
-    } else if (Type == '*') {
-      ExecFnc(bytes.ReadString(p));
-    } else if (Type == '~') {
-      String name = bytes.ReadString(p);
-      Stack.emplace_back(name, etVar, &env);
-    } else if (Type == '!') {
-      Stack.emplace_back(bytes.ReadString(p), etSystem, &env);
-    } else if (Type == '-') {
-      TMacroOperator c = bytes.ReadOperator(p);
-      if (c == TMacroOperator::Return) {
-        if (Stack.size() > 0) {
-          ReturnValue = Stack.back().Value();
-        }
+    switch (bytes.ReadType(p)) {
+      case TByteCodeType::String: {
+        Stack.emplace_back(bytes.ReadString(p));
         break;
-      } else {
-        ExecOpe(c, p);
       }
-    } else if (Type == 'i') {
-      Stack.emplace_back(bytes.ReadInteger(p));
-    } else if (Type == 'd') {
-      Stack.emplace_back(bytes.ReadDouble(p));
+      case TByteCodeType::Func: {
+        ExecFnc(bytes.ReadString(p));
+        break;
+      }
+      case TByteCodeType::Var: {
+        String name = bytes.ReadString(p);
+        Stack.emplace_back(name, etVar, &env);
+        break;
+      }
+      case TByteCodeType::SystemVar: {
+        Stack.emplace_back(bytes.ReadString(p), etSystem, &env);
+        break;
+      }
+      case TByteCodeType::Ope: {
+        TMacroOperator c = bytes.ReadOperator(p);
+        if (c == TMacroOperator::Return) {
+          return (Stack.size() > 0) ? Stack.back().Value() : Element();
+        }
+        ExecOpe(c, p);
+        break;
+      }
+      case TByteCodeType::Integer: {
+        Stack.emplace_back(bytes.ReadInteger(p));
+        break;
+      }
+      case TByteCodeType::Double: {
+        Stack.emplace_back(bytes.ReadDouble(p));
+        break;
+      }
     }
   }
-  return ReturnValue;
+  return Element();
 }
 //---------------------------------------------------------------------------
 TMacroValue RunMacro(const String& FileName, int MaxLoop,

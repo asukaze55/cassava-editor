@@ -5,6 +5,16 @@
 #include <vcl.h>
 #include <vector>
 //---------------------------------------------------------------------------
+enum class TByteCodeType : char {
+  Integer = 'i',
+  Double = 'd',
+  String = '$',
+  Func = '*',
+  Var = '~',
+  SystemVar = '!',
+  Ope = '-',
+};
+//---------------------------------------------------------------------------
 enum class TMacroOperator : char {
   Unknown = '\0',
   IfThen = '?',  // Used in if, while.
@@ -38,25 +48,28 @@ public:
   size_t Size() const {
     return Data.size();
   }
-  char ReadChar(size_t& Index) const {
-    return static_cast<char>(Data[Index++]);
-  }
   double ReadDouble(size_t& Index) const;
   int ReadInteger(size_t& Index) const;
   TMacroOperator ReadOperator(size_t& Index) const {
     return static_cast<TMacroOperator>(Data[Index++]);
   }
   String ReadString(size_t& Index) const;
-  void Write(const TByteVector& Bytes);
-  void WriteChar(char Value) {
-    Data.push_back(static_cast<std::byte>(Value));
+  TByteCodeType ReadType(size_t& Index) const {
+    return static_cast<TByteCodeType>(Data[Index++]);
   }
+  void Write(const TByteVector& Bytes);
   void WriteDouble(double Value);
   void WriteInteger(int Value);
   void WriteInteger(int Value, size_t Index) {
     std::memcpy(Data.data() + Index, &Value, sizeof(int));
   }
+  void WriteOperator(TMacroOperator Value) {
+    Data.push_back(static_cast<std::byte>(Value));
+  }
   void WriteString(const String& Value);
+  void WriteType(TByteCodeType Value) {
+    Data.push_back(static_cast<std::byte>(Value));
+  }
 };
 //---------------------------------------------------------------------------
 class TMacroContext {

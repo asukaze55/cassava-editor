@@ -13,20 +13,10 @@
 //---------------------------------------------------------------------------
 namespace {
 //---------------------------------------------------------------------------
-constexpr char QUOTE = '\'';
-constexpr char DBLQUOTE = '\"';
-
-enum CMCElementType : char {
-  tpInteger = 'i',
-  tpDouble = 'd',
-  tpString = '$',
-  tpFunc = '*',
-  tpVar = '~',
-  tpOpe = '-',
-  tpRegExp = '/',
-  tpStructure = ';'
+enum class TType {
+  Integer, Double, String, Func, Var, Ope, RegExp, Structure
 };
-
+//---------------------------------------------------------------------------
 constexpr int prElement = 100;
 constexpr int prEOF = -1;
 //---------------------------------------------------------------------------
@@ -65,62 +55,61 @@ class CMCElement{
 public:
   String str;
   int pri;
-  char type;
+  TType type;
   int jump;
 
-  CMCElement() : str(""), pri(prEOF), type(tpStructure), jump(0) {}
   explicit CMCElement(const String& s);
-  explicit CMCElement(const String& s, int p, char t, int j = 0)
+  explicit CMCElement(const String& s, int p, TType t, int j = 0)
       : str(s), pri(p), type(t), jump(j) {}
   explicit CMCElement(TMacroOperator op, int p)
-      : str(static_cast<char>(op)), pri(p), type(tpOpe), jump(0) {}
+      : str(static_cast<char>(op)), pri(p), type(TType::Ope), jump(0) {}
 
   bool iseof() const { return(pri == prEOF); }
   bool isSystemVar() const {
-    if (type != tpVar) { return false; }
+    if (type != TType::Var) { return false; }
     return AnsiPos("/" + str + "/",
         "/Col/Row/Right/Bottom/SelLeft/SelTop/SelRight/SelBottom/") > 0;
   }
 };
 //---------------------------------------------------------------------------
-static const CMCElement CMCEOF = CMCElement("", prEOF, tpStructure, 0);
+static const CMCElement CMCEOF = CMCElement("", prEOF, TType::Structure, 0);
 //---------------------------------------------------------------------------
 CMCElement::CMCElement(const String& s) {
-  str = s; pri = 100; type = tpVar; jump = 0;
+  str = s; pri = prElement; type = TType::Var; jump = 0;
   if (s == ";") {
-    pri = 0; type = tpStructure;
+    pri = 0; type = TType::Structure;
   } else if (s == ",") {
-    pri = 2; type = tpStructure;
+    pri = 2; type = TType::Structure;
   } else if (s == "(" || s == ")" || s == "{" || s == "}") {
-    pri = 1; type = tpStructure;
+    pri = 1; type = TType::Structure;
   } else if (s == "[" || s == "]") {
-    pri = 60; type = tpStructure;
+    pri = 60; type = TType::Structure;
   } else if (s == "." || s == "::") {
-    pri = 60; type = tpOpe;
+    pri = 60; type = TType::Ope;
   } else if (s == "++" || s == "--" || s == "!") {
-    pri = 50; type = tpOpe;
+    pri = 50; type = TType::Ope;
   } else if (s == "^") {
-    pri = 40; type = tpOpe;
+    pri = 40; type = TType::Ope;
   } else if (s == "*" || s == "/" || s == "%") {
-    pri = 30; type = tpOpe;
+    pri = 30; type = TType::Ope;
   } else if (s == "+" || s == "-") {
-    pri = 20; type = tpOpe;
+    pri = 20; type = TType::Ope;
   } else if (s == "<" || s == ">" || s == "<=" || s == ">=" || s == "=>") {
-    pri = 17; type = tpOpe;
+    pri = 17; type = TType::Ope;
   } else if (s == "==" || s == "!=") {
-    pri = 15; type = tpOpe;
+    pri = 15; type = TType::Ope;
   } else if (s == "&&" || s == "&") {
-    pri = 13; type = tpOpe;
+    pri = 13; type = TType::Ope;
   } else if (s == "||" || s == "|") {
-    pri = 12; type = tpOpe;
+    pri = 12; type = TType::Ope;
   } else if (s == "?") {
-    pri = 11; type = tpOpe;
+    pri = 11; type = TType::Ope;
   } else if (s == "=" || s == ":" || (s.Length() == 2 && s[2] == '=')) {
-    pri = 10; type = tpOpe;
+    pri = 10; type = TType::Ope;
   } else if (s.Length() > 0 && s[1] == '.') {
-    type = tpDouble;
+    type = TType::Double;
   } else if (s.Length() > 0 && s[1] >= '0' && s[1] <= '9') {
-    if (s.Pos(".") > 0) { type = tpDouble; } else { type = tpInteger; }
+    type = (s.Pos(".") > 0) ? TType::Double : TType::Integer;
   }
 }
 //---------------------------------------------------------------------------
@@ -309,14 +298,14 @@ inline bool IsAlphaNumChar(wchar_t c) {
   return IsAlphaChar(c) || IsNumChar(c);
 }
 inline bool IsUnaryOpeExpected(const CMCElement& last) {
-  return last.type == tpOpe
-      || (last.type == tpStructure && last.str != ")" && last.str != "]")
-      || (last.type == tpFunc && last.str == "return");
+  return last.type == TType::Ope ||
+      (last.type == TType::Structure && last.str != ")" && last.str != "]") ||
+      (last.type == TType::Func && last.str == "return");
 }
 inline bool IsVarDeclaration(const CMCElement& e, const CMCElement& next) {
-  return e.type == tpVar
-      && (e.str == "const" || e.str == "let" || e.str == "var")
-      && next.type == tpVar;
+  return e.type == TType::Var &&
+      (e.str == "const" || e.str == "let" || e.str == "var") &&
+      next.type == TType::Var;
 }
 //---------------------------------------------------------------------------
 CMCElement TTokenizer::GetR()
@@ -332,8 +321,8 @@ CMCElement TTokenizer::GetR()
     throw CMCException(String(L"不正な文字です：") + c);
   }
 
-  if (c == DBLQUOTE || c == QUOTE) {
-    return CMCElement(GetString(c), prElement, tpString);
+  if (c == '\"' || c == '\'') {
+    return CMCElement(GetString(c), prElement, TType::String);
   }
   bool isUnaryOpeExpected = IsUnaryOpeExpected(elements.size() == 0 ?
                                                last : elements.back());
@@ -346,9 +335,9 @@ CMCElement TTokenizer::GetR()
       if (c == '.') IsDouble = true;
     }
     if (s == "...") {
-      return CMCElement(s, prElement, tpOpe);
+      return CMCElement(s, prElement, TType::Ope);
     }
-    return CMCElement(s, prElement, (IsDouble ? tpDouble : tpInteger));
+    return CMCElement(s, prElement, IsDouble ? TType::Double : TType::Integer);
   }
   if (IsAlphaChar(c)) {
     String s = c;
@@ -360,11 +349,11 @@ CMCElement TTokenizer::GetR()
       if (!Read(&c)) { break; }
     }
     if (s == "function" || s == "return") {
-      return CMCElement(s, prElement, tpFunc);
+      return CMCElement(s, prElement, TType::Func);
     } else if (s == "in" && !isUnaryOpeExpected) {
       return CMCElement(TMacroOperator::In, 17);
     }
-    return CMCElement(s, prElement, (Peek() == '(') ? tpFunc : tpVar);
+    return CMCElement(s, prElement, (Peek() == '(') ? TType::Func : TType::Var);
   }
 
   String s1 = c;
@@ -393,7 +382,7 @@ CMCElement TTokenizer::GetR()
     Read(&c);
     elm = CMCElement(s2);
   }
-  if (elm.type == tpStructure) {
+  if (elm.type == TType::Structure) {
     return elm;
   }
   if (isUnaryOpeExpected) {
@@ -404,7 +393,7 @@ CMCElement TTokenizer::GetR()
     } else if (s1 == "+") {
       return GetR();
     } else if (s1 == "/") {
-      return CMCElement(GetRegExp(), prElement, tpRegExp);
+      return CMCElement(GetRegExp(), prElement, TType::RegExp);
     } else {
       throw CMCException(L"演算子の位置が不正です：" + elm.str);
     }
@@ -420,41 +409,41 @@ CMCElement TTokenizer::Get() {
     elements.pop_front();
   }
 
-  if (last.type != tpVar) {
+  if (last.type != TType::Var) {
     return last;
   }
 
   if (last.str.LowerCase() == "true") {
-    last = CMCElement("1", prElement, tpInteger);
+    last = CMCElement("1", prElement, TType::Integer);
   } else if (last.str.LowerCase() == "false" ||
       last.str.LowerCase() == "null") {
-    last = CMCElement("0", prElement, tpInteger);
+    last = CMCElement("0", prElement, TType::Integer);
   } else if (last.str == "MB_ABORTRETRYIGNORE") {
-    last = CMCElement(MB_ABORTRETRYIGNORE, prElement, tpInteger);
+    last = CMCElement(MB_ABORTRETRYIGNORE, prElement, TType::Integer);
   } else if (last.str == "MB_OK") {
-    last = CMCElement(MB_OK, prElement, tpInteger);
+    last = CMCElement(MB_OK, prElement, TType::Integer);
   } else if (last.str == "MB_OKCANCEL") {
-    last = CMCElement(MB_OKCANCEL, prElement, tpInteger);
+    last = CMCElement(MB_OKCANCEL, prElement, TType::Integer);
   } else if (last.str == "MB_RETRYCANCEL") {
-    last = CMCElement(MB_RETRYCANCEL, prElement, tpInteger);
+    last = CMCElement(MB_RETRYCANCEL, prElement, TType::Integer);
   } else if (last.str == "MB_YESNO") {
-    last = CMCElement(MB_YESNO, prElement, tpInteger);
+    last = CMCElement(MB_YESNO, prElement, TType::Integer);
   } else if (last.str == "MB_YESNOCANCEL") {
-    last = CMCElement(MB_YESNOCANCEL, prElement, tpInteger);
+    last = CMCElement(MB_YESNOCANCEL, prElement, TType::Integer);
   } else if (last.str == "IDABORT") {
-    last = CMCElement(IDABORT, prElement, tpInteger);
+    last = CMCElement(IDABORT, prElement, TType::Integer);
   } else if (last.str == "IDCANCEL") {
-    last = CMCElement(IDCANCEL, prElement, tpInteger);
+    last = CMCElement(IDCANCEL, prElement, TType::Integer);
   } else if (last.str == "IDIGNORE") {
-    last = CMCElement(IDIGNORE, prElement, tpInteger);
+    last = CMCElement(IDIGNORE, prElement, TType::Integer);
   } else if (last.str == "IDNO") {
-    last = CMCElement(IDNO, prElement, tpInteger);
+    last = CMCElement(IDNO, prElement, TType::Integer);
   } else if (last.str == "IDOK") {
-    last = CMCElement(IDOK, prElement, tpInteger);
+    last = CMCElement(IDOK, prElement, TType::Integer);
   } else if (last.str == "IDRETRY") {
-    last = CMCElement(IDRETRY, prElement, tpInteger);
+    last = CMCElement(IDRETRY, prElement, TType::Integer);
   } else if (last.str == "IDYES") {
-    last = CMCElement(IDYES, prElement, tpInteger);
+    last = CMCElement(IDYES, prElement, TType::Integer);
   }
 
   return last;
@@ -486,7 +475,7 @@ private:
   int DummyIdentifier;
 
   void Output(CMCElement e);
-  void Output(const String& str, char type);
+  void Output(const String& str, TType type);
   void OutputInteger(int value);
   void OutputOperator(TMacroOperator op);
   int OutputPositionPlaceholder();
@@ -514,9 +503,9 @@ private:
   String MaybeAddLibToLibName(const String& libName);
 
   bool IsKnownVariable(const CMCElement& e) const {
-    return e.type == tpVar
-        && (e.isSystemVar() || Variables.count(e.str) > 0 ||
-            CapturableVariables.count(e.str) > 0);
+    return e.type == TType::Var &&
+        (e.isSystemVar() || Variables.count(e.str) > 0 ||
+         CapturableVariables.count(e.str) > 0);
   }
 
 public:
@@ -587,12 +576,12 @@ void TCompiler::GetFor()
   lex->Get(); // '('
   int continuePosition;
 
-  if (IsVarDeclaration(lex->GetNext(0), lex->GetNext(1))
-      && lex->GetNext(2).type == tpVar && lex->GetNext(2).str == "of") {
+  if (IsVarDeclaration(lex->GetNext(0), lex->GetNext(1)) &&
+      lex->GetNext(2).type == TType::Var && lex->GetNext(2).str == "of") {
     lex->Get();
   }
-  if (lex->GetNext(0).type == tpVar
-      && lex->GetNext(1).type == tpVar && lex->GetNext(1).str == "of") {
+  if (lex->GetNext(0).type == TType::Var &&
+      lex->GetNext(1).type == TType::Var && lex->GetNext(1).str == "of") {
     CMCElement var = lex->Get();
     if (!IsKnownVariable(var)) {
       Variables.insert(var.str);
@@ -600,33 +589,33 @@ void TCompiler::GetFor()
     lex->Get(); // of
 
     String collection = ++DummyIdentifier;
-    Output(collection, tpVar);
+    Output(collection, TType::Var);
     GetValues(')');
-    Output("=", tpOpe);
+    Output("=", TType::Ope);
 
     String index = ++DummyIdentifier;
-    Output(index, tpVar);
+    Output(index, TType::Var);
     OutputInteger(0);
-    Output("=", tpOpe);
+    Output("=", TType::Ope);
     int nextPosition = fout.Size();
 
-    Output(index, tpVar);
-    Output(collection, tpVar);
-    Output("length", tpString);
-    Output(".", tpOpe);
-    Output("<", tpOpe);
+    Output(index, TType::Var);
+    Output(collection, TType::Var);
+    Output("length", TType::String);
+    Output(".", TType::Ope);
+    Output("<", TType::Ope);
     breaks.push_back(OutputPositionPlaceholder());
     OutputOperator(TMacroOperator::IfThen);
 
     Output(var);
-    Output(collection, tpVar);
-    Output(index, tpVar);
-    Output(".", tpOpe);
-    Output("=", tpOpe);
+    Output(collection, TType::Var);
+    Output(index, TType::Var);
+    Output(".", TType::Ope);
+    Output("=", TType::Ope);
     GetSentence(';'); // Loop body
     continuePosition = fout.Size();
 
-    Output(index, tpVar);
+    Output(index, TType::Var);
     OutputOperator(TMacroOperator::Inc);
 
     OutputInteger(nextPosition);
@@ -671,7 +660,7 @@ void TCompiler::GetLegacyFor()
 
   Output(var);
   OutputInteger(1);
-  Output("=", tpOpe);
+  Output("=", TType::Ope);
   int nextPosition = fout.Size();
 
   Output(var);
@@ -736,7 +725,7 @@ String TCompiler::GetFunction(FunctionType functionType,
         varArg = true;
         e = lex->Get();
       }
-      if (e.type != tpVar) {
+      if (e.type != TType::Var) {
         throw CMCException(L"引数名が不正です：" + e.str);
       }
       if (e.isSystemVar() || Variables.count(e.str) > 0) {
@@ -769,7 +758,7 @@ String TCompiler::GetFunction(FunctionType functionType,
     OutputOperator(TMacroOperator::VarArg);
   }
   for (int i = 0; i < parameters.size(); i++) {
-    Output(parameters[i], tpVar);
+    Output(parameters[i], TType::Var);
   }
   bool funcEqual = false;
   String outName = GetMacroModuleName(
@@ -793,7 +782,7 @@ String TCompiler::GetFunction(FunctionType functionType,
   }
 
   wchar_t paramCount = parameters.size() * 2;
-  Output(String(paramCount) + "func=", tpFunc);
+  Output(String(paramCount) + "func=", TType::Func);
 
   if (functionType != LAMBDA) {
     // Ok to use these pre-defined variables.
@@ -840,22 +829,22 @@ void TCompiler::GetLambda(const String& paramName)
 
   String functionName = GetFunction(LAMBDA, paramName);
   if (CapturedVariables.empty()) {
-    Output(functionName, tpString);
+    Output(functionName, TType::String);
   } else {
-    Output(String(L'\0') + L"{}", tpFunc);
-    Output("", tpString);
-    Output(functionName, tpString);
+    Output(String(L'\0') + L"{}", TType::Func);
+    Output("", TType::String);
+    Output(functionName, TType::String);
     OutputOperator(TMacroOperator::ObjKey);
 
     for (const String& name : CapturedVariables) {
-      Output(name, tpString);
+      Output(name, TType::String);
       if (Variables.count(name) == 0) {
-        Output("this", tpVar);
-        Output(name, tpString);
-        Output(".", tpOpe);
+        Output("this", TType::Var);
+        Output(name, TType::String);
+        Output(".", TType::Ope);
         orgCapturedVariables.insert(name);
       } else {
-        Output(name, tpVar);
+        Output(name, TType::Var);
       }
       OutputOperator(TMacroOperator::ObjKey);
     }
@@ -879,68 +868,90 @@ void TCompiler::GetCell()
 //---------------------------------------------------------------------------
 void TCompiler::Output(CMCElement e)
 {
-  if (e.type != tpStructure) {
-    Output(e.str, e.isSystemVar() ? '!' : e.type);
+  if (e.isSystemVar()) {
+    fout.WriteType(TByteCodeType::SystemVar);
+    fout.WriteString(e.str);
+  } else if (e.type != TType::Structure) {
+    Output(e.str, e.type);
   } else if (e.jump != 0) {
     FillPositionPlaceholder(e.jump);
   }
 }
 //---------------------------------------------------------------------------
-void TCompiler::Output(const String& str, char type) {
-  if (type == tpRegExp) {
-    int p = str.LastDelimiter("/");
-    Output(str.SubString(2, p - 2), tpString);
-    Output(str.SubString(p + 1, str.Length()), tpString);
-    Output("\x02RegExp", tpFunc);
-    return;
-  }
-
-  fout.WriteChar(type);
+void TCompiler::Output(const String& str, TType type) {
   switch (type) {
-    case '$': case '*': case '~': case '!': {
+    case TType::String: {
+      fout.WriteType(TByteCodeType::String);
       fout.WriteString(str);
       break;
     }
-    case '-': {
+    case TType::Func: {
+      fout.WriteType(TByteCodeType::Func);
+      fout.WriteString(str);
+      break;
+    }
+    case TType::Var: {
+      fout.WriteType(TByteCodeType::Var);
+      fout.WriteString(str);
+      break;
+    }
+    case TType::Ope: {
       AnsiString ansiStr = str;
       if (ansiStr.Length() == 1) {
-        fout.WriteChar(ansiStr[1]);
+        fout.WriteType(TByteCodeType::Ope);
+        fout.WriteOperator(static_cast<TMacroOperator>(ansiStr[1]));
       } else {
         TMacroOperator c = ToOperator(str);
         if (c == TMacroOperator::Unknown) {
           throw CMCException(L"サポートされていない演算子です：" + str);
         } else {
-          fout.WriteChar(static_cast<char>(c));
+          fout.WriteType(TByteCodeType::Ope);
+          fout.WriteOperator(c);
         }
       }
       break;
     }
-    case 'i': {
+    case TType::Integer: {
+      fout.WriteType(TByteCodeType::Integer);
       fout.WriteInteger(str.ToInt());
       break;
     }
-    case 'd': {
+    case TType::Double: {
+      fout.WriteType(TByteCodeType::Double);
       fout.WriteDouble(str.ToDouble());
       break;
+    }
+    case TType::RegExp: {
+      int p = str.LastDelimiter("/");
+      fout.WriteType(TByteCodeType::String);
+      fout.WriteString(str.SubString(2, p - 2));
+      fout.WriteType(TByteCodeType::String);
+      fout.WriteString(str.SubString(p + 1, str.Length()));
+      fout.WriteType(TByteCodeType::Func);
+      fout.WriteString("\x02RegExp");
+      break;
+    }
+    case TType::Structure: {
+      throw CMCException(L"Cannot output Structure element: " + str);
     }
   }
 }
 //---------------------------------------------------------------------------
 void TCompiler::OutputInteger(int value)
 {
-  fout.WriteChar('i');
+  fout.WriteType(TByteCodeType::Integer);
   fout.WriteInteger(value);
 }
 //---------------------------------------------------------------------------
 void TCompiler::OutputOperator(TMacroOperator op)
 {
-  fout.WriteChar('-');
-  fout.WriteChar(static_cast<char>(op));
+  fout.WriteType(TByteCodeType::Ope);
+  fout.WriteOperator(op);
 }
 //---------------------------------------------------------------------------
 int TCompiler::OutputPositionPlaceholder()
 {
-  fout.WriteChar('i');
+  fout.WriteType(TByteCodeType::Integer);
   int position = fout.Size();
   fout.WriteInteger(0);
   return position;
@@ -985,11 +996,11 @@ void TCompiler::PushAll(std::deque<CMCElement> *L)
 String TCompiler::GetObject()
 {
   String constructor = "";
-  Output(String(L'\0') + L"{}", tpFunc);
+  Output(String(L'\0') + L"{}", TType::Func);
   while (true) {
     CMCElement key = lex->Get();
-    if (key.type == tpVar || key.type == tpString || key.type == tpInteger ||
-        key.type == tpDouble) {
+    if (key.type == TType::Var || key.type == TType::String ||
+        key.type == TType::Integer || key.type == TType::Double) {
       CMCElement colon = lex->Get();
       if (colon.str != ":") {
         throw CMCException(
@@ -1001,10 +1012,10 @@ String TCompiler::GetObject()
       if (!inBlock) {
         return constructor;
       }
-    } else if (key.type == tpFunc) {
-      Output(key.str, tpVar);
+    } else if (key.type == TType::Func) {
+      Output(key.str, TType::Var);
       String functionName = GetFunction(METHOD);
-      Output(functionName, tpString);
+      Output(functionName, TType::String);
       OutputOperator(TMacroOperator::ObjKey);
       if (lex->GetNext().str == ",") { lex->Get(); }
       if (key.str == "constructor") { constructor = functionName; }
@@ -1026,7 +1037,7 @@ void TCompiler::GetObjectKey()
   if (paramCount != 1) {
     throw CMCException(L"obj[key] 形式が正しくありません。");
   }
-  Output(".", tpOpe);
+  Output(".", TType::Ope);
 }
 //---------------------------------------------------------------------------
 void TCompiler::GetClass()
@@ -1046,7 +1057,7 @@ void TCompiler::GetClass()
   if (p > 0) {
     outName = InName + "\n" + name
         + constructor.SubString(p, constructor.Length());
-    Output(String(L'\0') + L"(constructor)", tpFunc);
+    Output(String(L'\0') + L"(constructor)", TType::Func);
   } else {
     outName = GetMacroModuleName(InName, name, 0, false);
   }
@@ -1065,7 +1076,7 @@ void TCompiler::GetImport()
   std::map<String, String> nameMap;
   while (true) {
     e = lex->Get();
-    if (e.type != tpVar) {
+    if (e.type != TType::Var) {
       throw CMCException(L"import する関数名・クラス名が不正です：" + e.str);
     }
     String originalName = e.str;
@@ -1073,7 +1084,7 @@ void TCompiler::GetImport()
     e = lex->Get();
     if (e.str == "as") {
       e = lex->Get();
-      if (e.type != tpVar) {
+      if (e.type != TType::Var) {
         throw CMCException(L"import の別名が不正です：" + e.str);
       }
       aliasName = e.str;
@@ -1090,7 +1101,7 @@ void TCompiler::GetImport()
     throw CMCException(L"import 文に from が必要です：" + e.str);
   }
   e = lex->Get();
-  if (e.type != tpString) {
+  if (e.type != TType::String) {
     throw CMCException(L"import するファイル名が不正です：" + e.str);
   }
   String libName = e.str;
@@ -1115,22 +1126,22 @@ bool IsLambda(TTokenizer *lex)
 {
   CMCElement next0 = lex->GetNext(0);
   CMCElement next1 = lex->GetNext(1);
-  if (next0.type == tpStructure && next0.str == ")" &&
-      next1.type == tpOpe && next1.str == "=>") {
+  if (next0.type == TType::Structure && next0.str == ")" &&
+      next1.type == TType::Ope && next1.str == "=>") {
     return true;
   }
-  if (next0.type == tpVar) {
-    if ((next1.type == tpStructure && next1.str == ",") ||
-        (next1.type == tpOpe && next1.str == "=")) {
+  if (next0.type == TType::Var) {
+    if ((next1.type == TType::Structure && next1.str == ",") ||
+        (next1.type == TType::Ope && next1.str == "=")) {
       return true;
     }
     CMCElement next2 = lex->GetNext(2);
-    if (next1.type == tpStructure && next1.str == ")" &&
-        next2.type == tpOpe && next2.str == "=>") {
+    if (next1.type == TType::Structure && next1.str == ")" &&
+        next2.type == TType::Ope && next2.str == "=>") {
       return true;
     }
   }
-  if (next0.type == tpOpe && next0.str == "...") {
+  if (next0.type == TType::Ope && next0.str == "...") {
     return true;
   }
   return false;
@@ -1138,16 +1149,15 @@ bool IsLambda(TTokenizer *lex)
 //---------------------------------------------------------------------------
 bool TCompiler::GetSentence(char EOS, bool allowBlock, char *paramCount)
 {
-  CMCElement e;
   char params = 1;
-
   bool firstloop = true;
   std::deque<CMCElement> ls;
   while (true) {
     if (EOS == LAMBDA_EOS) {
-      e = lex->GetNext();
-      if (e.type == tpStructure && (e.str == ',' || e.str == ';' ||
-          e.str == ')' || e.str == ']' || e.str == '}')) {
+      CMCElement next = lex->GetNext();
+      if (next.type == TType::Structure &&
+          (next.str == ',' || next.str == ';' || next.str == ')' ||
+           next.str == ']' || next.str == '}')) {
         PushAll(&ls);
         if (paramCount) {
           *paramCount = firstloop ? 0 : params;
@@ -1156,11 +1166,11 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *paramCount)
       }
     }
 
-    e = lex->Get();
+    CMCElement e = lex->Get();
     if (e.iseof()) {
       PushAll(&ls);
       return false;
-    } else if (e.type == tpStructure) {
+    } else if (e.type == TType::Structure) {
       char c = e.str[1];
 
       switch (c) {
@@ -1220,8 +1230,8 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *paramCount)
       case '[':
         if (ls.size() > 0) {
           const CMCElement& prev = ls.back();
-          if (prev.type == tpVar || prev.type == tpFunc ||
-              prev.type == tpString || prev.str == '[') {
+          if (prev.type == TType::Var || prev.type == TType::Func ||
+              prev.type == TType::String || prev.str == '[') {
             Push(e, &ls);
             GetObjectKey();
             break;
@@ -1230,13 +1240,13 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *paramCount)
         GetCell();
         break;
       }
-    } else if (e.type == tpFunc) {
+    } else if (e.type == TType::Func) {
       if (e.str == "function") {
         String funcName = GetFunction(FUNCTION);
         if (firstloop && allowBlock) {
           return true;
         }
-        Push(CMCElement(funcName, prElement, tpString), &ls);
+        Push(CMCElement(funcName, prElement, TType::String), &ls);
       } else if (AnsiPos("/" + e.str + "/", "/if/while/for/return/") > 0) {
         if (!firstloop) {
           throw CMCException(e.str + L" の前に ; が必要です。");
@@ -1251,9 +1261,10 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *paramCount)
           GetReturn(';');
         }
         return true;
-      } else if (firstloop && e.str == "For" && lex->GetNext(1).type == tpVar
-          && lex->GetNext(2).type == tpVar
-          && lex->GetNext(2).str.LowerCase() == "to") {
+      } else if (firstloop && e.str == "For" &&
+          lex->GetNext(1).type == TType::Var &&
+          lex->GetNext(2).type == TType::Var &&
+          lex->GetNext(2).str.LowerCase() == "to") {
         GetLegacyFor();
         return true;
       } else {
@@ -1263,12 +1274,12 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *paramCount)
                              && (ls.size() == 0 || ls.back().str != "."));
         if (isLambdaCall) {
           if (Variables.count(e.str) == 0) {
-            Output("this", tpVar);
-            Output(e.str, tpString);
-            Output(".", tpOpe);
+            Output("this", TType::Var);
+            Output(e.str, TType::String);
+            Output(".", TType::Ope);
             CapturedVariables.insert(e.str);
           } else {
-            Output(e.str, tpVar);
+            Output(e.str, TType::Var);
           }
         }
         char paramCount;
@@ -1290,14 +1301,14 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *paramCount)
               isLambdaCall ? String(++paramCount) + ">" : String(paramCount);
           String funcName = ImportedFunctions.count(e.str) > 0
                           ? "$" + ImportedFunctions[e.str] : e.str;
-          e = CMCElement(prefix + funcName, prElement, tpFunc);
+          e = CMCElement(prefix + funcName, prElement, TType::Func);
         }
         Push(e, &ls);
       }
-    } else if (e.type == tpVar) {
+    } else if (e.type == TType::Var) {
       bool isUndefined = !IsKnownVariable(e);
       if (ls.size() > 0 && ls.back().str == ".") {
-        Push(CMCElement(e.str, prElement, tpString), &ls);
+        Push(CMCElement(e.str, prElement, TType::String), &ls);
       } else if (lex->GetNext().str == "." && isUndefined) {
         lex->Get(); // "."
         CMCElement f = lex->Get();
@@ -1313,7 +1324,7 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *paramCount)
         }
         String internalName =
             String(paramCount) + L"$" + libName + L"\n" + f.str;
-        Push(CMCElement(internalName, prElement, tpFunc), &ls);
+        Push(CMCElement(internalName, prElement, TType::Func), &ls);
       } else if (IsVarDeclaration(e, lex->GetNext())) {
         bool isConst = (e.str == "const");
         e = lex->Get();
@@ -1341,7 +1352,7 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *paramCount)
         }
         Continues->push_back(OutputPositionPlaceholder());
         OutputOperator(TMacroOperator::Goto);
-      } else if (e.str == "class" && lex->GetNext().type == tpVar) {
+      } else if (e.str == "class" && lex->GetNext().type == TType::Var) {
         if (!firstloop) {
           throw CMCException(e.str + L" 宣言の前に ; が必要です。");
         }
@@ -1353,13 +1364,14 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *paramCount)
         }
         GetImport();
         return true;
-      } else if (e.str == "new"
-          && (lex->GetNext().type == tpFunc || lex->GetNext().type == tpVar)) {
+      } else if (e.str == "new" &&
+          (lex->GetNext().type == TType::Func ||
+           lex->GetNext().type == TType::Var)) {
         // Ignore.
       } else if (lex->GetNext().str == "=>") {
         GetLambda(e.str);
-      } else if (lex->GetNext().type != tpStructure
-                 && lex->GetNext().type != tpOpe) {
+      } else if (lex->GetNext().type != TType::Structure &&
+          lex->GetNext().type != TType::Ope) {
         throw CMCException(e.str + L" と " + lex->GetNext().str
             + L" の間に演算子が必要です。");
       } else {
@@ -1377,14 +1389,14 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *paramCount)
           }
         } else if (Variables.count(e.str) == 0 &&
                    CapturableVariables.count(e.str) > 0) {
-          Push(CMCElement("this", prElement, tpVar), &ls);
+          Push(CMCElement("this", prElement, TType::Var), &ls);
           Push(CMCElement("."), &ls);
           CapturedVariables.insert(e.str);
-          e.type = tpString;
+          e.type = TType::String;
         }
         Push(e, &ls);
       }
-    } else if (e.type == tpOpe) {
+    } else if (e.type == TType::Ope) {
       if (e.str == "::") {
         CMCElement f = lex->Get();
         if (lex->GetNext().str != "(") {
@@ -1393,22 +1405,23 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *paramCount)
         lex->Get(); // "("
         char paramCount;
         GetValues(')', &paramCount);
-        Push(CMCElement(String(paramCount) + f.str, prElement, tpFunc), &ls);
+        Push(CMCElement(String(paramCount) + f.str, prElement, TType::Func),
+            &ls);
       } else if (e.str == "&&" || e.str == "||" || e.str == "&" ||
                  e.str == "|") {
-        Push(CMCElement("", e.pri, tpStructure), &ls);
+        Push(CMCElement("", e.pri, TType::Structure), &ls);
         int jump = OutputPositionPlaceholder();
         Output(e);
-        Push(CMCElement("", e.pri, tpStructure, jump), &ls);
+        Push(CMCElement("", e.pri, TType::Structure, jump), &ls);
       } else if (e.str == "?") {
-        Push(CMCElement("", e.pri, tpStructure), &ls);
+        Push(CMCElement("", e.pri, TType::Structure), &ls);
         int jumpFalse = OutputPositionPlaceholder();
         Output(e);
         GetValues(':');
         int jumpTrue = OutputPositionPlaceholder();
         OutputOperator(TMacroOperator::Jump);
         FillPositionPlaceholder(jumpFalse);
-        Push(CMCElement("", e.pri, tpStructure, jumpTrue), &ls);
+        Push(CMCElement("", e.pri, TType::Structure, jumpTrue), &ls);
       } else if (e.str == ":") {
         PushAll(&ls);
         if (EOS != ':') {
@@ -1419,7 +1432,8 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *paramCount)
         Push(e, &ls);
       }
     } else {
-      if (lex->GetNext().type != tpStructure && lex->GetNext().type != tpOpe) {
+      if (lex->GetNext().type != TType::Structure &&
+          lex->GetNext().type != TType::Ope) {
         throw CMCException(e.str + L" と " + lex->GetNext().str
             + L" の間に演算子が必要です。");
       }
