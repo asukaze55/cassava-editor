@@ -712,7 +712,6 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
     funcEqual = true;
   }
 
-  Context->Modules[outName] = fout;
   wchar_t H = parameters->Count * 2;
   Output((String)H + "func=", tpFunc);
 
@@ -732,6 +731,7 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
 
   delete Variables;
   delete Constants;
+  Context->Modules[outName] = fout;
   fout = orgFOut;
   Variables = orgVariables;
   Constants = orgConstants;
