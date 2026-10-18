@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+Ôªø//---------------------------------------------------------------------------
 #ifndef OptionViewH
 #define OptionViewH
 //---------------------------------------------------------------------------
@@ -8,9 +8,11 @@
 #include <Forms.hpp>
 #include <ComCtrls.hpp>
 //---------------------------------------------------------------------------
+class TfmOption;
+//---------------------------------------------------------------------------
 class TfrOptionView : public TFrame
 {
-__published:	// IDE ä«óùÇÃÉRÉìÉ|Å[ÉlÉìÉg
+__published:	// IDE ÁÆ°ÁêÜ„ÅÆ„Ç≥„É≥„Éù„Éº„Éç„É≥„Éà
   TGroupBox *gbView;
   TCheckBox *cbWordWrap;
   TCheckBox *cbNumAlignRight;
@@ -54,13 +56,12 @@ __published:	// IDE ä«óùÇÃÉRÉìÉ|Å[ÉlÉìÉg
   TUpDown *udToolBarSize;
   TLabel *lblToolBarSizePx;
   void __fastcall btnFontClick(TObject *Sender);
-private:	// ÉÜÅ[ÉUÅ[êÈåæ
-public:		// ÉÜÅ[ÉUÅ[êÈåæ
-  __fastcall TfrOptionView(TComponent* Owner);
+private:	// „É¶„Éº„Ç∂„ÉºÂÆ£Ë®Ä
+  TfmOption *fmOption;
+public:		// „É¶„Éº„Ç∂„ÉºÂÆ£Ë®Ä
+  __fastcall TfrOptionView(TfmOption* Owner);
   void RestoreFromMainForm();
   void StoreToMainForm();
 };
-//---------------------------------------------------------------------------
-extern PACKAGE TfrOptionView *frOptionView;
 //---------------------------------------------------------------------------
 #endif

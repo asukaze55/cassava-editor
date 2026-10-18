@@ -1,15 +1,15 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 #include <vcl.h>
-#include <registry.hpp>
+#include "MainForm.h"
 #pragma hdrstop
 
+#include <registry.hpp>
+
 #include "OptionFile.h"
-#include "MainForm.h"
 #include "OptionLaunch.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TfrOptionFile *frOptionFile;
 //---------------------------------------------------------------------------
 __fastcall TfrOptionFile::TfrOptionFile(TComponent* Owner)
     : TFrame(Owner)
@@ -23,7 +23,7 @@ void TfrOptionFile::RestoreFromMainForm()
       (fmMain->EncodingDetector.DefaultEncoding->CodePage == CODE_PAGE_UTF8);
   cbNewWindow->Checked = fmMain->MakeNewWindow;
   cbTitleFullPath->Checked = fmMain->TitleFullPath;
-  cbLockFile->ItemIndex = fmMain->LockFile;
+  cbLockFile->ItemIndex = static_cast<int>(fmMain->LockFileMode);
   cbCheckTimeStamp->Checked = fmMain->CheckTimeStamp;
 }
 //---------------------------------------------------------------------------
@@ -34,7 +34,7 @@ void TfrOptionFile::StoreToMainForm()
       ? TEncoding::UTF8 : TEncoding::GetEncoding(CODE_PAGE_SJIS);
   fmMain->MakeNewWindow = cbNewWindow->Checked;
   fmMain->TitleFullPath = cbTitleFullPath->Checked;
-  fmMain->LockFile = cbLockFile->ItemIndex;
+  fmMain->LockFileMode = static_cast<TLockFileMode>(cbLockFile->ItemIndex);
   fmMain->CheckTimeStamp = cbCheckTimeStamp->Checked;
 }
 //---------------------------------------------------------------------------

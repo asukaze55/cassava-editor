@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 #ifndef EncodingDetectorH
 #define EncodingDetectorH
 //---------------------------------------------------------------------------
@@ -29,7 +29,7 @@ public:
   TEncoding *DefaultEncoding;
 
   TEncodingDetector() : Enabled(true), DefaultEncoding(TEncoding::UTF8) {}
-  TEncoding *Detect(String fileName);
+  TEncoding *Detect(const String& fileName);
 };
 //---------------------------------------------------------------------------
 TEncoding *ToEncoding(int charCode);

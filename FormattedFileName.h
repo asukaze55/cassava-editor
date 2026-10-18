@@ -1,7 +1,7 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 #ifndef FormattedFileNameH
 #define FormattedFileNameH
 //---------------------------------------------------------------------------
-String FormattedFileName(String Format, String BaseFileName);
+String FormattedFileName(const String& Format, const String& BaseFileName);
 //---------------------------------------------------------------------------
 #endif

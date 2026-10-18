@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+Ôªø//---------------------------------------------------------------------------
 
 #ifndef OptionH
 #define OptionH
@@ -11,10 +11,18 @@
 #include <ExtCtrls.hpp>
 #include <Buttons.hpp>
 #include <Vcl.Menus.hpp>
+
+#include "OptionBackUp.h"
+#include "OptionBehavior.h"
+#include "OptionColor.h"
+#include "OptionDataFormat.h"
+#include "OptionFile.h"
+#include "OptionLaunch.h"
+#include "OptionView.h"
 //---------------------------------------------------------------------------
 class TfmOption : public TForm
 {
-__published:  // IDE ä«óùÇÃÉRÉìÉ|Å[ÉlÉìÉg
+__published:  // IDE ÁÆ°ÁêÜ„ÅÆ„Ç≥„É≥„Éù„Éº„Éç„É≥„Éà
   TTreeView *tvCategory;
   TPanel *pnlClient;
   TPanel *pnlBottom;
@@ -34,10 +42,16 @@ __published:  // IDE ä«óùÇÃÉRÉìÉ|Å[ÉlÉìÉg
       TShiftState Shift, int X, int Y);
   void __fastcall mnApplyToCurrentFileClick(TObject *Sender);
   void __fastcall mnDeleteClick(TObject *Sender);
-private:  // ÉÜÅ[ÉUÅ[êÈåæ
-public:   // ÉÜÅ[ÉUÅ[êÈåæ
+private:  // „É¶„Éº„Ç∂„ÉºÂÆ£Ë®Ä
+public:   // „É¶„Éº„Ç∂„ÉºÂÆ£Ë®Ä
   __fastcall TfmOption(TComponent* Owner);
-  __fastcall ~TfmOption();
+  TfrOptionDataFormat *frOptionDataFormat;
+  TfrOptionFile *frOptionFile;
+  TfrOptionBackUp *frOptionBackUp;
+  TfrOptionLaunch *frOptionLaunch;
+  TfrOptionBehavior *frOptionBehavior;
+  TfrOptionView *frOptionView;
+  TfrOptionColor *frOptionColor;
   TTreeNode *tnDataFormat;
   TTreeNode *tnFile;
   TTreeNode *tnBackUp;
@@ -46,7 +60,5 @@ public:   // ÉÜÅ[ÉUÅ[êÈåæ
   TTreeNode *tnView;
   TTreeNode *tnColor;
 };
-//---------------------------------------------------------------------------
-extern PACKAGE TfmOption *fmOption;
 //---------------------------------------------------------------------------
 #endif

@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 #ifndef VersionH
 #define VersionH
 //---------------------------------------------------------------------------
@@ -10,7 +10,7 @@ namespace Version
   String CurrentDate();
   String CurrentText();
   bool CurrentIsBeta();
-  int Compare(String ver1, String ver2);
+  int Compare(const String& ver1, const String& ver2);
   void UpdateCheck();
 }
 //---------------------------------------------------------------------------

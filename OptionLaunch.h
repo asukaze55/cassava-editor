@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 #ifndef OptionLaunchH
 #define OptionLaunchH
 //---------------------------------------------------------------------------
@@ -14,7 +14,7 @@
 //---------------------------------------------------------------------------
 class TfrOptionLaunch : public TFrame
 {
-__published:	// IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
+__published:	// IDE ç®¡ç†ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
 	TGroupBox *gbAppli;
 	TSpeedButton *sbRefer0;
 	TSpeedButton *sbRefer1;
@@ -37,13 +37,11 @@ __published:	// IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
 	TLabel *Label2;
 	void __fastcall edLaunchChange(TObject *Sender);
 	void __fastcall sbReferClick(TObject *Sender);
-private:	// ƒ†[ƒU[éŒ¾
-public:		// ƒ†[ƒU[éŒ¾
+private:	// ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
+public:		// ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
 	__fastcall TfrOptionLaunch(TComponent* Owner);
 	void RestoreFromMainForm();
 	void StoreToMainForm();
 };
-//---------------------------------------------------------------------------
-extern PACKAGE TfrOptionLaunch *frOptionLaunch;
 //---------------------------------------------------------------------------
 #endif

@@ -1,13 +1,17 @@
-//---------------------------------------------------------------------------
+Ôªø//---------------------------------------------------------------------------
+#include <vcl.h>
+#include "MainForm.h"
+#pragma hdrstop
+
 #include <deque>
 #include <map>
-#include <vcl.h>
 #include <vector>
-#pragma hdrstop
+
 #include "Compiler.h"
-#include "MacroOpeCode.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
+//---------------------------------------------------------------------------
+namespace {
 //---------------------------------------------------------------------------
 constexpr char QUOTE = '\'';
 constexpr char DBLQUOTE = '\"';
@@ -25,8 +29,37 @@ enum CMCElementType : char {
 
 constexpr int prElement = 100;
 constexpr int prEOF = -1;
-
-static const int INT_SIZE = sizeof(int);
+//---------------------------------------------------------------------------
+TMacroOperator ToOperator(const String& str) {
+  if (str == "++") {
+    return TMacroOperator::Inc;
+  } else if(str == "--") {
+    return TMacroOperator::Dec;
+  } else if(str == "==") {
+    return TMacroOperator::Eq;
+  } else if(str == "+=") {
+    return TMacroOperator::Add;
+  } else if(str == "-=") {
+    return TMacroOperator::Subtract;
+  } else if(str == "*=") {
+    return TMacroOperator::Multiply;
+  } else if(str == "/=") {
+    return TMacroOperator::Divide;
+  } else if(str == "!=") {
+    return TMacroOperator::NEq;
+  } else if(str == "<=" || str == "=<") {
+    return TMacroOperator::LEq;
+  } else if(str == ">=" || str == "=>") {
+    return TMacroOperator::GEq;
+  } else if(str == "&&") {
+    return static_cast<TMacroOperator>('&');
+  } else if(str == "||") {
+    return static_cast<TMacroOperator>('|');
+  } else if(str == "in") {
+    return TMacroOperator::In;
+  }
+  return TMacroOperator::Unknown;
+}
 //---------------------------------------------------------------------------
 class CMCElement{
 public:
@@ -36,9 +69,11 @@ public:
   int jump;
 
   CMCElement() : str(""), pri(prEOF), type(tpStructure), jump(0) {}
-  CMCElement(String s);
-  CMCElement(String s, int p, char t, int j = 0) :
-      str(s), pri(p), type(t), jump(j) {}
+  explicit CMCElement(const String& s);
+  explicit CMCElement(const String& s, int p, char t, int j = 0)
+      : str(s), pri(p), type(t), jump(j) {}
+  explicit CMCElement(TMacroOperator op, int p)
+      : str(static_cast<char>(op)), pri(p), type(tpOpe), jump(0) {}
 
   bool iseof() const { return(pri == prEOF); }
   bool isSystemVar() const {
@@ -50,7 +85,7 @@ public:
 //---------------------------------------------------------------------------
 static const CMCElement CMCEOF = CMCElement("", prEOF, tpStructure, 0);
 //---------------------------------------------------------------------------
-CMCElement::CMCElement(String s){
+CMCElement::CMCElement(const String& s) {
   str = s; pri = 100; type = tpVar; jump = 0;
   if (s == ";") {
     pri = 0; type = tpStructure;
@@ -89,10 +124,66 @@ CMCElement::CMCElement(String s){
   }
 }
 //---------------------------------------------------------------------------
+}  // namespace
+//---------------------------------------------------------------------------
+double TByteVector::ReadDouble(size_t& Index) const {
+  double result;
+  std::memcpy(&result, Data.data() + Index, sizeof(double));
+  Index += sizeof(double);
+  return result;
+}
+//---------------------------------------------------------------------------
+int TByteVector::ReadInteger(size_t& Index) const {
+  int result;
+  std::memcpy(&result, Data.data() + Index, sizeof(int));
+  Index += sizeof(int);
+  return result;
+}
+//---------------------------------------------------------------------------
+String TByteVector::ReadString(size_t& Index) const {
+  int length = ReadInteger(Index);
+  if (length == 0) {
+    return "";
+  }
+  String value;
+  value.SetLength(length);
+  int size = length * sizeof(wchar_t);
+  std::memcpy(value.c_str(), Data.data() + Index, size);
+  Index += size;
+  return value;
+}
+//---------------------------------------------------------------------------
+void TByteVector::Write(const TByteVector& Bytes) {
+  int p = Data.size();
+  Data.resize(Data.size() + Bytes.Data.size());
+  std::memcpy(Data.data() + p, Bytes.Data.data(), Bytes.Data.size());
+}
+//---------------------------------------------------------------------------
+void TByteVector::WriteDouble(double Value) {
+  int p = Data.size();
+  Data.resize(Data.size() + sizeof(double));
+  std::memcpy(Data.data() + p, &Value, sizeof(double));
+}
+//---------------------------------------------------------------------------
+void TByteVector::WriteInteger(int Value) {
+  int p = Data.size();
+  Data.resize(Data.size() + sizeof(int));
+  std::memcpy(Data.data() + p, &Value, sizeof(int));
+}
+//---------------------------------------------------------------------------
+void TByteVector::WriteString(const String& Value) {
+  int length = Value.Length();
+  int size = length * sizeof(wchar_t);
+  int p = Data.size();
+  Data.resize(Data.size() + sizeof(int) + size);
+  std::memcpy(Data.data() + p, &length, sizeof(int));
+  std::memcpy(Data.data() + p + sizeof(int), Value.c_str(), size);
+}
+//---------------------------------------------------------------------------
 class CMCException{
 public:
   String Message;
-  CMCException(String Mes) : Message(Mes) {}
+  CMCException(const String& Mes) : Message(Mes) {}
 };
 //---------------------------------------------------------------------------
 class TTokenizer {
@@ -106,7 +197,7 @@ class TTokenizer {
   CMCElement GetR();
 public:
   int x, y;
-  TTokenizer(String src) :
+  TTokenizer(const String& src) :
       source(src), pos(0), last(CMCEOF), elements(), x(0), y(1) {}
   String GetString(wchar_t EOS);
   String GetRegExp();
@@ -141,7 +232,7 @@ wchar_t TTokenizer::ReadHex()
   } else if (c >= 'a' && c <= 'f') {
     return (c - 'a') + 10;
   }
-  throw CMCException((String)L"ÉGÉXÉPÅ[ÉvÉVÅ[ÉPÉìÉX Ç™ïsê≥Ç≈Ç∑ÅF" + c);
+  throw CMCException(String(L"„Ç®„Çπ„Ç±„Éº„Éó„Ç∑„Éº„Ç±„É≥„Çπ „Åå‰∏çÊ≠£„Åß„ÅôÔºö") + c);
 }
 //---------------------------------------------------------------------------
 wchar_t TTokenizer::Peek() const
@@ -161,7 +252,7 @@ String TTokenizer::GetString(wchar_t EOS)
     if (c == EOS) {
       return s + ansiStr;
     } else if (c == '\n') {
-      throw CMCException(L"ï∂éöóÒíËêîÇ™èIóπÇµÇƒÇ¢Ç‹ÇπÇÒÅB");
+      throw CMCException(L"ÊñáÂ≠óÂàóÂÆöÊï∞„ÅåÁµÇ‰∫Ü„Åó„Å¶„ÅÑ„Åæ„Åõ„Çì„ÄÇ");
     } else if (c == '\\') {
       Read(&c);
       if (c == 'n') {
@@ -173,7 +264,7 @@ String TTokenizer::GetString(wchar_t EOS)
       } else if (c == 'u') {
         c = ReadHex() * 4096 + ReadHex() * 256 + ReadHex() * 16 + ReadHex();
       } else if (c == 'x') {
-        ansiStr += (char)(ReadHex() * 16 + ReadHex());
+        ansiStr += static_cast<char>(ReadHex() * 16 + ReadHex());
         continue;
       }
     }
@@ -183,7 +274,7 @@ String TTokenizer::GetString(wchar_t EOS)
     }
     s += c;
   }
-  throw CMCException(L"ï∂éöóÒíËêîÇ™èIóπÇµÇƒÇ¢Ç‹ÇπÇÒÅB");
+  throw CMCException(L"ÊñáÂ≠óÂàóÂÆöÊï∞„ÅåÁµÇ‰∫Ü„Åó„Å¶„ÅÑ„Åæ„Åõ„Çì„ÄÇ");
 }
 //---------------------------------------------------------------------------
 String TTokenizer::GetRegExp()
@@ -192,7 +283,7 @@ String TTokenizer::GetRegExp()
   wchar_t c;
   while (true) {
     if (!Read(&c) || c == '\n') {
-      throw CMCException(L"ê≥ãKï\åªÉäÉeÉâÉãÇ™èIóπÇµÇƒÇ¢Ç‹ÇπÇÒÅB");
+      throw CMCException(L"Ê≠£Ë¶èË°®Áèæ„É™„ÉÜ„É©„É´„ÅåÁµÇ‰∫Ü„Åó„Å¶„ÅÑ„Åæ„Åõ„Çì„ÄÇ");
     }
     if (c == '/') {
       break;
@@ -235,10 +326,10 @@ CMCElement TTokenizer::GetR()
     if (!Read(&c)) {
       return CMCEOF;
     }
-  } while (c <= ' ' || c == L'Å@' || c == L'\ufeff');
+  } while (c <= ' ' || c == u'„ÄÄ' || c == L'\ufeff');
 
   if (c == '$' || c == '#' || c == '@' || c >= '~') {
-    throw CMCException((String)L"ïsê≥Ç»ï∂éöÇ≈Ç∑ÅF" + c);
+    throw CMCException(String(L"‰∏çÊ≠£„Å™ÊñáÂ≠ó„Åß„ÅôÔºö") + c);
   }
 
   if (c == DBLQUOTE || c == QUOTE) {
@@ -252,7 +343,7 @@ CMCElement TTokenizer::GetR()
     while (IsNumCharOrDot(Peek())) {
       Read(&c);
       s += c;
-      if(c == '.') IsDouble = true;
+      if (c == '.') IsDouble = true;
     }
     if (s == "...") {
       return CMCElement(s, prElement, tpOpe);
@@ -271,7 +362,7 @@ CMCElement TTokenizer::GetR()
     if (s == "function" || s == "return") {
       return CMCElement(s, prElement, tpFunc);
     } else if (s == "in" && !isUnaryOpeExpected) {
-      return CMCElement(CMO_In, 17, tpOpe);
+      return CMCElement(TMacroOperator::In, 17);
     }
     return CMCElement(s, prElement, (Peek() == '(') ? tpFunc : tpVar);
   }
@@ -284,7 +375,7 @@ CMCElement TTokenizer::GetR()
     }
     return CMCEOF;
   }
-  if(s2 == "/*"){
+  if (s2 == "/*") {
     wchar_t c1;
     Read(&c1); // *
     Read(&c1); // First char in the comment
@@ -309,19 +400,19 @@ CMCElement TTokenizer::GetR()
     if (s1 == "!" || s2 == "++" || s2 == "--" || s2 == "::") {
       return elm;
     } else if (s1 == "-") {
-      return CMCElement(CMO_Minus, 50, tpOpe);
+      return CMCElement(TMacroOperator::Minus, 50);
     } else if (s1 == "+") {
       return GetR();
     } else if (s1 == "/") {
       return CMCElement(GetRegExp(), prElement, tpRegExp);
     } else {
-      throw CMCException(L"ââéZéqÇÃà íuÇ™ïsê≥Ç≈Ç∑ÅF" + elm.str);
+      throw CMCException(L"ÊºîÁÆóÂ≠ê„ÅÆ‰ΩçÁΩÆ„Åå‰∏çÊ≠£„Åß„ÅôÔºö" + elm.str);
     }
   }
   return elm;
 }
 //---------------------------------------------------------------------------
-CMCElement TTokenizer::Get(){
+CMCElement TTokenizer::Get() {
   if (elements.size() == 0) {
     last = GetR();
   } else {
@@ -333,55 +424,47 @@ CMCElement TTokenizer::Get(){
     return last;
   }
 
-  if(last.str.LowerCase() == "true"){
+  if (last.str.LowerCase() == "true") {
     last = CMCElement("1", prElement, tpInteger);
-  }else if(last.str.LowerCase() == "false"
-        || last.str.LowerCase() == "null"){
+  } else if (last.str.LowerCase() == "false" ||
+      last.str.LowerCase() == "null") {
     last = CMCElement("0", prElement, tpInteger);
-
-  }else if(last.str == "MB_ABORTRETRYIGNORE"){
+  } else if (last.str == "MB_ABORTRETRYIGNORE") {
     last = CMCElement(MB_ABORTRETRYIGNORE, prElement, tpInteger);
-  }else if(last.str == "MB_OK"){
+  } else if (last.str == "MB_OK") {
     last = CMCElement(MB_OK, prElement, tpInteger);
-  }else if(last.str == "MB_OKCANCEL"){
+  } else if (last.str == "MB_OKCANCEL") {
     last = CMCElement(MB_OKCANCEL, prElement, tpInteger);
-  }else if(last.str == "MB_RETRYCANCEL"){
+  } else if (last.str == "MB_RETRYCANCEL") {
     last = CMCElement(MB_RETRYCANCEL, prElement, tpInteger);
-  }else if(last.str == "MB_YESNO"){
+  } else if (last.str == "MB_YESNO") {
     last = CMCElement(MB_YESNO, prElement, tpInteger);
-  }else if(last.str == "MB_YESNOCANCEL"){
+  } else if (last.str == "MB_YESNOCANCEL") {
     last = CMCElement(MB_YESNOCANCEL, prElement, tpInteger);
-
-  }else if(last.str == "IDABORT"){
+  } else if (last.str == "IDABORT") {
     last = CMCElement(IDABORT, prElement, tpInteger);
-  }else if(last.str == "IDCANCEL"){
+  } else if (last.str == "IDCANCEL") {
     last = CMCElement(IDCANCEL, prElement, tpInteger);
-  }else if(last.str == "IDIGNORE"){
+  } else if (last.str == "IDIGNORE") {
     last = CMCElement(IDIGNORE, prElement, tpInteger);
-  }else if(last.str == "IDNO"){
+  } else if (last.str == "IDNO") {
     last = CMCElement(IDNO, prElement, tpInteger);
-  }else if(last.str == "IDOK"){
+  } else if (last.str == "IDOK") {
     last = CMCElement(IDOK, prElement, tpInteger);
-  }else if(last.str == "IDRETRY"){
+  } else if (last.str == "IDRETRY") {
     last = CMCElement(IDRETRY, prElement, tpInteger);
-  }else if(last.str == "IDYES"){
+  } else if (last.str == "IDYES") {
     last = CMCElement(IDYES, prElement, tpInteger);
   }
 
   return last;
 }
 //---------------------------------------------------------------------------
-CMCElement TTokenizer::GetNext(size_t index){
+CMCElement TTokenizer::GetNext(size_t index) {
   while (elements.size() <= index) {
     elements.push_back(GetR());
   }
   return elements.at(index);
-}
-//---------------------------------------------------------------------------
-inline TStringList *newTStringList() {
-  TStringList *list = new TStringList();
-  list->CaseSensitive = true;
-  return list;
 }
 //---------------------------------------------------------------------------
 enum FunctionType { FUNCTION, METHOD, LAMBDA };
@@ -389,25 +472,26 @@ enum FunctionType { FUNCTION, METHOD, LAMBDA };
 class TCompiler {
 private:
   bool Fail;
-  TTokenizer *lex;
-  TStream *fout;
+  std::unique_ptr<TTokenizer> lex;
+  TByteVector fout;
   String InName;
   std::map<String, String> ImportedFunctions;
   TMacroContext *Context;
-  TStringList *Variables;
-  TStringList *Constants;
-  TStringList *CapturableVariables;
-  TStringList *CapturedVariables;
-  std::vector<__int64> *Breaks;
-  std::vector<__int64> *Continues;
+  std::set<String> Variables;
+  std::set<String> Constants;
+  std::set<String> CapturableVariables;
+  std::set<String> CapturedVariables;
+  std::vector<size_t> *Breaks;
+  std::vector<size_t> *Continues;
   int DummyIdentifier;
 
   void Output(CMCElement e);
-  void Output(String str, char type);
+  void Output(const String& str, char type);
   void OutputInteger(int value);
+  void OutputOperator(TMacroOperator op);
   int OutputPositionPlaceholder();
   void FillPositionPlaceholder(int placeholder);
-  void FillPositionPlaceholders(const std::vector<__int64>& placeholders,
+  void FillPositionPlaceholders(const std::vector<size_t>& placeholders,
                                 int position);
   void Push(CMCElement e, std::deque<CMCElement> *L);
   void PushAll(std::deque<CMCElement> *L);
@@ -415,33 +499,33 @@ private:
   void GetWhile();
   void GetFor();
   void GetLegacyFor();
-  String GetFunction(FunctionType functionType, String paramName = "");
+  String GetFunction(FunctionType functionType, const String& paramName = "");
   void GetReturn(char EOS);
-  void GetLambda(String paramName = "");
+  void GetLambda(const String& paramName = "");
   void GetCell();
   String GetObject();
   void GetObjectKey();
   void GetClass();
   void GetImport();
-  bool GetValues(char EOS, char *nHikisu = nullptr);
-  bool GetSentence(char EOS, bool allowBlock = true, char *nHikisu = nullptr);
+  bool GetValues(char EOS, char *paramCount = nullptr);
+  bool GetSentence(char EOS, bool allowBlock = true,
+      char *paramCount = nullptr);
   void GetBlock();
-  String MaybeAddLibToLibName(String libName);
+  String MaybeAddLibToLibName(const String& libName);
 
   bool IsKnownVariable(const CMCElement& e) const {
     return e.type == tpVar
-        && (e.isSystemVar() || Variables->IndexOf(e.str) >= 0 ||
-            CapturableVariables->IndexOf(e.str) >= 0);
+        && (e.isSystemVar() || Variables.count(e.str) > 0 ||
+            CapturableVariables.count(e.str) > 0);
   }
 
 public:
-  TStringList *import;
+  std::vector<String> import;
 
-  bool Compile(String source, String filePath, String libName,
-               bool showMessage);
+  bool Compile(const String& source, const String& filePath,
+      const String& libName, bool showMessage);
   TCompiler(TMacroContext *context) : Context(context), Breaks(nullptr),
-      Continues(nullptr), DummyIdentifier(0), import(newTStringList()) {}
-  ~TCompiler() { delete import; }
+      Continues(nullptr), DummyIdentifier(0) {}
 };
 //---------------------------------------------------------------------------
 void TCompiler::GetIf()
@@ -449,42 +533,41 @@ void TCompiler::GetIf()
   lex->Get(); // '('
   GetValues(')');
   int bp1fr = OutputPositionPlaceholder();
-  Output(CMO_IfThen, tpOpe);
+  OutputOperator(TMacroOperator::IfThen);
   GetSentence(';');
 
-  if(lex->GetNext().str == "else"){
+  if (lex->GetNext().str == "else") {
     lex->Get(); // else
     int bp2fr = OutputPositionPlaceholder();
-    Output(CMO_Goto, tpOpe);
+    OutputOperator(TMacroOperator::Goto);
     FillPositionPlaceholder(bp1fr);
     GetSentence(';');
     FillPositionPlaceholder(bp2fr);
-  }else{
+  } else {
     FillPositionPlaceholder(bp1fr);
   }
 }
 //---------------------------------------------------------------------------
 void TCompiler::GetWhile()
 {
-  std::vector<__int64> *originalBreaks = Breaks;
-  std::vector<__int64> breaks;
+  std::vector<size_t> *originalBreaks = Breaks;
+  std::vector<size_t> breaks;
   Breaks = &breaks;
 
-  std::vector<__int64> *originalContinues = Continues;
-  std::vector<__int64> continues;
+  std::vector<size_t> *originalContinues = Continues;
+  std::vector<size_t> continues;
   Continues = &continues;
 
   lex->Get(); // '('
-  int bp1to = fout->Position;
+  int bp1to = fout.Size();
   GetValues(')');
   breaks.push_back(OutputPositionPlaceholder());
-  Output(CMO_IfThen, tpOpe);
+  OutputOperator(TMacroOperator::IfThen);
   GetSentence(';');
   OutputInteger(bp1to);
-  Output(CMO_Goto, tpOpe);
-  int bp2to = fout->Position;
+  OutputOperator(TMacroOperator::Goto);
 
-  FillPositionPlaceholders(breaks, fout->Position);
+  FillPositionPlaceholders(breaks, fout.Size());
   Breaks = originalBreaks;
 
   FillPositionPlaceholders(continues, bp1to);
@@ -493,12 +576,12 @@ void TCompiler::GetWhile()
 //---------------------------------------------------------------------------
 void TCompiler::GetFor()
 {
-  std::vector<__int64> *originalBreaks = Breaks;
-  std::vector<__int64> breaks;
+  std::vector<size_t> *originalBreaks = Breaks;
+  std::vector<size_t> breaks;
   Breaks = &breaks;
 
-  std::vector<__int64> *originalContinues = Continues;
-  std::vector<__int64> continues;
+  std::vector<size_t> *originalContinues = Continues;
+  std::vector<size_t> continues;
   Continues = &continues;
 
   lex->Get(); // '('
@@ -512,7 +595,7 @@ void TCompiler::GetFor()
       && lex->GetNext(1).type == tpVar && lex->GetNext(1).str == "of") {
     CMCElement var = lex->Get();
     if (!IsKnownVariable(var)) {
-      Variables->Add(var.str);
+      Variables.insert(var.str);
     }
     lex->Get(); // of
 
@@ -525,7 +608,7 @@ void TCompiler::GetFor()
     Output(index, tpVar);
     OutputInteger(0);
     Output("=", tpOpe);
-    int nextPosition = fout->Position;
+    int nextPosition = fout.Size();
 
     Output(index, tpVar);
     Output(collection, tpVar);
@@ -533,7 +616,7 @@ void TCompiler::GetFor()
     Output(".", tpOpe);
     Output("<", tpOpe);
     breaks.push_back(OutputPositionPlaceholder());
-    Output(CMO_IfThen, tpOpe);
+    OutputOperator(TMacroOperator::IfThen);
 
     Output(var);
     Output(collection, tpVar);
@@ -541,37 +624,36 @@ void TCompiler::GetFor()
     Output(".", tpOpe);
     Output("=", tpOpe);
     GetSentence(';'); // Loop body
-    continuePosition = fout->Position;
+    continuePosition = fout.Size();
 
     Output(index, tpVar);
-    Output(CMO_Inc, tpOpe);
+    OutputOperator(TMacroOperator::Inc);
 
     OutputInteger(nextPosition);
-    Output(CMO_Goto, tpOpe);
-    Variables->Delete(Variables->IndexOf(var.str));
+    OutputOperator(TMacroOperator::Goto);
+    Variables.erase(var.str);
   } else {
     GetValues(';'); // Initialization
-    int nextPosition = fout->Position;
+    int nextPosition = fout.Size();
     GetValues(';'); // Condition
     breaks.push_back(OutputPositionPlaceholder());
-    Output(CMO_IfThen, tpOpe);
+    OutputOperator(TMacroOperator::IfThen);
 
-    TStream *fs = fout;
-    TStream *ms = new TMemoryStream();
-    fout = ms;
+    TByteVector orgFOut = std::move(fout);
+    fout = {};
     GetValues(')'); // Final Expression
-    fout = fs;
+    TByteVector finalExpression = std::move(fout);
+    fout = std::move(orgFOut);
 
     GetSentence(';'); // Loop Body
-    continuePosition = fout->Position;
-    fout->CopyFrom(ms, 0);
-    delete ms;
+    continuePosition = fout.Size();
+    fout.Write(finalExpression);
 
     OutputInteger(nextPosition);
-    Output(CMO_Goto, tpOpe);
+    OutputOperator(TMacroOperator::Goto);
   }
 
-  FillPositionPlaceholders(breaks, fout->Position);
+  FillPositionPlaceholders(breaks, fout.Size());
   Breaks = originalBreaks;
 
   FillPositionPlaceholders(continues, continuePosition);
@@ -581,39 +663,39 @@ void TCompiler::GetFor()
 void TCompiler::GetLegacyFor()
 {
   lex->Get(); // '('
-  CMCElement var  = lex->Get(); // ïœêî
+  CMCElement var  = lex->Get(); // Â§âÊï∞
   if (!IsKnownVariable(var)) {
-    Variables->Add(var.str);
+    Variables.insert(var.str);
   }
   lex->Get(); // "To"
 
   Output(var);
   OutputInteger(1);
   Output("=", tpOpe);
-  int nextPosition = fout->Position;
+  int nextPosition = fout.Size();
 
   Output(var);
   GetValues(')'); // Max Value
-  Output(CMO_LEq, tpOpe);
+  OutputOperator(TMacroOperator::LEq);
   int breakPlaceholder = OutputPositionPlaceholder();
-  Output(CMO_IfThen, tpOpe);
+  OutputOperator(TMacroOperator::IfThen);
 
   GetSentence(';'); // Loop Body
 
   Output(var);
-  Output(CMO_Inc, tpOpe);
+  OutputOperator(TMacroOperator::Inc);
   OutputInteger(nextPosition);
-  Output(CMO_Goto, tpOpe);
+  OutputOperator(TMacroOperator::Goto);
   FillPositionPlaceholder(breakPlaceholder);
 }
 //---------------------------------------------------------------------------
 constexpr char LAMBDA_EOS = 'L';
 //---------------------------------------------------------------------------
-String TCompiler::GetFunction(FunctionType functionType, String paramName)
+String TCompiler::GetFunction(FunctionType functionType,
+    const String& paramName)
 {
-  TStream *orgFOut = fout;
-  TStringList* orgVariables = Variables;
-  TStringList* orgConstants = Constants;
+  std::set<String> orgVariables = std::move(Variables);
+  std::set<String> orgConstants = std::move(Constants);
 
   String functionName;
   if (functionType == LAMBDA) {
@@ -625,24 +707,25 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
     } else if (lex->Get().str == "(") {
       ImportedFunctions[functionName] = InName + "\n" + functionName;
     } else {
-      throw CMCException(L"functionï∂Ç™ïsê≥Ç≈Ç∑ÅF" + functionName);
+      throw CMCException(L"functionÊñá„Åå‰∏çÊ≠£„Åß„ÅôÔºö" + functionName);
     }
   }
 
-  Variables = newTStringList();
-  Constants = newTStringList();
+  Variables.clear();
+  Constants.clear();
   if (functionType == METHOD) {
-    Variables->Add("this");
-    Constants->Add("this");
+    Variables.insert("this");
+    Constants.insert("this");
   }
 
-  TStringList *parameters = newTStringList();
+  std::vector<String> parameters;
   int minArgs = 0;
   bool varArg = false;
-  fout = new TMemoryStream();
+  TByteVector orgFOut = std::move(fout);
+  fout = {};
   if (paramName != "") {
-    Variables->Add(paramName);
-    parameters->Add(paramName);
+    Variables.insert(paramName);
+    parameters.push_back(paramName);
     minArgs = 1;
   } else if (lex->GetNext().str == ")") {
     lex->Get();
@@ -654,154 +737,143 @@ String TCompiler::GetFunction(FunctionType functionType, String paramName)
         e = lex->Get();
       }
       if (e.type != tpVar) {
-        throw CMCException(L"à¯êîñºÇ™ïsê≥Ç≈Ç∑ÅF" + e.str);
+        throw CMCException(L"ÂºïÊï∞Âêç„Åå‰∏çÊ≠£„Åß„ÅôÔºö" + e.str);
       }
-      if (e.isSystemVar() || Variables->IndexOf(e.str) >= 0) {
-        throw CMCException(L"à¯êîñºÇ™Ç∑Ç≈Ç…égópÇ≥ÇÍÇƒÇ¢Ç‹Ç∑ÅF" + e.str);
+      if (e.isSystemVar() || Variables.count(e.str) > 0) {
+        throw CMCException(L"ÂºïÊï∞Âêç„Åå„Åô„Åß„Å´‰ΩøÁî®„Åï„Çå„Å¶„ÅÑ„Åæ„ÅôÔºö" + e.str);
       }
-      Variables->Add(e.str);
-      parameters->Add(e.str);
+      Variables.insert(e.str);
+      parameters.push_back(e.str);
       e = lex->Get();
       if (e.str == '=') {
-        OutputInteger(parameters->Count);
+        OutputInteger(parameters.size());
         int placeholder = OutputPositionPlaceholder();
-        Output(CMO_DefParam, tpOpe);
+        OutputOperator(TMacroOperator::DefParam);
         GetSentence(LAMBDA_EOS, /* allowBlock= */ false);
         FillPositionPlaceholder(placeholder);
         e = lex->Get();
       } else if (!varArg) {
-        minArgs = parameters->Count;
+        minArgs = parameters.size();
       }
       if (e.str == ')') {
         break;
       } else if (varArg) {
-        throw CMCException(L") Ç™ïKóvÇ≈Ç∑ÅF" + e.str);
+        throw CMCException(L") „ÅåÂøÖË¶Å„Åß„ÅôÔºö" + e.str);
       } else if (e.str != ',') {
-        throw CMCException(L", Ç‡ÇµÇ≠ÇÕ ) Ç™ïKóvÇ≈Ç∑ÅF" + e.str);
+        throw CMCException(L", „ÇÇ„Åó„Åè„ÅØ ) „ÅåÂøÖË¶Å„Åß„ÅôÔºö" + e.str);
       }
     }
   }
   if (varArg) {
-    OutputInteger(parameters->Count - 1);
-    Output(CMO_VarArg, tpOpe);
+    OutputInteger(parameters.size() - 1);
+    OutputOperator(TMacroOperator::VarArg);
   }
-  for (int i = 0; i < parameters->Count; i++) {
-    Output(parameters->Strings[i], tpVar);
+  for (int i = 0; i < parameters.size(); i++) {
+    Output(parameters[i], tpVar);
   }
   bool funcEqual = false;
   String outName = GetMacroModuleName(
-      InName, functionName, minArgs, varArg || minArgs < parameters->Count);
+      InName, functionName, minArgs, varArg || minArgs < parameters.size());
   if (functionType == LAMBDA) {
     CMCElement arrow = lex->Get();
     if (arrow.str != "=>") {
-      throw CMCException(L"ÉâÉÄÉ_éÆÇ™ïsê≥Ç≈Ç∑ÅF" + arrow.str);
+      throw CMCException(L"„É©„É†„ÉÄÂºè„Åå‰∏çÊ≠£„Åß„ÅôÔºö" + arrow.str);
     }
     if (lex->GetNext().str != "{") {
       funcEqual = true;
     }
   } else if (lex->GetNext().str == ";") {
-    delete fout;
-    delete Variables;
-    delete Constants;
-    fout = orgFOut;
-    Variables = orgVariables;
-    Constants = orgConstants;
+    fout = std::move(orgFOut);
+    Variables = std::move(orgVariables);
+    Constants = std::move(orgConstants);
     return outName;
   } else if (lex->GetNext().str == "=") {
     lex->Get();
     funcEqual = true;
   }
 
-  wchar_t H = parameters->Count * 2;
-  Output((String)H + "func=", tpFunc);
+  wchar_t paramCount = parameters.size() * 2;
+  Output(String(paramCount) + "func=", tpFunc);
 
   if (functionType != LAMBDA) {
     // Ok to use these pre-defined variables.
-    Variables->Add("x");
-    Variables->Add("y");
-    Variables->Add("Left");
-    Variables->Add("Top");
+    Variables.insert("x");
+    Variables.insert("y");
+    Variables.insert("Left");
+    Variables.insert("Top");
   }
 
-  if(funcEqual){
+  if (funcEqual) {
     GetReturn(LAMBDA_EOS);
-  }else{
-    GetSentence(';');     // ä÷êîñ{ëÃ
+  } else {
+    GetSentence(';');     // Èñ¢Êï∞Êú¨‰Ωì
   }
 
-  delete Variables;
-  delete Constants;
-  Context->Modules[outName] = fout;
-  fout = orgFOut;
-  Variables = orgVariables;
-  Constants = orgConstants;
+  Context->Modules[outName] = std::move(fout);
+  fout = std::move(orgFOut);
+  Variables = std::move(orgVariables);
+  Constants = std::move(orgConstants);
   return outName;
 }
 //---------------------------------------------------------------------------
 void TCompiler::GetReturn(char EOS)
 {
-  char H;
-  GetValues(EOS, &H);
-  if (H == 0) {
+  char paramCount;
+  GetValues(EOS, &paramCount);
+  if (paramCount == 0) {
     OutputInteger(0x7f7f7f7f);
-    Output(CMO_Goto, tpOpe);
-  } else if(H == 1) {
-    Output(CMO_Return, tpOpe);
+    OutputOperator(TMacroOperator::Goto);
+  } else if (paramCount == 1) {
+    OutputOperator(TMacroOperator::Return);
   } else {
-    throw CMCException((String)L"return ï∂Ç…à¯êîÇ™" + (int)H + L"å¬Ç†ÇËÇ‹Ç∑ÅB");
+    throw CMCException(String(L"return Êñá„Å´ÂºïÊï∞„Åå") +
+        static_cast<int>(paramCount) + L"ÂÄã„ÅÇ„Çä„Åæ„Åô„ÄÇ");
   }
 }
 //---------------------------------------------------------------------------
-void TCompiler::GetLambda(String paramName)
+void TCompiler::GetLambda(const String& paramName)
 {
-  TStringList* orgCapturableVariables = CapturableVariables;
-  TStringList* orgCapturedVariables = CapturedVariables;
-  CapturableVariables = newTStringList();
-  CapturableVariables->AddStrings(orgCapturableVariables);
-  CapturableVariables->AddStrings(Variables);
-  CapturedVariables = newTStringList();
+  std::set<String> orgCapturableVariables = CapturableVariables;
+  CapturableVariables.insert(Variables.begin(), Variables.end());
+  std::set<String> orgCapturedVariables = std::move(CapturedVariables);
+  CapturedVariables.clear();
 
   String functionName = GetFunction(LAMBDA, paramName);
-  if (CapturedVariables->Count == 0) {
+  if (CapturedVariables.empty()) {
     Output(functionName, tpString);
   } else {
-    Output((String)'\0' + "{}", tpFunc);
+    Output(String(L'\0') + L"{}", tpFunc);
     Output("", tpString);
     Output(functionName, tpString);
-    Output(CMO_ObjKey, tpOpe);
+    OutputOperator(TMacroOperator::ObjKey);
 
-    for (int i = 0; i < CapturedVariables->Count; i++) {
-      String name = CapturedVariables->Strings[i];
+    for (const String& name : CapturedVariables) {
       Output(name, tpString);
-      if (Variables->IndexOf(name) < 0) {
+      if (Variables.count(name) == 0) {
         Output("this", tpVar);
         Output(name, tpString);
         Output(".", tpOpe);
-        if (orgCapturedVariables->IndexOf(name) < 0) {
-          orgCapturedVariables->Add(name);
-        }
+        orgCapturedVariables.insert(name);
       } else {
         Output(name, tpVar);
       }
-      Output(CMO_ObjKey, tpOpe);
+      OutputOperator(TMacroOperator::ObjKey);
     }
   }
 
-  delete CapturableVariables;
-  delete CapturedVariables;
-  CapturableVariables = orgCapturableVariables;
-  CapturedVariables = orgCapturedVariables;
+  CapturableVariables = std::move(orgCapturableVariables);
+  CapturedVariables = std::move(orgCapturedVariables);
 }
 //---------------------------------------------------------------------------
 void TCompiler::GetCell()
 {
-  char H;
-  GetValues(']', &H);
-  if (H == 2) {
-    Output(CMO_Cell, tpOpe);
+  char paramCount;
+  GetValues(']', &paramCount);
+  if (paramCount == 2) {
+    OutputOperator(TMacroOperator::Cell);
   } else {
-    throw CMCException((String)L"[x,y] å`éÆÇ… , Ç™"
-                     + (int)(H-1) + L"å¬Ç†ÇËÇ‹Ç∑ÅB");
+    throw CMCException(String(L"[x,y] ÂΩ¢Âºè„Å´ , „Åå") +
+        static_cast<int>(paramCount) + L"ÂÄã„ÅÇ„Çä„Åæ„Åô„ÄÇ");
   }
 }
 //---------------------------------------------------------------------------
@@ -814,7 +886,7 @@ void TCompiler::Output(CMCElement e)
   }
 }
 //---------------------------------------------------------------------------
-void TCompiler::Output(String str, char type) {
+void TCompiler::Output(const String& str, char type) {
   if (type == tpRegExp) {
     int p = str.LastDelimiter("/");
     Output(str.SubString(2, p - 2), tpString);
@@ -823,36 +895,32 @@ void TCompiler::Output(String str, char type) {
     return;
   }
 
-  fout->Write(&type, 1);
+  fout.WriteChar(type);
   switch (type) {
     case '$': case '*': case '~': case '!': {
-      int length = str.Length();
-      fout->Write(&length, INT_SIZE);
-      fout->Write(str.c_str(), length * (int) sizeof(wchar_t));
+      fout.WriteString(str);
       break;
     }
     case '-': {
       AnsiString ansiStr = str;
       if (ansiStr.Length() == 1) {
-        fout->Write(ansiStr.c_str(), 1);
+        fout.WriteChar(ansiStr[1]);
       } else {
-        char c = CMOCode(str);
-        if (c == '\0') {
-          throw CMCException(L"ÉTÉ|Å[ÉgÇ≥ÇÍÇƒÇ¢Ç»Ç¢ââéZéqÇ≈Ç∑ÅF" + str);
+        TMacroOperator c = ToOperator(str);
+        if (c == TMacroOperator::Unknown) {
+          throw CMCException(L"„Çµ„Éù„Éº„Éà„Åï„Çå„Å¶„ÅÑ„Å™„ÅÑÊºîÁÆóÂ≠ê„Åß„ÅôÔºö" + str);
         } else {
-          fout->Write(&c, 1);
+          fout.WriteChar(static_cast<char>(c));
         }
       }
       break;
     }
     case 'i': {
-      int i = str.ToInt();
-      fout->Write(&i, INT_SIZE);
+      fout.WriteInteger(str.ToInt());
       break;
     }
     case 'd': {
-      double d = str.ToDouble();
-      fout->Write(&d, (int)sizeof(double));
+      fout.WriteDouble(str.ToDouble());
       break;
     }
   }
@@ -860,40 +928,40 @@ void TCompiler::Output(String str, char type) {
 //---------------------------------------------------------------------------
 void TCompiler::OutputInteger(int value)
 {
-  fout->Write("i", 1);
-  fout->Write(&value, INT_SIZE);
+  fout.WriteChar('i');
+  fout.WriteInteger(value);
+}
+//---------------------------------------------------------------------------
+void TCompiler::OutputOperator(TMacroOperator op)
+{
+  fout.WriteChar('-');
+  fout.WriteChar(static_cast<char>(op));
 }
 //---------------------------------------------------------------------------
 int TCompiler::OutputPositionPlaceholder()
 {
-  fout->Write("i", 1);
-  int position = fout->Position;
-  fout->Seek(INT_SIZE, soFromCurrent);
+  fout.WriteChar('i');
+  int position = fout.Size();
+  fout.WriteInteger(0);
   return position;
 }
 //---------------------------------------------------------------------------
 void TCompiler::FillPositionPlaceholder(int placeholder)
 {
-  int position = fout->Position;
-  fout->Position = placeholder;
-  fout->Write(&position, INT_SIZE);
-  fout->Position = position;
+  fout.WriteInteger(fout.Size(), placeholder);
 }
 //---------------------------------------------------------------------------
 void TCompiler::FillPositionPlaceholders(
-    const std::vector<__int64>& placeholders, int position)
+    const std::vector<size_t>& placeholders, int position)
 {
-  int current = fout->Position;
-  for (__int64 placeholder : placeholders) {
-    fout->Position = placeholder;
-    fout->Write(&position, INT_SIZE);
+  for (size_t placeholder : placeholders) {
+    fout.WriteInteger(position, placeholder);
   }
-  fout->Position = current;
 }
 //---------------------------------------------------------------------------
 void TCompiler::Push(CMCElement e, std::deque<CMCElement> *L)
 {
-  if(e.iseof()) return;
+  if (e.iseof()) return;
   while (L->size() > 0) {
     const CMCElement& b = L->back();
     if (b.pri > e.pri || (b.pri == e.pri && b.jump == 0)) {
@@ -917,7 +985,7 @@ void TCompiler::PushAll(std::deque<CMCElement> *L)
 String TCompiler::GetObject()
 {
   String constructor = "";
-  Output((String)'\0' + "{}", tpFunc);
+  Output(String(L'\0') + L"{}", tpFunc);
   while (true) {
     CMCElement key = lex->Get();
     if (key.type == tpVar || key.type == tpString || key.type == tpInteger ||
@@ -925,11 +993,11 @@ String TCompiler::GetObject()
       CMCElement colon = lex->Get();
       if (colon.str != ":") {
         throw CMCException(
-            L"ÉIÉuÉWÉFÉNÉgÉäÉeÉâÉãÇÃå`éÆÇ™ê≥ÇµÇ≠Ç†ÇËÇ‹ÇπÇÒÅF" + key.str);
+            L"„Ç™„Éñ„Ç∏„Çß„ÇØ„Éà„É™„ÉÜ„É©„É´„ÅÆÂΩ¢Âºè„ÅåÊ≠£„Åó„Åè„ÅÇ„Çä„Åæ„Åõ„ÇìÔºö" + key.str);
       }
       Output(key);
       bool inBlock = GetValues(',');
-      Output(CMO_ObjKey, tpOpe);
+      OutputOperator(TMacroOperator::ObjKey);
       if (!inBlock) {
         return constructor;
       }
@@ -937,26 +1005,26 @@ String TCompiler::GetObject()
       Output(key.str, tpVar);
       String functionName = GetFunction(METHOD);
       Output(functionName, tpString);
-      Output(CMO_ObjKey, tpOpe);
+      OutputOperator(TMacroOperator::ObjKey);
       if (lex->GetNext().str == ",") { lex->Get(); }
       if (key.str == "constructor") { constructor = functionName; }
     } else if (key.str == "}") {
       return constructor;
     } else if (key.iseof()) {
-      throw CMCException(L"ÉIÉuÉWÉFÉNÉgÉäÉeÉâÉãÇ™èIóπÇµÇƒÇ¢Ç‹ÇπÇÒÅB");
+      throw CMCException(L"„Ç™„Éñ„Ç∏„Çß„ÇØ„Éà„É™„ÉÜ„É©„É´„ÅåÁµÇ‰∫Ü„Åó„Å¶„ÅÑ„Åæ„Åõ„Çì„ÄÇ");
     } else {
       throw CMCException(
-          L"ÉIÉuÉWÉFÉNÉgÉäÉeÉâÉãÇÃå`éÆÇ™ê≥ÇµÇ≠Ç†ÇËÇ‹ÇπÇÒÅF" + key.str);
+          L"„Ç™„Éñ„Ç∏„Çß„ÇØ„Éà„É™„ÉÜ„É©„É´„ÅÆÂΩ¢Âºè„ÅåÊ≠£„Åó„Åè„ÅÇ„Çä„Åæ„Åõ„ÇìÔºö" + key.str);
     }
   }
 }
 //---------------------------------------------------------------------------
 void TCompiler::GetObjectKey()
 {
-  char H;
-  GetValues(']', &H);
-  if(H != 1){
-    throw CMCException(L"obj[key] å`éÆÇ™ê≥ÇµÇ≠Ç†ÇËÇ‹ÇπÇÒÅB");
+  char paramCount;
+  GetValues(']', &paramCount);
+  if (paramCount != 1) {
+    throw CMCException(L"obj[key] ÂΩ¢Âºè„ÅåÊ≠£„Åó„Åè„ÅÇ„Çä„Åæ„Åõ„Çì„ÄÇ");
   }
   Output(".", tpOpe);
 }
@@ -966,11 +1034,11 @@ void TCompiler::GetClass()
   String name = lex->Get().str;
   String paren = lex->Get().str;
   if (paren != "{") {
-    throw CMCException(L"ÉNÉâÉXêÈåæÇ…ÇÕ { Ç™ïKóvÇ≈Ç∑ÅF" + paren);
+    throw CMCException(L"„ÇØ„É©„ÇπÂÆ£Ë®Ä„Å´„ÅØ { „ÅåÂøÖË¶Å„Åß„ÅôÔºö" + paren);
   }
   ImportedFunctions[name] = InName + "\n" + name;
-  TStream *orgFOut = fout;
-  fout = new TMemoryStream();
+  TByteVector orgFOut = std::move(fout);
+  fout = {};
   String constructor = GetObject();
 
   String outName;
@@ -978,27 +1046,27 @@ void TCompiler::GetClass()
   if (p > 0) {
     outName = InName + "\n" + name
         + constructor.SubString(p, constructor.Length());
-    Output((String)'\0' + "(constructor)", tpFunc);
+    Output(String(L'\0') + L"(constructor)", tpFunc);
   } else {
     outName = GetMacroModuleName(InName, name, 0, false);
   }
 
-  Output(CMO_Return, tpOpe);
-  Context->Modules[outName] = fout;
-  fout = orgFOut;
+  OutputOperator(TMacroOperator::Return);
+  Context->Modules[outName] = std::move(fout);
+  fout = std::move(orgFOut);
 }
 //---------------------------------------------------------------------------
 void TCompiler::GetImport()
 {
   CMCElement e = lex->Get();
   if (e.str != "{") {
-    throw CMCException(L"import ï∂Ç… { Ç™ïKóvÇ≈Ç∑ÅF" + e.str);
+    throw CMCException(L"import Êñá„Å´ { „ÅåÂøÖË¶Å„Åß„ÅôÔºö" + e.str);
   }
   std::map<String, String> nameMap;
   while (true) {
     e = lex->Get();
     if (e.type != tpVar) {
-      throw CMCException(L"import Ç∑ÇÈä÷êîñºÅEÉNÉâÉXñºÇ™ïsê≥Ç≈Ç∑ÅF" + e.str);
+      throw CMCException(L"import „Åô„ÇãÈñ¢Êï∞Âêç„Éª„ÇØ„É©„ÇπÂêç„Åå‰∏çÊ≠£„Åß„ÅôÔºö" + e.str);
     }
     String originalName = e.str;
     String aliasName = originalName;
@@ -1006,7 +1074,7 @@ void TCompiler::GetImport()
     if (e.str == "as") {
       e = lex->Get();
       if (e.type != tpVar) {
-        throw CMCException(L"import ÇÃï ñºÇ™ïsê≥Ç≈Ç∑ÅF" + e.str);
+        throw CMCException(L"import „ÅÆÂà•Âêç„Åå‰∏çÊ≠£„Åß„ÅôÔºö" + e.str);
       }
       aliasName = e.str;
       e = lex->Get();
@@ -1014,34 +1082,33 @@ void TCompiler::GetImport()
     nameMap[aliasName] = originalName;
     if (e.str == "}") { break; }
     if (e.str != ",") {
-      throw CMCException(L", Ç‡ÇµÇ≠ÇÕ } Ç™ïKóvÇ≈Ç∑ÅF" + e.str);
+      throw CMCException(L", „ÇÇ„Åó„Åè„ÅØ } „ÅåÂøÖË¶Å„Åß„ÅôÔºö" + e.str);
     }
   }
   e = lex->Get();
   if (e.str != "from") {
-    throw CMCException(L"import ï∂Ç… from Ç™ïKóvÇ≈Ç∑ÅF" + e.str);
+    throw CMCException(L"import Êñá„Å´ from „ÅåÂøÖË¶Å„Åß„ÅôÔºö" + e.str);
   }
   e = lex->Get();
   if (e.type != tpString) {
-    throw CMCException(L"import Ç∑ÇÈÉtÉ@ÉCÉãñºÇ™ïsê≥Ç≈Ç∑ÅF" + e.str);
+    throw CMCException(L"import „Åô„Çã„Éï„Ç°„Ç§„É´Âêç„Åå‰∏çÊ≠£„Åß„ÅôÔºö" + e.str);
   }
   String libName = e.str;
-  if (import->IndexOf(libName) < 0) {
-    import->Add(libName);
+  if (std::find(import.begin(), import.end(), libName) == import.end()) {
+    import.push_back(libName);
   }
-  for (std::map<String, String>::iterator p = nameMap.begin();
-       p != nameMap.end(); ++p) {
-    ImportedFunctions[p->first] = libName + "\n" + p->second;
+  for (const auto& [aliasName, originalName] : nameMap) {
+    ImportedFunctions[aliasName] = libName + "\n" + originalName;
   }
   e = lex->Get();
   if (e.str != ";") {
-    throw CMCException(L"import ï∂Ç… ; Ç™ïKóvÇ≈Ç∑ÅF" + e.str);
+    throw CMCException(L"import Êñá„Å´ ; „ÅåÂøÖË¶Å„Åß„ÅôÔºö" + e.str);
   }
 }
 //---------------------------------------------------------------------------
-bool TCompiler::GetValues(char EOS, char *nHikisu)
+bool TCompiler::GetValues(char EOS, char *paramCount)
 {
-  return GetSentence(EOS, false, nHikisu);
+  return GetSentence(EOS, false, paramCount);
 }
 //---------------------------------------------------------------------------
 bool IsLambda(TTokenizer *lex)
@@ -1069,10 +1136,10 @@ bool IsLambda(TTokenizer *lex)
   return false;
 }
 //---------------------------------------------------------------------------
-bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
+bool TCompiler::GetSentence(char EOS, bool allowBlock, char *paramCount)
 {
   CMCElement e;
-  char hikisu = 1;
+  char params = 1;
 
   bool firstloop = true;
   std::deque<CMCElement> ls;
@@ -1082,29 +1149,33 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
       if (e.type == tpStructure && (e.str == ',' || e.str == ';' ||
           e.str == ')' || e.str == ']' || e.str == '}')) {
         PushAll(&ls);
-        if (nHikisu) { *nHikisu = firstloop ? 0 : hikisu; }
+        if (paramCount) {
+          *paramCount = firstloop ? 0 : params;
+        }
         return true;
       }
     }
 
     e = lex->Get();
-    if(e.iseof()){ PushAll(&ls); return false; }
-
-    if(e.type == tpStructure){
+    if (e.iseof()) {
+      PushAll(&ls);
+      return false;
+    } else if (e.type == tpStructure) {
       char c = e.str[1];
 
-      switch(c){
+      switch (c) {
       case ';': case ')': case ']':
-        if(c != EOS){
+        if (c != EOS) {
           if (EOS == ':') {
-            throw CMCException(L": Ç™å©Ç¬Ç©ÇËÇ‹ÇπÇÒÅB");
+            throw CMCException(L": „ÅåË¶ã„Å§„Åã„Çä„Åæ„Åõ„Çì„ÄÇ");
           } else {
-            throw CMCException(L"äáå ÇÃëŒâûÇ™ê≥ÇµÇ≠Ç†ÇËÇ‹ÇπÇÒÅB");
+            throw CMCException(L"Êã¨Âºß„ÅÆÂØæÂøú„ÅåÊ≠£„Åó„Åè„ÅÇ„Çä„Åæ„Åõ„Çì„ÄÇ");
           }
         }
         PushAll(&ls);
-        if(firstloop) hikisu = 0;
-        if(nHikisu) *nHikisu = hikisu;
+        if (paramCount) {
+          *paramCount = firstloop ? 0 : params;
+        }
         return true;
       case '}':
         if (EOS == '}') {
@@ -1116,11 +1187,11 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
           return false;
         }
         if (!firstloop) {
-          throw CMCException(L"} ÇÃëOÇ… ; Ç™ïKóvÇ≈Ç∑ÅB");
+          throw CMCException(L"} „ÅÆÂâç„Å´ ; „ÅåÂøÖË¶Å„Åß„Åô„ÄÇ");
         }
-        return false; // ÉuÉçÉbÉNèIóπ
+        return false; // „Éñ„É≠„ÉÉ„ÇØÁµÇ‰∫Ü
       case '(':
-        if (IsLambda(lex)) {
+        if (IsLambda(lex.get())) {
           GetLambda();
         } else {
           GetValues(')');
@@ -1129,20 +1200,21 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
       case '{':
         if (firstloop && allowBlock) {
           GetBlock();
-          return true; // äOë§ÇÃÉuÉçÉbÉNÇÕèIóπÇµÇ»Ç¢
+          return true; // Â§ñÂÅ¥„ÅÆ„Éñ„É≠„ÉÉ„ÇØ„ÅØÁµÇ‰∫Ü„Åó„Å™„ÅÑ
         }
         GetObject();
         break;
       case ',':
-        if(c == EOS){
+        if (c == EOS) {
           PushAll(&ls);
-          if(firstloop) hikisu = 0;
-          if(nHikisu) *nHikisu = hikisu;
+          if (paramCount) {
+            *paramCount = firstloop ? 0 : params;
+          }
           return true;
         } else if (EOS == ':') {
-          throw CMCException(L": Ç™å©Ç¬Ç©ÇËÇ‹ÇπÇÒÅB");
+          throw CMCException(L": „ÅåË¶ã„Å§„Åã„Çä„Åæ„Åõ„Çì„ÄÇ");
         }
-        hikisu++;
+        params++;
         Push(e, &ls);
         break;
       case '[':
@@ -1158,7 +1230,7 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         GetCell();
         break;
       }
-    }else if(e.type == tpFunc){
+    } else if (e.type == tpFunc) {
       if (e.str == "function") {
         String funcName = GetFunction(FUNCTION);
         if (firstloop && allowBlock) {
@@ -1167,7 +1239,7 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         Push(CMCElement(funcName, prElement, tpString), &ls);
       } else if (AnsiPos("/" + e.str + "/", "/if/while/for/return/") > 0) {
         if (!firstloop) {
-          throw CMCException(e.str + L" ÇÃëOÇ… ; Ç™ïKóvÇ≈Ç∑ÅB");
+          throw CMCException(e.str + L" „ÅÆÂâç„Å´ ; „ÅåÂøÖË¶Å„Åß„Åô„ÄÇ");
         }
         if (e.str == "if") {
           GetIf();
@@ -1185,25 +1257,24 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         GetLegacyFor();
         return true;
       } else {
-        lex->Get(); // "(" Ç™Ç†ÇÈÇÕÇ∏
-        bool isLambdaCall = ((Variables->IndexOf(e.str) >= 0
-                              || CapturableVariables->IndexOf(e.str) >= 0)
+        lex->Get(); // "(" „Åå„ÅÇ„Çã„ÅØ„Åö
+        bool isLambdaCall = ((Variables.count(e.str) > 0
+                              || CapturableVariables.count(e.str) > 0)
                              && (ls.size() == 0 || ls.back().str != "."));
         if (isLambdaCall) {
-          if (Variables->IndexOf(e.str) < 0) {
+          if (Variables.count(e.str) == 0) {
             Output("this", tpVar);
             Output(e.str, tpString);
             Output(".", tpOpe);
-            if (CapturedVariables->IndexOf(e.str) < 0) {
-              CapturedVariables->Add(e.str);
-            }
+            CapturedVariables.insert(e.str);
           } else {
             Output(e.str, tpVar);
           }
         }
-        char H;
-        GetValues(')', &H);
-        if(e.str == "mid" && lex->GetNext().str == "=" && H == 3 && firstloop){
+        char paramCount;
+        GetValues(')', &paramCount);
+        if (e.str == "mid" && lex->GetNext().str == "=" && paramCount == 3 &&
+            firstloop) {
           lex->Get(); // "="
           GetValues(';');
           e.str = "\x04" "mid=";
@@ -1212,17 +1283,18 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
           return true;
         }
         if (ls.size() > 0 && ls.back().str == ".") {
-          e.str = (String)(++H)  + "." + e.str;
+          e.str = String(++paramCount)  + "." + e.str;
           ls.pop_back();
         } else {
-          String prefix = isLambdaCall ? (String)(++H) + ">" : (String) H;
+          String prefix =
+              isLambdaCall ? String(++paramCount) + ">" : String(paramCount);
           String funcName = ImportedFunctions.count(e.str) > 0
                           ? "$" + ImportedFunctions[e.str] : e.str;
           e = CMCElement(prefix + funcName, prElement, tpFunc);
         }
         Push(e, &ls);
       }
-    }else if(e.type == tpVar) {
+    } else if (e.type == tpVar) {
       bool isUndefined = !IsKnownVariable(e);
       if (ls.size() > 0 && ls.back().str == ".") {
         Push(CMCElement(e.str, prElement, tpString), &ls);
@@ -1230,53 +1302,54 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         lex->Get(); // "."
         CMCElement f = lex->Get();
         if (lex->GetNext().str != "(") {
-          throw CMCException(L"ílÇ™ë„ì¸Ç≥ÇÍÇƒÇ¢Ç»Ç¢ïœêîÇ≈Ç∑ÅF" + e.str);
+          throw CMCException(L"ÂÄ§„Åå‰ª£ÂÖ•„Åï„Çå„Å¶„ÅÑ„Å™„ÅÑÂ§âÊï∞„Åß„ÅôÔºö" + e.str);
         }
         lex->Get(); // "("
-        char H;
-        GetValues(')', &H);
+        char paramCount;
+        GetValues(')', &paramCount);
         String libName = MaybeAddLibToLibName(e.str + ".cms");
-        if (import->IndexOf(libName) < 0) {
-          import->Add(libName);
+        if (std::find(import.begin(), import.end(), libName) == import.end()) {
+          import.push_back(libName);
         }
-        String internalName = (String)H + "$" + libName + "\n" + f.str;
+        String internalName =
+            String(paramCount) + L"$" + libName + L"\n" + f.str;
         Push(CMCElement(internalName, prElement, tpFunc), &ls);
       } else if (IsVarDeclaration(e, lex->GetNext())) {
         bool isConst = (e.str == "const");
         e = lex->Get();
         if (IsKnownVariable(e)) {
-          throw CMCException(L"ïœêîñºÇ™Ç∑Ç≈Ç…égópÇ≥ÇÍÇƒÇ¢Ç‹Ç∑ÅF" + e.str);
+          throw CMCException(L"Â§âÊï∞Âêç„Åå„Åô„Åß„Å´‰ΩøÁî®„Åï„Çå„Å¶„ÅÑ„Åæ„ÅôÔºö" + e.str);
         } else if (isConst && lex->GetNext().str != "=") {
           throw CMCException(
-              L"íËêîêÈåæÇ™ïsê≥Ç≈Ç∑ÅBÅu=ÅvÇ≈èâä˙ílÇë„ì¸ÇµÇƒÇ≠ÇæÇ≥Ç¢ÅF" + e.str);
+              L"ÂÆöÊï∞ÂÆ£Ë®Ä„Åå‰∏çÊ≠£„Åß„Åô„ÄÇ„Äå=„Äç„ÅßÂàùÊúüÂÄ§„Çí‰ª£ÂÖ•„Åó„Å¶„Åè„Å†„Åï„ÅÑÔºö" + e.str);
         }
-        Variables->Add(e.str);
+        Variables.insert(e.str);
         if (isConst) {
-          Constants->Add(e.str);
+          Constants.insert(e.str);
         }
         Push(e, &ls);
       } else if (e.str == "break" && firstloop && lex->GetNext().str == ";") {
         if (!Breaks) {
-          throw CMCException(L"break ÇÕÉãÅ[Évì‡Ç≈ÇÃÇ›égópÇ≈Ç´Ç‹Ç∑ÅB");
+          throw CMCException(L"break „ÅØ„É´„Éº„ÉóÂÜÖ„Åß„ÅÆ„Åø‰ΩøÁî®„Åß„Åç„Åæ„Åô„ÄÇ");
         }
         Breaks->push_back(OutputPositionPlaceholder());
-        Output(CMO_Goto, tpOpe);
+        OutputOperator(TMacroOperator::Goto);
       } else if (e.str == "continue" && firstloop
                  && lex->GetNext().str == ";") {
         if (!Continues) {
-          throw CMCException(L"continue ÇÕÉãÅ[Évì‡Ç≈ÇÃÇ›égópÇ≈Ç´Ç‹Ç∑ÅB");
+          throw CMCException(L"continue „ÅØ„É´„Éº„ÉóÂÜÖ„Åß„ÅÆ„Åø‰ΩøÁî®„Åß„Åç„Åæ„Åô„ÄÇ");
         }
         Continues->push_back(OutputPositionPlaceholder());
-        Output(CMO_Goto, tpOpe);
+        OutputOperator(TMacroOperator::Goto);
       } else if (e.str == "class" && lex->GetNext().type == tpVar) {
         if (!firstloop) {
-          throw CMCException(e.str + L" êÈåæÇÃëOÇ… ; Ç™ïKóvÇ≈Ç∑ÅB");
+          throw CMCException(e.str + L" ÂÆ£Ë®Ä„ÅÆÂâç„Å´ ; „ÅåÂøÖË¶Å„Åß„Åô„ÄÇ");
         }
         GetClass();
         return true;
       } else if (e.str == "import" && lex->GetNext().str == "{") {
         if (!firstloop) {
-          throw CMCException(e.str + L" ï∂ÇÃëOÇ… ; Ç™ïKóvÇ≈Ç∑ÅB");
+          throw CMCException(e.str + L" Êñá„ÅÆÂâç„Å´ ; „ÅåÂøÖË¶Å„Åß„Åô„ÄÇ");
         }
         GetImport();
         return true;
@@ -1287,28 +1360,26 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         GetLambda(e.str);
       } else if (lex->GetNext().type != tpStructure
                  && lex->GetNext().type != tpOpe) {
-        throw CMCException(e.str + L" Ç∆ " + lex->GetNext().str
-            + L" ÇÃä‘Ç…ââéZéqÇ™ïKóvÇ≈Ç∑ÅB");
+        throw CMCException(e.str + L" „Å® " + lex->GetNext().str
+            + L" „ÅÆÈñì„Å´ÊºîÁÆóÂ≠ê„ÅåÂøÖË¶Å„Åß„Åô„ÄÇ");
       } else {
         if (isUndefined) {
           if (lex->GetNext().str != "=") {
-            throw CMCException(L"ílÇ™ë„ì¸Ç≥ÇÍÇƒÇ¢Ç»Ç¢ïœêîÇ≈Ç∑ÅF" + e.str);
+            throw CMCException(L"ÂÄ§„Åå‰ª£ÂÖ•„Åï„Çå„Å¶„ÅÑ„Å™„ÅÑÂ§âÊï∞„Åß„ÅôÔºö" + e.str);
           }
-          Variables->Add(e.str);
+          Variables.insert(e.str);
         } else if (lex->GetNext().str == "=") {
-          if (Constants->IndexOf(e.str) >= 0) {
-            throw CMCException(L"íËêîÇ÷ÇÃçƒë„ì¸ÇÕÇ≈Ç´Ç‹ÇπÇÒÅF" + e.str);
-          } else if (CapturableVariables->IndexOf(e.str) >= 0) {
-            throw CMCException(L"ÉâÉÄÉ_éÆì‡Ç≈ÇÕïœêîÇ÷ÇÃçƒë„ì¸ÇÕÇ≈Ç´Ç‹ÇπÇÒÅF" +
+          if (Constants.count(e.str) > 0) {
+            throw CMCException(L"ÂÆöÊï∞„Å∏„ÅÆÂÜç‰ª£ÂÖ•„ÅØ„Åß„Åç„Åæ„Åõ„ÇìÔºö" + e.str);
+          } else if (CapturableVariables.count(e.str) > 0) {
+            throw CMCException(L"„É©„É†„ÉÄÂºèÂÜÖ„Åß„ÅØÂ§âÊï∞„Å∏„ÅÆÂÜç‰ª£ÂÖ•„ÅØ„Åß„Åç„Åæ„Åõ„ÇìÔºö" +
                                e.str);
           }
-        } else if (Variables->IndexOf(e.str) < 0 &&
-                   CapturableVariables->IndexOf(e.str) >= 0) {
+        } else if (Variables.count(e.str) == 0 &&
+                   CapturableVariables.count(e.str) > 0) {
           Push(CMCElement("this", prElement, tpVar), &ls);
           Push(CMCElement("."), &ls);
-          if (CapturedVariables->IndexOf(e.str) < 0) {
-            CapturedVariables->Add(e.str);
-          }
+          CapturedVariables.insert(e.str);
           e.type = tpString;
         }
         Push(e, &ls);
@@ -1317,12 +1388,12 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
       if (e.str == "::") {
         CMCElement f = lex->Get();
         if (lex->GetNext().str != "(") {
-          throw CMCException(L"ä÷êîåƒÇ—èoÇµÇ…ÇÕ () Ç™ïKóvÇ≈Ç∑ÅF" + f.str);
+          throw CMCException(L"Èñ¢Êï∞Âëº„Å≥Âá∫„Åó„Å´„ÅØ () „ÅåÂøÖË¶Å„Åß„ÅôÔºö" + f.str);
         }
         lex->Get(); // "("
-        char H;
-        GetValues(')', &H);
-        Push(CMCElement((String)H + f.str, prElement, tpFunc), &ls);
+        char paramCount;
+        GetValues(')', &paramCount);
+        Push(CMCElement(String(paramCount) + f.str, prElement, tpFunc), &ls);
       } else if (e.str == "&&" || e.str == "||" || e.str == "&" ||
                  e.str == "|") {
         Push(CMCElement("", e.pri, tpStructure), &ls);
@@ -1335,22 +1406,22 @@ bool TCompiler::GetSentence(char EOS, bool allowBlock, char *nHikisu)
         Output(e);
         GetValues(':');
         int jumpTrue = OutputPositionPlaceholder();
-        Output(CMO_Jump, tpOpe);
+        OutputOperator(TMacroOperator::Jump);
         FillPositionPlaceholder(jumpFalse);
         Push(CMCElement("", e.pri, tpStructure, jumpTrue), &ls);
       } else if (e.str == ":") {
         PushAll(&ls);
         if (EOS != ':') {
-          throw CMCException(L": ÇÃà íuÇ™ê≥ÇµÇ≠Ç†ÇËÇ‹ÇπÇÒÅB");
+          throw CMCException(L": „ÅÆ‰ΩçÁΩÆ„ÅåÊ≠£„Åó„Åè„ÅÇ„Çä„Åæ„Åõ„Çì„ÄÇ");
         }
         return true;
       } else {
         Push(e, &ls);
       }
-    } else{
+    } else {
       if (lex->GetNext().type != tpStructure && lex->GetNext().type != tpOpe) {
-        throw CMCException(e.str + L" Ç∆ " + lex->GetNext().str
-            + L" ÇÃä‘Ç…ââéZéqÇ™ïKóvÇ≈Ç∑ÅB");
+        throw CMCException(e.str + L" „Å® " + lex->GetNext().str
+            + L" „ÅÆÈñì„Å´ÊºîÁÆóÂ≠ê„ÅåÂøÖË¶Å„Åß„Åô„ÄÇ");
       }
       Push(e, &ls);
     }
@@ -1363,44 +1434,40 @@ void TCompiler::GetBlock()
   while(GetSentence(';'));
 }
 //---------------------------------------------------------------------------
-String TCompiler::MaybeAddLibToLibName(String libName)
+String TCompiler::MaybeAddLibToLibName(const String& libName)
 {
-  for (String dir : Context->Dirs) {
+  for (const String& dir : Context->Dirs) {
     if (FileExists(dir + libName)) {
       return libName;
     }
   }
-  for (String dir : Context->Dirs) {
+  for (const String& dir : Context->Dirs) {
     if (FileExists(dir + "lib/" + libName)) {
       return "lib/" + libName;
     }
   }
-  throw CMCException(libName + L"\nÉtÉ@ÉCÉãÇ™å©Ç¬Ç©ÇËÇ‹ÇπÇÒÅB");
+  throw CMCException(libName + L"\n„Éï„Ç°„Ç§„É´„ÅåË¶ã„Å§„Åã„Çä„Åæ„Åõ„Çì„ÄÇ");
 }
 //---------------------------------------------------------------------------
-bool TCompiler::Compile(String string, String filePath, String libName,
-                        bool showMessage)
+bool TCompiler::Compile(const String& string, const String& filePath,
+    const String& libName, bool showMessage)
 {
   InName = libName;
   Fail = false;
-  lex = new TTokenizer(string);
-  fout = new TMemoryStream();
-  Variables = newTStringList();
-  Constants = newTStringList();
-  CapturableVariables = newTStringList();
-  CapturedVariables = newTStringList();
+  lex = std::make_unique<TTokenizer>(string);
+  fout = {};
   // Ok to use these pre-defined variables.
-  Variables->Add("x");
-  Variables->Add("y");
-  Variables->Add("Left");
-  Variables->Add("Top");
+  Variables.insert("x");
+  Variables.insert("y");
+  Variables.insert("Left");
+  Variables.insert("Top");
 
   try {
     GetBlock();
   } catch (CMCException e) {
     if (showMessage) {
       Application->MessageBox(
-          (filePath + "\n" + lex->y + L"çsñ⁄\t" + lex->x + L"ï∂éöñ⁄\n"
+          (filePath + "\n" + lex->y + L"Ë°åÁõÆ\t" + lex->x + L"ÊñáÂ≠óÁõÆ\n"
               + e.Message).c_str(),
           L"Cassava Macro Compiler", 0);
     }
@@ -1408,7 +1475,7 @@ bool TCompiler::Compile(String string, String filePath, String libName,
   } catch (Exception *e) {
     if (showMessage) {
       Application->MessageBox(
-          (filePath + "\n" + lex->y + L"çsñ⁄\t" + lex->x + L"ï∂éöñ⁄\n"
+          (filePath + "\n" + lex->y + L"Ë°åÁõÆ\t" + lex->x + L"ÊñáÂ≠óÁõÆ\n"
               + e->Message).c_str(),
           L"Cassava Macro Compiler", 0);
     }
@@ -1416,24 +1483,17 @@ bool TCompiler::Compile(String string, String filePath, String libName,
   }
 
   if (!Fail) {
-    Context->Modules[libName] = fout;
-  } else {
-    delete fout;
+    Context->Modules[libName] = std::move(fout);
   }
 
-  delete lex;
-  delete Variables;
-  delete Constants;
-  delete CapturableVariables;
-  delete CapturedVariables;
   return !Fail;
 }
 //---------------------------------------------------------------------------
-bool CompileMacro(String *source, String name, TMacroContext *context,
-    bool showMessage)
+bool CompileMacro(const String* source, const String& name,
+    TMacroContext *context, bool showMessage)
 {
   TCompiler compiler(context);
-  compiler.import->Add(name);
+  compiler.import.push_back(name);
   int processed = 0;
 
   if (source != nullptr) {
@@ -1442,7 +1502,7 @@ bool CompileMacro(String *source, String name, TMacroContext *context,
       if (!ok) { return false; }
       processed = 1;
     } catch (Exception *e) {
-      if(showMessage) {
+      if (showMessage) {
         Application->MessageBox((name + "\n" + e->Message).c_str(),
                                 L"Cassava Macro Compiler", 0);
       }
@@ -1450,14 +1510,14 @@ bool CompileMacro(String *source, String name, TMacroContext *context,
     }
   }
 
-  for (int i = processed; i < compiler.import->Count; i++) {
-    String libName = compiler.import->Strings[i];
+  for (int i = processed; i < compiler.import.size(); i++) {
+    String libName = compiler.import[i];
     String libFileName = "";
-    try{
+    try {
       if (libName.Pos(":") > 0 || libName.SubString(1, 1) == "\\") {
         libFileName = libName;
       } else {
-        for (String dir : context->Dirs) {
+        for (const String& dir : context->Dirs) {
           String pathName = dir + libName;
           if (FileExists(pathName)) {
             libFileName = pathName;
@@ -1468,29 +1528,27 @@ bool CompileMacro(String *source, String name, TMacroContext *context,
       if (libFileName == "" || !FileExists(libFileName)) {
         if (showMessage) {
           Application->MessageBox(
-              (libName + L"\nÉtÉ@ÉCÉãÇ™å©Ç¬Ç©ÇËÇ‹ÇπÇÒÅB").c_str(),
+              (libName + L"\n„Éï„Ç°„Ç§„É´„ÅåË¶ã„Å§„Åã„Çä„Åæ„Åõ„Çì„ÄÇ").c_str(),
               L"Cassava Macro Compiler", 0);
         }
         return false;
       }
-      TFileStream *file =
-          new TFileStream(libFileName, fmOpenRead|fmShareDenyNone);
+      std::unique_ptr<TFileStream> file = std::make_unique<TFileStream>(
+          libFileName, fmOpenRead | fmShareDenyNone);
       int filelength = file->Size;
-      DynamicArray<Byte> buf;
-      buf.Length = filelength;
-      filelength = file->Read(&(buf[0]), filelength);
-      buf.Length = filelength;
-      delete file;
+      TBytes bytes;
+      bytes.Length = filelength;
+      filelength = file->Read(bytes, filelength);
       String string;
       try {
-        string = TEncoding::UTF8->GetString(buf);
+        string = TEncoding::UTF8->GetString(bytes);
       } catch (...) {
-        string = TEncoding::GetEncoding(932)->GetString(buf);
+        string = TEncoding::GetEncoding(932)->GetString(bytes);
       }
       bool ok = compiler.Compile(string, libFileName, libName, showMessage);
       if (!ok) { return false; }
     } catch (Exception *e) {
-      if(showMessage) {
+      if (showMessage) {
         Application->MessageBox((libFileName + "\n" + e->Message).c_str(),
                                 L"Cassava Macro Compiler", 0);
       }
@@ -1500,13 +1558,14 @@ bool CompileMacro(String *source, String name, TMacroContext *context,
   return true;
 }
 //---------------------------------------------------------------------------
-bool CompileMacro(String fileName, TMacroContext *context, bool showMessage)
+bool CompileMacro(const String& fileName, TMacroContext *context,
+    bool showMessage)
 {
   return CompileMacro(nullptr, fileName, context, showMessage);
 }
 //---------------------------------------------------------------------------
-String GetMacroModuleName(String fileName, String funcName, String argCount,
-                          bool varArg)
+String GetMacroModuleName(const String& fileName, const String& funcName,
+    const String& argCount, bool varArg)
 {
   return fileName + "\n" + funcName + (varArg ? "/+" : "/") + argCount;
 }

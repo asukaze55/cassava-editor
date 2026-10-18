@@ -1,9 +1,11 @@
-//---------------------------------------------------------------------------
+Ôªø//---------------------------------------------------------------------------
 #include <vcl.h>
+#include "MainForm.h"
 #pragma hdrstop
+
 #include "FormattedFileName.h"
 //---------------------------------------------------------------------------
-String FormattedFileName(String Format, String BaseFileName)
+String FormattedFileName(const String& Format, const String& BaseFileName)
 {
   String Path2 = ExtractFilePath(BaseFileName);
   String FileName2 = ExtractFileName(BaseFileName);
@@ -20,7 +22,7 @@ String FormattedFileName(String Format, String BaseFileName)
   for(int i=1; i<=Format.Length(); i++){
     if(Format[i] == '%' && i < Format.Length()){
       i++;
-      TCHAR ch = Format[i];
+      wchar_t ch = Format[i];
       switch(ch){
       case 'f':
         FileName += Body2;
@@ -29,30 +31,30 @@ String FormattedFileName(String Format, String BaseFileName)
         FileName += Ext2;
         break;
       case 'y':
-        FileName += (String)year;
+        FileName += year;
         break;
       case 'M':
-        FileName += (char)('0' + (month / 10));
-        FileName += (char)('0' + (month % 10));
+        FileName += static_cast<wchar_t>(L'0' + (month / 10));
+        FileName += static_cast<wchar_t>(L'0' + (month % 10));
         break;
       case 'd':
-        FileName += (char)('0' + (day / 10));
-        FileName += (char)('0' + (day % 10));
+        FileName += static_cast<wchar_t>(L'0' + (day / 10));
+        FileName += static_cast<wchar_t>(L'0' + (day % 10));
         break;
       case 'H':
-        FileName += (char)('0' + (hours / 10));
-        FileName += (char)('0' + (hours % 10));
+        FileName += static_cast<wchar_t>(L'0' + (hours / 10));
+        FileName += static_cast<wchar_t>(L'0' + (hours % 10));
         break;
       case 'm':
-        FileName += (char)('0' + (minutes / 10));
-        FileName += (char)('0' + (minutes % 10));
+        FileName += static_cast<wchar_t>(L'0' + (minutes / 10));
+        FileName += static_cast<wchar_t>(L'0' + (minutes % 10));
         break;
       case 's':
-        FileName += (char)('0' + (seconds / 10));
-        FileName += (char)('0' + (seconds % 10));
+        FileName += static_cast<wchar_t>(L'0' + (seconds / 10));
+        FileName += static_cast<wchar_t>(L'0' + (seconds % 10));
         break;
       case 'n':
-        FileName += "<n>"; // <> ÇÕ Windows Ç≈ÇÕÉtÉ@ÉCÉãñºÇ…égÇ¶Ç»Ç¢
+        FileName += "<n>"; // <> „ÅØ Windows „Åß„ÅØ„Éï„Ç°„Ç§„É´Âêç„Å´‰Ωø„Åà„Å™„ÅÑ
         nExists = true;
         break;
       case '%':
@@ -77,7 +79,7 @@ String FormattedFileName(String Format, String BaseFileName)
       int p;
       while((p = FileNameTest.Pos("<n>")) > 0){
         FileNameTest.Delete(p, 3);
-        FileNameTest.Insert((String)n, p);
+        FileNameTest.Insert(String(n), p);
       }
       if(! FileExists(FileNameTest)){
         return FileNameTest;

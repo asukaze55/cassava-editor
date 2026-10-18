@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 
 #ifndef OptionFileH
 #define OptionFileH
@@ -13,7 +13,7 @@
 //---------------------------------------------------------------------------
 class TfrOptionFile : public TFrame
 {
-__published:  // IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
+__published:  // IDE ç®¡ç†ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
   TGroupBox *gbLock;
   TCheckBox *cbCheckTimeStamp;
   TGroupBox *gbCharCode;
@@ -24,13 +24,11 @@ __published:  // IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
   TCheckBox *cbNewWindow;
   TCheckBox *cbTitleFullPath;
   TCheckBox *cbUseUtf8AsDefault;
-private:  // ƒ†[ƒU[éŒ¾
-public:   // ƒ†[ƒU[éŒ¾
+private:  // ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
+public:   // ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
   __fastcall TfrOptionFile(TComponent* Owner);
   void RestoreFromMainForm();
   void StoreToMainForm();
 };
-//---------------------------------------------------------------------------
-extern PACKAGE TfrOptionFile *frOptionFile;
 //---------------------------------------------------------------------------
 #endif

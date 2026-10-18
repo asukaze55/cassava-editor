@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 #pragma hdrstop
 #include "EncodingDetector.h"
 //---------------------------------------------------------------------------
@@ -107,7 +107,7 @@ void UTF16BE_Next(byte b, int i, int &error, int &hit, int &flag)
 //---------------------------------------------------------------------------
 int DetectCharCode(byte *buf, int len, int def)
 {
-#define CHARCODE_COUNT 6
+  static constexpr int CHARCODE_COUNT = 6;
   funcNext *next[CHARCODE_COUNT];
   next[CHARCODE_SJIS] = SJIS_Next;
   next[CHARCODE_EUC] = EUC_Next;
@@ -149,7 +149,7 @@ int DetectCharCode(byte *buf, int len, int def)
 
   int result = (def >= 0 && def < CHARCODE_UTF16LE) ? def : 0;
   int minerr = error[result];
-  // UTF-16 ‚Í error ‚ðƒJƒEƒ“ƒg‚µ‚È‚¢‚½‚ß”äŠr‘ÎÛŠO
+  // UTF-16 ã¯ error ã‚’ã‚«ã‚¦ãƒ³ãƒˆã—ãªã„ãŸã‚æ¯”è¼ƒå¯¾è±¡å¤–
   for (int i = 0; i < CHARCODE_UTF16LE; i++) {
     if (error[i] < minerr) {
       result = i;
@@ -159,27 +159,25 @@ int DetectCharCode(byte *buf, int len, int def)
   return result;
 }
 //---------------------------------------------------------------------------
-TEncoding *TEncodingDetector::Detect(String fileName)
+TEncoding *TEncodingDetector::Detect(const String& fileName)
 {
   if (!Enabled) {
     return DefaultEncoding;
   }
 
-  TFileStream *file = new TFileStream(fileName, fmOpenRead|fmShareDenyNone);
-  int bufLength = min(file->Size, 1024);
-  if (bufLength == 0) {
-    delete file;
+  std::unique_ptr<TFileStream> file =
+      std::make_unique<TFileStream>(fileName, fmOpenRead|fmShareDenyNone);
+  int length = min(file->Size, 1024);
+  if (length == 0) {
     return DefaultEncoding;
   }
 
-  DynamicArray<Byte> byteBuffer;
-  byteBuffer.Length = bufLength;
-  bufLength = file->Read(&(byteBuffer[0]), bufLength);
-  byteBuffer.Length = bufLength;
-  delete file;
+  TBytes bytes;
+  bytes.Length = length;
+  length = file->Read(bytes, length);
 
   return ToEncoding(
-      DetectCharCode(&(byteBuffer[0]), bufLength, ToCharCode(DefaultEncoding)));
+      DetectCharCode(bytes.data(), length, ToCharCode(DefaultEncoding)));
 }
 //---------------------------------------------------------------------------
 TEncoding *ToEncoding(int charCode)

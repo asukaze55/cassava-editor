@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 
 #ifndef OptionDataFormatH
 #define OptionDataFormatH
@@ -13,9 +13,11 @@
 //---------------------------------------------------------------------------
 #include "MainForm.h"
 //---------------------------------------------------------------------------
+class TfmOption;
+//---------------------------------------------------------------------------
 class TfrOptionDataFormat : public TFrame
 {
-__published:    // IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
+__published:    // IDE ç®¡ç†ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
     TLabel *lblName;
     TEdit *edName;
     TButton *btnDeleteType;
@@ -39,9 +41,10 @@ __published:    // IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
     void __fastcall edNameChange(TObject *Sender);
     void __fastcall btnDeleteTypeClick(TObject *Sender);
     void __fastcall rgSaveQuoteClick(TObject *Sender);
-private:    // ƒ†[ƒU[éŒ¾
-public:     // ƒ†[ƒU[éŒ¾
-    __fastcall TfrOptionDataFormat(TComponent* Owner);
+private:    // ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
+    TfmOption *fmOption;
+public:     // ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
+    __fastcall TfrOptionDataFormat(TfmOption* Owner);
     void RestoreFromMainForm();
     void StoreToMainForm();
     void RestoreDataPage(int id);
@@ -51,10 +54,8 @@ public:     // ƒ†[ƒU[éŒ¾
     void ApplyToCurrentFile(int index);
     void Delete(int index);
     TTypeList TypeList;
-    int TypeIndex;       // Œ»İ•\¦’†
-    int ActiveTypeIndex; // MainForm‚ÌƒAƒNƒeƒBƒu
+    int TypeIndex;       // ç¾åœ¨è¡¨ç¤ºä¸­
+    int ActiveTypeIndex; // MainFormã®ã‚¢ã‚¯ãƒ†ã‚£ãƒ–
 };
-//---------------------------------------------------------------------------
-extern PACKAGE TfrOptionDataFormat *frOptionDataFormat;
 //---------------------------------------------------------------------------
 #endif

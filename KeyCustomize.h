@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+Ôªø//---------------------------------------------------------------------------
 #ifndef KeyCustomizeH
 #define KeyCustomizeH
 //---------------------------------------------------------------------------
@@ -11,76 +11,81 @@
 #include <ExtCtrls.hpp>
 #include <Dialogs.hpp>
 //---------------------------------------------------------------------------
-class TfmKey : public TForm
-{
-__published:	// IDE ä«óùÇÃÉRÉìÉ|Å[ÉlÉìÉg
-        TTreeView *tvMenu;
-        TPanel *Panel1;
-        TBitBtn *btnOK;
-        TBitBtn *btnCancel;
-        TCheckBox *cbCtrl;
-        TCheckBox *cbShift;
-		TRadioGroup *rgSCKey;
-        TEdit *edSCKey;
-        TCheckBox *cbAlt;
-        TStaticText *StaticText1;
-        TStaticText *stUseSC;
-        TBitBtn *btnSave;
-        TBitBtn *btnOpen;
-        TOpenDialog *dlgOpen;
-        TEdit *edSelected;
-  TSaveDialog *dlgSave;
-	TEdit *csFNumber;
-	TUpDown *udFNumber;
-        void __fastcall FormShow(TObject *Sender);
-        void __fastcall tvMenuChange(TObject *Sender, TTreeNode *Node);
-        void __fastcall rgSCKeyClick(TObject *Sender);
-        void __fastcall btnOKClick(TObject *Sender);
-        void __fastcall edSCKeyKeyPress(TObject *Sender, char &Key);
-        void __fastcall btnSaveClick(TObject *Sender);
-        void __fastcall btnOpenClick(TObject *Sender);
-        void __fastcall tvMenuChanging(TObject *Sender, TTreeNode *Node,
-          bool &AllowChange);
-        void __fastcall edSelectedChange(TObject *Sender);
-private:	// ÉÜÅ[ÉUÅ[êÈåæ
-public:		// ÉÜÅ[ÉUÅ[êÈåæ
-        class TMenuShortCut{
-          private:
-            TShortCut GetMShortCut() { return ShortCut(Key, Shift); }
-            void SetMShortCut(TShortCut SC) { ShortCutToKey(SC, Key, Shift); }
-            bool GetModified() {
-              if(!MenuItem) return false;
-              Word TheKey; TShiftState TheShift;
-              ShortCutToKey(MenuItem->ShortCut, TheKey, TheShift);
-              if(TheKey == '\0' && Key == '\0') return false;
-              return (TheKey != Key || TheShift != Shift);
-            }
-          public:
-            TMenuItem *MenuItem;
-            Word Key;
-            TShiftState Shift;
-            String Caption;
-            __property TShortCut MShortCut
-              = {read=GetMShortCut, write=SetMShortCut};
-            __property bool Modified = {read=GetModified};
-            TMenuShortCut(){ MenuItem = nullptr;}
-            TMenuShortCut(TMenuItem *mi){
-              MenuItem = mi; MShortCut = mi->ShortCut;
-              Caption = mi->Caption;
-            }
-        };
+class TMenuShortCutChange {
+private:
+  TShortCut GetShortCut() const {
+    return ::ShortCut(Key, Shift);
+  }
+  void SetShortCut(TShortCut SC) {
+    ShortCutToKey(SC, Key, Shift);
+  }
+  bool GetModified() const {
+    if (!MenuItem) {
+      return false;
+    }
+    Word currentKey;
+    TShiftState currentShift;
+    ShortCutToKey(MenuItem->ShortCut, currentKey, currentShift);
+    if (currentKey == '\0' && Key == '\0') {
+      return false;
+    }
+    return (currentKey != Key || currentShift != Shift);
+  }
+public:
+  TMenuItem *MenuItem;
+  Word Key;
+  TShiftState Shift;
+  String Caption;
+  __property TShortCut ShortCut = {read=GetShortCut, write=SetShortCut};
+  __property bool Modified = {read=GetModified};
 
-        __fastcall TfmKey(TComponent* Owner);
-        void MakeTree();
-        void AddMenu(TTreeNode* Node, TMenuItem* MenuItem);
-        void SetMSC(TMenuShortCut *MSC);
-        int KeyToIndex(Word Key);
-        void MenuUpDate();
-        bool SaveKey(String FileName);
-        bool LoadKey(String FileName);
-        TMenuShortCut *NowMSC;
+  TMenuShortCutChange(TMenuItem *mi) : MenuItem(mi), Caption(mi->Caption) {
+    SetShortCut(mi->ShortCut);
+  }
 };
 //---------------------------------------------------------------------------
-extern PACKAGE TfmKey *fmKey;
+class TfmKey : public TForm
+{
+__published:	// IDE ÁÆ°ÁêÜ„ÅÆ„Ç≥„É≥„Éù„Éº„Éç„É≥„Éà
+  TTreeView *tvMenu;
+  TPanel *Panel1;
+  TBitBtn *btnOK;
+  TBitBtn *btnCancel;
+  TCheckBox *cbCtrl;
+  TCheckBox *cbShift;
+  TRadioGroup *rgSCKey;
+  TEdit *edSCKey;
+  TCheckBox *cbAlt;
+  TStaticText *StaticText1;
+  TStaticText *stUseSC;
+  TBitBtn *btnSave;
+  TBitBtn *btnOpen;
+  TOpenDialog *dlgOpen;
+  TEdit *edSelected;
+  TSaveDialog *dlgSave;
+  TEdit *csFNumber;
+  TUpDown *udFNumber;
+  void __fastcall FormShow(TObject *Sender);
+  void __fastcall tvMenuChange(TObject *Sender, TTreeNode *Node);
+  void __fastcall rgSCKeyClick(TObject *Sender);
+  void __fastcall btnOKClick(TObject *Sender);
+  void __fastcall edSCKeyKeyPress(TObject *Sender, wchar_t &Key);
+  void __fastcall btnSaveClick(TObject *Sender);
+  void __fastcall btnOpenClick(TObject *Sender);
+  void __fastcall tvMenuChanging(TObject *Sender, TTreeNode *Node,
+      bool &AllowChange);
+  void __fastcall edSelectedChange(TObject *Sender);
+private:	// „É¶„Éº„Ç∂„ÉºÂÆ£Ë®Ä
+  std::map<TTreeNode*, TMenuShortCutChange> Changes;
+  void AddMenu(TTreeNode* Node, TMenuItem* MenuItem);
+  TMenuShortCutChange* UpdateChange();
+  int KeyToIndex(Word Key);
+public:		// „É¶„Éº„Ç∂„ÉºÂÆ£Ë®Ä
+  __fastcall TfmKey(TComponent* Owner);
+  void MakeTree();
+  void UpdateMenu();
+  bool SaveKey(const String& FileName);
+  bool LoadKey(const String& FileName);
+};
 //---------------------------------------------------------------------------
 #endif

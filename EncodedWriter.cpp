@@ -1,11 +1,11 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 #pragma hdrstop
 #include "EncodedWriter.h"
 //---------------------------------------------------------------------------
 EncodedWriter::EncodedWriter(TStream *s, TEncoding *encoding, bool bom)
   : Stream(s), Encoding(encoding), Bom(bom) {}
 //---------------------------------------------------------------------------
-void EncodedWriter::Write(String data)
+void EncodedWriter::Write(const String& data)
 {
   if (data.Length() > 0) {
     if (Bom) {
@@ -18,8 +18,8 @@ void EncodedWriter::Write(String data)
       }
       Bom = false;
     }
-    DynamicArray<System::Byte> array = Encoding->GetBytes(data);
-    Stream->Write(&(array[0]), array.Length);
+    TBytes bytes = Encoding->GetBytes(data);
+    Stream->Write(bytes, bytes.Length);
   }
 }
 //---------------------------------------------------------------------------

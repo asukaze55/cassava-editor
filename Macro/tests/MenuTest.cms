@@ -110,20 +110,34 @@ class MenuTest {
     Paste(4);
     assert.that(Bottom).isEqualTo(3);
 
-    moveto(1, 1);
     [1,1] = "ABC123!?アイウ";
+    [1,2] = "ギザギザ";
+    [1,3] = "ピヴォット";
+    Select(1, 1, 1, 3);
     TransChar1();
     assert.that([1,1]).isEqualTo("ＡＢＣ１２３！？アイウ");
+    assert.that([1,2]).isEqualTo("ギザギザ");
+    assert.that([1,3]).isEqualTo("ピヴォット");
     TransChar0();
     assert.that([1,1]).isEqualTo("ABC123!?アイウ");
+    assert.that([1,2]).isEqualTo("ギザギザ");
+    assert.that([1,3]).isEqualTo("ピヴォット");
     TransChar3();
     assert.that([1,1]).isEqualTo("abc123!?アイウ");
+    assert.that([1,2]).isEqualTo("ギザギザ");
+    assert.that([1,3]).isEqualTo("ピヴォット");
     TransChar2();
     assert.that([1,1]).isEqualTo("ABC123!?アイウ");
+    assert.that([1,2]).isEqualTo("ギザギザ");
+    assert.that([1,3]).isEqualTo("ピヴォット");
     TransChar4();
     assert.that([1,1]).isEqualTo("ABC123!?ｱｲｳ");
+    assert.that([1,2]).isEqualTo("ｷﾞｻﾞｷﾞｻﾞ");
+    assert.that([1,3]).isEqualTo("ﾋﾟｳﾞｫｯﾄ");
     TransChar5();
     assert.that([1,1]).isEqualTo("ABC123!?アイウ");
+    assert.that([1,2]).isEqualTo("ギザギザ");
+    assert.that([1,3]).isEqualTo("ピヴォット");
 
     [1,1] = "data001";
     SelLeft = 1;

@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 #ifndef PrintH
 #define PrintH
 //---------------------------------------------------------------------------
@@ -12,7 +12,7 @@
 //---------------------------------------------------------------------------
 class TfmPrint : public TForm
 {
-__published:	// IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
+__published:	// IDE ç®¡ç†ã®ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
   TButton *btnPrint;
   TButton *btnClose;
   TPrinterSetupDialog *dlgPrinter;
@@ -44,14 +44,13 @@ __published:	// IDE ŠÇ—‚ÌƒRƒ“ƒ|[ƒlƒ“ƒg
   void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
   void __fastcall btnFontClick(TObject *Sender);
   void __fastcall FormShow(TObject *Sender);
-private:	// ƒ†[ƒU[éŒ¾
-public:		// ƒ†[ƒU[éŒ¾
+private:	// ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
+  int PrintPage(TCanvas *Canvas, int Width, int Height, int Top,
+      const std::vector<int>& Widths, int CellLRMargin, int CellTBMargin,
+      int Page);
+public:		// ãƒ¦ãƒ¼ã‚¶ãƒ¼å®£è¨€
   __fastcall TfmPrint(TComponent* Owner);
   void PrintOut();
-  int PrintPage(TCanvas *Canvas, int Width, int Height, int Top, int Widths[],
-                int CellLRMargin, int CellTBMargin, int Page);
 };
-//---------------------------------------------------------------------------
-extern PACKAGE TfmPrint *fmPrint;
 //---------------------------------------------------------------------------
 #endif

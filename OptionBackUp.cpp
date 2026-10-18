@@ -1,14 +1,12 @@
-//---------------------------------------------------------------------------
-
+﻿//---------------------------------------------------------------------------
 #include <vcl.h>
+#include "MainForm.h"
 #pragma hdrstop
 
 #include "OptionBackUp.h"
-#include "MainForm.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TfrOptionBackUp *frOptionBackUp;
 //---------------------------------------------------------------------------
 __fastcall TfrOptionBackUp::TfrOptionBackUp(TComponent* Owner)
 	: TFrame(Owner)

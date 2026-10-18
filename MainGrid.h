@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 #ifndef MainGridH
 #define MainGridH
 //---------------------------------------------------------------------------
@@ -11,10 +11,10 @@
 #include "EncodedWriter.h"
 #include "Undo.h"
 //---------------------------------------------------------------------------
-#define CASSAVA_TITLE L"Cassava Editor"
+constexpr wchar_t CASSAVA_TITLE[] = L"Cassava Editor";
 //---------------------------------------------------------------------------
-typedef void __fastcall (__closure *TDropCsvFiles)
-    (System::TObject *Sender, int iFiles, System::String *DropFileNames);
+using TDropCsvFiles =
+    void (__closure *)(const std::vector<String>& DropFileNames);
 //---------------------------------------------------------------------------
 enum TReturnCode {
   CRLF, LF, CR
@@ -37,12 +37,37 @@ enum TCalcType {
   ctNotExpr, ctOk, ctError
 };
 //---------------------------------------------------------------------------
+enum class TPasteOption : int {
+  Unknown = -1,
+  Crop = 0,
+  Repeat = 1,
+  Overwrite = 2,
+  InsertRight = 3,
+  InsertDown = 4,
+  Editor = 5,
+  InsertRow = 11,
+  InsertCol = 12
+};
+//---------------------------------------------------------------------------
+enum class TTextAlignment : int {
+  Left = 0,
+  NumRight = 1
+};
+//---------------------------------------------------------------------------
+enum class TEnterMove : int {
+  None = 0,
+  Down = 1,
+  Right = 2,
+  NextRow = 3,
+  TabbedNextRow = 4
+};
+//---------------------------------------------------------------------------
 struct TCalculatedCell {
   String text;
   TCalcType calcType;
 
   TCalculatedCell() : text(""), calcType(ctNotExpr) {}
-  TCalculatedCell(String t, TCalcType c) : text(t), calcType(c) {}
+  TCalculatedCell(const String& t, TCalcType c) : text(t), calcType(c) {}
 };
 //---------------------------------------------------------------------------
 struct TFormattedCell {
@@ -53,7 +78,8 @@ struct TFormattedCell {
   TFontStyles styles;
 
   TFormattedCell() {}
-  TFormattedCell(String t, TColor f, TColor b, TAlignment a, TFontStyles s)
+  TFormattedCell(const String& t, TColor f, TColor b, TAlignment a,
+      TFontStyles s)
       : text(t), fgColor(f), bgColor(b), alignment(a), styles(s) {}
 };
 //---------------------------------------------------------------------------
@@ -79,11 +105,17 @@ private:
       return (ARow>=Selection.Top  && ARow<=Selection.Bottom &&
           ACol>=Selection.Left && ACol<=Selection.Right);
     }
-    int GetDataLeft(){ return (ShowRowCounter ? 1 : 0); }
+    int GetDataLeft() { return (ShowRowCounter ? 1 : 0); }
     int GetDataTop() { return (ShowColCounter ? 1 : 0); }
+    int RXtoAX(int x) { return x - DataLeft + 1; }
+    int RYtoAY(int y) { return y - DataTop  + 1; }
+    int AXtoRX(int x) { return x + DataLeft - 1; }
+    int AYtoRY(int y) { return y + DataTop  - 1; }
     int FDataRight, FDataBottom;
-    TObject *EOFMarker;
-    TObject *EOLMarker;
+    std::unique_ptr<TObject> FEOFMarker = std::make_unique<TObject>();
+    TObject *EOFMarker = FEOFMarker.get();
+    std::unique_ptr<TObject> FEOLMarker = std::make_unique<TObject>();
+    TObject *EOLMarker = FEOLMarker.get();
     void UpdateDataRight();
     void UpdateDataBottom();
     void UpdateDataRightBottom(int modx, int mody);
@@ -102,6 +134,12 @@ private:
     void SetShowRowCounter(bool Value);
     void SetShowColCounter(bool Value);
 
+    void PasteCSV(const std::vector<std::vector<String>>& Row, int Left,
+        int Top, TPasteOption PasteOption, int ClipCols, int ClipRows);
+    String StringsToCSV(TStrings* Data, const TTypeOption *Format,
+        const TMacroContext &MacroContext, int X, int Y);
+    void WriteGrid(EncodedWriter &Writer, const TTypeOption *Format);
+
     bool FExecCellMacro;
     std::map<String, TCalculatedCell> CalculatedCellCache;
     std::map<String, TFormattedCell> FormattedCellCache;
@@ -110,8 +148,6 @@ private:
     void ClearCalcCache();
     void ErrorCalcLoop();
 
-    TUndoList *FUndoList;
-
     TDropCsvFiles FOnDropFiles;
 
     int TextWidth(TCanvas *cnvs, String str);
@@ -119,15 +155,9 @@ private:
 
     TNotifyEvent OnFileOpenThreadTerminate;
 
-    TStrings *LastMatch;
+    std::vector<String> LastMatch;
 
 protected:
-    void PasteCSV(TStrings *List, int Left, int Top, int Way, int ClipCols,
-        int ClipRows, const TTypeOption *Format);
-    String StringsToCSV(TStrings* Data, const TTypeOption *Format,
-        const TMacroContext &MacroContext, int X, int Y);
-    void WriteGrid(EncodedWriter *Writer, const TTypeOption *Format);
-
     virtual bool __fastcall SelectCell(int ACol, int ARow);
     DYNAMIC void __fastcall MouseDown(Controls::TMouseButton Button,
         Classes::TShiftState Shift, int X, int Y);
@@ -150,10 +180,10 @@ protected:
     DYNAMIC void __fastcall RowMoved(int FromIndex, int ToIndex);
     DYNAMIC void __fastcall ColumnMoved(int FromIndex, int ToIndex);
 
-    void __fastcall DropCsvFiles(TWMDropFiles inMsg);
+    void __fastcall DropFiles(TWMDropFiles& Message);
     void __fastcall MouseHWheel(TWMMouseWheel inMsg);
     BEGIN_MESSAGE_MAP
-        MESSAGE_HANDLER(WM_DROPFILES, TWMDropFiles, DropCsvFiles)
+        MESSAGE_HANDLER(WM_DROPFILES, TWMDropFiles, DropFiles)
         MESSAGE_HANDLER(WM_MOUSEHWHEEL, TWMMouseWheel, MouseHWheel)
     END_MESSAGE_MAP(TStringGrid)
 
@@ -189,7 +219,6 @@ public:
       = {read=GetACells, write=SetACells};
 
     __fastcall TMainGrid(TComponent* Owner);
-    __fastcall ~TMainGrid();
 
     void SetDragAcceptFiles(bool Accept);
     void Clear(int AColCount=4, int ARowCount=4, bool UpdateRightBottom=false);
@@ -197,45 +226,31 @@ public:
     void SetWidth();
     void SetHeight(int j, bool useMaxRowHeightLines);
     void SetHeight();
-    void CompactWidth(int *Widths, int WindowSize, int Minimum);
+    void CompactWidth(std::vector<int>& Widths, int WindowSize, int Minimum);
     void Cut();
     void SetDataRightBottom(int rx, int by, bool updateTableSize=true);
     int GetRowDataRight(int Row);
     void SetRowDataRight(int Row, int Right, bool ExpandOnly = false);
-    void SaveToFile(String FileName, const TTypeOption *Format,
+    void SaveToFile(const String& FileName, const TTypeOption *Format,
                     bool SetModifiedFals = true);
     String SingleCellCopiedText;
     void CopyToClipboard(const TTypeOption *Format = nullptr, bool Cut = false);
     void CutToClipboard(const TTypeOption *Format = nullptr);
-#define PASTE_OPTION_UNKNOWN -1
-#define PASTE_OPTION_OVERWRITE 2
-#define PASTE_OPTION_EDITOR 5
-#define PASTE_OPTION_INSERT_ROW 11
-#define PASTE_OPTION_INSERT_COL 12
-    void PasteFromClipboard(int Way, const TTypeOption *Format = nullptr);
-    void SetCsv(TStringList *Dest, String Src, const TTypeOption *Format);
-    void QuotedDataToStrings(TStrings *Lines, String Text,
-        const TTypeOption *Format);
+    void PasteFromClipboard(TPasteOption Option,
+        const TTypeOption* Format = nullptr);
     const TTypeOption *TypeOption;
-    int PasteOption;
-    int DefWay;
+    TPasteOption PasteOption;
+    TPasteOption PreviousPasteOption;
     TEncoding *Encoding;
     bool AddBom;
     TReturnCode ReturnCode;
     TReturnCode InCellReturnCode;
     bool LeftArrowInCell;
-#define cssv_taLeft 0
-#define cssv_taNumRight 1
-    int TextAlignment;
+    TTextAlignment TextAlignment;
     bool AlwaysShowEditor;
     int WheelMoveCursol;
     int WheelScrollStep;
-    int EnterMove;
-#define cssv_EnterNone 0
-#define cssv_EnterDown 1
-#define cssv_EnterRight 2
-#define cssv_EnterNextRow 3
-#define cssv_EnterTabbedNextRow 4
+    TEnterMove EnterMove;
     int TabStartCol;
     int TabStartRow;
 
@@ -243,7 +258,7 @@ public:
     bool ShowURLBlue;
     bool WordWrap;
 	String BrowserFileName;
-    void OpenURL(String FileName);
+    void OpenURL(const String& FileName);
 
     int NumberComma;
     int DecimalDigits;
@@ -256,7 +271,7 @@ public:
     __property bool ExecCellMacro
         = {read=FExecCellMacro, write=SetExecCellMacro};
 
-    bool IsNumber(String Str);
+    bool IsNumber(const String& Str);
     bool IsNumberAtACell(int X, int Y){ return IsNumber(GetACells(X,Y)); };
     void Sort(int SLeft, int STop, int SRight, int SBottom, int SCol,
               bool Ascending, bool NumSort, bool IgnoreCase, bool IgnoreZenhan);
@@ -265,7 +280,7 @@ public:
     void CopySum();
     void CopyAvr();
 
-    void SetCell(int X, int Y, String Value);
+    void SetCell(int X, int Y, const String& Value);
     void ChangeRowCount(int Count);
     void ChangeColCount(int Count);
     void InsertRow(int Top, int Bottom);
@@ -287,8 +302,6 @@ public:
     void DeleteCell_Up();
     void TransChar(int Type);
     String TransChar(String Str, int Type);
-    void TransKana(int Type);
-    String TransKana(String Str, int Type);
     void Sequence(bool Inc);
 
     TCalculatedCell GetCalculatedCell(int AX, int AY);
@@ -302,7 +315,7 @@ public:
     TFormattedCell GetStyledCell(TCalculatedCell Cell, int AX, int AY);
     TFormattedCell GetCellToDraw(int RX, int RY);
 
-    TRect DrawTextRect(TCanvas *Canvas, TRect Rect, String Str,
+    TRect DrawTextRect(TCanvas *Canvas, TRect Rect, const String& Str,
                        bool Wrap, bool MeasureOnly=false);
 
     void SelectRow(long Index){
@@ -341,10 +354,10 @@ public:
           ACol >= Selection.Left && ACol <= Selection.Right;
     }
 
-    bool Find(String FindText, TGridRect Range, bool Case, bool Regex,
-              bool Word, bool Back);
-    bool Replace(String FindText , String ReplaceText, TGridRect Range,
-                 bool Case, bool Regex, bool Word, bool Back);
+    bool Find(const String& FindText, TGridRect Range, bool Case, bool Regex,
+        bool Word, bool Back);
+    bool Replace(const String& FindText , const String& ReplaceText,
+        TGridRect Range, bool Case, bool Regex, bool Word, bool Back);
     int ReplaceAll(String FindText, String ReplaceText, int SLeft, int STop,
                    int SRight, int SBottom, bool Case, bool Regex, bool Word);
     String ReplaceAll(String OriginalText, String FindText, String ReplaceText,
@@ -357,14 +370,11 @@ public:
     __property bool ShowColCounter
                  = {read=FShowColCounter, write=SetShowColCounter};
 
-    __property TUndoList *UndoList = {read=FUndoList};
-    void SetUndoCsv(bool inRedo=false);
+    std::unique_ptr<TUndoList> UndoList = std::make_unique<TUndoList>();
     bool CanUndo() {
       return UndoList->CanUndo();
     }
     void Undo();
-
-    void SetRedoCsv();
     bool CanRedo(){
       return UndoList->CanRedo();
     }
@@ -379,7 +389,7 @@ public:
     void ScrollRows(int Delta);
     void ScrollCols(int Delta);
 
-    void LoadFromFile(String FileName, TEncoding *encoding,
+    void LoadFromFile(const String& FileName, TEncoding *encoding,
         bool isDetectedEncoding, const TTypeOption *Format,
         TNotifyEvent OnTerminate);
     TThread *FileOpenThread;

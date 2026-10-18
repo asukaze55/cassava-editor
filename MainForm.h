@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+Ôªø//---------------------------------------------------------------------------
 #ifndef MainFormH
 #define MainFormH
 //---------------------------------------------------------------------------
@@ -21,15 +21,23 @@
 #include <Vcl.StdCtrls.hpp>
 #include <Vcl.VirtualImageList.hpp>
 #include <map>
+#include <set>
 #include "Compiler.h"
 #include "EncodingDetector.h"
 #include "MainGrid.h"
 #include "Preference.h"
+#include "Sort.h"
 #include "TypeList.h"
+//---------------------------------------------------------------------------
+enum class TLockFileMode : int {
+  None = 0,
+  Edit = 1,
+  Open = 2
+};
 //---------------------------------------------------------------------------
 class TfmMain : public TForm
 {
-__published:	// IDE ä«óùÇÃÉRÉìÉ|Å[ÉlÉìÉg
+__published:	// IDE ÁÆ°ÁêÜ„ÅÆ„Ç≥„É≥„Éù„Éº„Éç„É≥„Éà
   TMainMenu *MainMenu;
   TMenuItem *mnFile;
   TMenuItem *mnOpen;
@@ -277,7 +285,7 @@ __published:	// IDE ä«óùÇÃÉRÉìÉ|Å[ÉlÉìÉg
   void __fastcall mnSortClick(TObject *Sender);
   void __fastcall sbSortClick(TObject *Sender);
   void __fastcall mnKCodeClick(TObject *Sender);
-  void __fastcall mnOpenHistorysClick(TObject *Sender);
+  void __fastcall mnOpenHistoryClick(TObject *Sender);
   void __fastcall mnOpenHistoryClearClick(TObject *Sender);
   void __fastcall mnOptionDlgClick(TObject *Sender);
   void __fastcall mnPrintClick(TObject *Sender);
@@ -298,7 +306,6 @@ __published:	// IDE ä«óùÇÃÉRÉìÉ|Å[ÉlÉìÉg
   void __fastcall mnMacroExecuteClick(TObject *Sender);
   void __fastcall mnStayOnTopClick(TObject *Sender);
   void __fastcall mnExportClick(TObject *Sender);
-  void __fastcall mnTransKanaClick(TObject *Sender);
   void __fastcall mnReloadCodeClick(TObject *Sender);
   void __fastcall mnNewLineClick(TObject *Sender);
   void __fastcall PopMenuOpenPopup(TObject *Sender);
@@ -347,41 +354,42 @@ __published:	// IDE ä«óùÇÃÉRÉìÉ|Å[ÉlÉìÉg
   void __fastcall acFixFirstColExecute(TObject *Sender);
   void __fastcall acFixFirstColUpdate(TObject *Sender);
 
-private:    // ÉÜÅ[ÉUÅ[êÈåæ
+private:    // „É¶„Éº„Ç∂„ÉºÂÆ£Ë®Ä
+  TfmSort *fmSort = nullptr;
   bool StartupMacroDone;
   void ExecStartupMacro();
   void __fastcall ExecOpenMacro(System::TObject* Sender);
   void SaveFile(const TTypeOption *Format);
-  void GetCheckedMenus(TStringList *list);
-  void AddCheckedMenus(TStringList *list, TMenuItem* item);
-  void RestoreCheckedMenus(TStringList *list);
-  void RestoreCheckedMenus(TStringList *list, TMenuItem* item);
+  std::set<String> GetCheckedMenus();
+  void AddCheckedMenus(std::set<String>& checkedMenus, TMenuItem* item);
+  void RestoreCheckedMenus(const std::set<String>& checkedMenus);
+  void RestoreCheckedMenus(const std::set<String>& checkedMenus,
+      TMenuItem* item);
   void SearchMacro(TMenuItem *Parent);
   String GetUiFileName();
   void UpdateTitle();
   String FStyle;
-  void SetStyle(String Value);
+  void SetStyle(const String& Value);
   TTypeList FTypeList;
   void SetTypeList(const TTypeList &TypeList);
   void ReadToolBar();
-  TToolButton *AddToolButton(String Label, String Name, String Action,
-      int Left, TToolBar *ToolBar);
-  TToolBar *AddToolBar(String Label, String ImageList, int Top, int Left);
+  TToolButton *AddToolButton(const String& Label, const String& Name,
+      const String& Action, int Left, TToolBar *ToolBar);
+  TToolBar *AddToolBar(const String& Label, const String& ImageList,
+      int Top, int Left);
   int FToolBarSize;
   void SetToolBarSize(int Size);
 
-public:     // ÉÜÅ[ÉUÅ[êÈåæ
+public:     // „É¶„Éº„Ç∂„ÉºÂÆ£Ë®Ä
   TMainGrid *MainGrid;
   __fastcall TfmMain(TComponent* Owner);
-  __fastcall virtual ~TfmMain();
   bool IfModifiedThenSave();
   void Clear();
   void ReadIni();
   void WriteIni(bool PosSlide = false);
   void __fastcall UserToolBarAction(TObject *Sender);
   void __fastcall MainGridChangeModified(TObject *Sender);
-  void __fastcall MainGridDropFiles(TObject *Sender, int iFiles,
-									String *DropFileNames);
+  void MainGridDropFiles(const std::vector<String>& DropFileNames);
   void __fastcall MainGridKeyDown(System::TObject* Sender,
 						Word &Key, Classes::TShiftState Shift);
   void __fastcall MainGridKeyUp(System::TObject* Sender,
@@ -396,27 +404,27 @@ public:     // ÉÜÅ[ÉUÅ[êÈåæ
 
   String FileName;
   String FullPath;
-  Preference *Pref;
+  std::unique_ptr<Preference> Pref;
   TDateTime TimeStamp;
-  TStringList *History;
-  void SetHistory(String S);
+  std::vector<String> History;
+  void SetHistory(const String& S);
   void SetFilter();
-  String MakeId(String prefix, String caption, int i);
+  String MakeId(const String& prefix, const String& caption, int i);
   void SetCutMenu(TMenuItem *Item);
   void SetCopyMenu(TMenuItem *Item);
   void SetPasteMenu(TMenuItem *Item);
   void SetGridFont(TFont *AFont);
   void UpdateQuickFindPanel();
 
-  void MacroExec(String CmsFile, EncodedWriter *io);
-  void MacroScriptExec(String cmsname, String script);
+  void MacroExec(const String& CmsFile, EncodedWriter *io);
+  void MacroScriptExec(const String& cmsname, const String& script);
   TCalculatedCell GetCalculatedCell(String Str, int ACol, int ARow);
   TFormattedCell GetFormattedCell(TCalculatedCell Cell, int AX, int AY);
-  void OpenFile(String OpenFileName, int CharCode = CHARCODE_AUTO,
+  void OpenFile(const String& OpenFileName, int CharCode = CHARCODE_AUTO,
       const TTypeOption *Format = nullptr);
-  void SaveAs(String AFileName, const TTypeOption *Format);
-  void Export(String filename, String type);
-  TMenuItem *FindMenuItem(String name);
+  void SaveAs(const String& AFileName, const TTypeOption *Format);
+  void Export(const String& filename, const String& type);
+  TMenuItem *FindMenuItem(const String& name);
 
   TEncodingDetector EncodingDetector;
   bool MakeNewWindow;
@@ -435,11 +443,8 @@ public:     // ÉÜÅ[ÉUÅ[êÈåæ
   bool DelBuSExit;
   bool DelBuT;
   int BuInterval;
-  int LockFile;
-#define cssv_lfNone 0
-#define cssv_lfEdit 1
-#define cssv_lfOpen 2
-  TFileStream *LockingFile;
+  TLockFileMode LockFileMode;
+  std::unique_ptr<TFileStream> LockingFile;
   bool CheckTimeStamp;
   int StopMacroCount;
   bool SortAll;

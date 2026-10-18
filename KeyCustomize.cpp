@@ -1,18 +1,15 @@
-//---------------------------------------------------------------------------
+Ôªø//---------------------------------------------------------------------------
 #include <vcl.h>
+#include "MainForm.h"
 #pragma hdrstop
 
 #include "KeyCustomize.h"
-#include "MainForm.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TfmKey *fmKey;
 //---------------------------------------------------------------------------
-__fastcall TfmKey::TfmKey(TComponent* Owner)
-        : TForm(Owner)
+__fastcall TfmKey::TfmKey(TComponent* Owner) : TForm(Owner)
 {
-  NowMSC = nullptr;
 }
 //---------------------------------------------------------------------------
 void TfmKey::AddMenu(TTreeNode* Node, TMenuItem* MenuItem)
@@ -28,7 +25,7 @@ void TfmKey::AddMenu(TTreeNode* Node, TMenuItem* MenuItem)
   }
 
   TTreeNode* New = tvMenu->Items->AddChild(Node, MenuItem->Caption);
-  New->Data = new TMenuShortCut(MenuItem);
+  Changes.emplace(New, MenuItem);
 
   if (MenuItem->Count > 0) {
     for (int i = 0; i < MenuItem->Count; i++) {
@@ -52,44 +49,49 @@ void __fastcall TfmKey::FormShow(TObject *Sender)
   Font = fmMain->Font;
 }
 //---------------------------------------------------------------------------
-void TfmKey::SetMSC(TMenuShortCut *MSC)
+TMenuShortCutChange* TfmKey::UpdateChange()
 {
-  if(MSC){
-    TShiftState ss;
-    String ssString = "";
-    if (cbShift->Checked) {
-      ss << ssShift;
-      ssString += "Shift+";
-    }
-    if (cbCtrl->Checked) {
-      ss << ssCtrl;
-      ssString += "Ctrl+";
-    }
-    if (cbAlt->Checked) {
-      ss << ssAlt;
-      ssString += "Alt+";
-    }
-    MSC->Shift = ss;
-
-    switch(rgSCKey->ItemIndex){
-      case 1:
-        if(edSCKey->Text.Length() >= 1){
-          MSC->MShortCut = TextToShortCut(ssString + edSCKey->Text);
-        }
-        else MSC->Key = '\0';
-        break;
-      case 2:
-        MSC->Key = static_cast<Word>(VK_F1 + udFNumber->Position - 1);
-        break;
-      case 3: MSC->Key = VK_RETURN; break;
-      case 4: MSC->Key = VK_SPACE; break;
-      case 5: MSC->Key = VK_INSERT; break;
-      case 6: MSC->Key = VK_DELETE; break;
-      case 7: MSC->Key = VK_BACK; break;
-      default: MSC->Key = '\0'; break;
-    }
+  auto it = Changes.find(tvMenu->Selected);
+  if (it == Changes.end()) {
+    return nullptr;
   }
+  TMenuShortCutChange& change = it->second;
 
+  TShiftState shift;
+  String shiftString = "";
+  if (cbShift->Checked) {
+    shift << ssShift;
+    shiftString += "Shift+";
+  }
+  if (cbCtrl->Checked) {
+    shift << ssCtrl;
+    shiftString += "Ctrl+";
+  }
+  if (cbAlt->Checked) {
+    shift << ssAlt;
+    shiftString += "Alt+";
+  }
+  change.Shift = shift;
+
+  switch (rgSCKey->ItemIndex) {
+    case 1:
+      if (edSCKey->Text.Length() >= 1) {
+        change.ShortCut = TextToShortCut(shiftString + edSCKey->Text);
+      } else {
+        change.Key = '\0';
+      }
+      break;
+    case 2:
+      change.Key = static_cast<Word>(VK_F1 + udFNumber->Position - 1);
+      break;
+    case 3: change.Key = VK_RETURN; break;
+    case 4: change.Key = VK_SPACE; break;
+    case 5: change.Key = VK_INSERT; break;
+    case 6: change.Key = VK_DELETE; break;
+    case 7: change.Key = VK_BACK; break;
+    default: change.Key = '\0'; break;
+  }
+  return &change;
 }
 //---------------------------------------------------------------------------
 int TfmKey::KeyToIndex(Word Key)
@@ -107,26 +109,27 @@ int TfmKey::KeyToIndex(Word Key)
 //---------------------------------------------------------------------------
 void __fastcall TfmKey::tvMenuChange(TObject *Sender, TTreeNode *Node)
 {
-  NowMSC = nullptr;
+  const TMenuShortCutChange* change = nullptr;
 
   Word SCKey;
   TShiftState SCShift;
   stUseSC->Visible = false;
   edSelected->Text = Node->Text;
 
-  if(!Node->Data || Node->Count>0){
+  const auto& it = Changes.find(Node);
+  if (it == Changes.end() || Node->Count > 0) {
     SCKey = '\0';
     rgSCKey->Enabled = false;
   } else {
-    NowMSC = static_cast<TMenuShortCut*>(Node->Data);
-    SCKey = NowMSC->Key;
-    SCShift = NowMSC->Shift;
+    change = &it->second;
+    SCKey = change->Key;
+    SCShift = change->Shift;
     rgSCKey->Enabled = true;
-    if(NowMSC->Modified){
-      stUseSC->Caption = L"Åö";
+    if (change->Modified) {
+      stUseSC->Caption = L"‚òÖ";
       stUseSC->Visible = true;
     } else {
-      stUseSC->Caption = L"Åô";
+      stUseSC->Caption = L"‚òÜ";
       stUseSC->Visible = (SCKey != '\0');
     }
   }
@@ -149,7 +152,7 @@ void __fastcall TfmKey::tvMenuChange(TObject *Sender, TTreeNode *Node)
     rgSCKey->ItemIndex = ii;
     if(ii == 1) {
       edSCKey->Enabled = true;
-      String text = ShortCutToText(NowMSC->MShortCut);
+      String text = ShortCutToText(change->ShortCut);
       int index = text.LastDelimiter("+");
       edSCKey->Text = text.SubString(index + 1, text.Length() - index);
     } else if(ii == 2){
@@ -163,23 +166,19 @@ void __fastcall TfmKey::tvMenuChange(TObject *Sender, TTreeNode *Node)
 void __fastcall TfmKey::tvMenuChanging(TObject *Sender, TTreeNode *Node,
       bool &AllowChange)
 {
-  if(!NowMSC) return;
-  SetMSC(NowMSC);
-  if(NowMSC->Key == '\0') return;
+  TMenuShortCutChange* updatedChange = UpdateChange();
+  if (updatedChange == nullptr || updatedChange->Key == '\0') {
+    return;
+  }
 
-  for(int i=0; i<tvMenu->Items->Count; i++){
-    if(tvMenu->Items->Item[i]->Data){
-      TMenuShortCut* MSC
-        = static_cast<TMenuShortCut*>(tvMenu->Items->Item[i]->Data);
-      if(MSC != NowMSC && NowMSC->MShortCut == MSC->MShortCut){
-        if(Application->MessageBox(
-             (ShortCutToText(NowMSC->MShortCut) + L" ÇÕÅAÅu" +
-             MSC->MenuItem->Caption +
-             L"ÅvÇ≈Ç∑Ç≈Ç…ê›íËÇ≥ÇÍÇƒÇ¢Ç‹Ç∑ÅB").c_str(),
-             CASSAVA_TITLE,
-             MB_OKCANCEL) == IDCANCEL){
-          AllowChange = false;
-        }
+  for (const auto& [node, change] : Changes) {
+    if (change.MenuItem != updatedChange->MenuItem
+        && updatedChange->ShortCut == change.ShortCut) {
+      String message = ShortCutToText(updatedChange->ShortCut) + L" „ÅØ„ÄÅ„Äå"
+          + change.MenuItem->Caption + L"„Äç„Åß„Åô„Åß„Å´Ë®≠ÂÆö„Åï„Çå„Å¶„ÅÑ„Åæ„Åô„ÄÇ";
+      if (Application->MessageBox(message.c_str(), CASSAVA_TITLE, MB_OKCANCEL)
+          == IDCANCEL){
+        AllowChange = false;
       }
     }
   }
@@ -197,50 +196,43 @@ void __fastcall TfmKey::rgSCKeyClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfmKey::btnOKClick(TObject *Sender)
 {
-  if(NowMSC) SetMSC(NowMSC);
+  UpdateChange();
   SaveKey(fmMain->Pref->Path + "AutoKey.csv");
-  MenuUpDate();
+  UpdateMenu();
 }
 //---------------------------------------------------------------------------
-void TfmKey::MenuUpDate()
+void TfmKey::UpdateMenu()
 {
-  for(int i=0; i<tvMenu->Items->Count; i++){
-    if(tvMenu->Items->Item[i]->Data){
-      TMenuShortCut *MSC
-        = static_cast<TMenuShortCut*>(tvMenu->Items->Item[i]->Data);
-      if(MSC->Modified){
-        MSC->MenuItem->ShortCut = MSC->MShortCut;
-      }
-      if(MSC->Caption != ""){
-        MSC->MenuItem->Caption = MSC->Caption;
-      }
+  for (const auto& [node, change] : Changes) {
+    if (change.Modified) {
+      change.MenuItem->ShortCut = change.ShortCut;
+    }
+    if (change.Caption != ""){
+      change.MenuItem->Caption = change.Caption;
     }
   }
 }
 //---------------------------------------------------------------------------
-void __fastcall TfmKey::edSCKeyKeyPress(TObject *Sender, char &Key)
+void __fastcall TfmKey::edSCKeyKeyPress(TObject *Sender, wchar_t &Key)
 {
   edSCKey->Text = "";
-  if(Key >= 'a' && Key <= 'z')
-    Key -= (char)32u; // toupper
+  if (Key >= L'a' && Key <= L'z') {
+    Key -= 32;  // toupper
+  }
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmKey::edSelectedChange(TObject *Sender)
 {
-  if(NowMSC){
-    NowMSC->Caption = edSelected->Text;
-  }else if(tvMenu->Selected->Data){
-    static_cast<TMenuShortCut*>(tvMenu->Selected->Data)->Caption
-      = edSelected->Text;
+  auto it = Changes.find(tvMenu->Selected);
+  if (it != Changes.end()) {
+    it->second.Caption = edSelected->Text;
   }
   tvMenu->Selected->Text = edSelected->Text;
 }
 //---------------------------------------------------------------------------
 void __fastcall TfmKey::btnSaveClick(TObject *Sender)
 {
-  if (NowMSC) {
-    SetMSC(NowMSC);
-  }
+  UpdateChange();
 
   if (dlgSave->Execute()) {
     String KeyFileName = dlgSave->FileName;
@@ -249,9 +241,9 @@ void __fastcall TfmKey::btnSaveClick(TObject *Sender)
     }
 
     if (SaveKey(KeyFileName)) {
-      Application->MessageBox(L"ï€ë∂ÇµÇ‹ÇµÇΩ", CASSAVA_TITLE, 0);
+      Application->MessageBox(L"‰øùÂ≠ò„Åó„Åæ„Åó„Åü", CASSAVA_TITLE, 0);
     } else {
-      Application->MessageBox(L"ï€ë∂Ç…é∏îsÇµÇ‹ÇµÇΩ", CASSAVA_TITLE, 0);
+      Application->MessageBox(L"‰øùÂ≠ò„Å´Â§±Êïó„Åó„Åæ„Åó„Åü", CASSAVA_TITLE, 0);
     }
   }
 }
@@ -265,71 +257,71 @@ void __fastcall TfmKey::btnOpenClick(TObject *Sender)
     }
     if (LoadKey(KeyFileName)) {
       Application->MessageBox(
-          L"ÉtÉ@ÉCÉãÇì«Ç›çûÇ›Ç‹ÇµÇΩ", CASSAVA_TITLE, 0);
+          L"„Éï„Ç°„Ç§„É´„ÇíË™≠„ÅøËæº„Åø„Åæ„Åó„Åü", CASSAVA_TITLE, 0);
     } else {
-      Application->MessageBox(L"ì«Ç›çûÇ›Ç…é∏îsÇµÇ‹ÇµÇΩ", CASSAVA_TITLE, 0);
+      Application->MessageBox(L"Ë™≠„ÅøËæº„Åø„Å´Â§±Êïó„Åó„Åæ„Åó„Åü", CASSAVA_TITLE, 0);
     }
   }
 }
 //---------------------------------------------------------------------------
-bool TfmKey::SaveKey(String FileName)
+bool TfmKey::SaveKey(const String& FileName)
 {
-  TStringList *File = new TStringList;
-  TStringList *OneRow = new TStringList;
+  std::unique_ptr<TStringList> File = std::make_unique<TStringList>();
+  std::unique_ptr<TStringList> OneRow = std::make_unique<TStringList>();
   File->Add("(Cassava-KeySetting)");
 
-  for(int i=0; i<tvMenu->Items->Count; i++){
-    if(tvMenu->Items->Item[i]->Data){
-      TMenuShortCut *MSC
-        = static_cast<TMenuShortCut*>(tvMenu->Items->Item[i]->Data);
+  for (int i = 0; i < tvMenu->Items->Count; i++) {
+    const auto& it = Changes.find(tvMenu->Items->Item[i]);
+    if (it != Changes.end()){
+      const TMenuShortCutChange& change = it->second;
       OneRow->Clear();
-      OneRow->Add(ShortCutToText(MSC->MShortCut));
-      OneRow->Add(MSC->MenuItem->Name);
-      OneRow->Add(MSC->Caption);
+      OneRow->Add(ShortCutToText(change.ShortCut));
+      OneRow->Add(change.MenuItem->Name);
+      OneRow->Add(change.Caption);
       File->Add(OneRow->CommaText);
     }
   }
-  try{
+  try {
     File->SaveToFile(FileName);
-  }catch(...){ delete File; delete OneRow; return false; }
+  } catch(...) {
+    return false;
+  }
 
-  delete File;
-  delete OneRow;
   return true;
 }
 //---------------------------------------------------------------------------
-bool TfmKey::LoadKey(String FileName)
+bool TfmKey::LoadKey(const String& FileName)
 {
-  TStringList *File = new TStringList;
-  TStringList *OneRow = new TStringList;
-  try{
+  std::unique_ptr<TStringList> File = std::make_unique<TStringList>();
+  std::unique_ptr<TStringList> OneRow = std::make_unique<TStringList>();
+  try {
     File->LoadFromFile(FileName);
-  }catch(...){ delete File; delete OneRow; return false; }
+  } catch(...) {
+    return false;
+  }
 
   OneRow->CommaText = File->Strings[0];
   if(OneRow->Strings[0] != "(Cassava-KeySetting)"){
-    delete File; delete OneRow; return false;
+    return false;
   }
 
   for(int i=1; i<File->Count; i++){
     OneRow->CommaText = File->Strings[i];
     if(OneRow->Count < 2 || OneRow->Strings[1] == "") continue;
-    TMenuShortCut *MSC;
-    for(int p=1; p<tvMenu->Items->Count; p++){
-      MSC = static_cast<TMenuShortCut*>(tvMenu->Items->Item[p]->Data);
-      if(MSC->MenuItem->Name == OneRow->Strings[1] ||
-         MSC->MenuItem->Caption == OneRow->Strings[1]){
-        if(OneRow->Strings[0] != "-")
-          MSC->MShortCut = TextToShortCut(OneRow->Strings[0]);
-        if(OneRow->Count > 2 && OneRow->Strings[2] != "")
-          MSC->Caption = OneRow->Strings[2];
+    for (auto& [node, change] : Changes) {
+      if (change.MenuItem->Name == OneRow->Strings[1]
+          || change.MenuItem->Caption == OneRow->Strings[1]) {
+        if (OneRow->Strings[0] != "-") {
+          change.ShortCut = TextToShortCut(OneRow->Strings[0]);
+        }
+        if (OneRow->Count > 2 && OneRow->Strings[2] != "") {
+          change.Caption = OneRow->Strings[2];
+        }
         break;
       }
     }
   }
 
-  delete File;
-  delete OneRow;
   return true;
 }
 //---------------------------------------------------------------------------

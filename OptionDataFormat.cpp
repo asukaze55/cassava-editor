@@ -1,17 +1,16 @@
-//---------------------------------------------------------------------------
+Ôªø//---------------------------------------------------------------------------
 #include <vcl.h>
+#include "MainForm.h"
 #pragma hdrstop
 
 #include "OptionDataFormat.h"
-#include "MainForm.h"
 #include "Option.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TfrOptionDataFormat *frOptionDataFormat;
 //---------------------------------------------------------------------------
-__fastcall TfrOptionDataFormat::TfrOptionDataFormat(TComponent* Owner)
-	: TFrame(Owner)
+__fastcall TfrOptionDataFormat::TfrOptionDataFormat(TfmOption* Owner)
+    : TFrame(Owner), fmOption(Owner)
 {
 }
 //---------------------------------------------------------------------------
@@ -64,9 +63,9 @@ void TfrOptionDataFormat::RestoreDataPage(int id)
   edDefSepChar->Text   = Ctrl2Ascii(sepChars.SubString(1, 1));
   edSepChars->Text     = Ctrl2Ascii(sepChars.SubString(2, sepChars.Length()));
   edWeakSepChars->Text = Ctrl2Ascii(p->WeakSepChars);
-  rgSaveQuote->ItemIndex = p->QuoteOption;
+  rgSaveQuote->ItemIndex = static_cast<int>(p->QuoteOption);
   edQuoteExpression->Text = p->QuoteExpression;
-  edQuoteExpression->Enabled = (p->QuoteOption == QUOTE_EXPRESSION);
+  edQuoteExpression->Enabled = (p->QuoteOption == TQuoteOption::Expression);
   cbCommaRect->Checked = !(p->OmitComma);
   cbDummyEOF->Checked = p->DummyEof || p->DummyEol;
 
@@ -85,7 +84,7 @@ void TfrOptionDataFormat::StoreDataPage()
 
   p->SepChars = Ascii2Ctrl(edDefSepChar->Text) + Ascii2Ctrl(edSepChars->Text);
   p->WeakSepChars = Ascii2Ctrl(edWeakSepChars->Text);
-  p->QuoteOption = (TQuoteOption) rgSaveQuote->ItemIndex;
+  p->QuoteOption = static_cast<TQuoteOption>(rgSaveQuote->ItemIndex);
   p->QuoteExpression = edQuoteExpression->Text;
   p->OmitComma = !(cbCommaRect->Checked);
   p->DummyEof = cbCommaRect->Checked && cbDummyEOF->Checked;
@@ -104,8 +103,8 @@ void TfrOptionDataFormat::UpdateOptionTree()
   }
   for (int i = 0; i < TypeList.Count + 1; i++){
     String name =
-        (i < TypeList.Count ? TypeList.Items(i)->Name : (String)L"(êVãKçÏê¨)");
-    if (i == ActiveTypeIndex) { name += L" (ÉAÉNÉeÉBÉu)"; }
+        (i < TypeList.Count ? TypeList.Items(i)->Name : L"(Êñ∞Ë¶è‰ΩúÊàê)");
+    if (i == ActiveTypeIndex) { name += L" („Ç¢„ÇØ„ÉÜ„Ç£„Éñ)"; }
 
     if (fmOption->tnDataFormat->Count <= i) {
       fmOption->tvCategory->Items->AddChild(fmOption->tnDataFormat, name);
@@ -166,7 +165,8 @@ void __fastcall TfrOptionDataFormat::btnDeleteTypeClick(TObject *Sender)
 //---------------------------------------------------------------------------
 void __fastcall TfrOptionDataFormat::rgSaveQuoteClick(TObject *Sender)
 {
-  edQuoteExpression->Enabled = (rgSaveQuote->ItemIndex == QUOTE_EXPRESSION);
+  edQuoteExpression->Enabled =
+      (rgSaveQuote->ItemIndex == static_cast<int>(TQuoteOption::Expression));
 }
 //---------------------------------------------------------------------------
 

@@ -1,14 +1,12 @@
-//---------------------------------------------------------------------------
-
+﻿//---------------------------------------------------------------------------
 #include <vcl.h>
+#include "MainForm.h"
 #pragma hdrstop
 
 #include "OptionBehavior.h"
-#include "MainForm.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TfrOptionBehavior *frOptionBehavior;
 //---------------------------------------------------------------------------
 __fastcall TfrOptionBehavior::TfrOptionBehavior(TComponent* Owner)
 	: TFrame(Owner)
@@ -18,7 +16,7 @@ __fastcall TfrOptionBehavior::TfrOptionBehavior(TComponent* Owner)
 void TfrOptionBehavior::RestoreFromMainForm()
 {
   cbDragMove->ItemIndex = fmMain->MainGrid->DragBehavior;
-  cbEnterMove->ItemIndex = fmMain->MainGrid->EnterMove;
+  cbEnterMove->ItemIndex = static_cast<int>(fmMain->MainGrid->EnterMove);
   cbLeftArrowInCell->Checked = fmMain->MainGrid->LeftArrowInCell;
   cbAlwaysShowEditor->Checked = fmMain->MainGrid->AlwaysShowEditor;
   cbSortAll->Checked = fmMain->SortAll;
@@ -35,8 +33,9 @@ void TfrOptionBehavior::RestoreFromMainForm()
 //---------------------------------------------------------------------------
 void TfrOptionBehavior::StoreToMainForm()
 {
-  fmMain->MainGrid->DragBehavior = (TDragBehavior) cbDragMove->ItemIndex;
-  fmMain->MainGrid->EnterMove = cbEnterMove->ItemIndex;
+  fmMain->MainGrid->DragBehavior =
+      static_cast<TDragBehavior>(cbDragMove->ItemIndex);
+  fmMain->MainGrid->EnterMove = static_cast<TEnterMove>(cbEnterMove->ItemIndex);
   fmMain->MainGrid->LeftArrowInCell = cbLeftArrowInCell->Checked;
   fmMain->MainGrid->AlwaysShowEditor = cbAlwaysShowEditor->Checked;
   fmMain->SortAll = cbSortAll->Checked;
@@ -65,9 +64,8 @@ void __fastcall TfrOptionBehavior::cbStopMacroKeyUpDown(TObject *Sender,
   seStopMacroCount->Enabled = cbStopMacro->Checked;
 }
 //---------------------------------------------------------------------------
-
 void __fastcall TfrOptionBehavior::cbStopMacroKeyPress(TObject *Sender,
-      char &Key)
+    wchar_t &Key)
 {
   seStopMacroCount->Enabled = cbStopMacro->Checked;
 }

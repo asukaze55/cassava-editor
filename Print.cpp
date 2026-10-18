@@ -1,14 +1,14 @@
-//---------------------------------------------------------------------------
+ï»¿//---------------------------------------------------------------------------
 #include <vcl.h>
-#include <Vcl.printers.hpp>
+#include "MainForm.h"
 #pragma hdrstop
 
+#include <Vcl.printers.hpp>
+
 #include "Print.h"
-#include "MainForm.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TfmPrint *fmPrint;
 //---------------------------------------------------------------------------
 __fastcall TfmPrint::TfmPrint(TComponent* Owner)
         : TForm(Owner)
@@ -50,7 +50,7 @@ void TfmPrint::PrintOut()
 {
   TPrinter *printer = Printer();
   String fileName = ExtractFileName(fmMain->FileName);
-  printer->Title = fileName == "" ? (String)CASSAVA_TITLE : fileName;
+  printer->Title = fileName == "" ? CASSAVA_TITLE : fileName;
   printer->Copies = 1;
   printer->BeginDoc();
   const double mmPt = printer->Canvas->Font->PixelsPerInch / 25.4;
@@ -60,19 +60,19 @@ void TfmPrint::PrintOut()
   int pageHeight = printer->PageHeight;
 
   TMainGrid *mg = fmMain->MainGrid;
-  double multiplier = (double)printer->Canvas->TextWidth(L"‚ ") /
-      mg->Canvas->TextWidth(L"‚ ");
+  double multiplier = static_cast<double>(printer->Canvas->TextWidth(L"ã‚")) /
+      mg->Canvas->TextWidth(L"ã‚");
   int cellLRMargin = mg->LRMargin * multiplier;
   int cellTBMargin = mg->TBMargin * multiplier;
 
   int widthSum = 0;
-  int *widths = new int[mg->ColCount];
+  std::vector<int> widths(mg->ColCount);
   for (int i = mg->DataLeft; i <= mg->DataRight; i++) {
     widths[i] = mg->ColWidths[i] * multiplier;
     widthSum += widths[i];
   }
   if (widthSum > pageWidth - leftMargin - rightMargin) {
-    int minWidth = printer->Canvas->TextWidth(L"‚ ") + (2 * cellLRMargin);
+    int minWidth = printer->Canvas->TextWidth(L"ã‚") + (2 * cellLRMargin);
     mg->CompactWidth(widths, pageWidth - leftMargin - rightMargin, minWidth);
   }
 
@@ -89,7 +89,6 @@ void TfmPrint::PrintOut()
     newPage = true;
   }
   printer->EndDoc();
-  delete[] widths;
 }
 //---------------------------------------------------------------------------
 static TRect rectToDraw(int position, const TRect& page, const TRect& size,
@@ -107,7 +106,8 @@ static TRect rectToDraw(int position, const TRect& page, const TRect& size,
   return rect;
 }
 //---------------------------------------------------------------------------
-static String formatHeaderFooter(String format, String fileName, int page)
+static String formatHeaderFooter(const String& format, const String& fileName,
+    int page)
 {
   String result = "";
   for (int i = 1; i <= format.Length(); i++) {
@@ -128,7 +128,8 @@ static String formatHeaderFooter(String format, String fileName, int page)
 }
 //---------------------------------------------------------------------------
 int TfmPrint::PrintPage(TCanvas *Canvas, int Width, int Height, int Top,
-    int Widths[], int CellLRMargin, int CellTBMargin, int Page)
+    const std::vector<int>& Widths, int CellLRMargin, int CellTBMargin,
+    int Page)
 {
   TMainGrid *mg = fmMain->MainGrid;
   const double mmPt = Canvas->Font->PixelsPerInch / 25.4;

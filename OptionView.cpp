@@ -1,17 +1,17 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 #include <vcl.h>
+#include "MainForm.h"
 #pragma hdrstop
 
+#include "Option.h"
 #include "OptionView.h"
-#include "MainForm.h"
 #include "OptionColor.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
-TfrOptionView *frOptionView;
 //---------------------------------------------------------------------------
-__fastcall TfrOptionView::TfrOptionView(TComponent* Owner)
-    : TFrame(Owner)
+__fastcall TfrOptionView::TfrOptionView(TfmOption* Owner)
+    : TFrame(Owner), fmOption(Owner)
 {
 }
 //---------------------------------------------------------------------------
@@ -26,7 +26,7 @@ void TfrOptionView::RestoreFromMainForm()
 
   cbWordWrap->Checked = fmMain->MainGrid->WordWrap;
   cbNumAlignRight->Checked =
-      (fmMain->MainGrid->TextAlignment == cssv_taNumRight);
+      (fmMain->MainGrid->TextAlignment == TTextAlignment::NumRight);
   cbNum3->Checked = (fmMain->MainGrid->NumberComma != 0);
   int decimalDigits = fmMain->MainGrid->DecimalDigits;
   cbOmitDecimal->Checked = (decimalDigits >= 0);
@@ -52,11 +52,11 @@ void TfrOptionView::StoreToMainForm()
   fmMain->MainGrid->CellLineMargin = udCellLineMargin->Position;
 
   fmMain->MainGrid->WordWrap = cbWordWrap->Checked;
-  fmMain->MainGrid->TextAlignment = (cbNumAlignRight->Checked ?
-    cssv_taNumRight : cssv_taLeft);
+  fmMain->MainGrid->TextAlignment = (cbNumAlignRight->Checked
+      ? TTextAlignment::NumRight : TTextAlignment::Left);
   fmMain->MainGrid->NumberComma = (cbNum3->Checked ? 3 : 0);
-  fmMain->MainGrid->DecimalDigits = (cbOmitDecimal->Checked ?
-    udOmitDigits->Position : -1);
+  fmMain->MainGrid->DecimalDigits = (cbOmitDecimal->Checked
+      ? udOmitDigits->Position : -1);
 
   fmMain->MainGrid->CompactColWidth = cbCompactColWidth->Checked;
   fmMain->MainGrid->CalcWidthForAllRow = cbCalcWidthForAllRow->Checked;
@@ -71,14 +71,13 @@ void TfrOptionView::StoreToMainForm()
 //---------------------------------------------------------------------------
 void __fastcall TfrOptionView::btnFontClick(TObject *Sender)
 {
-  TFontDialog *dlgFont = new TFontDialog(this);
+  std::unique_ptr<TFontDialog> dlgFont = std::make_unique<TFontDialog>(nullptr);
   dlgFont->Font = stFont->Font;
   if(dlgFont->Execute()){
     stFont->Font = dlgFont->Font;
     stFont->Caption = stFont->Font->Name + " (" + stFont->Font->Size + ")";
-    frOptionColor->cbFgColor->Selected = stFont->Font->Color;
+    fmOption->frOptionColor->cbFgColor->Selected = stFont->Font->Color;
   }
-  delete dlgFont;
 }
 //---------------------------------------------------------------------------
 

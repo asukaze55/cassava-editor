@@ -1,16 +1,16 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{55FBEE8D-1C32-49B8-9E7D-33673015F197}</ProjectGuid>
-        <ProjectType>CppVCLApplication</ProjectType>
-        <MainSource>Cassava.cpp</MainSource>
-        <Config Condition="'$(Config)'==''">リリース</Config>
-        <ProjectVersion>20.1</ProjectVersion>
-        <FrameworkType>VCL</FrameworkType>
-        <Base>True</Base>
-        <Platform Condition="'$(Platform)'==''">Win64</Platform>
-        <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
+        <Base>True</Base>
+        <Config Condition="'$(Config)'==''">リリース</Config>
+        <FrameworkType>VCL</FrameworkType>
+        <MainSource>Cassava.cpp</MainSource>
+        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <ProjectGuid>{55FBEE8D-1C32-49B8-9E7D-33673015F197}</ProjectGuid>
         <ProjectName Condition="'$(ProjectName)'==''">Cassava</ProjectName>
+        <ProjectType>CppVCLApplication</ProjectType>
+        <ProjectVersion>20.3</ProjectVersion>
+        <TargetedPlatforms>3</TargetedPlatforms>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -77,277 +77,249 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <VerInfo_MinorVer>8</VerInfo_MinorVer>
-        <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
-        <VerInfo_Keys>CompanyName=;FileVersion=2.8.2.966;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=2.8.2.966;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
-        <VerInfo_Locale>1041</VerInfo_Locale>
-        <VerInfo_Build>966</VerInfo_Build>
-        <SanitizedProjectName>Cassava</SanitizedProjectName>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <IncludePath>$(BDSINCLUDE)\windows;$(BDS)\include\boost_1_70;$(IncludePath)</IncludePath>
-        <BCC_wpar>false</BCC_wpar>
         <_TCHARMapping>wchar_t</_TCHARMapping>
-        <LinkPackageStatics>rtl.lib;vcl.lib;bcbsmp.lib;vclx.lib</LinkPackageStatics>
-        <ILINK_AppType>Windows</ILINK_AppType>
-        <PackageImports>rtl.bpi;vcl.bpi;vclx.bpi;bcbsmp.bpi;$(PackageImports)</PackageImports>
-        <DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
-        <DCC_UnitSearchPath>$(BDS)\ObjRepos\Cpp;..\OpenFile;.\;$(BDS)\lib;$(BDS)\lib\obj;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
-        <DCC_ResourcePath>$(BDS)\ObjRepos\Cpp;..\OpenFile;$(DCC_ResourcePath)</DCC_ResourcePath>
-        <BCC_IncludePath>$(BDS)\include;$(BCC_IncludePath)</BCC_IncludePath>
-        <BRCC_IncludePath>$(BDS)\Add\referbutton;..\Jis2k;$(BDS)\Projects;..\OpenFile;$(BDS)\include;$(BDS)\include\vcl;$(BRCC_IncludePath)</BRCC_IncludePath>
-        <BCC_OptimizeForSpeed>true</BCC_OptimizeForSpeed>
-        <TASM_IncludePath>$(BDS)\Add\referbutton;..\Jis2k;$(BDS)\Projects;..\OpenFile;$(BDS)\include;$(BDS)\include\vcl;$(TASM_IncludePath)</TASM_IncludePath>
-        <DCC_IncludePath>$(BDS)\ObjRepos\Cpp;..\OpenFile;.\;$(BDS)\lib;$(BDS)\lib\obj;$(DCC_IncludePath)</DCC_IncludePath>
+        <AllPackageLibs>rtl.lib;vcl.lib;bcbsmp.lib;vclx.lib;vclwinx.lib;vclimg.lib;bindengine.lib</AllPackageLibs>
         <BCC_GenerateMultithreaded>true</BCC_GenerateMultithreaded>
         <BCC_GenerateWindowsApp>true</BCC_GenerateWindowsApp>
-        <TASM_AdditionalSwitches> /w2</TASM_AdditionalSwitches>
-        <ILINK_ObjectSearchPath>$(BDS)\ObjRepos\Cpp;..\OpenFile;$(ILINK_ObjectSearchPath)</ILINK_ObjectSearchPath>
-        <AllPackageLibs>rtl.lib;vcl.lib;bcbsmp.lib;vclx.lib;vclwinx.lib;vclimg.lib;bindengine.lib</AllPackageLibs>
-        <ILINK_LibraryPath>$(BDS)\lib\obj;$(ILINK_LibraryPath)</ILINK_LibraryPath>
-        <DCC_ObjPath>$(BDS)\ObjRepos\Cpp;..\OpenFile;$(DCC_ObjPath)</DCC_ObjPath>
-        <DCC_AdditionalSwitches> -M</DCC_AdditionalSwitches>
-        <Multithreaded>true</Multithreaded>
-        <VerInfo_MajorVer>2</VerInfo_MajorVer>
+        <BCC_IncludePath>$(BDS)\include;$(BCC_IncludePath)</BCC_IncludePath>
+        <BCC_OptimizeForSpeed>true</BCC_OptimizeForSpeed>
         <BCC_UseClassicCompiler>false</BCC_UseClassicCompiler>
+        <BCC_wpar>false</BCC_wpar>
+        <BRCC_IncludePath>$(BDS)\Add\referbutton;..\Jis2k;$(BDS)\Projects;..\OpenFile;$(BDS)\include;$(BDS)\include\vcl;$(BRCC_IncludePath)</BRCC_IncludePath>
+        <Custom_Styles>&quot;Windows Modern Dark SE|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows_Modern_Dark_SE.vsf&quot;</Custom_Styles>
+        <DCC_AdditionalSwitches> -M</DCC_AdditionalSwitches>
+        <DCC_CBuilderOutput>JPHNE</DCC_CBuilderOutput>
+        <DCC_IncludePath>$(BDS)\ObjRepos\Cpp;..\OpenFile;.\;$(BDS)\lib;$(BDS)\lib\obj;$(DCC_IncludePath)</DCC_IncludePath>
+        <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_ObjPath>$(BDS)\ObjRepos\Cpp;..\OpenFile;$(DCC_ObjPath)</DCC_ObjPath>
+        <DCC_ResourcePath>$(BDS)\ObjRepos\Cpp;..\OpenFile;$(DCC_ResourcePath)</DCC_ResourcePath>
+        <DCC_UnitSearchPath>$(BDS)\ObjRepos\Cpp;..\OpenFile;.\;$(BDS)\lib;$(BDS)\lib\obj;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <Icon_MainIcon>$(BDS)\bin\cbuilder_PROJECTICON.ico</Icon_MainIcon>
-        <Custom_Styles>&quot;Windows11 Modern Dark|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Windows11_Modern_Dark.vsf&quot;</Custom_Styles>
-        <UWP_CppLogo44>$(BDS)\bin\Artwork\Windows\UWP\cppreg_UwpDefault_44.png</UWP_CppLogo44>
+        <ILINK_AppType>Windows</ILINK_AppType>
+        <ILINK_LibraryPath>$(BDS)\lib\obj;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <ILINK_ObjectSearchPath>$(BDS)\ObjRepos\Cpp;..\OpenFile;$(ILINK_ObjectSearchPath)</ILINK_ObjectSearchPath>
+        <IncludePath>$(BDSINCLUDE)\windows;$(BDS)\include\boost_1_70;$(IncludePath)</IncludePath>
+        <LinkPackageStatics>rtl.lib;vcl.lib;bcbsmp.lib;vclx.lib</LinkPackageStatics>
+        <Multithreaded>true</Multithreaded>
+        <PackageImports>rtl.bpi;vcl.bpi;vclx.bpi;bcbsmp.bpi;$(PackageImports)</PackageImports>
+        <SanitizedProjectName>Cassava</SanitizedProjectName>
+        <TASM_AdditionalSwitches> /w2</TASM_AdditionalSwitches>
+        <TASM_IncludePath>$(BDS)\Add\referbutton;..\Jis2k;$(BDS)\Projects;..\OpenFile;$(BDS)\include;$(BDS)\include\vcl;$(TASM_IncludePath)</TASM_IncludePath>
         <UWP_CppLogo150>$(BDS)\bin\Artwork\Windows\UWP\cppreg_UwpDefault_150.png</UWP_CppLogo150>
+        <UWP_CppLogo44>$(BDS)\bin\Artwork\Windows\UWP\cppreg_UwpDefault_44.png</UWP_CppLogo44>
+        <VerInfo_Build>966</VerInfo_Build>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Keys>CompanyName=;FileVersion=2.8.2.966;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=2.8.2.966;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
+        <VerInfo_Locale>1041</VerInfo_Locale>
+        <VerInfo_MajorVer>2</VerInfo_MajorVer>
+        <VerInfo_MinorVer>8</VerInfo_MinorVer>
         <VerInfo_Release>2</VerInfo_Release>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <OutputExt>exe</OutputExt>
-        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
-        <VerInfo_Build>965</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=;FileVersion=2.8.2.965;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=2.8.2.965;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
+        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
+        <Icon_MainIcon>Cassava.ico</Icon_MainIcon>
         <ILINK_OSVersion>5.0</ILINK_OSVersion>
         <ILINK_SubSysVersion>5.0</ILINK_SubSysVersion>
+        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+        <OutputExt>exe</OutputExt>
+        <VerInfo_Build>965</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileVersion=2.8.2.965;InternalName=;LegalCopyright=あすかぜ;LegalTrademarks=;OriginalFilename=;ProductVersion=2.8.2.965;Comments=;ProgramID=net.asukaze.cassava;FileDescription=Cassava Editor;ProductName=Cassava Editor</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
-        <BT_BuildType>Debug</BT_BuildType>
-        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-        <ILINK_ImageFlags>LARGEADDRESSAWARE</ILINK_ImageFlags>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
+        <BT_BuildType>Debug</BT_BuildType>
+        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
+        <Icon_MainIcon>Cassava.ico</Icon_MainIcon>
+        <ILINK_ImageFlags>LARGEADDRESSAWARE</ILINK_ImageFlags>
+        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64x)'!=''">
-        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
+        <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
+        <BCC_EnableBatchCompilation>true</BCC_EnableBatchCompilation>
         <BT_BuildType>Debug</BT_BuildType>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <VerInfo_Locale>1033</VerInfo_Locale>
+        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
+        <Icon_MainIcon>Cassava.ico</Icon_MainIcon>
+        <IncludePath>$(BDSINCLUDE)\windows;$(BDS)\include\boost_1_89</IncludePath>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+        <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
-        <BCC_MonitorGlobalAndStackData>true</BCC_MonitorGlobalAndStackData>
-        <BCC_MonitorThis>true</BCC_MonitorThis>
-        <BCC_MonitorInlinePtrAccess>true</BCC_MonitorInlinePtrAccess>
-        <ILINK_LibraryPath>$(BDS)\lib\debug;$(ILINK_LibraryPath);$(ILINK_LibraryPath)</ILINK_LibraryPath>
-        <DCC_Define>DEBUG;$(DCC_Define);$(DCC_Define)</DCC_Define>
-        <BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
-        <IntermediateOutputDir>Debug_Build</IntermediateOutputDir>
-        <ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
-        <TASM_DisplaySourceLines>true</TASM_DisplaySourceLines>
-        <ILINK_DisableIncrementalLinking>true</ILINK_DisableIncrementalLinking>
-        <BCC_DisableOptimizations>true</BCC_DisableOptimizations>
-        <TASM_Debugging>Full</TASM_Debugging>
-        <DCC_AdditionalSwitches> -M -V</DCC_AdditionalSwitches>
         <BCC_DebugLineNumbers>true</BCC_DebugLineNumbers>
-        <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
+        <BCC_DisableOptimizations>true</BCC_DisableOptimizations>
         <BCC_InlineFunctionExpansion>false</BCC_InlineFunctionExpansion>
+        <BCC_MonitorGlobalAndStackData>true</BCC_MonitorGlobalAndStackData>
+        <BCC_MonitorInlinePtrAccess>true</BCC_MonitorInlinePtrAccess>
+        <BCC_MonitorThis>true</BCC_MonitorThis>
+        <BCC_SourceDebuggingOn>true</BCC_SourceDebuggingOn>
+        <DCC_AdditionalSwitches> -M -V</DCC_AdditionalSwitches>
+        <DCC_DebugInfoInExe>true</DCC_DebugInfoInExe>
+        <DCC_Define>DEBUG;$(DCC_Define);$(DCC_Define)</DCC_Define>
+        <ILINK_DisableIncrementalLinking>true</ILINK_DisableIncrementalLinking>
+        <ILINK_FullDebugInfo>true</ILINK_FullDebugInfo>
+        <ILINK_LibraryPath>$(BDS)\lib\debug;$(ILINK_LibraryPath);$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <IntermediateOutputDir>Debug_Build</IntermediateOutputDir>
+        <TASM_Debugging>Full</TASM_Debugging>
+        <TASM_DisplaySourceLines>true</TASM_DisplaySourceLines>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <BCC_Defines>_DEBUG;NO_WIN32_LEAN_AND_MEAN;$(BCC_Defines);$(BCC_Defines)</BCC_Defines>
-        <VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
         <DynamicRTL>true</DynamicRTL>
-        <Icon_MainIcon>Cassava.ico</Icon_MainIcon>
-        <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <LinkPackageStatics>rtl.lib;vcl.lib;bcbsmp.lib;vclx.lib;vclwinx.lib;vclimg.lib</LinkPackageStatics>
+        <VerInfo_AutoGenVersion>false</VerInfo_AutoGenVersion>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
-        <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
-        <Icon_MainIcon>Cassava.ico</Icon_MainIcon>
+        <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64x)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
+        <DCC_AdditionalSwitches> -M -$O+</DCC_AdditionalSwitches>
         <FinalOutputDir>Release_Build</FinalOutputDir>
+        <ILINK_LibraryPath>$(BDS)\lib\release;$(ILINK_LibraryPath);$(ILINK_LibraryPath)</ILINK_LibraryPath>
         <IntermediateOutputDir>Release_Build</IntermediateOutputDir>
         <TASM_Debugging>None</TASM_Debugging>
-        <DCC_AdditionalSwitches> -M -$O+</DCC_AdditionalSwitches>
-        <ILINK_LibraryPath>$(BDS)\lib\release;$(ILINK_LibraryPath);$(ILINK_LibraryPath)</ILINK_LibraryPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <BCC_Defines>NDEBUG;NO_WIN32_LEAN_AND_MEAN;$(BCC_Defines);$(BCC_Defines)</BCC_Defines>
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
+        <BCC_Defines>NDEBUG;NO_WIN32_LEAN_AND_MEAN;$(BCC_Defines);$(BCC_Defines)</BCC_Defines>
         <BT_BuildType>Debug</BT_BuildType>
         <LinkPackageStatics>rtl.lib;vcl.lib;bcbsmp.lib;vclx.lib;vclwinx.lib;vclimg.lib;bindengine.lib</LinkPackageStatics>
-        <Icon_MainIcon>Cassava.ico</Icon_MainIcon>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <LinkPackageStatics>rtl.lib;vcl.lib;bcbsmp.lib;vclx.lib;vclwinx.lib;vclimg.lib;bindengine.lib</LinkPackageStatics>
-        <Icon_MainIcon>Cassava.ico</Icon_MainIcon>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64x)'!=''">
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
+        <LinkPackageStatics>rtl.lib;vcl.lib;bcbsmp.lib;vclx.lib;vclwinx.lib;vclimg.lib;bindengine.lib</LinkPackageStatics>
     </PropertyGroup>
     <ItemGroup>
         <CppCompile Include="AutoOpen.cpp">
-            <BuildOrder>5</BuildOrder>
             <DependentOn>AutoOpen.h</DependentOn>
-            <BuildOrder>16</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="Cassava.cpp">
-            <BuildOrder>-1</BuildOrder>
             <BuildOrder>0</BuildOrder>
         </CppCompile>
-        <ResFiles Include="Cassava.res">
-            <BuildOrder>-1</BuildOrder>
+        <CppCompile Include="Cassava.cpp">
             <BuildOrder>1</BuildOrder>
-        </ResFiles>
+        </CppCompile>
         <CppCompile Include="Compiler.cpp">
-            <BuildOrder>22</BuildOrder>
             <DependentOn>Compiler.h</DependentOn>
-            <BuildOrder>11</BuildOrder>
+            <BuildOrder>2</BuildOrder>
         </CppCompile>
         <CppCompile Include="CsvReader.cpp">
             <DependentOn>CsvReader.h</DependentOn>
-            <BuildOrder>28</BuildOrder>
+            <BuildOrder>3</BuildOrder>
         </CppCompile>
         <CppCompile Include="EncodedWriter.cpp">
-            <BuildOrder>24</BuildOrder>
             <DependentOn>EncodedWriter.h</DependentOn>
-            <BuildOrder>13</BuildOrder>
+            <BuildOrder>4</BuildOrder>
         </CppCompile>
         <CppCompile Include="EncodingDetector.cpp">
             <DependentOn>EncodingDetector.h</DependentOn>
-            <BuildOrder>33</BuildOrder>
+            <BuildOrder>5</BuildOrder>
         </CppCompile>
         <CppCompile Include="FileOpenThread.cpp">
-            <BuildOrder>7</BuildOrder>
             <DependentOn>FileOpenThread.h</DependentOn>
-            <BuildOrder>26</BuildOrder>
+            <BuildOrder>6</BuildOrder>
         </CppCompile>
         <CppCompile Include="Find.cpp">
             <Form>fmFind</Form>
             <DependentOn>Find.h</DependentOn>
-            <BuildOrder>14</BuildOrder>
+            <BuildOrder>7</BuildOrder>
         </CppCompile>
         <CppCompile Include="FormattedFileName.cpp">
-            <BuildOrder>9</BuildOrder>
             <DependentOn>FormattedFileName.h</DependentOn>
-            <BuildOrder>28</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="HTTPConnection.cpp">
-            <DependentOn>HTTPConnection.h</DependentOn>
-            <BuildOrder>30</BuildOrder>
+            <BuildOrder>8</BuildOrder>
         </CppCompile>
         <CppCompile Include="KeyCustomize.cpp">
-            <BuildOrder>6</BuildOrder>
             <Form>fmKey</Form>
             <DependentOn>KeyCustomize.h</DependentOn>
-            <BuildOrder>17</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="Letter.cpp">
-            <BuildOrder>3</BuildOrder>
-            <Form>fmLetter</Form>
-            <DependentOn>Letter.h</DependentOn>
-            <BuildOrder>18</BuildOrder>
-        </CppCompile>
-        <CppCompile Include="Macro.cpp">
-            <BuildOrder>25</BuildOrder>
-            <DependentOn>Macro.h</DependentOn>
             <BuildOrder>10</BuildOrder>
         </CppCompile>
+        <CppCompile Include="Letter.cpp">
+            <Form>fmLetter</Form>
+            <DependentOn>Letter.h</DependentOn>
+            <BuildOrder>11</BuildOrder>
+        </CppCompile>
+        <CppCompile Include="Macro.cpp">
+            <DependentOn>Macro.h</DependentOn>
+            <BuildOrder>12</BuildOrder>
+        </CppCompile>
         <CppCompile Include="MainForm.cpp">
-            <BuildOrder>4</BuildOrder>
             <Form>fmMain</Form>
             <DependentOn>MainForm.h</DependentOn>
-            <BuildOrder>15</BuildOrder>
+            <BuildOrder>13</BuildOrder>
         </CppCompile>
         <CppCompile Include="MainGrid.cpp">
-            <BuildOrder>21</BuildOrder>
             <DependentOn>MainGrid.h</DependentOn>
-            <BuildOrder>2</BuildOrder>
+            <BuildOrder>14</BuildOrder>
         </CppCompile>
         <CppCompile Include="MultiLineInputBox.cpp">
-            <BuildOrder>9</BuildOrder>
             <Form>fmMultiLineInputBox</Form>
             <DependentOn>MultiLineInputBox.h</DependentOn>
-            <BuildOrder>28</BuildOrder>
+            <BuildOrder>15</BuildOrder>
         </CppCompile>
         <CppCompile Include="Option.cpp">
-            <BuildOrder>6</BuildOrder>
             <Form>fmOption</Form>
             <DependentOn>Option.h</DependentOn>
-            <BuildOrder>17</BuildOrder>
+            <BuildOrder>16</BuildOrder>
         </CppCompile>
         <CppCompile Include="OptionBackUp.cpp">
-            <BuildOrder>19</BuildOrder>
             <Form>frOptionBackUp</Form>
             <DesignClass>TFrame</DesignClass>
             <DependentOn>OptionBackUp.h</DependentOn>
-            <BuildOrder>0</BuildOrder>
+            <BuildOrder>17</BuildOrder>
         </CppCompile>
         <CppCompile Include="OptionBehavior.cpp">
-            <BuildOrder>21</BuildOrder>
             <Form>frOptionBehavior</Form>
             <DesignClass>TFrame</DesignClass>
             <DependentOn>OptionBehavior.h</DependentOn>
-            <BuildOrder>2</BuildOrder>
+            <BuildOrder>18</BuildOrder>
         </CppCompile>
         <CppCompile Include="OptionColor.cpp">
-            <BuildOrder>22</BuildOrder>
             <Form>frOptionColor</Form>
             <DesignClass>TFrame</DesignClass>
             <DependentOn>OptionColor.h</DependentOn>
-            <BuildOrder>11</BuildOrder>
+            <BuildOrder>19</BuildOrder>
         </CppCompile>
         <CppCompile Include="OptionDataFormat.cpp">
-            <BuildOrder>3</BuildOrder>
             <Form>frOptionDataFormat</Form>
             <DesignClass>TFrame</DesignClass>
             <DependentOn>OptionDataFormat.h</DependentOn>
-            <BuildOrder>18</BuildOrder>
+            <BuildOrder>20</BuildOrder>
         </CppCompile>
         <CppCompile Include="OptionFile.cpp">
-            <BuildOrder>23</BuildOrder>
             <Form>frOptionFile</Form>
             <DesignClass>TFrame</DesignClass>
             <DependentOn>OptionFile.h</DependentOn>
-            <BuildOrder>12</BuildOrder>
+            <BuildOrder>21</BuildOrder>
         </CppCompile>
         <CppCompile Include="OptionLaunch.cpp">
-            <BuildOrder>20</BuildOrder>
             <Form>frOptionLaunch</Form>
             <DesignClass>TFrame</DesignClass>
             <DependentOn>OptionLaunch.h</DependentOn>
-            <BuildOrder>1</BuildOrder>
+            <BuildOrder>22</BuildOrder>
         </CppCompile>
         <CppCompile Include="OptionView.cpp">
             <Form>frOptionView</Form>
             <DesignClass>TFrame</DesignClass>
             <DependentOn>OptionView.h</DependentOn>
-            <BuildOrder>29</BuildOrder>
+            <BuildOrder>23</BuildOrder>
         </CppCompile>
         <CppCompile Include="PasteDlg.cpp">
-            <BuildOrder>4</BuildOrder>
             <Form>fmPasteDialog</Form>
             <DependentOn>PasteDlg.h</DependentOn>
-            <BuildOrder>15</BuildOrder>
+            <BuildOrder>24</BuildOrder>
         </CppCompile>
         <CppCompile Include="Preference.cpp">
-            <BuildOrder>25</BuildOrder>
             <DependentOn>Preference.h</DependentOn>
-            <BuildOrder>10</BuildOrder>
+            <BuildOrder>25</BuildOrder>
         </CppCompile>
         <CppCompile Include="Print.cpp">
-            <BuildOrder>7</BuildOrder>
             <Form>fmPrint</Form>
             <DependentOn>Print.h</DependentOn>
             <BuildOrder>26</BuildOrder>
@@ -355,37 +327,36 @@
         <CppCompile Include="Sort.cpp">
             <Form>fmSort</Form>
             <DependentOn>Sort.h</DependentOn>
-            <BuildOrder>32</BuildOrder>
+            <BuildOrder>27</BuildOrder>
         </CppCompile>
         <CppCompile Include="TypeList.cpp">
-            <BuildOrder>23</BuildOrder>
             <DependentOn>TypeList.h</DependentOn>
-            <BuildOrder>12</BuildOrder>
+            <BuildOrder>28</BuildOrder>
         </CppCompile>
         <CppCompile Include="Undo.cpp">
             <DependentOn>Undo.h</DependentOn>
-            <BuildOrder>31</BuildOrder>
+            <BuildOrder>29</BuildOrder>
         </CppCompile>
         <CppCompile Include="Version.cpp">
             <DependentOn>Version.h</DependentOn>
-            <BuildOrder>31</BuildOrder>
+            <BuildOrder>30</BuildOrder>
         </CppCompile>
-        <FormResources Include="OptionColor.dfm"/>
-        <FormResources Include="OptionDataFormat.dfm"/>
-        <FormResources Include="OptionFile.dfm"/>
-        <FormResources Include="OptionLaunch.dfm"/>
+        <FormResources Include="Find.dfm"/>
+        <FormResources Include="KeyCustomize.dfm"/>
+        <FormResources Include="Letter.dfm"/>
+        <FormResources Include="MainForm.dfm"/>
         <FormResources Include="MultiLineInputBox.dfm"/>
         <FormResources Include="Option.dfm"/>
         <FormResources Include="OptionBackUp.dfm"/>
         <FormResources Include="OptionBehavior.dfm"/>
-        <FormResources Include="Sort.dfm"/>
+        <FormResources Include="OptionColor.dfm"/>
+        <FormResources Include="OptionDataFormat.dfm"/>
+        <FormResources Include="OptionFile.dfm"/>
+        <FormResources Include="OptionLaunch.dfm"/>
         <FormResources Include="OptionView.dfm"/>
         <FormResources Include="PasteDlg.dfm"/>
         <FormResources Include="Print.dfm"/>
-        <FormResources Include="Letter.dfm"/>
-        <FormResources Include="MainForm.dfm"/>
-        <FormResources Include="Find.dfm"/>
-        <FormResources Include="KeyCustomize.dfm"/>
+        <FormResources Include="Sort.dfm"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -434,34 +405,34 @@
                     <Debugging Name="DebugSourceDirs">$(BCB)\source\vcl</Debugging>
                 </Debugging>
                 <Parameters>
-                    <Parameters Name="RunParams"/>
-                    <Parameters Name="Launcher"/>
-                    <Parameters Name="UseLauncher">False</Parameters>
+                    <Parameters Name="Debug Symbols Search Path"/>
                     <Parameters Name="DebugCWD"/>
                     <Parameters Name="HostApplication"/>
-                    <Parameters Name="RemoteHost"/>
-                    <Parameters Name="RemotePath"/>
-                    <Parameters Name="RemoteParams"/>
-                    <Parameters Name="RemoteLauncher"/>
-                    <Parameters Name="UseRemoteLauncher">False</Parameters>
-                    <Parameters Name="RemoteCWD"/>
-                    <Parameters Name="RemoteDebug">False</Parameters>
-                    <Parameters Name="Debug Symbols Search Path"/>
+                    <Parameters Name="Launcher"/>
                     <Parameters Name="LoadAllSymbols">True</Parameters>
                     <Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
+                    <Parameters Name="RemoteCWD"/>
+                    <Parameters Name="RemoteDebug">False</Parameters>
+                    <Parameters Name="RemoteHost"/>
+                    <Parameters Name="RemoteLauncher"/>
+                    <Parameters Name="RemoteParams"/>
+                    <Parameters Name="RemotePath"/>
+                    <Parameters Name="RunParams"/>
+                    <Parameters Name="UseLauncher">False</Parameters>
+                    <Parameters Name="UseRemoteLauncher">False</Parameters>
                 </Parameters>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k290.bpl">Embarcadero C++Builder Office 2000 サーバー パッケージ</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp290.bpl">Embarcadero C++Builder Office XP サーバー パッケージ</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcboffice2k370.bpl">Embarcadero C++Builder Office 2000 サーバー パッケージ</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\bcbofficexp370.bpl">Embarcadero C++Builder Office XP サーバー パッケージ</Excluded_Packages>
                 </Excluded_Packages>
                 <Source>
                     <Source Name="MainSource">Cassava.cpp</Source>
                 </Source>
                 <ProjectProperties>
                     <ProjectProperties Name="AutoShowDeps">False</ProjectProperties>
+                    <ProjectProperties Name="IndexFiles">False</ProjectProperties>
                     <ProjectProperties Name="ManagePaths">True</ProjectProperties>
                     <ProjectProperties Name="VerifyPackages">True</ProjectProperties>
-                    <ProjectProperties Name="IndexFiles">False</ProjectProperties>
                 </ProjectProperties>
             </CPlusPlusBuilder.Personality>
             <Platforms>

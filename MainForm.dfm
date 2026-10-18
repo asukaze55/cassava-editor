@@ -196,61 +196,61 @@ object fmMain: TfmMain
         object mnOpenHistory0: TMenuItem
           Caption = '&0: ('#12394#12375')'
           Enabled = False
-          OnClick = mnOpenHistorysClick
+          OnClick = mnOpenHistoryClick
         end
         object mnOpenHistory1: TMenuItem
           Tag = 1
           Caption = '&1: ('#12394#12375')'
           Visible = False
-          OnClick = mnOpenHistorysClick
+          OnClick = mnOpenHistoryClick
         end
         object mnOpenHistory2: TMenuItem
           Tag = 2
           Caption = '&2: ('#12394#12375')'
           Visible = False
-          OnClick = mnOpenHistorysClick
+          OnClick = mnOpenHistoryClick
         end
         object mnOpenHistory3: TMenuItem
           Tag = 3
           Caption = '&3: ('#12394#12375')'
           Visible = False
-          OnClick = mnOpenHistorysClick
+          OnClick = mnOpenHistoryClick
         end
         object mnOpenHistory4: TMenuItem
           Tag = 4
           Caption = '&4: ('#12394#12375')'
           Visible = False
-          OnClick = mnOpenHistorysClick
+          OnClick = mnOpenHistoryClick
         end
         object mnOpenHistory5: TMenuItem
           Tag = 5
           Caption = '&5: ('#12394#12375')'
           Visible = False
-          OnClick = mnOpenHistorysClick
+          OnClick = mnOpenHistoryClick
         end
         object mnOpenHistory6: TMenuItem
           Tag = 6
           Caption = '&6: ('#12394#12375')'
           Visible = False
-          OnClick = mnOpenHistorysClick
+          OnClick = mnOpenHistoryClick
         end
         object mnOpenHistory7: TMenuItem
           Tag = 7
           Caption = '&7: ('#12394#12375')'
           Visible = False
-          OnClick = mnOpenHistorysClick
+          OnClick = mnOpenHistoryClick
         end
         object mnOpenHistory8: TMenuItem
           Tag = 8
           Caption = '&8: ('#12394#12375')'
           Visible = False
-          OnClick = mnOpenHistorysClick
+          OnClick = mnOpenHistoryClick
         end
         object mnOpenHistory9: TMenuItem
           Tag = 9
           Caption = '&9: ('#12394#12375')'
           Visible = False
-          OnClick = mnOpenHistorysClick
+          OnClick = mnOpenHistoryClick
         end
         object N8: TMenuItem
           Caption = '-'
@@ -594,12 +594,12 @@ object fmMain: TfmMain
         object mnTransChar4: TMenuItem
           Tag = 4
           Caption = #12459#12490#12434#21322#35282#12395#22793#25563'(&H)'
-          OnClick = mnTransKanaClick
+          OnClick = mnTransCharClick
         end
         object mnTransChar5: TMenuItem
           Tag = 5
           Caption = #12459#12490#12434#20840#35282#12395#22793#25563'(&F)'
-          OnClick = mnTransKanaClick
+          OnClick = mnTransCharClick
         end
       end
       object mnSequence: TMenuItem

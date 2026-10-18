@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+﻿//---------------------------------------------------------------------------
 #ifndef EncodedWriterH
 #define EncodedWriterH
 //---------------------------------------------------------------------------
@@ -11,7 +11,7 @@ private:
   bool Bom;
 public:
   EncodedWriter(TStream *s, TEncoding *encoding, bool bom);
-  void Write(String data);
+  void Write(const String& data);
   void SetEncoding(TEncoding *encoding);
 };
 //---------------------------------------------------------------------------
